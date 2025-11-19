@@ -139,10 +139,32 @@ function initMermaid() {
     function tryInit() {
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
-                startOnLoad: true,
+                startOnLoad: false, // We'll render manually
                 theme: 'default',
                 securityLevel: 'loose'
             });
+            
+            // Explicitly render all diagrams
+            const diagrams = document.querySelectorAll('.mermaid:not([data-processed])');
+            diagrams.forEach((diagram, index) => {
+                const id = `mermaid-${index}-${Date.now()}`;
+                diagram.setAttribute('data-processed', 'true');
+                
+                // Get the mermaid code from the div
+                const code = diagram.textContent.trim();
+                
+                // Render the diagram
+                mermaid.render(id, code).then((result) => {
+                    diagram.innerHTML = result.svg;
+                    if (result.bindFunctions) {
+                        result.bindFunctions(diagram);
+                    }
+                }).catch((error) => {
+                    console.error('Mermaid render error:', error);
+                    console.error('Diagram code:', code.substring(0, 100));
+                });
+            });
+            
             return true;
         }
         return false;
