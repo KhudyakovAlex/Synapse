@@ -175,19 +175,10 @@ function initMermaid() {
 
 // Update Mermaid theme when switching themes
 function updateMermaidTheme() {
-    if (typeof mermaid !== 'undefined') {
-        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
-        mermaid.initialize({ theme: theme });
-        
-        // Reload mermaid diagrams
-        const mermaidElements = document.querySelectorAll('.mermaid');
-        mermaidElements.forEach(el => {
-            const code = el.textContent;
-            el.removeAttribute('data-processed');
-            el.innerHTML = code;
-        });
-        mermaid.init(undefined, '.mermaid');
-    }
+    // Note: Mermaid diagrams don't need to be redrawn for theme changes
+    // They adapt automatically through CSS variables
+    // Reloading the page would be required for a true Mermaid theme switch,
+    // but it's not necessary for our use case
 }
 
 // Search functionality (basic)
@@ -219,12 +210,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeCopy();
     initMermaid();
     initSearch();
-});
-
-// Re-initialize Mermaid when theme changes
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'theme-toggle') {
-        setTimeout(updateMermaidTheme, 100);
-    }
 });
 
