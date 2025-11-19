@@ -136,11 +136,31 @@ function initCodeCopy() {
 
 // Initialize Mermaid diagrams
 function initMermaid() {
-    if (typeof mermaid !== 'undefined') {
-        mermaid.initialize({
-            startOnLoad: true,
-            theme: 'default'
-        });
+    function tryInit() {
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'default',
+                securityLevel: 'loose'
+            });
+            return true;
+        }
+        return false;
+    }
+    
+    // Try immediately
+    if (!tryInit()) {
+        // If Mermaid not loaded yet, wait for it
+        let attempts = 0;
+        const checkInterval = setInterval(() => {
+            attempts++;
+            if (tryInit() || attempts > 20) {
+                clearInterval(checkInterval);
+                if (attempts > 20) {
+                    console.warn('Mermaid library failed to load after 2 seconds');
+                }
+            }
+        }, 100);
     }
 }
 
@@ -158,20 +178,51 @@ function initMermaidFullscreen() {
     const content = fullscreen.querySelector('.mermaid-fullscreen-content');
     const closeBtn = fullscreen.querySelector('.mermaid-fullscreen-close');
     
-    // Add click handlers to all mermaid diagrams
-    document.querySelectorAll('.mermaid').forEach(diagram => {
-        diagram.addEventListener('click', () => {
-            // Clone the entire HTML of the diagram
-            const clone = document.createElement('div');
-            clone.innerHTML = diagram.outerHTML;
-            const clonedDiagram = clone.firstChild;
+    function addClickHandlers() {
+        // Find all rendered mermaid diagrams (they should have SVG inside)
+        const diagrams = document.querySelectorAll('.mermaid');
+        
+        diagrams.forEach(diagram => {
+            // Skip if already has click handler
+            if (diagram.dataset.hasClickHandler === 'true') return;
             
-            // Show fullscreen
-            content.innerHTML = '';
-            content.appendChild(clonedDiagram);
-            fullscreen.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Check if diagram has SVG (is rendered)
+            const svg = diagram.querySelector('svg');
+            if (!svg) return; // Skip if not rendered yet
+            
+            diagram.dataset.hasClickHandler = 'true';
+            diagram.style.cursor = 'pointer';
+            
+            diagram.addEventListener('click', () => {
+                // Clone the entire HTML of the diagram including SVG
+                const clone = document.createElement('div');
+                clone.innerHTML = diagram.outerHTML;
+                const clonedDiagram = clone.firstChild;
+                
+                // Show fullscreen
+                content.innerHTML = '';
+                content.appendChild(clonedDiagram);
+                fullscreen.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
         });
+    }
+    
+    // Try to add handlers immediately
+    addClickHandlers();
+    
+    // Also try after a delay in case Mermaid is still rendering
+    setTimeout(addClickHandlers, 500);
+    setTimeout(addClickHandlers, 1500);
+    
+    // Watch for new diagrams being added
+    const observer = new MutationObserver(() => {
+        addClickHandlers();
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
     });
     
     function closeFullscreen() {
@@ -226,10 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeCopy();
     initMermaid();
     
-    // Initialize fullscreen after a short delay to ensure Mermaid has rendered
+    // Initialize fullscreen after Mermaid has rendered all diagrams
+    // Mermaid needs time to process and render SVG
     setTimeout(() => {
         initMermaidFullscreen();
-    }, 500);
+    }, 2000);
     
     initSearch();
 });
