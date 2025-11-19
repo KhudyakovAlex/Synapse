@@ -243,8 +243,11 @@ function initMermaidZoom() {
     function openModal(diagram) {
         currentDiagram = diagram.cloneNode(true);
         currentDiagram.style.cursor = 'default';
-        currentDiagram.style.transform = 'scale(1)';
-        currentScale = 1;
+        
+        // Start with 1.5x zoom for better visibility
+        currentScale = 1.5;
+        currentDiagram.style.transform = `scale(${currentScale})`;
+        currentDiagram.style.transformOrigin = 'center';
         
         // Remove the hint from cloned diagram
         const hint = currentDiagram.querySelector('div[style*="pointer-events"]');
