@@ -215,18 +215,22 @@ function initMermaidZoom() {
         currentDiagram = diagram.cloneNode(true);
         currentDiagram.style.cursor = 'default';
         
-        // Reset scale to 1 - CSS will handle initial sizing to fill screen
-        currentScale = 1;
-        currentDiagram.style.transform = 'scale(1)';
-        currentDiagram.style.transformOrigin = 'center';
-        currentDiagram.style.transition = 'transform 0.3s ease';
-        
         // Remove the hint from cloned diagram
         const hint = currentDiagram.querySelector('div[style*="pointer-events"]');
         if (hint) hint.remove();
         
+        // Wrap diagram in a wrapper for proper scrolling
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mermaid-modal-wrapper';
+        wrapper.appendChild(currentDiagram);
+        
         modalContent.innerHTML = '';
-        modalContent.appendChild(currentDiagram);
+        modalContent.appendChild(wrapper);
+        
+        // Reset scale to 1
+        currentScale = 1;
+        currentDiagram.style.transform = 'scale(1)';
+        
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
@@ -254,14 +258,36 @@ function initMermaidZoom() {
         
         currentScale += delta;
         currentScale = Math.max(0.3, Math.min(currentScale, 5)); // Limit 0.3x to 5x for larger diagrams
+        
+        // Apply transform to diagram
         currentDiagram.style.transform = `scale(${currentScale})`;
-        currentDiagram.style.transformOrigin = 'center';
+        
+        // Adjust wrapper size to accommodate scaled content
+        const wrapper = currentDiagram.parentElement;
+        if (wrapper && wrapper.classList.contains('mermaid-modal-wrapper')) {
+            if (currentScale > 1) {
+                // Make wrapper larger when zoomed in to enable scrolling
+                wrapper.style.width = `${currentScale * 100}%`;
+                wrapper.style.height = `${currentScale * 100}%`;
+            } else {
+                // Reset to default when zoomed out
+                wrapper.style.width = '';
+                wrapper.style.height = '';
+            }
+        }
     }
     
     function resetZoom() {
         if (!currentDiagram) return;
         currentScale = 1;
         currentDiagram.style.transform = 'scale(1)';
+        
+        // Reset wrapper size
+        const wrapper = currentDiagram.parentElement;
+        if (wrapper && wrapper.classList.contains('mermaid-modal-wrapper')) {
+            wrapper.style.width = '';
+            wrapper.style.height = '';
+        }
     }
     
     // Event listeners

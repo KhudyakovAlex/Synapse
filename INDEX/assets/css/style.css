@@ -387,9 +387,6 @@ body {
     padding: 0;
     cursor: default;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .mermaid-modal-content.grabbing {
@@ -401,20 +398,27 @@ body {
     cursor: grab;
 }
 
-.mermaid-modal-content .mermaid {
-    width: 100%;
-    height: 100%;
+.mermaid-modal-wrapper {
+    min-width: 100%;
+    min-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+.mermaid-modal-content .mermaid {
     background: transparent;
     margin: 0;
-    padding: 0;
+    padding: 20px;
+    transform-origin: center center;
+    transition: transform 0.3s ease;
 }
 
 .mermaid-modal-content .mermaid svg {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90vw;
+    max-height: 90vh;
     width: auto !important;
     height: auto !important;
 }
