@@ -58,27 +58,6 @@
             width: auto !important;
             height: auto !important;
         }
-        
-        .back-link {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--accent-primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 0.9em;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .back-link:hover {
-            background: var(--accent-secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
     </style>
     <script>
         window.mermaid = {
@@ -90,8 +69,6 @@
     <script defer src="../assets/js/mermaid.min.js"></script>
 </head>
 <body>
-    <a href="SynapsePRD.html" class="back-link">← Назад</a>
-    
     <div class="diagram-container">
         <div class="mermaid">
 flowchart LR
