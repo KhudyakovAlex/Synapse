@@ -99,16 +99,18 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         const maxScale = 5;
         const scaleStep = 0.1;
         
-        // Pan with space + mouse drag
+        // Pan with mouse drag
         let isPanning = false;
         let startX = 0;
         let startY = 0;
         let scrollLeft = 0;
         let scrollTop = 0;
-        let spacePressed = false;
         
         document.addEventListener('DOMContentLoaded', () => {{
             const mermaid = document.querySelector('.mermaid');
+            
+            // Set cursor
+            document.body.style.cursor = 'grab';
             
             // Zoom with wheel
             document.addEventListener('wheel', (e) => {{
@@ -123,34 +125,15 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                 mermaid.style.transform = `scale(${{currentScale}})`;
             }}, {{ passive: false }});
             
-            // Track spacebar
-            document.addEventListener('keydown', (e) => {{
-                if (e.code === 'Space' && !spacePressed) {{
-                    spacePressed = true;
-                    document.body.style.cursor = 'grab';
-                    e.preventDefault();
-                }}
-            }});
-            
-            document.addEventListener('keyup', (e) => {{
-                if (e.code === 'Space') {{
-                    spacePressed = false;
-                    isPanning = false;
-                    document.body.style.cursor = 'default';
-                }}
-            }});
-            
             // Pan with mouse
             document.addEventListener('mousedown', (e) => {{
-                if (spacePressed) {{
-                    isPanning = true;
-                    document.body.style.cursor = 'grabbing';
-                    startX = e.pageX - document.documentElement.scrollLeft;
-                    startY = e.pageY - document.documentElement.scrollTop;
-                    scrollLeft = document.documentElement.scrollLeft;
-                    scrollTop = document.documentElement.scrollTop;
-                    e.preventDefault();
-                }}
+                isPanning = true;
+                document.body.style.cursor = 'grabbing';
+                startX = e.pageX - document.documentElement.scrollLeft;
+                startY = e.pageY - document.documentElement.scrollTop;
+                scrollLeft = document.documentElement.scrollLeft;
+                scrollTop = document.documentElement.scrollTop;
+                e.preventDefault();
             }});
             
             document.addEventListener('mousemove', (e) => {{
@@ -167,7 +150,7 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             document.addEventListener('mouseup', () => {{
                 if (isPanning) {{
                     isPanning = false;
-                    document.body.style.cursor = spacePressed ? 'grab' : 'default';
+                    document.body.style.cursor = 'grab';
                 }}
             }});
         }});
