@@ -74,11 +74,11 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             justify-content: center;
             width: 100%;
             height: 100%;
+            transform: scale(1.5);
+            transform-origin: center center;
         }}
         
         .mermaid svg {{
-            max-width: 100%;
-            max-height: 100%;
             width: auto !important;
             height: auto !important;
         }}
