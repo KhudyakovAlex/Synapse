@@ -1,0 +1,230 @@
+// ========================================
+// Synapse Documentation - Main JavaScript
+// ========================================
+
+// Theme Toggle
+function initThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeButton(savedTheme);
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        });
+    }
+}
+
+function updateThemeButton(theme) {
+    const button = document.getElementById('theme-toggle');
+    if (button) {
+        button.textContent = theme === 'light' ? '🌙 Тёмная' : '☀️ Светлая';
+    }
+}
+
+// Generate Table of Contents from headings
+function generateTOC() {
+    const content = document.querySelector('.content');
+    const sidebar = document.querySelector('.sidebar ul');
+    
+    if (!content || !sidebar) return;
+    
+    const headings = content.querySelectorAll('h2, h3');
+    
+    if (headings.length === 0) return;
+    
+    // Clear existing TOC (except the first "Навигация" item if present)
+    const navItems = sidebar.querySelectorAll('li');
+    navItems.forEach((item, index) => {
+        if (index > 0) item.remove();
+    });
+    
+    headings.forEach((heading, index) => {
+        // Add ID to heading if it doesn't have one
+        if (!heading.id) {
+            heading.id = `section-${index}`;
+        }
+        
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${heading.id}`;
+        a.textContent = heading.textContent;
+        
+        // Indent h3 more than h2
+        if (heading.tagName === 'H3') {
+            a.style.paddingLeft = '20px';
+            a.style.fontSize = '0.9em';
+        }
+        
+        li.appendChild(a);
+        sidebar.appendChild(li);
+    });
+    
+    // Highlight current section on scroll
+    window.addEventListener('scroll', highlightCurrentSection);
+}
+
+// Highlight active section in TOC
+function highlightCurrentSection() {
+    const sections = document.querySelectorAll('.content h2, .content h3');
+    const tocLinks = document.querySelectorAll('.sidebar ul li a');
+    
+    let currentSection = null;
+    
+    sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.top >= -rect.height) {
+            currentSection = section.id;
+        }
+    });
+    
+    tocLinks.forEach(link => {
+        const li = link.parentElement;
+        if (link.getAttribute('href') === `#${currentSection}`) {
+            li.classList.add('active');
+        } else {
+            li.classList.remove('active');
+        }
+    });
+}
+
+// Smooth scroll to anchor links
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').slice(1);
+            const target = document.getElementById(targetId);
+            
+            if (target) {
+                const offsetTop = target.offsetTop - 100; // Account for sticky header
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+// Copy code blocks to clipboard
+function initCodeCopy() {
+    const codeBlocks = document.querySelectorAll('pre code');
+    
+    codeBlocks.forEach(block => {
+        const pre = block.parentElement;
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.textContent = '📋 Копировать';
+        button.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+        
+        pre.style.position = 'relative';
+        pre.appendChild(button);
+        
+        pre.addEventListener('mouseenter', () => {
+            button.style.opacity = '1';
+        });
+        
+        pre.addEventListener('mouseleave', () => {
+            button.style.opacity = '0';
+        });
+        
+        button.addEventListener('click', () => {
+            const text = block.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✅ Скопировано!';
+                setTimeout(() => {
+                    button.textContent = '📋 Копировать';
+                }, 2000);
+            });
+        });
+    });
+}
+
+// Initialize Mermaid diagrams
+function initMermaid() {
+    if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+        });
+    }
+}
+
+// Update Mermaid theme when switching themes
+function updateMermaidTheme() {
+    if (typeof mermaid !== 'undefined') {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
+        mermaid.initialize({ theme: theme });
+        
+        // Reload mermaid diagrams
+        const mermaidElements = document.querySelectorAll('.mermaid');
+        mermaidElements.forEach(el => {
+            const code = el.textContent;
+            el.removeAttribute('data-processed');
+            el.innerHTML = code;
+        });
+        mermaid.init(undefined, '.mermaid');
+    }
+}
+
+// Search functionality (basic)
+function initSearch() {
+    const searchInput = document.getElementById('search-input');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const content = document.querySelector('.content');
+            
+            if (!query) {
+                // Remove highlights
+                content.innerHTML = content.innerHTML.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+                return;
+            }
+            
+            // Simple search highlighting (can be improved)
+            // This is a basic implementation
+        });
+    }
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initThemeToggle();
+    generateTOC();
+    initSmoothScroll();
+    initCodeCopy();
+    initMermaid();
+    initSearch();
+});
+
+// Re-initialize Mermaid when theme changes
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'theme-toggle') {
+        setTimeout(updateMermaidTheme, 100);
+    }
+});
+

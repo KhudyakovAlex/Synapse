@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse - Документация проекта</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+        
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-card .label {
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+        
+        .section {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+        
+        .section h2 {
+            color: var(--text-primary);
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--accent-primary);
+        }
+        
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .doc-card {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            border-left: 4px solid var(--accent-primary);
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .doc-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px var(--shadow);
+        }
+        
+        .doc-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .doc-card .title {
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .doc-card .description {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        .doc-card.featured {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+        }
+        
+        .doc-card.featured .title,
+        .doc-card.featured .description {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <h1><a href="index.html">🔆 Synapse Docs</a></h1>
+            <nav class="header-nav">
+                <a href="../index.html">Главная (старая)</a>
+                <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank">GitHub</a>
+                <button id="theme-toggle" class="theme-toggle">🌙 Тёмная</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+        <div class="hero">
+            <h1>🔆 Synapse</h1>
+            <p>Документация системы управления освещением</p>
+            <p style="font-size: 1em; margin-top: 15px; opacity: 0.9;">
+                Интеллектуальная система на базе протокола DALI с поддержкой автоматизации, 
+                расписаний, датчиков и интеграцией с LLM
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number">1</div>
+                <div class="label">PRD документ</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">5</div>
+                <div class="label">PDS документов</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">11</div>
+                <div class="label">Таблиц БД</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">DALI</div>
+                <div class="label">Протокол связи</div>
+            </div>
+        </div>
+
+        <!-- PRD Section -->
+        <div class="section">
+            <h2>📋 Product Requirements Document (PRD)</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                Основной документ с требованиями к продукту, описанием функционала, 
+                пользовательских сценариев и архитектуры системы.
+            </p>
+            
+            <div class="doc-grid">
+                <a href="PRD/SynapsePRD.html" class="doc-card featured">
+                    <div class="icon">📄</div>
+                    <div class="title">SynapsePRD</div>
+                    <div class="description">
+                        Полное описание продукта: концепция, функционал, архитектура, 
+                        пользовательские сценарии (558 строк)
+                    </div>
+                </a>
+
+                <a href="PRD/Идеи.html" class="doc-card">
+                    <div class="icon">💡</div>
+                    <div class="title">Идеи</div>
+                    <div class="description">
+                        Дополнительные идеи и возможные направления развития проекта
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- PDS Section -->
+        <div class="section">
+            <h2>🏗️ Product Design Specification (PDS)</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                Техническая спецификация системы с детальным описанием компонентов, 
+                базы данных, прошивки и интеграций.
+            </p>
+
+            <h3 style="color: var(--accent-primary); margin: 30px 0 15px 0;">💾 База данных</h3>
+            <div class="doc-grid">
+                <a href="PDS/SynapsePDS_DB.html" class="doc-card">
+                    <div class="icon">🗄️</div>
+                    <div class="title">SynapsePDS_DB</div>
+                    <div class="description">
+                        Описание структуры базы данных, таблиц и их назначения (11 таблиц)
+                    </div>
+                </a>
+
+                <a href="PDS/db_schema_mermaid.html" class="doc-card">
+                    <div class="icon">🔷</div>
+                    <div class="title">Схема БД (Mermaid ERD)</div>
+                    <div class="description">
+                        Entity Relationship Diagram с визуализацией связей между таблицами
+                    </div>
+                </a>
+            </div>
+
+            <h3 style="color: var(--accent-primary); margin: 30px 0 15px 0;">📱 Приложение</h3>
+            <div class="doc-grid">
+                <a href="PDS/SynapsePDS_APP.html" class="doc-card">
+                    <div class="icon">📱</div>
+                    <div class="title">SynapsePDS_APP</div>
+                    <div class="description">
+                        Спецификация мобильного приложения и его функционала
+                    </div>
+                </a>
+
+                <a href="PDS/SynapsePDS_APP_UI.html" class="doc-card">
+                    <div class="icon">🎨</div>
+                    <div class="title">SynapsePDS_APP_UI</div>
+                    <div class="description">
+                        Описание пользовательского интерфейса приложения
+                    </div>
+                </a>
+            </div>
+
+            <h3 style="color: var(--accent-primary); margin: 30px 0 15px 0;">⚙️ Прошивка и интеграции</h3>
+            <div class="doc-grid">
+                <a href="PDS/SynapsePDS_FW.html" class="doc-card">
+                    <div class="icon">⚡</div>
+                    <div class="title">SynapsePDS_FW</div>
+                    <div class="description">
+                        Спецификация прошивки контроллера и работы с протоколом DALI
+                    </div>
+                </a>
+
+                <a href="PDS/SynapsePDS_LLM.html" class="doc-card">
+                    <div class="icon">🤖</div>
+                    <div class="title">SynapsePDS_LLM</div>
+                    <div class="description">
+                        Интеграция с Large Language Models для голосового управления
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Process Section -->
+        <div class="section">
+            <h2>🔄 Процесс разработки</h2>
+            
+            <div style="background: var(--bg-primary); padding: 25px; border-radius: 10px; margin-top: 20px;">
+                <h3 style="color: var(--accent-primary); margin-top: 0;">Текущий статус</h3>
+                <p><strong>Этап:</strong> Проектирование и документирование</p>
+                <p><strong>Дата начала:</strong> 19 ноября 2025</p>
+                <p><strong>Последнее обновление:</strong> 19 ноября 2025</p>
+            </div>
+
+            <div style="margin-top: 30px; padding: 25px; background: var(--bg-primary); border-radius: 10px;">
+                <h3 style="margin-top: 0;">Этапы разработки:</h3>
+                <ol style="line-height: 2; padding-left: 30px;">
+                    <li style="color: #4caf50;">✅ <strong>PRD</strong> — Определение требований к продукту</li>
+                    <li style="color: #4caf50;">✅ <strong>PDS</strong> — Техническое проектирование</li>
+                    <li style="color: #4caf50;">✅ <strong>Database Design</strong> — Проектирование структуры БД</li>
+                    <li style="color: var(--text-secondary);">⏳ <strong>Backend Development</strong> — Разработка серверной части</li>
+                    <li style="color: var(--text-secondary);">⏳ <strong>Firmware Development</strong> — Разработка прошивки контроллера</li>
+                    <li style="color: var(--text-secondary);">⏳ <strong>Mobile App</strong> — Разработка мобильного приложения</li>
+                    <li style="color: var(--text-secondary);">⏳ <strong>Testing & QA</strong> — Тестирование и контроль качества</li>
+                    <li style="color: var(--text-secondary);">⏳ <strong>Release</strong> — Релиз версии 1.0</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            <strong>Synapse Project</strong> © 2025 | 
+            <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank">GitHub</a> | 
+            <a href="../index.html">Старая версия</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            Автоматизированная система управления освещением на базе DALI
+        </p>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
+
