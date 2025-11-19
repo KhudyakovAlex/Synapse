@@ -158,51 +158,26 @@ function initMermaidFullscreen() {
     const content = fullscreen.querySelector('.mermaid-fullscreen-content');
     const closeBtn = fullscreen.querySelector('.mermaid-fullscreen-close');
     
-    let currentDiagram = null;
-    let originalParent = null;
-    let originalNextSibling = null;
-    
     // Add click handlers to all mermaid diagrams
     document.querySelectorAll('.mermaid').forEach(diagram => {
         diagram.addEventListener('click', () => {
-            // Save original position
-            originalParent = diagram.parentElement;
-            originalNextSibling = diagram.nextSibling;
-            currentDiagram = diagram;
+            // Clone the entire HTML of the diagram
+            const clone = document.createElement('div');
+            clone.innerHTML = diagram.outerHTML;
+            const clonedDiagram = clone.firstChild;
             
-            // Save ALL original inline styles
-            currentDiagram.dataset.originalStyle = currentDiagram.getAttribute('style') || '';
-            
-            // Move diagram to fullscreen
+            // Show fullscreen
             content.innerHTML = '';
-            content.appendChild(currentDiagram);
+            content.appendChild(clonedDiagram);
             fullscreen.classList.add('active');
             document.body.style.overflow = 'hidden';
         });
     });
     
     function closeFullscreen() {
-        if (currentDiagram && originalParent) {
-            // Restore ALL original styles
-            if (currentDiagram.dataset.originalStyle) {
-                currentDiagram.setAttribute('style', currentDiagram.dataset.originalStyle);
-            } else {
-                currentDiagram.removeAttribute('style');
-            }
-            
-            // Move diagram back to original position
-            if (originalNextSibling) {
-                originalParent.insertBefore(currentDiagram, originalNextSibling);
-            } else {
-                originalParent.appendChild(currentDiagram);
-            }
-        }
-        
         fullscreen.classList.remove('active');
         document.body.style.overflow = 'auto';
-        currentDiagram = null;
-        originalParent = null;
-        originalNextSibling = null;
+        content.innerHTML = '';
     }
     
     // Close handlers
