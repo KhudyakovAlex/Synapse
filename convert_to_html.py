@@ -184,7 +184,8 @@ class MarkdownConverter:
     def convert_line_breaks(self, text: str) -> str:
         """Convert markdown line breaks (two spaces at end of line) to <br>"""
         # Two spaces + newline = <br>
-        text = re.sub(r'  \n', '<br>\n', text)
+        # Support both Unix (\n) and Windows (\r\n) line endings
+        text = re.sub(r'  \r?\n', '<br>\n', text)
         return text
     
     def convert_paragraphs(self, text: str) -> str:
