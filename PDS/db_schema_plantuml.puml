@@ -1,0 +1,282 @@
+@startuml Synapse Database Schema
+
+' Настройки отображения
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+
+' Цветовая схема
+skinparam entity {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+  FontSize 11
+}
+
+' ============================================
+' CONTROLLER - настройки контроллера
+' ============================================
+entity "CONTROLLER" as controller {
+  --Основные--
+  **NAME** : VARCHAR(255)
+  **PASSWORD** : CHAR(4) <<unique>>
+  **IS_SCHEDULE** : BOOLEAN
+  --Интерфейсные--
+  ICO_NUM : INT
+}
+
+' ============================================
+' LOCATIONS - локации/помещения
+' ============================================
+entity "LOCATIONS" as locations {
+  * **NUM** : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  **IS_AUTO** : BOOLEAN
+  SCALE : INT CHECK(1..3)
+  POS : INT CHECK(0..255)
+  ICO_NUM : INT
+  --
+  indexes:
+  PK_locations(NUM)
+}
+
+' ============================================
+' GROUPS - группы светильников
+' ============================================
+entity "GROUPS" as groups {
+  * ID : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  **DALI_NUM** : INT
+  * **LOCATION_ID** : INT <<FK>>
+  --
+  indexes:
+  PK_groups(ID)
+  FK_groups_location(LOCATION_ID)
+  IDX_dali_num(DALI_NUM)
+}
+
+' ============================================
+' LUMINAIRES - светильники
+' ============================================
+entity "LUMINAIRES" as luminaires {
+  * ID : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  * **DALI_ADDR** : INT <<unique>>
+  * **LOCATION_ID** : INT <<FK>>
+  **GROUP_ID** : INT <<FK, nullable>>
+  POS_X : INT CHECK(0..255)
+  POS_Y : INT CHECK(0..255)
+  ICO_NUM : INT
+  --
+  indexes:
+  PK_luminaires(ID)
+  FK_luminaires_location(LOCATION_ID)
+  FK_luminaires_group(GROUP_ID)
+  UK_dali_addr(DALI_ADDR)
+}
+
+' ============================================
+' PRES_SENSORS - датчики присутствия
+' ============================================
+entity "PRES_SENSORS" as pres_sensors {
+  * ID : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  * **DALI_ADDR** : INT
+  * **DALI_INST** : INT
+  * **LOCATION_ID** : INT <<FK>>
+  * **DELAY** : INT
+  --
+  indexes:
+  PK_pres_sensors(ID)
+  FK_pres_sensors_location(LOCATION_ID)
+  UK_dali_sensor(DALI_ADDR, DALI_INST)
+}
+
+' ============================================
+' BRIGHT_SENSORS - датчики освещённости
+' ============================================
+entity "BRIGHT_SENSORS" as bright_sensors {
+  * ID : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  * **DALI_ADDR** : INT
+  * **DALI_INST** : INT
+  * **LOCATION_ID** : INT <<FK>>
+  * **GROUP_ID** : INT <<FK>>
+  --
+  indexes:
+  PK_bright_sensors(ID)
+  FK_bright_sensors_location(LOCATION_ID)
+  FK_bright_sensors_group(GROUP_ID)
+  UK_dali_sensor(DALI_ADDR, DALI_INST)
+}
+
+' ============================================
+' BUTTON_PANELS - кнопочные панели
+' ============================================
+entity "BUTTON_PANELS" as button_panels {
+  * ID : INT <<PK>>
+  ==
+  NAME : VARCHAR(255)
+  * **DALI_ADDR** : INT <<unique>>
+  * **LOCATION_ID** : INT <<FK>>
+  --
+  indexes:
+  PK_button_panels(ID)
+  FK_button_panels_location(LOCATION_ID)
+  UK_dali_addr(DALI_ADDR)
+}
+
+' ============================================
+' BUTTONS - кнопки на панелях
+' ============================================
+entity "BUTTONS" as buttons {
+  * ID : INT <<PK>>
+  ==
+  * NUM : INT
+  * **BUTTON_PANEL_ID** : INT <<FK>>
+  * **DALI_INST** : INT
+  * **ACTION_ID** : INT <<FK>>
+  --
+  indexes:
+  PK_buttons(ID)
+  FK_buttons_panel(BUTTON_PANEL_ID)
+  FK_buttons_action(ACTION_ID)
+  UK_panel_num(BUTTON_PANEL_ID, NUM)
+}
+
+' ============================================
+' ACTIONS - действия с устройствами
+' ============================================
+entity "ACTIONS" as actions {
+  * ID : INT <<PK>>
+  ==
+  **GROUP_ID** : INT <<FK, nullable>>
+  **LUMINAIRE_ID** : INT <<FK, nullable>>
+  **SCENE_ID** : INT <<FK, nullable>>
+  **VAL_BRIGHT** : INT CHECK(0..255)
+  **VAL_TW** : INT
+  **VAL_R** : INT CHECK(0..255)
+  **VAL_G** : INT CHECK(0..255)
+  **VAL_B** : INT CHECK(0..255)
+  **VAL_W** : INT CHECK(0..255)
+  --
+  indexes:
+  PK_actions(ID)
+  FK_actions_group(GROUP_ID)
+  FK_actions_luminaire(LUMINAIRE_ID)
+  FK_actions_scene(SCENE_ID)
+  --
+  constraints:
+  CHECK: ONE OF (GROUP_ID, LUMINAIRE_ID, SCENE_ID) NOT NULL
+}
+
+' ============================================
+' EVENTS - события расписания
+' ============================================
+entity "EVENTS" as events {
+  * ID : INT <<PK>>
+  ==
+  * **DATE_EVERYDAY** : BOOLEAN
+  **DATE_DAYS** : CHAR(7)
+  **DATE_SPECIFIC** : DATE
+  * **TIME** : TIME
+  * **SMOOTH** : BOOLEAN
+  * **ACTION_ID** : INT <<FK, unique>>
+  --
+  indexes:
+  PK_events(ID)
+  FK_events_action(ACTION_ID)
+  IDX_time(TIME)
+  --
+  constraints:
+  CHECK: ONE OF (DATE_EVERYDAY, DATE_DAYS, DATE_SPECIFIC) NOT NULL
+}
+
+' ============================================
+' SCENES - световые сцены
+' ============================================
+entity "SCENES" as scenes {
+  * ID : INT <<PK>>
+  ==
+  * NAME : VARCHAR(255)
+  --
+  indexes:
+  PK_scenes(ID)
+}
+
+' ============================================
+' СВЯЗИ (RELATIONSHIPS)
+' ============================================
+
+' Locations -> все устройства
+locations ||--o{ luminaires : "содержит"
+locations ||--o{ groups : "содержит"
+locations ||--o{ pres_sensors : "содержит"
+locations ||--o{ bright_sensors : "содержит"
+locations ||--o{ button_panels : "содержит"
+
+' Groups -> Luminaires
+groups ||--o{ luminaires : "объединяет"
+
+' Groups <-> Sensors & Actions
+groups ||--o{ bright_sensors : "управляется"
+groups ||--o{ actions : "целевая группа"
+
+' Luminaires -> Actions
+luminaires ||--o{ actions : "целевой светильник"
+
+' Scenes -> Actions
+scenes ||--o{ actions : "использует"
+
+' Button Panels -> Buttons
+button_panels ||--o{ buttons : "содержит"
+
+' Actions <- Buttons & Events
+actions ||--o{ buttons : "выполняет"
+actions ||--|| events : "выполняет"
+
+' ============================================
+' ЛЕГЕНДА
+' ============================================
+legend right
+  |= Обозначения |
+  | **Жирный текст** | Рабочие поля (для прошивки) |
+  | Обычный текст | Интерфейсные поля (для приложения) |
+  | <<PK>> | Первичный ключ |
+  | <<FK>> | Внешний ключ |
+  | <<unique>> | Уникальное значение |
+  | <<nullable>> | Может быть NULL |
+  
+  |= Связи |
+  | \|\|--o{ | Один ко многим |
+  | \|\|--\|\| | Один к одному |
+endlegend
+
+note top of controller
+  **Особенность:** Таблица содержит только одну запись
+  (настройки текущего контроллера)
+end note
+
+note top of actions
+  **Бизнес-логика:** 
+  Действие должно ссылаться ровно на ОДИН из:
+  - GROUP_ID (действие на группу)
+  - LUMINAIRE_ID (действие на светильник)
+  - SCENE_ID (активация сцены)
+end note
+
+note top of events
+  **Бизнес-логика:**
+  Событие должно иметь ОДИН из типов даты:
+  - DATE_EVERYDAY = TRUE (каждый день)
+  - DATE_DAYS = 'FFTFFFF' (по дням недели)
+  - DATE_SPECIFIC (конкретная дата)
+end note
+
+@enduml
+

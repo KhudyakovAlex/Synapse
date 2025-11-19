@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse - Схема базы данных</title>
+    
+    <!-- Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            er: {
+                useMaxWidth: true
+            }
+        });
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .info-box p, .info-box ul {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+
+        .plantuml-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .plantuml-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .plantuml-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .plantuml-link:hover {
+            transform: scale(1.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .legend-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .legend-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Synapse Database Schema</h1>
+            <p>Схема базы данных системы управления освещением</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('overview')">📊 Обзор</button>
+            <button class="tab-button" onclick="showTab('mermaid')">🔷 Mermaid ERD</button>
+            <button class="tab-button" onclick="showTab('plantuml')">📐 PlantUML</button>
+            <button class="tab-button" onclick="showTab('tables')">📋 Таблицы</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <h2>📖 Описание базы данных</h2>
+            
+            <div class="info-box">
+                <h3>Общая информация</h3>
+                <p>База данных системы Synapse предназначена для управления освещением через протокол DALI. Данные делятся на два типа:</p>
+                <ul>
+                    <li><strong>Рабочие</strong> — необходимые для организации работы освещения в прошивке и приложении</li>
+                    <li><strong>Интерфейсные</strong> — используемые только приложением для UI/UX</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>Основные сущности</h3>
+                <div class="legend">
+                    <div class="legend-item">
+                        <strong>CONTROLLER</strong>
+                        Настройки контроллера (одна запись)
+                    </div>
+                    <div class="legend-item">
+                        <strong>LOCATIONS</strong>
+                        Помещения/локации
+                    </div>
+                    <div class="legend-item">
+                        <strong>GROUPS</strong>
+                        Группы светильников
+                    </div>
+                    <div class="legend-item">
+                        <strong>LUMINAIRES</strong>
+                        Отдельные светильники
+                    </div>
+                    <div class="legend-item">
+                        <strong>PRES_SENSORS</strong>
+                        Датчики присутствия
+                    </div>
+                    <div class="legend-item">
+                        <strong>BRIGHT_SENSORS</strong>
+                        Датчики освещённости
+                    </div>
+                    <div class="legend-item">
+                        <strong>BUTTON_PANELS</strong>
+                        Кнопочные панели
+                    </div>
+                    <div class="legend-item">
+                        <strong>BUTTONS</strong>
+                        Отдельные кнопки
+                    </div>
+                    <div class="legend-item">
+                        <strong>ACTIONS</strong>
+                        Действия (яркость, цвет и т.д.)
+                    </div>
+                    <div class="legend-item">
+                        <strong>EVENTS</strong>
+                        События расписания
+                    </div>
+                    <div class="legend-item">
+                        <strong>SCENES</strong>
+                        Световые сцены
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Ключевые связи</h3>
+                <ul>
+                    <li>Все устройства привязаны к <strong>LOCATIONS</strong> (локациям)</li>
+                    <li>Светильники могут быть объединены в <strong>GROUPS</strong> (группы)</li>
+                    <li>Датчики освещённости управляют группами светильников</li>
+                    <li>Кнопки и события расписания выполняют <strong>ACTIONS</strong> (действия)</li>
+                    <li>Действия могут применяться к группам, отдельным светильникам или сценам</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mermaid Tab -->
+        <div id="mermaid" class="tab-content">
+            <h2>🔷 Mermaid Entity Relationship Diagram</h2>
+            
+            <div class="info-box">
+                <h3>О диаграмме</h3>
+                <p>ERD диаграмма показывает структуру базы данных и связи между таблицами. Эта диаграмма создана с помощью Mermaid.js и автоматически отображается на GitHub.</p>
+            </div>
+
+            <div class="mermaid">
+erDiagram
+    CONTROLLER {
+        string NAME "название контроллера"
+        string PASSWORD "пинкод 4 цифры"
+        boolean IS_SCHEDULE "включено расписание"
+        int ICO_NUM "номер иконки"
+    }
+
+    LOCATIONS {
+        int NUM PK "порядковый номер"
+        string NAME "название локации"
+        int ICO_NUM "номер иконки"
+        boolean IS_AUTO "автоматический режим"
+        int SCALE "масштаб сетки 1-3"
+        int POS "позиция в списке 0-255"
+    }
+
+    GROUPS {
+        int ID PK
+        string NAME "название группы"
+        int DALI_NUM "номер группы в DALI"
+        int LOCATION_ID FK "идентификатор локации"
+    }
+
+    LUMINAIRES {
+        int ID PK
+        string NAME "название светильника"
+        int DALI_ADDR "короткий адрес DALI"
+        int LOCATION_ID FK "идентификатор локации"
+        int GROUP_ID FK "идентификатор группы nullable"
+        int ICO_NUM "номер иконки"
+        int POS_X "колонка 0-255"
+        int POS_Y "ряд 0-255"
+    }
+
+    PRES_SENSORS {
+        int ID PK
+        string NAME "название датчика"
+        int DALI_ADDR "короткий адрес DALI"
+        int DALI_INST "номер инстанса"
+        int LOCATION_ID FK "идентификатор локации"
+        int DELAY "задержка выключения сек"
+    }
+
+    BRIGHT_SENSORS {
+        int ID PK
+        string NAME "название датчика"
+        int DALI_ADDR "короткий адрес DALI"
+        int DALI_INST "номер инстанса"
+        int LOCATION_ID FK "идентификатор локации"
+        int GROUP_ID FK "управляемая группа"
+    }
+
+    BUTTON_PANELS {
+        int ID PK
+        string NAME "название панели"
+        int DALI_ADDR "короткий адрес DALI"
+        int LOCATION_ID FK "идентификатор локации"
+    }
+
+    BUTTONS {
+        int ID PK
+        int NUM "номер кнопки на панели"
+        int BUTTON_PANEL_ID FK "идентификатор панели"
+        int DALI_INST "номер инстанса"
+        int ACTION_ID FK "действие по нажатию"
+    }
+
+    ACTIONS {
+        int ID PK
+        int GROUP_ID FK "группа nullable"
+        int LUMINAIRE_ID FK "светильник nullable"
+        int SCENE_ID FK "сцена nullable"
+        int VAL_BRIGHT "яркость"
+        int VAL_TW "температура белого"
+        int VAL_R "красный RGB"
+        int VAL_G "зеленый RGB"
+        int VAL_B "синий RGB"
+        int VAL_W "белый RGBW"
+    }
+
+    EVENTS {
+        int ID PK
+        boolean DATE_EVERYDAY "ежедневное"
+        string DATE_DAYS "по дням недели"
+        date DATE_SPECIFIC "конкретная дата"
+        time TIME "время события"
+        boolean SMOOTH "плавное изменение"
+        int ACTION_ID FK "идентификатор действия"
+    }
+
+    SCENES {
+        int ID PK
+        string NAME "название сцены"
+    }
+
+    LOCATIONS ||--o{ LUMINAIRES : "содержит"
+    LOCATIONS ||--o{ GROUPS : "содержит"
+    LOCATIONS ||--o{ PRES_SENSORS : "содержит"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "содержит"
+    LOCATIONS ||--o{ BUTTON_PANELS : "содержит"
+    GROUPS ||--o{ LUMINAIRES : "объединяет"
+    GROUPS ||--o{ BRIGHT_SENSORS : "управляется"
+    GROUPS ||--o{ ACTIONS : "управляет"
+    LUMINAIRES ||--o{ ACTIONS : "управляет"
+    BUTTON_PANELS ||--o{ BUTTONS : "содержит"
+    ACTIONS ||--o{ BUTTONS : "выполняется"
+    ACTIONS ||--o{ EVENTS : "выполняется"
+    SCENES ||--o{ ACTIONS : "использует"
+            </div>
+        </div>
+
+        <!-- PlantUML Tab -->
+        <div id="plantuml" class="tab-content">
+            <h2>📐 PlantUML Detailed Schema</h2>
+            
+            <div class="info-box">
+                <h3>О диаграмме</h3>
+                <p>Детальная схема базы данных с типами полей, индексами и constraints. Для просмотра используйте один из способов:</p>
+                <ul>
+                    <li>VS Code с расширением "PlantUML"</li>
+                    <li>Онлайн на сайте PlantUML</li>
+                    <li>Экспорт в PNG/SVG через команду: <code>plantuml db_schema_plantuml.puml</code></li>
+                </ul>
+            </div>
+
+            <div class="plantuml-container">
+                <a href="https://www.plantuml.com/plantuml/uml/" target="_blank" class="plantuml-link">
+                    🔗 Открыть PlantUML Editor
+                </a>
+                <p style="margin: 20px 0; color: #666;">
+                    Скопируйте содержимое файла <code>db_schema_plantuml.puml</code> в PlantUML Editor для просмотра диаграммы
+                </p>
+                
+                <div class="info-box">
+                    <h3>Что включено в PlantUML схему:</h3>
+                    <ul>
+                        <li>✅ Полные определения таблиц с типами данных</li>
+                        <li>✅ Первичные и внешние ключи</li>
+                        <li>✅ Уникальные ограничения</li>
+                        <li>✅ CHECK constraints</li>
+                        <li>✅ Индексы</li>
+                        <li>✅ Бизнес-логика в комментариях</li>
+                        <li>✅ Легенда с обозначениями</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Tab -->
+        <div id="tables" class="tab-content">
+            <h2>📋 Описание таблиц</h2>
+
+            <h3 style="margin-top: 30px; color: #667eea;">CONTROLLER</h3>
+            <p><em>Настройки контроллера (одна запись)</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                </tr>
+                <tr>
+                    <td><strong>NAME</strong></td>
+                    <td>VARCHAR</td>
+                    <td>Название контроллера</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td><strong>PASSWORD</strong></td>
+                    <td>CHAR(4)</td>
+                    <td>Пинкод (4 цифры)</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td><strong>IS_SCHEDULE</strong></td>
+                    <td>BOOLEAN</td>
+                    <td>Включено расписание</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td>ICO_NUM</td>
+                    <td>INT</td>
+                    <td>Номер иконки</td>
+                    <td>Интерфейсное</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 30px; color: #667eea;">LOCATIONS</h3>
+            <p><em>Локации/помещения</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                </tr>
+                <tr>
+                    <td>NUM</td>
+                    <td>INT (PK)</td>
+                    <td>Порядковый номер локации</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>NAME</td>
+                    <td>VARCHAR</td>
+                    <td>Название локации</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td>ICO_NUM</td>
+                    <td>INT</td>
+                    <td>Номер иконки</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td><strong>IS_AUTO</strong></td>
+                    <td>BOOLEAN</td>
+                    <td>Автоматический режим по датчикам</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td>SCALE</td>
+                    <td>INT (1-3)</td>
+                    <td>Масштаб сетки</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td>POS</td>
+                    <td>INT (0-255)</td>
+                    <td>Позиция в списке</td>
+                    <td>Интерфейсное</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 30px; color: #667eea;">GROUPS</h3>
+            <p><em>Группы светильников</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>INT (PK)</td>
+                    <td>Идентификатор</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>NAME</td>
+                    <td>VARCHAR</td>
+                    <td>Название группы</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td><strong>DALI_NUM</strong></td>
+                    <td>INT</td>
+                    <td>Номер группы в DALI</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td><strong>LOCATION_ID</strong></td>
+                    <td>INT (FK)</td>
+                    <td>Идентификатор локации</td>
+                    <td>Рабочее</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 30px; color: #667eea;">LUMINAIRES</h3>
+            <p><em>Светильники</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>INT (PK)</td>
+                    <td>Идентификатор</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>NAME</td>
+                    <td>VARCHAR</td>
+                    <td>Название светильника</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td><strong>DALI_ADDR</strong></td>
+                    <td>INT (UNIQUE)</td>
+                    <td>Короткий адрес DALI</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td><strong>LOCATION_ID</strong></td>
+                    <td>INT (FK)</td>
+                    <td>Идентификатор локации</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td><strong>GROUP_ID</strong></td>
+                    <td>INT (FK, NULL)</td>
+                    <td>Идентификатор группы</td>
+                    <td>Рабочее</td>
+                </tr>
+                <tr>
+                    <td>ICO_NUM</td>
+                    <td>INT</td>
+                    <td>Номер иконки</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td>POS_X</td>
+                    <td>INT (0-255)</td>
+                    <td>Колонка в сетке</td>
+                    <td>Интерфейсное</td>
+                </tr>
+                <tr>
+                    <td>POS_Y</td>
+                    <td>INT (0-255)</td>
+                    <td>Ряд в сетке</td>
+                    <td>Интерфейсное</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 30px; color: #667eea;">ACTIONS</h3>
+            <p><em>Действия с устройствами (изменение яркости, цвета и т.д.)</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>INT (PK)</td>
+                    <td>Идентификатор</td>
+                </tr>
+                <tr>
+                    <td><strong>GROUP_ID</strong></td>
+                    <td>INT (FK, NULL)</td>
+                    <td>Действие на группу</td>
+                </tr>
+                <tr>
+                    <td><strong>LUMINAIRE_ID</strong></td>
+                    <td>INT (FK, NULL)</td>
+                    <td>Действие на светильник</td>
+                </tr>
+                <tr>
+                    <td><strong>SCENE_ID</strong></td>
+                    <td>INT (FK, NULL)</td>
+                    <td>Активация сцены</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_BRIGHT</strong></td>
+                    <td>INT (0-255)</td>
+                    <td>Значение яркости</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_TW</strong></td>
+                    <td>INT</td>
+                    <td>Температура белого света</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_R</strong></td>
+                    <td>INT (0-255)</td>
+                    <td>Красный канал RGB</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_G</strong></td>
+                    <td>INT (0-255)</td>
+                    <td>Зеленый канал RGB</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_B</strong></td>
+                    <td>INT (0-255)</td>
+                    <td>Синий канал RGB</td>
+                </tr>
+                <tr>
+                    <td><strong>VAL_W</strong></td>
+                    <td>INT (0-255)</td>
+                    <td>Белый канал RGBW</td>
+                </tr>
+            </table>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h3>Бизнес-логика ACTIONS</h3>
+                <p>Действие должно ссылаться ровно на ОДИН из: GROUP_ID (группа), LUMINAIRE_ID (светильник) или SCENE_ID (сцена)</p>
+            </div>
+
+            <h3 style="margin-top: 30px; color: #667eea;">EVENTS</h3>
+            <p><em>События расписания</em></p>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>INT (PK)</td>
+                    <td>Идентификатор</td>
+                </tr>
+                <tr>
+                    <td><strong>DATE_EVERYDAY</strong></td>
+                    <td>BOOLEAN</td>
+                    <td>Ежедневное событие</td>
+                </tr>
+                <tr>
+                    <td><strong>DATE_DAYS</strong></td>
+                    <td>CHAR(7)</td>
+                    <td>По дням недели (например: 'FFTFFFF')</td>
+                </tr>
+                <tr>
+                    <td><strong>DATE_SPECIFIC</strong></td>
+                    <td>DATE</td>
+                    <td>Конкретная дата</td>
+                </tr>
+                <tr>
+                    <td><strong>TIME</strong></td>
+                    <td>TIME</td>
+                    <td>Время события (точность до минуты)</td>
+                </tr>
+                <tr>
+                    <td><strong>SMOOTH</strong></td>
+                    <td>BOOLEAN</td>
+                    <td>Плавное изменение параметров</td>
+                </tr>
+                <tr>
+                    <td><strong>ACTION_ID</strong></td>
+                    <td>INT (FK)</td>
+                    <td>Идентификатор действия</td>
+                </tr>
+            </table>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h3>Бизнес-логика EVENTS</h3>
+                <p>Событие должно иметь ОДИН из типов даты: DATE_EVERYDAY (каждый день), DATE_DAYS (по дням недели) или DATE_SPECIFIC (конкретная дата)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+
