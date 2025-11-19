@@ -188,6 +188,7 @@ function initMermaidZoom() {
     modal.className = 'mermaid-modal';
     modal.innerHTML = `
         <div class="mermaid-modal-close" title="Закрыть (ESC)">×</div>
+        <div class="pan-hint">💡 Зажмите <strong>Пробел</strong> и перетаскивайте мышкой</div>
         <div class="mermaid-modal-content"></div>
         <div class="mermaid-zoom-controls">
             <button class="zoom-btn" id="zoom-out" title="Уменьшить (Ctrl + колёсико вниз)">−</button>
@@ -199,12 +200,19 @@ function initMermaidZoom() {
     
     const modalContent = modal.querySelector('.mermaid-modal-content');
     const closeBtn = modal.querySelector('.mermaid-modal-close');
+    const panHint = modal.querySelector('.pan-hint');
     const zoomInBtn = document.getElementById('zoom-in');
     const zoomOutBtn = document.getElementById('zoom-out');
     const zoomResetBtn = document.getElementById('zoom-reset');
     
     let currentScale = 1;
     let currentDiagram = null;
+    let isSpacePressed = false;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let scrollLeft = 0;
+    let scrollTop = 0;
     
     // Add click handlers to all mermaid diagrams
     document.querySelectorAll('.mermaid').forEach(diagram => {
@@ -258,6 +266,12 @@ function initMermaidZoom() {
         modalContent.appendChild(currentDiagram);
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Show hint for 4 seconds
+        panHint.classList.add('visible');
+        setTimeout(() => {
+            panHint.classList.remove('visible');
+        }, 4000);
         
         // Re-initialize mermaid for the cloned diagram
         if (typeof mermaid !== 'undefined') {
@@ -324,6 +338,77 @@ function initMermaidZoom() {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -0.1 : 0.1;
             zoom(delta);
+        }
+    });
+    
+    // Pan with Space + Mouse Drag
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && modal.classList.contains('active') && !isSpacePressed) {
+            e.preventDefault();
+            isSpacePressed = true;
+            modalContent.classList.add('grabbable');
+            
+            // Show hint when space is pressed
+            panHint.textContent = '✋ Теперь перетаскивайте мышкой';
+            panHint.classList.add('visible');
+        }
+    });
+    
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+            isSpacePressed = false;
+            isDragging = false;
+            modalContent.classList.remove('grabbable', 'grabbing');
+            
+            // Hide hint when space is released
+            panHint.classList.remove('visible');
+        }
+    });
+    
+    modalContent.addEventListener('mousedown', (e) => {
+        if (isSpacePressed) {
+            e.preventDefault();
+            isDragging = true;
+            modalContent.classList.add('grabbing');
+            modalContent.classList.remove('grabbable');
+            
+            startX = e.pageX - modalContent.offsetLeft;
+            startY = e.pageY - modalContent.offsetTop;
+            scrollLeft = modalContent.scrollLeft;
+            scrollTop = modalContent.scrollTop;
+        }
+    });
+    
+    modalContent.addEventListener('mousemove', (e) => {
+        if (!isDragging || !isSpacePressed) return;
+        
+        e.preventDefault();
+        const x = e.pageX - modalContent.offsetLeft;
+        const y = e.pageY - modalContent.offsetTop;
+        const walkX = (x - startX) * 2; // Multiply by 2 for faster scrolling
+        const walkY = (y - startY) * 2;
+        
+        modalContent.scrollLeft = scrollLeft - walkX;
+        modalContent.scrollTop = scrollTop - walkY;
+    });
+    
+    modalContent.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            if (isSpacePressed) {
+                modalContent.classList.remove('grabbing');
+                modalContent.classList.add('grabbable');
+            }
+        }
+    });
+    
+    modalContent.addEventListener('mouseleave', () => {
+        if (isDragging) {
+            isDragging = false;
+            modalContent.classList.remove('grabbing');
+            if (isSpacePressed) {
+                modalContent.classList.add('grabbable');
+            }
         }
     });
 }
