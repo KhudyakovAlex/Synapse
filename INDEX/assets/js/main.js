@@ -170,6 +170,8 @@ function initMermaidZoom() {
     
     let currentScale = 1;
     let currentDiagram = null;
+    let originalParent = null;
+    let originalNextSibling = null;
     let isSpacePressed = false;
     let isDragging = false;
     let startX = 0;
@@ -212,13 +214,20 @@ function initMermaidZoom() {
     });
     
     function openModal(diagram) {
-        // Clone the diagram including its SVG content
-        currentDiagram = diagram.cloneNode(true);
+        // Save original position to restore later
+        originalParent = diagram.parentElement;
+        originalNextSibling = diagram.nextSibling;
+        
+        // Use the actual diagram, don't clone
+        currentDiagram = diagram;
+        
+        // Save original cursor and set to default
+        currentDiagram.dataset.originalCursor = currentDiagram.style.cursor || '';
         currentDiagram.style.cursor = 'default';
         
-        // Remove the hint from cloned diagram
+        // Hide the hint in original diagram (if exists)
         const hints = currentDiagram.querySelectorAll('div[style*="pointer-events"]');
-        hints.forEach(h => h.remove());
+        hints.forEach(h => h.style.display = 'none');
         
         // Create wrapper for proper scrolling when zoomed
         const wrapper = document.createElement('div');
@@ -226,6 +235,8 @@ function initMermaidZoom() {
         
         modalContent.innerHTML = '';
         modalContent.appendChild(wrapper);
+        
+        // Move diagram to modal
         wrapper.appendChild(currentDiagram);
         
         // Reset scale to 1
@@ -243,10 +254,29 @@ function initMermaidZoom() {
     }
     
     function closeModal() {
+        if (currentDiagram && originalParent) {
+            // Reset transform and cursor
+            currentDiagram.style.transform = 'scale(1)';
+            currentDiagram.style.cursor = currentDiagram.dataset.originalCursor || '';
+            
+            // Restore hints visibility
+            const hints = currentDiagram.querySelectorAll('div[style*="pointer-events"]');
+            hints.forEach(h => h.style.display = '');
+            
+            // Move diagram back to original position
+            if (originalNextSibling) {
+                originalParent.insertBefore(currentDiagram, originalNextSibling);
+            } else {
+                originalParent.appendChild(currentDiagram);
+            }
+        }
+        
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
         currentScale = 1;
         currentDiagram = null;
+        originalParent = null;
+        originalNextSibling = null;
     }
     
     function zoom(delta) {
