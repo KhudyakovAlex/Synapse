@@ -144,6 +144,59 @@ function initMermaid() {
     }
 }
 
+// Mermaid Fullscreen
+function initMermaidFullscreen() {
+    // Create fullscreen container
+    const fullscreen = document.createElement('div');
+    fullscreen.className = 'mermaid-fullscreen';
+    fullscreen.innerHTML = `
+        <div class="mermaid-fullscreen-close">×</div>
+        <div class="mermaid-fullscreen-content"></div>
+    `;
+    document.body.appendChild(fullscreen);
+    
+    const content = fullscreen.querySelector('.mermaid-fullscreen-content');
+    const closeBtn = fullscreen.querySelector('.mermaid-fullscreen-close');
+    
+    // Add click handlers to all mermaid diagrams
+    document.querySelectorAll('.mermaid').forEach(diagram => {
+        diagram.addEventListener('click', () => {
+            // Clone the diagram
+            const clone = diagram.cloneNode(true);
+            clone.style.cursor = 'default';
+            clone.style.margin = '0';
+            
+            // Show fullscreen
+            content.innerHTML = '';
+            content.appendChild(clone);
+            fullscreen.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+    
+    // Close handlers
+    closeBtn.addEventListener('click', () => {
+        fullscreen.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Close on ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && fullscreen.classList.contains('active')) {
+            fullscreen.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Close on click outside
+    fullscreen.addEventListener('click', (e) => {
+        if (e.target === fullscreen) {
+            fullscreen.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
 // Search functionality (basic)
 function initSearch() {
     const searchInput = document.getElementById('search-input');
@@ -171,6 +224,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initCodeCopy();
     initMermaid();
+    
+    // Initialize fullscreen after a short delay to ensure Mermaid has rendered
+    setTimeout(() => {
+        initMermaidFullscreen();
+    }, 500);
+    
     initSearch();
 });
 

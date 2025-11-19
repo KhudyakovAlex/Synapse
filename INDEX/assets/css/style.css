@@ -305,6 +305,64 @@ body {
     margin: 20px 0;
     display: flex;
     justify-content: center;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+}
+
+.mermaid:hover {
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+/* Mermaid Fullscreen Modal */
+.mermaid-fullscreen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-primary);
+    z-index: 10000;
+    padding: 40px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.mermaid-fullscreen.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-fullscreen-content {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-primary);
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: #ff4444;
+    color: white;
+    border-color: #ff4444;
+    transform: scale(1.1);
 }
 
 /* Footer */
