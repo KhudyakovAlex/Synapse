@@ -134,40 +134,6 @@ function initCodeCopy() {
     });
 }
 
-// Initialize Mermaid diagrams
-function initMermaid() {
-    function tryInit() {
-        if (typeof mermaid !== 'undefined') {
-            mermaid.initialize({
-                startOnLoad: true,
-                theme: 'default',
-                securityLevel: 'loose'
-            });
-            
-            // Force render all diagrams
-            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-            
-            return true;
-        }
-        return false;
-    }
-    
-    // Try immediately
-    if (!tryInit()) {
-        // If Mermaid not loaded yet, wait for it
-        let attempts = 0;
-        const checkInterval = setInterval(() => {
-            attempts++;
-            if (tryInit() || attempts > 30) {
-                clearInterval(checkInterval);
-                if (attempts > 30) {
-                    console.warn('Mermaid library failed to load after 3 seconds');
-                }
-            }
-        }, 100);
-    }
-}
-
 // Mermaid Fullscreen
 function initMermaidFullscreen() {
     // Create fullscreen container
@@ -279,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     generateTOC();
     initSmoothScroll();
     initCodeCopy();
-    initMermaid();
     
     // Initialize fullscreen after Mermaid has rendered all diagrams
     // Mermaid needs time to process and render SVG
