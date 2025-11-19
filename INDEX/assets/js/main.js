@@ -170,13 +170,8 @@ function initMermaidFullscreen() {
             originalNextSibling = diagram.nextSibling;
             currentDiagram = diagram;
             
-            // Save original styles
-            currentDiagram.dataset.originalCursor = currentDiagram.style.cursor || '';
-            currentDiagram.dataset.originalMargin = currentDiagram.style.margin || '';
-            
-            // Apply fullscreen styles
-            currentDiagram.style.cursor = 'default';
-            currentDiagram.style.margin = '0';
+            // Save ALL original inline styles
+            currentDiagram.dataset.originalStyle = currentDiagram.getAttribute('style') || '';
             
             // Move diagram to fullscreen
             content.innerHTML = '';
@@ -188,9 +183,12 @@ function initMermaidFullscreen() {
     
     function closeFullscreen() {
         if (currentDiagram && originalParent) {
-            // Restore original styles
-            currentDiagram.style.cursor = currentDiagram.dataset.originalCursor || '';
-            currentDiagram.style.margin = currentDiagram.dataset.originalMargin || '';
+            // Restore ALL original styles
+            if (currentDiagram.dataset.originalStyle) {
+                currentDiagram.setAttribute('style', currentDiagram.dataset.originalStyle);
+            } else {
+                currentDiagram.removeAttribute('style');
+            }
             
             // Move diagram back to original position
             if (originalNextSibling) {
