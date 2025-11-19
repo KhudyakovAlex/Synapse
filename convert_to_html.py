@@ -304,6 +304,25 @@ class MarkdownConverter:
                 'sane_lists',  # Better list handling
             ])
             html_content = md.convert(md_content)
+            
+            # Post-process: Convert Mermaid code blocks to div.mermaid
+            # Replace <pre><code class="language-mermaid">...CODE...</code></pre>
+            # with <div class="mermaid">CODE</div>
+            def replace_mermaid(match):
+                code = match.group(1)
+                # Unescape HTML entities for Mermaid
+                code = code.replace('&quot;', '"')
+                code = code.replace('&amp;', '&')
+                code = code.replace('&lt;', '<')
+                code = code.replace('&gt;', '>')
+                return f'<div class="mermaid">{code}</div>'
+            
+            html_content = re.sub(
+                r'<pre><code class="language-mermaid">(.*?)</code></pre>',
+                replace_mermaid,
+                html_content,
+                flags=re.DOTALL
+            )
         else:
             # Fallback to simple converter
             html_content = self.simple_markdown_to_html(md_content)

@@ -46,125 +46,125 @@
             </p>
             
             <h1>Схема базы данных Synapse (Mermaid ERD)</h1>
-<pre><code class="language-mermaid">erDiagram
+<div class="mermaid">erDiagram
     CONTROLLER {
-        string NAME &quot;название контроллера&quot;
-        string PASSWORD &quot;пинкод 4 цифры&quot;
-        boolean IS_SCHEDULE &quot;включено расписание&quot;
-        int ICO_NUM &quot;номер иконки&quot;
+        string NAME "название контроллера"
+        string PASSWORD "пинкод 4 цифры"
+        boolean IS_SCHEDULE "включено расписание"
+        int ICO_NUM "номер иконки"
     }
 
     LOCATIONS {
-        int NUM PK &quot;порядковый номер&quot;
-        string NAME &quot;название локации&quot;
-        int ICO_NUM &quot;номер иконки&quot;
-        boolean IS_AUTO &quot;автоматический режим&quot;
-        int SCALE &quot;масштаб сетки 1-3&quot;
-        int POS &quot;позиция в списке 0-255&quot;
+        int NUM PK "порядковый номер"
+        string NAME "название локации"
+        int ICO_NUM "номер иконки"
+        boolean IS_AUTO "автоматический режим"
+        int SCALE "масштаб сетки 1-3"
+        int POS "позиция в списке 0-255"
     }
 
     GROUPS {
         int ID PK
-        string NAME &quot;название группы&quot;
-        int DALI_NUM &quot;номер группы в DALI&quot;
-        int LOCATION_ID FK &quot;идентификатор локации&quot;
+        string NAME "название группы"
+        int DALI_NUM "номер группы в DALI"
+        int LOCATION_ID FK "идентификатор локации"
     }
 
     LUMINAIRES {
         int ID PK
-        string NAME &quot;название светильника&quot;
-        int DALI_ADDR &quot;короткий адрес DALI&quot;
-        int LOCATION_ID FK &quot;идентификатор локации&quot;
-        int GROUP_ID FK &quot;идентификатор группы (nullable)&quot;
-        int ICO_NUM &quot;номер иконки&quot;
-        int POS_X &quot;колонка 0-255&quot;
-        int POS_Y &quot;ряд 0-255&quot;
+        string NAME "название светильника"
+        int DALI_ADDR "короткий адрес DALI"
+        int LOCATION_ID FK "идентификатор локации"
+        int GROUP_ID FK "идентификатор группы (nullable)"
+        int ICO_NUM "номер иконки"
+        int POS_X "колонка 0-255"
+        int POS_Y "ряд 0-255"
     }
 
     PRES_SENSORS {
         int ID PK
-        string NAME &quot;название датчика&quot;
-        int DALI_ADDR &quot;короткий адрес DALI&quot;
-        int DALI_INST &quot;номер инстанса&quot;
-        int LOCATION_ID FK &quot;идентификатор локации&quot;
-        int DELAY &quot;задержка выключения сек&quot;
+        string NAME "название датчика"
+        int DALI_ADDR "короткий адрес DALI"
+        int DALI_INST "номер инстанса"
+        int LOCATION_ID FK "идентификатор локации"
+        int DELAY "задержка выключения сек"
     }
 
     BRIGHT_SENSORS {
         int ID PK
-        string NAME &quot;название датчика&quot;
-        int DALI_ADDR &quot;короткий адрес DALI&quot;
-        int DALI_INST &quot;номер инстанса&quot;
-        int LOCATION_ID FK &quot;идентификатор локации&quot;
-        int GROUP_ID FK &quot;управляемая группа&quot;
+        string NAME "название датчика"
+        int DALI_ADDR "короткий адрес DALI"
+        int DALI_INST "номер инстанса"
+        int LOCATION_ID FK "идентификатор локации"
+        int GROUP_ID FK "управляемая группа"
     }
 
     BUTTON_PANELS {
         int ID PK
-        string NAME &quot;название панели&quot;
-        int DALI_ADDR &quot;короткий адрес DALI&quot;
-        int LOCATION_ID FK &quot;идентификатор локации&quot;
+        string NAME "название панели"
+        int DALI_ADDR "короткий адрес DALI"
+        int LOCATION_ID FK "идентификатор локации"
     }
 
     BUTTONS {
         int ID PK
-        int NUM &quot;номер кнопки на панели&quot;
-        int BUTTON_PANEL_ID FK &quot;идентификатор панели&quot;
-        int DALI_INST &quot;номер инстанса&quot;
-        int ACTION_ID FK &quot;действие по нажатию&quot;
+        int NUM "номер кнопки на панели"
+        int BUTTON_PANEL_ID FK "идентификатор панели"
+        int DALI_INST "номер инстанса"
+        int ACTION_ID FK "действие по нажатию"
     }
 
     ACTIONS {
         int ID PK
-        int GROUP_ID FK &quot;группа (nullable)&quot;
-        int LUMINAIRE_ID FK &quot;светильник (nullable)&quot;
-        int SCENE_ID FK &quot;сцена (nullable)&quot;
-        int VAL_BRIGHT &quot;яркость&quot;
-        int VAL_TW &quot;температура белого&quot;
-        int VAL_R &quot;красный RGB&quot;
-        int VAL_G &quot;зеленый RGB&quot;
-        int VAL_B &quot;синий RGB&quot;
-        int VAL_W &quot;белый RGBW&quot;
+        int GROUP_ID FK "группа (nullable)"
+        int LUMINAIRE_ID FK "светильник (nullable)"
+        int SCENE_ID FK "сцена (nullable)"
+        int VAL_BRIGHT "яркость"
+        int VAL_TW "температура белого"
+        int VAL_R "красный RGB"
+        int VAL_G "зеленый RGB"
+        int VAL_B "синий RGB"
+        int VAL_W "белый RGBW"
     }
 
     EVENTS {
         int ID PK
-        boolean DATE_EVERYDAY &quot;ежедневное&quot;
-        string DATE_DAYS &quot;по дням недели&quot;
-        date DATE_SPECIFIC &quot;конкретная дата&quot;
-        time TIME &quot;время события&quot;
-        boolean SMOOTH &quot;плавное изменение&quot;
-        int ACTION_ID FK &quot;идентификатор действия&quot;
+        boolean DATE_EVERYDAY "ежедневное"
+        string DATE_DAYS "по дням недели"
+        date DATE_SPECIFIC "конкретная дата"
+        time TIME "время события"
+        boolean SMOOTH "плавное изменение"
+        int ACTION_ID FK "идентификатор действия"
     }
 
     SCENES {
         int ID PK
-        string NAME &quot;название сцены&quot;
+        string NAME "название сцены"
     }
 
     %% Связи локаций
-    LOCATIONS ||--o{ LUMINAIRES : &quot;содержит&quot;
-    LOCATIONS ||--o{ GROUPS : &quot;содержит&quot;
-    LOCATIONS ||--o{ PRES_SENSORS : &quot;содержит&quot;
-    LOCATIONS ||--o{ BRIGHT_SENSORS : &quot;содержит&quot;
-    LOCATIONS ||--o{ BUTTON_PANELS : &quot;содержит&quot;
+    LOCATIONS ||--o{ LUMINAIRES : "содержит"
+    LOCATIONS ||--o{ GROUPS : "содержит"
+    LOCATIONS ||--o{ PRES_SENSORS : "содержит"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "содержит"
+    LOCATIONS ||--o{ BUTTON_PANELS : "содержит"
 
     %% Связи групп
-    GROUPS ||--o{ LUMINAIRES : &quot;объединяет&quot;
-    GROUPS ||--o{ BRIGHT_SENSORS : &quot;управляется&quot;
-    GROUPS ||--o{ ACTIONS : &quot;управляет&quot;
+    GROUPS ||--o{ LUMINAIRES : "объединяет"
+    GROUPS ||--o{ BRIGHT_SENSORS : "управляется"
+    GROUPS ||--o{ ACTIONS : "управляет"
 
     %% Связи светильников
-    LUMINAIRES ||--o{ ACTIONS : &quot;управляет&quot;
+    LUMINAIRES ||--o{ ACTIONS : "управляет"
 
     %% Связи кнопочных панелей
-    BUTTON_PANELS ||--o{ BUTTONS : &quot;содержит&quot;
+    BUTTON_PANELS ||--o{ BUTTONS : "содержит"
 
     %% Связи действий
-    ACTIONS ||--o{ BUTTONS : &quot;выполняется&quot;
-    ACTIONS ||--o{ EVENTS : &quot;выполняется&quot;
-    SCENES ||--o{ ACTIONS : &quot;использует&quot;
-</code></pre>
+    ACTIONS ||--o{ BUTTONS : "выполняется"
+    ACTIONS ||--o{ EVENTS : "выполняется"
+    SCENES ||--o{ ACTIONS : "использует"
+</div>
 <h2>Легенда</h2>
 <p><strong>Жирным</strong> в описании помечены рабочие поля (необходимые для работы освещения).</p>
 <p>Остальные поля — интерфейсные (используются только приложением).</p>

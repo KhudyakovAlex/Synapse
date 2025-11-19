@@ -99,7 +99,7 @@
 <li>Активация/деактивация режима АВТО у локации.</li>
 </ul>
 <h2>5. Аппаратная архитектура АПК</h2>
-<pre><code class="language-mermaid">flowchart LR
+<div class="mermaid">flowchart LR
     LLM[(LLM)]
     MOB1(Телефон 1)
     MOB2(Телефон 2)
@@ -109,19 +109,19 @@
     SEN((Датчик))
     BUT((Кнопка))
 
-    LLM &lt;--TCP/IP--&gt; MOB1
-    LLM &lt;--TCP/IP--&gt; MOB2
-    MOB1 &lt;--Bluetooth--&gt; CON
-    MOB2 &lt;--Bluetooth--&gt; CON
+    LLM <--TCP/IP--> MOB1
+    LLM <--TCP/IP--> MOB2
+    MOB1 <--Bluetooth--> CON
+    MOB2 <--Bluetooth--> CON
     CON --- DALI
-    DALI &lt;---&gt; LUM
-    DALI &lt;---&gt; SEN
-    DALI &lt;---&gt; BUT
+    DALI <---> LUM
+    DALI <---> SEN
+    DALI <---> BUT
 
     style MOB1 fill:#FA0,stroke:#A50
     style MOB2 fill:#FA0,stroke:#A50
     style CON fill:#FA0,stroke:#A50
-</code></pre>
+</div>
 <p>5.1. В АПК входят контроллер и один или несколько телефонов.</p>
 <p>5.2. Телефоны подключаются к контроллеру по Bluetooth.</p>
 <p>5.3. С контроллером одновременно могут работать (быть подключены) несколько телефонов.</p>
