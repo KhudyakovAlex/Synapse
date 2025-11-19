@@ -10,6 +10,15 @@ import re
 from pathlib import Path
 from typing import List, Tuple
 
+# Try to import markdown library
+try:
+    import markdown
+    MARKDOWN_AVAILABLE = True
+except ImportError:
+    MARKDOWN_AVAILABLE = False
+    print("Warning: markdown library not found. Install with: pip install markdown")
+    print("Falling back to simple converter...")
+
 # HTML Template
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="ru">
@@ -287,7 +296,17 @@ class MarkdownConverter:
         title = title_match.group(1) if title_match else md_file.stem
         
         # Convert markdown to HTML
-        html_content = self.simple_markdown_to_html(md_content)
+        if MARKDOWN_AVAILABLE:
+            # Use proper markdown library with extensions
+            md = markdown.Markdown(extensions=[
+                'extra',  # Includes: tables, fenced_code, attr_list, def_list, footnotes, abbr
+                'nl2br',  # Convert single newlines to <br>
+                'sane_lists',  # Better list handling
+            ])
+            html_content = md.convert(md_content)
+        else:
+            # Fallback to simple converter
+            html_content = self.simple_markdown_to_html(md_content)
         
         # Determine output path
         try:
