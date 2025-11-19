@@ -181,6 +181,12 @@ class MarkdownConverter:
         
         return text
     
+    def convert_line_breaks(self, text: str) -> str:
+        """Convert markdown line breaks (two spaces at end of line) to <br>"""
+        # Two spaces + newline = <br>
+        text = re.sub(r'  \n', '<br>\n', text)
+        return text
+    
     def convert_paragraphs(self, text: str) -> str:
         """Wrap text paragraphs in <p> tags"""
         lines = text.split('\n')
@@ -214,7 +220,10 @@ class MarkdownConverter:
         # Order matters!
         html = md_text
         
-        # Code blocks first (to protect code from other conversions)
+        # Line breaks first (before code blocks)
+        html = self.convert_line_breaks(html)
+        
+        # Code blocks (to protect code from other conversions)
         html = self.convert_code_blocks(html)
         
         # Headings
