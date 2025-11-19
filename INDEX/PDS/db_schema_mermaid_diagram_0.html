@@ -69,6 +69,30 @@
         };
     </script>
     <script defer src="../assets/js/mermaid.min.js"></script>
+    <script>
+        // Zoom with mouse wheel
+        let currentScale = 1;
+        const minScale = 0.5;
+        const maxScale = 5;
+        const scaleStep = 0.1;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const mermaid = document.querySelector('.mermaid');
+            
+            document.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                // Zoom in/out
+                if (e.deltaY < 0) {
+                    currentScale = Math.min(currentScale + scaleStep, maxScale);
+                } else {
+                    currentScale = Math.max(currentScale - scaleStep, minScale);
+                }
+                
+                mermaid.style.transform = `scale(${currentScale})`;
+            }, { passive: false });
+        });
+    </script>
 </head>
 <body>
     <div class="diagram-container">
