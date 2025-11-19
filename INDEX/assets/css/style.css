@@ -408,15 +408,17 @@ body {
     box-sizing: border-box;
 }
 
-.mermaid-modal-content .mermaid {
+.mermaid-modal-wrapper .mermaid {
     background: transparent;
     margin: 0;
     padding: 20px;
     transform-origin: center center;
     transition: transform 0.3s ease;
+    display: block;
 }
 
-.mermaid-modal-content .mermaid svg {
+.mermaid-modal-wrapper .mermaid svg {
+    display: block;
     max-width: 90vw;
     max-height: 90vh;
     width: auto !important;

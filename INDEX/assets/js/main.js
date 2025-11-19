@@ -212,20 +212,21 @@ function initMermaidZoom() {
     });
     
     function openModal(diagram) {
+        // Clone the diagram including its SVG content
         currentDiagram = diagram.cloneNode(true);
         currentDiagram.style.cursor = 'default';
         
         // Remove the hint from cloned diagram
-        const hint = currentDiagram.querySelector('div[style*="pointer-events"]');
-        if (hint) hint.remove();
+        const hints = currentDiagram.querySelectorAll('div[style*="pointer-events"]');
+        hints.forEach(h => h.remove());
         
-        // Wrap diagram in a wrapper for proper scrolling
+        // Create wrapper for proper scrolling when zoomed
         const wrapper = document.createElement('div');
         wrapper.className = 'mermaid-modal-wrapper';
-        wrapper.appendChild(currentDiagram);
         
         modalContent.innerHTML = '';
         modalContent.appendChild(wrapper);
+        wrapper.appendChild(currentDiagram);
         
         // Reset scale to 1
         currentScale = 1;
@@ -239,11 +240,6 @@ function initMermaidZoom() {
         setTimeout(() => {
             panHint.classList.remove('visible');
         }, 4000);
-        
-        // Re-initialize mermaid for the cloned diagram
-        if (typeof mermaid !== 'undefined') {
-            mermaid.init(undefined, currentDiagram);
-        }
     }
     
     function closeModal() {
