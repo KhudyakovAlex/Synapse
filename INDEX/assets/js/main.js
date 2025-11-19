@@ -190,9 +190,9 @@ function initMermaidZoom() {
         <div class="mermaid-modal-close" title="Закрыть (ESC)">×</div>
         <div class="mermaid-modal-content"></div>
         <div class="mermaid-zoom-controls">
-            <button class="zoom-btn" id="zoom-out" title="Уменьшить">−</button>
-            <button class="zoom-btn" id="zoom-reset" title="Сброс">↻</button>
-            <button class="zoom-btn" id="zoom-in" title="Увеличить">+</button>
+            <button class="zoom-btn" id="zoom-out" title="Уменьшить (Ctrl + колёсико вниз)">−</button>
+            <button class="zoom-btn" id="zoom-reset" title="Вернуть 100%">↻</button>
+            <button class="zoom-btn" id="zoom-in" title="Увеличить (Ctrl + колёсико вверх)">+</button>
         </div>
     `;
     document.body.appendChild(modal);
@@ -244,10 +244,11 @@ function initMermaidZoom() {
         currentDiagram = diagram.cloneNode(true);
         currentDiagram.style.cursor = 'default';
         
-        // Start with 1.5x zoom for better visibility
-        currentScale = 1.5;
-        currentDiagram.style.transform = `scale(${currentScale})`;
+        // Reset scale to 1 - CSS will handle initial sizing to fill screen
+        currentScale = 1;
+        currentDiagram.style.transform = 'scale(1)';
         currentDiagram.style.transformOrigin = 'center';
+        currentDiagram.style.transition = 'transform 0.3s ease';
         
         // Remove the hint from cloned diagram
         const hint = currentDiagram.querySelector('div[style*="pointer-events"]');
@@ -275,7 +276,7 @@ function initMermaidZoom() {
         if (!currentDiagram) return;
         
         currentScale += delta;
-        currentScale = Math.max(0.5, Math.min(currentScale, 3)); // Limit 0.5x to 3x
+        currentScale = Math.max(0.3, Math.min(currentScale, 5)); // Limit 0.3x to 5x for larger diagrams
         currentDiagram.style.transform = `scale(${currentScale})`;
         currentDiagram.style.transformOrigin = 'center';
     }
