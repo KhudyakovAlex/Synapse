@@ -134,89 +134,30 @@ function initCodeCopy() {
     });
 }
 
-// Mermaid Fullscreen
-function initMermaidFullscreen() {
-    // Create fullscreen container
-    const fullscreen = document.createElement('div');
-    fullscreen.className = 'mermaid-fullscreen';
-    fullscreen.innerHTML = `
-        <div class="mermaid-fullscreen-close">×</div>
-        <div class="mermaid-fullscreen-content"></div>
-    `;
-    document.body.appendChild(fullscreen);
-    
-    const content = fullscreen.querySelector('.mermaid-fullscreen-content');
-    const closeBtn = fullscreen.querySelector('.mermaid-fullscreen-close');
-    
-    function addClickHandlers() {
-        // Find all rendered mermaid diagrams (they should have SVG inside)
+// Mermaid - Open in separate page
+function initMermaidLinks() {
+    // Add click handlers after diagrams are rendered
+    setTimeout(() => {
         const diagrams = document.querySelectorAll('.mermaid');
         
-        diagrams.forEach(diagram => {
-            // Skip if already has click handler
-            if (diagram.dataset.hasClickHandler === 'true') return;
-            
+        diagrams.forEach((diagram, index) => {
             // Check if diagram has SVG (is rendered)
             const svg = diagram.querySelector('svg');
-            if (!svg) return; // Skip if not rendered yet
+            if (!svg) return;
             
-            diagram.dataset.hasClickHandler = 'true';
+            // Make it clickable
             diagram.style.cursor = 'pointer';
+            diagram.title = 'Открыть схему на отдельной странице';
             
             diagram.addEventListener('click', () => {
-                // Clone the entire HTML of the diagram including SVG
-                const clone = document.createElement('div');
-                clone.innerHTML = diagram.outerHTML;
-                const clonedDiagram = clone.firstChild;
-                
-                // Show fullscreen
-                content.innerHTML = '';
-                content.appendChild(clonedDiagram);
-                fullscreen.classList.add('active');
-                document.body.style.overflow = 'hidden';
+                // Open the diagram's dedicated page
+                const diagramUrl = diagram.dataset.diagramUrl;
+                if (diagramUrl) {
+                    window.open(diagramUrl, '_blank');
+                }
             });
         });
-    }
-    
-    // Try to add handlers immediately
-    addClickHandlers();
-    
-    // Also try after a delay in case Mermaid is still rendering
-    setTimeout(addClickHandlers, 500);
-    setTimeout(addClickHandlers, 1500);
-    
-    // Watch for new diagrams being added
-    const observer = new MutationObserver(() => {
-        addClickHandlers();
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-    
-    function closeFullscreen() {
-        fullscreen.classList.remove('active');
-        document.body.style.overflow = 'auto';
-        content.innerHTML = '';
-    }
-    
-    // Close handlers
-    closeBtn.addEventListener('click', closeFullscreen);
-    
-    // Close on ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && fullscreen.classList.contains('active')) {
-            closeFullscreen();
-        }
-    });
-    
-    // Close on click outside
-    fullscreen.addEventListener('click', (e) => {
-        if (e.target === fullscreen) {
-            closeFullscreen();
-        }
-    });
+    }, 1000);
 }
 
 // Search functionality (basic)
@@ -246,10 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initCodeCopy();
     
-    // Initialize fullscreen after Mermaid has rendered all diagrams
+    // Initialize links after Mermaid has rendered all diagrams
     // Mermaid needs time to process and render SVG
     setTimeout(() => {
-        initMermaidFullscreen();
+        initMermaidLinks();
     }, 2000);
     
     initSearch();

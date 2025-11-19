@@ -313,74 +313,6 @@ body {
     box-shadow: 0 4px 12px var(--shadow);
 }
 
-/* Mermaid Fullscreen Modal */
-.mermaid-fullscreen {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: var(--bg-primary);
-    z-index: 10000;
-    padding: 40px;
-    box-sizing: border-box;
-    overflow: auto;
-}
-
-.mermaid-fullscreen.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-fullscreen-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-fullscreen-content .mermaid {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-}
-
-.mermaid-fullscreen-content .mermaid svg {
-    max-width: 100% !important;
-    max-height: 100% !important;
-    width: auto !important;
-    height: auto !important;
-}
-
-.mermaid-fullscreen-close {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    color: var(--text-primary);
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.mermaid-fullscreen-close:hover {
-    background: #ff4444;
-    color: white;
-    border-color: #ff4444;
-    transform: scale(1.1);
-}
 
 /* Footer */
 .footer {
@@ -441,25 +373,6 @@ body {
     .header-nav {
         flex-wrap: wrap;
         justify-content: center;
-    }
-    
-    .mermaid-modal-close {
-        top: 10px;
-        right: 10px;
-        font-size: 30px;
-        width: 40px;
-        height: 40px;
-    }
-    
-    .mermaid-zoom-controls {
-        bottom: 15px;
-        right: 15px;
-    }
-    
-    .zoom-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
     }
 }
 

@@ -19,6 +19,106 @@ except ImportError:
     print("Warning: markdown library not found. Install with: pip install markdown")
     print("Falling back to simple converter...")
 
+# HTML Template for Mermaid Diagram Page
+DIAGRAM_TEMPLATE = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} - Synapse Diagram</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #333333;
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+        }}
+        
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: auto;
+        }}
+        
+        .header {{
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        
+        .header h1 {{
+            font-size: 1.3em;
+            font-weight: 600;
+        }}
+        
+        .header a {{
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }}
+        
+        .header a:hover {{
+            background: rgba(255, 255, 255, 0.2);
+        }}
+        
+        .diagram-container {{
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow: auto;
+        }}
+        
+        .mermaid {{
+            max-width: 100%;
+            max-height: 100%;
+        }}
+    </style>
+    <script>
+        window.mermaid = {{
+            startOnLoad: true,
+            theme: "default",
+            securityLevel: "loose"
+        }};
+    </script>
+    <script defer src="{js_path}assets/js/mermaid.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <h1>🔆 {title}</h1>
+        <a href="{back_url}">← Назад к документу</a>
+    </header>
+    
+    <div class="diagram-container">
+        <div class="mermaid">
+{diagram_code}
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 # HTML Template
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="ru">
@@ -292,6 +392,35 @@ class MarkdownConverter:
         
         return prefix, prefix, prefix
     
+    def create_diagram_page(self, diagram_code: str, diagram_index: int, output_file: Path, title: str) -> str:
+        """Create a separate HTML page for a diagram and return its URL"""
+        # Create filename for diagram page
+        diagram_filename = f"{output_file.stem}_diagram_{diagram_index}.html"
+        diagram_path = output_file.parent / diagram_filename
+        
+        # Get relative paths
+        css_path, js_path, root_path = self.get_relative_paths(diagram_path)
+        
+        # Back URL (relative to diagram page)
+        back_url = output_file.name
+        
+        # Fill diagram template
+        diagram_html = DIAGRAM_TEMPLATE.format(
+            title=f"{title} - Диаграмма {diagram_index + 1}",
+            js_path=js_path,
+            back_url=back_url,
+            diagram_code=diagram_code
+        )
+        
+        # Write diagram page
+        with open(diagram_path, 'w', encoding='utf-8') as f:
+            f.write(diagram_html)
+        
+        print(f"  > Created diagram: {diagram_path}")
+        
+        # Return relative URL
+        return diagram_filename
+    
     def convert_file(self, md_file: Path):
         """Convert a single markdown file to HTML"""
         print(f"Converting: {md_file}")
@@ -304,6 +433,16 @@ class MarkdownConverter:
         title_match = re.search(r'^#\s+(.+)$', md_content, re.MULTILINE)
         title = title_match.group(1) if title_match else md_file.stem
         
+        # Determine output path first (we need it for diagram pages)
+        try:
+            rel_path = md_file.relative_to(self.repo_root)
+        except ValueError:
+            print(f"Error: {md_file} is not in repo root")
+            return
+        
+        output_file = self.index_root / rel_path.with_suffix('.html')
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
         # Convert markdown to HTML
         if MARKDOWN_AVAILABLE:
             # Use proper markdown library with extensions
@@ -315,8 +454,9 @@ class MarkdownConverter:
             html_content = md.convert(md_content)
             
             # Post-process: Convert Mermaid code blocks to div.mermaid
-            # Replace <pre><code class="language-mermaid">...CODE...</code></pre>
-            # with <div class="mermaid">CODE</div>
+            # AND create separate pages for each diagram
+            diagram_counter = [0]  # Use list to allow modification in nested function
+            
             def replace_mermaid(match):
                 code = match.group(1)
                 # Unescape HTML entities for Mermaid
@@ -324,7 +464,13 @@ class MarkdownConverter:
                 code = code.replace('&amp;', '&')
                 code = code.replace('&lt;', '<')
                 code = code.replace('&gt;', '>')
-                return f'<div class="mermaid">{code}</div>'
+                
+                # Create separate page for this diagram
+                diagram_url = self.create_diagram_page(code, diagram_counter[0], output_file, title)
+                diagram_counter[0] += 1
+                
+                # Return div with data-diagram-url attribute
+                return f'<div class="mermaid" data-diagram-url="{diagram_url}">{code}</div>'
             
             html_content = re.sub(
                 r'<pre><code class="language-mermaid">(.*?)</code></pre>',
@@ -335,16 +481,6 @@ class MarkdownConverter:
         else:
             # Fallback to simple converter
             html_content = self.simple_markdown_to_html(md_content)
-        
-        # Determine output path
-        try:
-            rel_path = md_file.relative_to(self.repo_root)
-        except ValueError:
-            print(f"Error: {md_file} is not in repo root")
-            return
-        
-        output_file = self.index_root / rel_path.with_suffix('.html')
-        output_file.parent.mkdir(parents=True, exist_ok=True)
         
         # Generate breadcrumbs
         breadcrumbs = self.generate_breadcrumbs(str(rel_path))
