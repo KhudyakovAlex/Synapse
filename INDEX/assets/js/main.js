@@ -136,28 +136,54 @@ function initCodeCopy() {
 
 // Mermaid - Open in separate page
 function initMermaidLinks() {
-    // Add click handlers after diagrams are rendered
-    setTimeout(() => {
-        const diagrams = document.querySelectorAll('.mermaid');
+    function attachClickHandler(diagram) {
+        // Skip if already has handler
+        if (diagram.dataset.hasClickHandler === 'true') return;
         
-        diagrams.forEach((diagram, index) => {
-            // Check if diagram has SVG (is rendered)
-            const svg = diagram.querySelector('svg');
-            if (!svg) return;
-            
-            // Make it clickable
-            diagram.style.cursor = 'pointer';
-            diagram.title = 'Открыть схему на отдельной странице';
-            
-            diagram.addEventListener('click', () => {
-                // Open the diagram's dedicated page
-                const diagramUrl = diagram.dataset.diagramUrl;
-                if (diagramUrl) {
-                    window.open(diagramUrl, '_blank');
-                }
-            });
+        // Check if diagram has SVG (is rendered)
+        const svg = diagram.querySelector('svg');
+        if (!svg) return;
+        
+        // Mark as processed
+        diagram.dataset.hasClickHandler = 'true';
+        
+        // Make it clickable
+        diagram.style.cursor = 'pointer';
+        diagram.title = 'Открыть схему на отдельной странице';
+        
+        diagram.addEventListener('click', () => {
+            // Open the diagram's dedicated page
+            const diagramUrl = diagram.dataset.diagramUrl;
+            if (diagramUrl) {
+                window.open(diagramUrl, '_blank');
+            }
         });
-    }, 1000);
+    }
+    
+    // Process all existing diagrams
+    function processAllDiagrams() {
+        const diagrams = document.querySelectorAll('.mermaid');
+        diagrams.forEach(attachClickHandler);
+    }
+    
+    // Initial check
+    processAllDiagrams();
+    
+    // Watch for Mermaid rendering (SVG insertion)
+    const observer = new MutationObserver((mutations) => {
+        processAllDiagrams();
+    });
+    
+    // Observe the entire document for changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    // Also retry after delays (fallback)
+    setTimeout(processAllDiagrams, 500);
+    setTimeout(processAllDiagrams, 1000);
+    setTimeout(processAllDiagrams, 2000);
 }
 
 // Search functionality (basic)
@@ -186,13 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateTOC();
     initSmoothScroll();
     initCodeCopy();
-    
-    // Initialize links after Mermaid has rendered all diagrams
-    // Mermaid needs time to process and render SVG
-    setTimeout(() => {
-        initMermaidLinks();
-    }, 2000);
-    
+    initMermaidLinks();
     initSearch();
 });
 
