@@ -37,7 +37,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <nav class="header-nav">
                 <a href="{root_path}index.html">Главная</a>
                 <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank">GitHub</a>
-                <button id="theme-toggle" class="theme-toggle">🌙 Тёмная</button>
             </nav>
         </div>
     </header>

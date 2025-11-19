@@ -2,35 +2,6 @@
 // Synapse Documentation - Main JavaScript
 // ========================================
 
-// Theme Toggle
-function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-    
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    html.setAttribute('data-theme', savedTheme);
-    updateThemeButton(savedTheme);
-    
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeButton(newTheme);
-        });
-    }
-}
-
-function updateThemeButton(theme) {
-    const button = document.getElementById('theme-toggle');
-    if (button) {
-        button.textContent = theme === 'light' ? '🌙 Тёмная' : '☀️ Светлая';
-    }
-}
-
 // Generate Table of Contents from headings
 function generateTOC() {
     const content = document.querySelector('.content');
@@ -168,17 +139,9 @@ function initMermaid() {
     if (typeof mermaid !== 'undefined') {
         mermaid.initialize({
             startOnLoad: true,
-            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+            theme: 'default'
         });
     }
-}
-
-// Update Mermaid theme when switching themes
-function updateMermaidTheme() {
-    // Note: Mermaid diagrams don't need to be redrawn for theme changes
-    // They adapt automatically through CSS variables
-    // Reloading the page would be required for a true Mermaid theme switch,
-    // but it's not necessary for our use case
 }
 
 // Mermaid Zoom Modal
@@ -436,7 +399,6 @@ function initSearch() {
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    initThemeToggle();
     generateTOC();
     initSmoothScroll();
     initCodeCopy();
