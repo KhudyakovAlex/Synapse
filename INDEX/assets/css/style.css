@@ -375,6 +375,106 @@ body {
     color: white;
 }
 
+/* Mermaid Diagrams - Clickable & Zoomable */
+.mermaid {
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin: 20px 0;
+    overflow: auto;
+}
+
+.mermaid:hover {
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+/* Modal for Zoomed Mermaid */
+.mermaid-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    cursor: zoom-out;
+}
+
+.mermaid-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-modal-content {
+    max-width: 95vw;
+    max-height: 95vh;
+    overflow: auto;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 30px;
+    cursor: default;
+    position: relative;
+}
+
+.mermaid-modal-close {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.mermaid-modal-close:hover {
+    background: rgba(255, 0, 0, 0.7);
+}
+
+.mermaid-zoom-controls {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 10px;
+    z-index: 10001;
+}
+
+.zoom-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-btn:hover {
+    background: var(--accent-secondary);
+    transform: scale(1.1);
+}
+
+.zoom-btn:active {
+    transform: scale(0.95);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {
@@ -397,6 +497,25 @@ body {
     .header-nav {
         flex-wrap: wrap;
         justify-content: center;
+    }
+    
+    .mermaid-modal-close {
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .mermaid-zoom-controls {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .zoom-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
     }
 }
 
