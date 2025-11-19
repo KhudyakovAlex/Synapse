@@ -139,31 +139,13 @@ function initMermaid() {
     function tryInit() {
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
-                startOnLoad: false, // We'll render manually
+                startOnLoad: true,
                 theme: 'default',
                 securityLevel: 'loose'
             });
             
-            // Explicitly render all diagrams
-            const diagrams = document.querySelectorAll('.mermaid:not([data-processed])');
-            diagrams.forEach((diagram, index) => {
-                const id = `mermaid-${index}-${Date.now()}`;
-                diagram.setAttribute('data-processed', 'true');
-                
-                // Get the mermaid code from the div
-                const code = diagram.textContent.trim();
-                
-                // Render the diagram
-                mermaid.render(id, code).then((result) => {
-                    diagram.innerHTML = result.svg;
-                    if (result.bindFunctions) {
-                        result.bindFunctions(diagram);
-                    }
-                }).catch((error) => {
-                    console.error('Mermaid render error:', error);
-                    console.error('Diagram code:', code.substring(0, 100));
-                });
-            });
+            // Force render all diagrams
+            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
             
             return true;
         }
@@ -176,10 +158,10 @@ function initMermaid() {
         let attempts = 0;
         const checkInterval = setInterval(() => {
             attempts++;
-            if (tryInit() || attempts > 20) {
+            if (tryInit() || attempts > 30) {
                 clearInterval(checkInterval);
-                if (attempts > 20) {
-                    console.warn('Mermaid library failed to load after 2 seconds');
+                if (attempts > 30) {
+                    console.warn('Mermaid library failed to load after 3 seconds');
                 }
             }
         }, 100);
