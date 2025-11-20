@@ -56,6 +56,7 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
         }}
         
         .diagram-container {{
@@ -75,6 +76,7 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             width: 100%;
             height: 100%;
             transform-origin: top left;
+            user-select: none;
         }}
         
         .mermaid svg {{
@@ -105,6 +107,7 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         let startY = 0;
         let scrollLeft = 0;
         let scrollTop = 0;
+        let shiftPressed = false;
         
         document.addEventListener('DOMContentLoaded', () => {{
             const mermaid = document.querySelector('.mermaid');
@@ -125,8 +128,29 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                 mermaid.style.transform = `scale(${{currentScale}})`;
             }}, {{ passive: false }});
             
-            // Pan with mouse
+            // Track Shift key
+            document.addEventListener('keydown', (e) => {{
+                if (e.key === 'Shift' && !shiftPressed) {{
+                    shiftPressed = true;
+                    document.body.style.cursor = 'text';
+                    document.body.style.userSelect = 'text';
+                    mermaid.style.userSelect = 'text';
+                }}
+            }});
+            
+            document.addEventListener('keyup', (e) => {{
+                if (e.key === 'Shift') {{
+                    shiftPressed = false;
+                    document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
+                    document.body.style.userSelect = 'none';
+                    mermaid.style.userSelect = 'none';
+                }}
+            }});
+            
+            // Pan with mouse (only if Shift not pressed)
             document.addEventListener('mousedown', (e) => {{
+                if (shiftPressed) return; // Allow text selection
+                
                 isPanning = true;
                 document.body.style.cursor = 'grabbing';
                 startX = e.pageX - document.documentElement.scrollLeft;
@@ -150,7 +174,7 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             document.addEventListener('mouseup', () => {{
                 if (isPanning) {{
                     isPanning = false;
-                    document.body.style.cursor = 'grab';
+                    document.body.style.cursor = shiftPressed ? 'text' : 'grab';
                 }}
             }});
         }});
