@@ -227,24 +227,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <script defer src="{js_path}assets/js/mermaid.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <h1><a href="{root_path}index.html">🔆 Synapse Docs</a></h1>
-            <nav class="header-nav">
-                <a href="{root_path}index.html">Главная</a>
-                <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank">GitHub</a>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Breadcrumbs -->
-    <nav class="breadcrumbs">
-        {breadcrumbs}
-    </nav>
-
     <!-- Main Container -->
-    <div class="container">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 20px;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <h3>📑 Содержание</h3>
@@ -264,17 +248,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             {content}
         </main>
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>
-            <strong>Synapse Project</strong> © 2025 | 
-            <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank">GitHub</a>
-        </p>
-        <p style="margin-top: 10px; font-size: 0.9em;">
-            Автоматизированная система управления освещением на базе DALI
-        </p>
-    </footer>
 
     <script src="{js_path}assets/js/main.js"></script>
 </body>
