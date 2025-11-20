@@ -237,8 +237,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- Page Title -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 20px 20px;">
+        {page_title}
+    </div>
+
     <!-- Main Container -->
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 20px 20px;">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px 20px 20px;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <h3>📑 Содержание</h3>
@@ -555,6 +560,15 @@ class MarkdownConverter:
         # GitHub URL
         github_url = f"https://github.com/KhudyakovAlex/Synapse/blob/master/{rel_path}"
         
+        # Extract h1 from content for page title
+        h1_match = re.search(r'<h1>(.*?)</h1>', html_content, re.DOTALL)
+        if h1_match:
+            page_title = f'<h1 style="color: var(--accent-primary); font-size: 2.5em; margin: 0; padding-bottom: 15px; border-bottom: 3px solid var(--accent-primary); font-weight: normal;">{h1_match.group(1)}</h1>'
+            # Remove h1 from content
+            html_content = re.sub(r'<h1>.*?</h1>', '', html_content, count=1, flags=re.DOTALL)
+        else:
+            page_title = ''
+        
         # Fill template
         html = HTML_TEMPLATE.format(
             title=title,
@@ -563,6 +577,7 @@ class MarkdownConverter:
             root_path=root_path,
             breadcrumbs=breadcrumbs,
             github_url=github_url,
+            page_title=page_title,
             content=html_content
         )
         

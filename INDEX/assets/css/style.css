@@ -120,6 +120,7 @@ body {
 .sidebar {
     padding: 20px;
     height: fit-content;
+    width: 300px;
 }
 
 .sidebar[style*="display: none"] ~ .content {
@@ -159,16 +160,7 @@ body {
 
 /* Content */
 .content {
-    padding: 40px;
-}
-
-.content h1 {
-    color: var(--accent-primary);
-    font-size: 2.5em;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid var(--accent-primary);
-    font-weight: normal;
+    padding: 0;
 }
 
 .content h2 {
