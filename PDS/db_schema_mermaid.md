@@ -3,98 +3,98 @@
 ```mermaid
 erDiagram
     CONTROLLER {
-        string NAME "название контроллера"
-        string PASSWORD "пинкод 4 цифры"
-        boolean IS_SCHEDULE "включено расписание"
-        int ICO_NUM "номер иконки"
+        NAME string "название контроллера"
+        PASSWORD string "пинкод 4 цифры"
+        IS_SCHEDULE boolean "включено расписание"
+        ICO_NUM int "номер иконки"
     }
 
     LOCATIONS {
-        int NUM PK "порядковый номер"
-        string NAME "название локации"
-        int ICO_NUM "номер иконки"
-        boolean IS_AUTO "автоматический режим"
-        int SCALE "масштаб сетки 1-3"
-        int POS "позиция в списке 0-255"
+        NUM PK int "порядковый номер"
+        NAME string "название локации"
+        ICO_NUM int "номер иконки"
+        IS_AUTO boolean "автоматический режим"
+        SCALE int "масштаб сетки 1-3"
+        POS int "позиция в списке 0-255"
     }
 
     GROUPS {
-        int ID PK
-        string NAME "название группы"
-        int DALI_NUM "номер группы в DALI"
-        int LOCATION_ID FK "идентификатор локации"
+        ID PK int
+        NAME string "название группы"
+        DALI_NUM int "номер группы в DALI"
+        LOCATION_ID FK int "идентификатор локации"
     }
 
     LUMINAIRES {
-        int ID PK
-        string NAME "название светильника"
-        int DALI_ADDR "короткий адрес DALI"
-        int LOCATION_ID FK "идентификатор локации"
-        int GROUP_ID FK "идентификатор группы (nullable)"
-        int ICO_NUM "номер иконки"
-        int POS_X "колонка 0-255"
-        int POS_Y "ряд 0-255"
+        ID PK int
+        NAME string "название светильника"
+        DALI_ADDR int "короткий адрес DALI"
+        LOCATION_ID FK int "идентификатор локации"
+        GROUP_ID FK int "идентификатор группы (nullable)"
+        ICO_NUM int "номер иконки"
+        POS_X int "колонка 0-255"
+        POS_Y int "ряд 0-255"
     }
 
     PRES_SENSORS {
-        int ID PK
-        string NAME "название датчика"
-        int DALI_ADDR "короткий адрес DALI"
-        int DALI_INST "номер инстанса"
-        int LOCATION_ID FK "идентификатор локации"
-        int DELAY "задержка выключения сек"
+        ID PK int
+        NAME string "название датчика"
+        DALI_ADDR int "короткий адрес DALI"
+        DALI_INST int "номер инстанса"
+        LOCATION_ID FK int "идентификатор локации"
+        DELAY int "задержка выключения сек"
     }
 
     BRIGHT_SENSORS {
-        int ID PK
-        string NAME "название датчика"
-        int DALI_ADDR "короткий адрес DALI"
-        int DALI_INST "номер инстанса"
-        int LOCATION_ID FK "идентификатор локации"
-        int GROUP_ID FK "управляемая группа"
+        ID PK int
+        NAME string "название датчика"
+        DALI_ADDR int "короткий адрес DALI"
+        DALI_INST int "номер инстанса"
+        LOCATION_ID FK int "идентификатор локации"
+        GROUP_ID FK int "управляемая группа"
     }
 
     BUTTON_PANELS {
-        int ID PK
-        string NAME "название панели"
-        int DALI_ADDR "короткий адрес DALI"
-        int LOCATION_ID FK "идентификатор локации"
+        ID PK int
+        NAME string "название панели"
+        DALI_ADDR int "короткий адрес DALI"
+        LOCATION_ID FK int "идентификатор локации"
     }
 
     BUTTONS {
-        int ID PK
-        int NUM "номер кнопки на панели"
-        int BUTTON_PANEL_ID FK "идентификатор панели"
-        int DALI_INST "номер инстанса"
-        int ACTION_ID FK "действие по нажатию"
+        ID PK int
+        NUM int "номер кнопки на панели"
+        BUTTON_PANEL_ID FK int "идентификатор панели"
+        DALI_INST int "номер инстанса"
+        ACTION_ID FK int "действие по нажатию"
     }
 
     ACTIONS {
-        int ID PK
-        int GROUP_ID FK "группа (nullable)"
-        int LUMINAIRE_ID FK "светильник (nullable)"
-        int SCENE_ID FK "сцена (nullable)"
-        int VAL_BRIGHT "яркость"
-        int VAL_TW "температура белого"
-        int VAL_R "красный RGB"
-        int VAL_G "зеленый RGB"
-        int VAL_B "синий RGB"
-        int VAL_W "белый RGBW"
+        ID PK int
+        GROUP_ID FK int "группа (nullable)"
+        LUMINAIRE_ID FK int "светильник (nullable)"
+        SCENE_ID FK int "сцена (nullable)"
+        VAL_BRIGHT int "яркость"
+        VAL_TW int "температура белого"
+        VAL_R int "красный RGB"
+        VAL_G int "зеленый RGB"
+        VAL_B int "синий RGB"
+        VAL_W int "белый RGBW"
     }
 
     EVENTS {
-        int ID PK
-        boolean DATE_EVERYDAY "ежедневное"
-        string DATE_DAYS "по дням недели"
-        date DATE_SPECIFIC "конкретная дата"
-        time TIME "время события"
-        boolean SMOOTH "плавное изменение"
-        int ACTION_ID FK "идентификатор действия"
+        ID PK int
+        DATE_EVERYDAY boolean "ежедневное"
+        DATE_DAYS string "по дням недели"
+        DATE_SPECIFIC date "конкретная дата"
+        TIME time "время события"
+        SMOOTH boolean "плавное изменение"
+        ACTION_ID FK int "идентификатор действия"
     }
 
     SCENES {
-        int ID PK
-        string NAME "название сцены"
+        ID PK int
+        NAME string "название сцены"
     }
 
     %% Связи локаций
