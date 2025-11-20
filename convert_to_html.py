@@ -92,27 +92,6 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             height: auto !important;
         }}
         
-        /* Copy notification */
-        .copy-notification {{
-            position: absolute;
-            background: var(--accent-primary);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            font-size: 0.85em;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            pointer-events: none;
-            z-index: 10000;
-            white-space: nowrap;
-        }}
-        
-        .copy-notification.show {{
-            opacity: 1;
-            transform: translateY(0);
-        }}
     </style>
     <script>
         window.mermaid = {{
@@ -136,33 +115,6 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         let scrollLeft = 0;
         let scrollTop = 0;
         let shiftPressed = false;
-        
-        // Show notification near selection
-        function showNotification(message) {{
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            
-            let notification = document.querySelector('.copy-notification');
-            if (!notification) {{
-                notification = document.createElement('div');
-                notification.className = 'copy-notification';
-                document.body.appendChild(notification);
-            }}
-            
-            // Position near the end of selection
-            notification.style.left = `${{rect.right + window.scrollX + 10}}px`;
-            notification.style.top = `${{rect.top + window.scrollY}}px`;
-            
-            notification.textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(() => {{
-                notification.classList.remove('show');
-            }}, 2000);
-        }}
         
         document.addEventListener('DOMContentLoaded', () => {{
             const mermaid = document.querySelector('.mermaid');
@@ -201,57 +153,11 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             
             document.addEventListener('keyup', (e) => {{
                 if (e.key === 'Shift') {{
-                    // Get selected text BEFORE changing user-select
-                    const selectedText = window.getSelection().toString().trim();
-                    console.log('Selected text:', selectedText);
-                    
                     shiftPressed = false;
                     document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
-                    document.body.style.webkitUserSelect = 'none';
-                    document.body.style.mozUserSelect = 'none';
-                    document.body.style.msUserSelect = 'none';
-                    document.body.style.userSelect = 'none';
-                    mermaid.style.webkitUserSelect = 'none';
-                    mermaid.style.mozUserSelect = 'none';
-                    mermaid.style.msUserSelect = 'none';
-                    mermaid.style.userSelect = 'none';
-                    
-                    if (selectedText) {{
-                        // Try modern clipboard API
-                        if (navigator.clipboard && navigator.clipboard.writeText) {{
-                            navigator.clipboard.writeText(selectedText).then(() => {{
-                                console.log('Copied successfully');
-                                showNotification('✓ Скопировано');
-                            }}).catch(err => {{
-                                console.error('Clipboard API failed:', err);
-                                // Fallback to execCommand
-                                fallbackCopy(selectedText);
-                            }});
-                        }} else {{
-                            // Fallback for older browsers
-                            fallbackCopy(selectedText);
-                        }}
-                    }}
+                    // Don't change user-select back to none - keep selection visible
                 }}
             }});
-            
-            // Fallback copy method
-            function fallbackCopy(text) {{
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {{
-                    document.execCommand('copy');
-                    console.log('Fallback copy successful');
-                    showNotification('✓ Скопировано');
-                }} catch (err) {{
-                    console.error('Fallback copy failed:', err);
-                }}
-                document.body.removeChild(textarea);
-            }}
             
             // Pan with mouse (only if Shift not pressed)
             document.addEventListener('mousedown', (e) => {{
