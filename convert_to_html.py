@@ -144,6 +144,8 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                     document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
                     document.body.style.userSelect = 'none';
                     mermaid.style.userSelect = 'none';
+                    // Clear selection when Shift is released
+                    window.getSelection().removeAllRanges();
                 }}
             }});
             
