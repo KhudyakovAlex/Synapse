@@ -69,6 +69,29 @@
             width: auto !important;
             height: auto !important;
         }
+        
+        /* Copy notification */
+        .copy-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        
+        .copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
     <script>
         window.mermaid = {
@@ -92,6 +115,23 @@
         let scrollLeft = 0;
         let scrollTop = 0;
         let shiftPressed = false;
+        
+        // Show notification
+        function showNotification(message) {
+            let notification = document.querySelector('.copy-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'copy-notification';
+                document.body.appendChild(notification);
+            }
+            
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             const mermaid = document.querySelector('.mermaid');
@@ -140,6 +180,16 @@
                     mermaid.style.mozUserSelect = 'none';
                     mermaid.style.msUserSelect = 'none';
                     mermaid.style.userSelect = 'none';
+                    
+                    // Copy selected text to clipboard
+                    const selectedText = window.getSelection().toString();
+                    if (selectedText) {
+                        navigator.clipboard.writeText(selectedText).then(() => {
+                            showNotification('Скопировано в буфер обмена');
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
+                        });
+                    }
                 }
             });
             
