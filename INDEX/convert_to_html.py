@@ -230,10 +230,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <!-- Logo Bar -->
     <div style="background: var(--accent-primary); padding: 20px 0; margin-bottom: 0;">
         <div class="header-container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
-            <a href="{root_path}index.html">
+            <a href="{root_path}index.html" style="margin-left: 10px;">
                 <img src="{root_path}assets/img/Synapse_black.png" alt="Synapse" style="height: 50px; display: block;">
             </a>
-            <a href="{github_url}" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease;">GitHub →</a>
+            <a href="{github_url}" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease; margin-right: 10px;">GitHub →</a>
         </div>
     </div>
 
