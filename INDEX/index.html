@@ -9,6 +9,37 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
+        .header-bar {
+            background: var(--accent-primary);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-bar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-bar .logo {
+            height: 40px;
+            display: block;
+        }
+        
+        .header-bar a.github-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s ease;
+        }
+        
+        .header-bar a.github-link:hover {
+            opacity: 0.8;
+        }
+        
         .section {
             background: var(--bg-secondary);
             padding: 40px;
@@ -76,6 +107,16 @@
     </style>
 </head>
 <body>
+    <!-- Header Bar -->
+    <div class="header-bar">
+        <div class="header-bar-container">
+            <a href="index.html">
+                <img src="assets/img/Synapse_black.png" alt="Synapse" class="logo">
+            </a>
+            <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank" class="github-link">GitHub →</a>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
         <!-- PRD Section -->
