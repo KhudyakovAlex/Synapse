@@ -179,6 +179,10 @@
             
             document.addEventListener('keyup', (e) => {
                 if (e.key === 'Shift') {
+                    // Get selected text BEFORE changing user-select
+                    const selectedText = window.getSelection().toString().trim();
+                    console.log('Selected text:', selectedText);
+                    
                     shiftPressed = false;
                     document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
                     document.body.style.webkitUserSelect = 'none';
@@ -189,10 +193,6 @@
                     mermaid.style.mozUserSelect = 'none';
                     mermaid.style.msUserSelect = 'none';
                     mermaid.style.userSelect = 'none';
-                    
-                    // Copy selected text to clipboard
-                    const selectedText = window.getSelection().toString().trim();
-                    console.log('Selected text:', selectedText);
                     
                     if (selectedText) {
                         // Try modern clipboard API
