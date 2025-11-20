@@ -94,20 +94,19 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         
         /* Copy notification */
         .copy-notification {{
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
+            position: absolute;
             background: var(--accent-primary);
             color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 0.9em;
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 0.85em;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(-10px);
             transition: all 0.3s ease;
             pointer-events: none;
             z-index: 10000;
+            white-space: nowrap;
         }}
         
         .copy-notification.show {{
@@ -138,14 +137,24 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         let scrollTop = 0;
         let shiftPressed = false;
         
-        // Show notification
+        // Show notification near selection
         function showNotification(message) {{
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
             let notification = document.querySelector('.copy-notification');
             if (!notification) {{
                 notification = document.createElement('div');
                 notification.className = 'copy-notification';
                 document.body.appendChild(notification);
             }}
+            
+            // Position near the end of selection
+            notification.style.left = `${{rect.right + window.scrollX + 10}}px`;
+            notification.style.top = `${{rect.top + window.scrollY}}px`;
             
             notification.textContent = message;
             notification.classList.add('show');
