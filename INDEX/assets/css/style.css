@@ -365,8 +365,6 @@ body {
     }
     
     .header-container {
-        flex-direction: column;
-        gap: 15px;
         padding: 0 10px !important;
     }
     
