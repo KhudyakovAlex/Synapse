@@ -27,7 +27,7 @@
 
 body {
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.2;
+    line-height: 1.3;
     color: var(--text-primary);
     background: var(--bg-primary);
     transition: background 0.3s ease, color 0.3s ease;
@@ -188,7 +188,7 @@ body {
 
 .content p {
     margin: 15px 0;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
 .content ul, .content ol {
@@ -198,7 +198,7 @@ body {
 
 .content li {
     margin: 8px 0;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
 .content a {
