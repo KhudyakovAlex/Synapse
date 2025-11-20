@@ -118,11 +118,8 @@ body {
 
 /* Sidebar */
 .sidebar {
-    background: var(--bg-secondary);
     padding: 20px;
     height: fit-content;
-    box-shadow: 0 2px 10px var(--shadow);
-    border-radius: 0 !important;
 }
 
 .sidebar h3 {
@@ -158,10 +155,7 @@ body {
 
 /* Content */
 .content {
-    background: var(--bg-secondary);
     padding: 40px;
-    box-shadow: 0 2px 10px var(--shadow);
-    border-radius: 0 !important;
 }
 
 .content h1 {
