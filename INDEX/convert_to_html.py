@@ -233,7 +233,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <a href="{root_path}index.html">
                 <img src="{root_path}assets/img/Synapse_black.png" alt="Synapse" style="height: 50px; display: block;">
             </a>
-            <a href="https://github.com/KhudyakovAlex/Synapse" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease;">GitHub →</a>
+            <a href="{github_url}" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease;">GitHub →</a>
         </div>
     </div>
 
@@ -249,12 +249,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         <!-- Content -->
         <main class="content">
-            <p class="source-link" style="display: inline-block;">
-                <a href="{github_url}" target="_blank">
-                    📄 Исходный файл на GitHub
-                </a>
-            </p>
-            
             {content}
         </main>
     </div>
