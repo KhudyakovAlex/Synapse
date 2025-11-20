@@ -122,6 +122,10 @@ body {
     height: fit-content;
 }
 
+.sidebar[style*="display: none"] ~ .content {
+    grid-column: 1 / -1;
+}
+
 .sidebar h3 {
     color: var(--accent-primary);
     margin-bottom: 15px;

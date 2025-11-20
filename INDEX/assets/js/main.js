@@ -5,16 +5,21 @@
 // Generate Table of Contents from headings
 function generateTOC() {
     const content = document.querySelector('.content');
-    const sidebar = document.querySelector('.sidebar ul');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarList = document.querySelector('.sidebar ul');
     
-    if (!content || !sidebar) return;
+    if (!content || !sidebar || !sidebarList) return;
     
     const headings = content.querySelectorAll('h2, h3');
     
-    if (headings.length === 0) return;
+    if (headings.length === 0) {
+        // Hide sidebar if no headings
+        sidebar.style.display = 'none';
+        return;
+    }
     
     // Clear existing TOC (except the first "Навигация" item if present)
-    const navItems = sidebar.querySelectorAll('li');
+    const navItems = sidebarList.querySelectorAll('li');
     navItems.forEach((item, index) => {
         if (index > 0) item.remove();
     });
@@ -37,7 +42,7 @@ function generateTOC() {
         }
         
         li.appendChild(a);
-        sidebar.appendChild(li);
+        sidebarList.appendChild(li);
     });
     
     // Highlight current section on scroll
