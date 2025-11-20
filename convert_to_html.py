@@ -149,7 +149,11 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             
             // Pan with mouse (only if Shift not pressed)
             document.addEventListener('mousedown', (e) => {{
-                if (shiftPressed) return; // Allow text selection
+                if (shiftPressed) {{
+                    // Clear previous selection to start fresh
+                    window.getSelection().removeAllRanges();
+                    return; // Allow text selection
+                }}
                 
                 isPanning = true;
                 document.body.style.cursor = 'grabbing';
@@ -175,11 +179,6 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                 if (isPanning) {{
                     isPanning = false;
                     document.body.style.cursor = shiftPressed ? 'text' : 'grab';
-                }}
-                
-                // Clear text selection when not in Shift mode
-                if (!shiftPressed) {{
-                    window.getSelection().removeAllRanges();
                 }}
             }});
         }});
