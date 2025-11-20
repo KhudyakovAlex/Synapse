@@ -176,6 +176,11 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                     isPanning = false;
                     document.body.style.cursor = shiftPressed ? 'text' : 'grab';
                 }}
+                
+                // Clear text selection when not in Shift mode
+                if (!shiftPressed) {{
+                    window.getSelection().removeAllRanges();
+                }}
             }});
         }});
     </script>
