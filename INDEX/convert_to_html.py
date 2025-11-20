@@ -229,7 +229,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <body>
     <!-- Logo Bar -->
     <div style="background: var(--accent-primary); padding: 20px 0; margin-bottom: 0;">
-        <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="header-container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
             <a href="{root_path}index.html">
                 <img src="{root_path}assets/img/Synapse_black.png" alt="Synapse" style="height: 50px; display: block;">
             </a>
@@ -238,7 +238,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <!-- Page Title -->
-    <div style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 20px 20px;">
+    <div class="page-title-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 20px 20px;">
         {page_title}
     </div>
 

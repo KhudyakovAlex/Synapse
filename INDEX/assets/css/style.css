@@ -343,6 +343,18 @@ body {
         padding: 0 5px 5px 5px !important;
     }
     
+    .main-container {
+        padding: 20px 5px 10px 5px !important;
+    }
+    
+    .page-title-container {
+        padding: 20px 5px 10px 5px !important;
+    }
+    
+    .logo-bar-container {
+        padding: 0 5px !important;
+    }
+    
     .sidebar {
         position: static;
         padding: 5px;
