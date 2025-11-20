@@ -123,11 +123,11 @@ D:\Git\Synapse\
 
 ## Файлы для конвертации
 
-### PRD (Product Requirements Document)
+### PRD (Техническое задание)
 - `PRD/SynapsePRD.md` — основной документ с требованиями
 - `PRD/Идеи.md` — дополнительные идеи
 
-### PDS (Product Design Specification)
+### PDS (Спецификация на разработку)
 - `PDS/SynapsePDS_APP.md` — спецификация приложения
 - `PDS/SynapsePDS_APP_UI.md` — UI приложения
 - `PDS/SynapsePDS_DB.md` — база данных
