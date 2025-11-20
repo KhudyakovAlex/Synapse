@@ -340,15 +340,15 @@ body {
 @media (max-width: 768px) {
     .container {
         grid-template-columns: 1fr;
-        padding: 0 10px 10px 10px !important;
+        padding: 0 20px 20px 20px !important;
     }
     
     .main-container {
-        padding: 20px 10px 10px 10px !important;
+        padding: 20px 20px 10px 20px !important;
     }
     
     .page-title-container {
-        padding: 20px 10px 10px 10px !important;
+        padding: 20px 20px 10px 20px !important;
     }
     
     .logo-bar-container {
@@ -357,7 +357,7 @@ body {
     
     .sidebar {
         position: static;
-        padding: 10px;
+        padding: 20px;
     }
     
     .content {
