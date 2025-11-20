@@ -104,7 +104,6 @@ function initCodeCopy() {
             background: var(--accent-primary);
             color: white;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
             font-size: 0.8em;
             opacity: 0;
