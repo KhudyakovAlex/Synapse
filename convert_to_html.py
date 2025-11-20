@@ -56,6 +56,9 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             user-select: none;
         }}
         
@@ -76,6 +79,9 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
             width: 100%;
             height: 100%;
             transform-origin: top left;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             user-select: none;
         }}
         
@@ -133,7 +139,13 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                 if (e.key === 'Shift' && !shiftPressed) {{
                     shiftPressed = true;
                     document.body.style.cursor = 'text';
+                    document.body.style.webkitUserSelect = 'text';
+                    document.body.style.mozUserSelect = 'text';
+                    document.body.style.msUserSelect = 'text';
                     document.body.style.userSelect = 'text';
+                    mermaid.style.webkitUserSelect = 'text';
+                    mermaid.style.mozUserSelect = 'text';
+                    mermaid.style.msUserSelect = 'text';
                     mermaid.style.userSelect = 'text';
                 }}
             }});
@@ -142,10 +154,14 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
                 if (e.key === 'Shift') {{
                     shiftPressed = false;
                     document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
+                    document.body.style.webkitUserSelect = 'none';
+                    document.body.style.mozUserSelect = 'none';
+                    document.body.style.msUserSelect = 'none';
                     document.body.style.userSelect = 'none';
+                    mermaid.style.webkitUserSelect = 'none';
+                    mermaid.style.mozUserSelect = 'none';
+                    mermaid.style.msUserSelect = 'none';
                     mermaid.style.userSelect = 'none';
-                    // Clear selection when Shift is released
-                    window.getSelection().removeAllRanges();
                 }}
             }});
             
