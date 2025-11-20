@@ -285,7 +285,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 class MarkdownConverter:
     def __init__(self, repo_root: str):
         self.repo_root = Path(repo_root)
-        self.index_root = self.repo_root / "INDEX"
+        self.index_root = Path(repo_root) / "INDEX"
         
     def convert_heading(self, text: str) -> str:
         """Convert markdown headings to HTML"""
@@ -623,8 +623,8 @@ class MarkdownConverter:
 
 
 if __name__ == '__main__':
-    # Get repository root (current directory)
-    repo_root = os.path.dirname(os.path.abspath(__file__))
+    # Get repository root (parent of INDEX directory)
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     # Create converter and run
     converter = MarkdownConverter(repo_root)

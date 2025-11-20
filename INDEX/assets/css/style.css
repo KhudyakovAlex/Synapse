@@ -3,18 +3,18 @@
    ======================================== */
 
 :root {
-    /* Colors */
+    /* IBM Carbon Design System Colors */
     --bg-primary: #ffffff;
-    --bg-secondary: #f8f9fa;
-    --bg-code: #f4f4f4;
-    --text-primary: #333333;
-    --text-secondary: #666666;
-    --text-muted: #999999;
+    --bg-secondary: #f4f4f4;
+    --bg-code: #e0e0e0;
+    --text-primary: #161616;
+    --text-secondary: #525252;
+    --text-muted: #8d8d8d;
     --border-color: #e0e0e0;
-    --accent-primary: #667eea;
-    --accent-secondary: #764ba2;
-    --link-color: #667eea;
-    --link-hover: #764ba2;
+    --accent-primary: #006a8e;
+    --accent-secondary: #004d6b;
+    --link-color: #006a8e;
+    --link-hover: #004d6b;
     --shadow: rgba(0, 0, 0, 0.1);
 }
 
