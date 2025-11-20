@@ -243,7 +243,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <!-- Main Container -->
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px 20px 20px;">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px 60px 20px;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <h3>Содержание</h3>
