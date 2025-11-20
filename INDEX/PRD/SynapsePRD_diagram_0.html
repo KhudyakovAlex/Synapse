@@ -191,16 +191,45 @@
                     mermaid.style.userSelect = 'none';
                     
                     // Copy selected text to clipboard
-                    const selectedText = window.getSelection().toString();
+                    const selectedText = window.getSelection().toString().trim();
+                    console.log('Selected text:', selectedText);
+                    
                     if (selectedText) {
-                        navigator.clipboard.writeText(selectedText).then(() => {
-                            showNotification('Скопировано в буфер обмена');
-                        }).catch(err => {
-                            console.error('Failed to copy:', err);
-                        });
+                        // Try modern clipboard API
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(selectedText).then(() => {
+                                console.log('Copied successfully');
+                                showNotification('✓ Скопировано');
+                            }).catch(err => {
+                                console.error('Clipboard API failed:', err);
+                                // Fallback to execCommand
+                                fallbackCopy(selectedText);
+                            });
+                        } else {
+                            // Fallback for older browsers
+                            fallbackCopy(selectedText);
+                        }
                     }
                 }
             });
+            
+            // Fallback copy method
+            function fallbackCopy(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    console.log('Fallback copy successful');
+                    showNotification('✓ Скопировано');
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                }
+                document.body.removeChild(textarea);
+            }
             
             // Pan with mouse (only if Shift not pressed)
             document.addEventListener('mousedown', (e) => {
