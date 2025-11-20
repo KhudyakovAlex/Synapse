@@ -121,6 +121,8 @@ body {
     padding: 20px;
     height: fit-content;
     width: 300px;
+    position: sticky;
+    top: 20px;
 }
 
 .sidebar[style*="display: none"] ~ .content {
@@ -138,7 +140,7 @@ body {
 }
 
 .sidebar ul li {
-    margin: 8px 0;
+    margin: 5px 0;
 }
 
 .sidebar ul li a {
