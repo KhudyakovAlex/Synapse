@@ -46,7 +46,7 @@
 - **Мобильные**: `line-height: 1.3`
 
 ### Главная страница (INDEX/index.html)
-- **Favicon**: `assets/img/Synapse_black.png` (иконка сайта в браузере)
+- **Favicon**: `assets/img/Synapse_ico.png` (иконка сайта в браузере)
 - **Шапка**: логотип слева (ссылка на index.html), ссылка "GitHub →" справа (ссылка на репозиторий), фон `#006a8e`
 - **Мозгокарта**: в самом верху страницы (из `Project/mindmap.md`)
   - Размер: `transform: scale(0.93)`
