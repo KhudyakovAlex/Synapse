@@ -135,7 +135,7 @@
         <!-- Process Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Процесс разработки</h2>
-            <div class="mermaid" id="process-diagram" style="margin: 20px 0; padding: 0; background: transparent;">
+            <div class="mermaid" id="process-diagram" style="margin: 20px 0; padding: 0; background: transparent; cursor: pointer;" title="Нажмите для увеличения">
 flowchart LR
     SBD((Совет<br>благородных<br>донов))
     
@@ -145,11 +145,11 @@ flowchart LR
     
     PRO((Проектир.<br>Худяков))
     
-    DSUI( СпецРазр UI )
-    DSAPP( СпецРазр Приложение )
-    DSDB( СпецРазр База данных )
-    DSP(СпецРазр Протокол обмена Приложение-Прошивка)
-    DSFW( СпецРазр Прошивка )
+    DSUI( СпецРазр<br>UI )
+    DSAPP( СпецРазр<br>Приложение )
+    DSDB( СпецРазр<br>База данных )
+    DSP(СпецРазр<br>Протокол обмена<br>Приложение-Прошивка)
+    DSFW( СпецРазр<br>Прошивка )
 
     UIUXD((UX-дизайн<br>Худяков))
     UIUX( UX-макет )
@@ -218,7 +218,7 @@ flowchart LR
         <!-- Mindmap Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Мозгокарта</h2>
-            <div class="mermaid" id="mindmap-diagram" style="transform: scale(0.93); transform-origin: center; margin: 40px 0; padding: 0; background: transparent;">
+            <div class="mermaid" id="mindmap-diagram" style="transform: scale(0.93); transform-origin: center; margin: 40px 0; padding: 0; background: transparent; cursor: pointer;" title="Нажмите для увеличения">
 ---
 config:
   theme: 'base'
@@ -254,6 +254,14 @@ config:
                 // Process diagram click handler
                 const processDiagram = document.getElementById('process-diagram');
                 if (processDiagram) {
+                    // Add click handler for the whole diagram (background)
+                    processDiagram.addEventListener('click', function(e) {
+                        // Check if click was on SVG background, not on a node
+                        if (e.target.tagName === 'svg' || e.target.classList.contains('mermaid')) {
+                            window.location.href = 'process_diagram_full.html';
+                        }
+                    });
+                    
                     const processNodes = processDiagram.querySelectorAll('.node');
                     processNodes.forEach(node => {
                         const text = node.textContent.trim();
@@ -288,6 +296,14 @@ config:
                 // Mindmap click handlers
                 const mindmap = document.getElementById('mindmap-diagram');
                 if (mindmap) {
+                    // Add click handler for the whole diagram (background)
+                    mindmap.addEventListener('click', function(e) {
+                        // Check if click was on SVG background, not on a node
+                        if (e.target.tagName === 'svg' || e.target.classList.contains('mermaid')) {
+                            window.location.href = 'mindmap_diagram_full.html';
+                        }
+                    });
+                    
                     // Add click handlers to mindmap nodes
                     const nodes = mindmap.querySelectorAll('g.mindmap-node');
                     nodes.forEach(node => {

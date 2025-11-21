@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Процесс разработки - Synapse</title>
+    <link rel="icon" type="image/png" href="assets/img/Synapse_ico.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.mermaid = {
+            startOnLoad: true,
+            theme: "default",
+            securityLevel: "loose"
+        };
+    </script>
+    <script defer src="assets/js/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            overflow: auto;
+            cursor: grab;
+        }
+        
+        body:active {
+            cursor: grabbing;
+        }
+        
+        .diagram-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .mermaid {
+            transform-origin: top left;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .mermaid.selecting {
+            user-select: text !important;
+            -moz-user-select: text !important;
+            -webkit-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart LR
+    SBD((Совет<br>благородных<br>донов))
+    
+    ANAL((Анализ<br>Худяков))
+    
+    PRD( ТехЗад )
+    
+    PRO((Проектир.<br>Худяков))
+    
+    DSUI( СпецРазр<br>UI )
+    DSAPP( СпецРазр<br>Приложение )
+    DSDB( СпецРазр<br>База данных )
+    DSP(СпецРазр<br>Протокол обмена<br>Приложение-Прошивка)
+    DSFW( СпецРазр<br>Прошивка )
+
+    UIUXD((UX-дизайн<br>Худяков))
+    UIUX( UX-макет )
+    APPD(( Прогр.<br>Булатов ))
+
+    FWD(( Прогр.<br>Саенко ))
+
+    UIUID((UI-дизайн<br>Брянкина))
+    UIUI( UI-макет )
+
+    FW( Прошивка )
+    APP( Приложение )
+
+    SBD ---> ANAL
+    ANAL ---> PRD
+    PRD ---> PRO
+    PRO ---> DSUI
+    PRO ---> DSFW
+    PRO ---> DSAPP
+    PRO ---> DSP
+    PRO ---> DSDB
+
+    DSUI ---> UIUXD
+    UIUXD ---> UIUX
+    UIUX ---> UIUID
+    UIUID ---> UIUI
+
+    UIUI ---> APPD
+    DSAPP ---> APPD
+    DSP ---> APPD
+    DSDB ---> APPD
+
+    DSFW ---> FWD
+    DSP ---> FWD
+    DSDB ---> FWD
+
+    FWD ---> FW
+    APPD ---> APP
+
+    style ANAL fill:#FFB3BA,stroke:#999
+    style PRO fill:#BAFFC9,stroke:#999
+    style UIUXD fill:#BAE1FF,stroke:#999
+    style UIUID fill:#FFFFBA,stroke:#999
+    style APPD fill:#BAF3FF,stroke:#999
+    style FWD fill:#FFBAF3,stroke:#999
+    
+    style SBD fill:#E0E0E0,stroke:#999
+    style PRD fill:#E0E0E0,stroke:#999
+    style DSUI fill:#E0E0E0,stroke:#999
+    style DSAPP fill:#E0E0E0,stroke:#999
+    style DSDB fill:#E0E0E0,stroke:#999
+    style DSP fill:#E0E0E0,stroke:#999
+    style DSFW fill:#E0E0E0,stroke:#999
+    style UIUX fill:#E0E0E0,stroke:#999
+    style UIUI fill:#E0E0E0,stroke:#999
+    style FW fill:#E0E0E0,stroke:#999
+    style APP fill:#E0E0E0,stroke:#999
+
+    click PRD "PRD/SynapsePRD.html"
+    click DSUI "PDS/SynapsePDS_APP_UI.html"
+    click DSFW "PDS/SynapsePDS_FW.html"
+    click DSAPP "PDS/SynapsePDS_APP.html"
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mermaid = document.querySelector('.mermaid');
+            
+            // Set cursor
+            document.body.style.cursor = 'grab';
+            
+            // Pan functionality
+            let isPanning = false;
+            let startX, startY;
+            let scrollLeft, scrollTop;
+            
+            document.body.addEventListener('mousedown', (e) => {
+                if (!e.shiftKey) {
+                    isPanning = true;
+                    document.body.style.cursor = 'grabbing';
+                    startX = e.pageX - document.body.scrollLeft;
+                    startY = e.pageY - document.body.scrollTop;
+                    scrollLeft = document.body.scrollLeft;
+                    scrollTop = document.body.scrollTop;
+                }
+            });
+            
+            document.body.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                e.preventDefault();
+                const x = e.pageX - document.body.scrollLeft;
+                const y = e.pageY - document.body.scrollTop;
+                const walkX = (x - startX);
+                const walkY = (y - startY);
+                window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
+            });
+            
+            document.body.addEventListener('mouseup', () => {
+                isPanning = false;
+                document.body.style.cursor = 'grab';
+            });
+            
+            document.body.addEventListener('mouseleave', () => {
+                isPanning = false;
+                document.body.style.cursor = 'grab';
+            });
+            
+            // Zoom functionality
+            let currentScale = 1;
+            const minScale = 0.5;
+            const maxScale = 5;
+            
+            mermaid.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                currentScale *= delta;
+                currentScale = Math.max(minScale, Math.min(maxScale, currentScale));
+                mermaid.style.transform = `scale(${currentScale})`;
+            });
+            
+            // Text selection with Shift
+            let isSelecting = false;
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Shift' && !isSelecting) {
+                    isSelecting = true;
+                    mermaid.classList.add('selecting');
+                    document.body.style.cursor = 'text';
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'Shift') {
+                    isSelecting = false;
+                    mermaid.classList.remove('selecting');
+                    document.body.style.cursor = 'grab';
+                }
+            });
+            
+            document.addEventListener('mousedown', (e) => {
+                if (e.shiftKey) {
+                    window.getSelection().removeAllRanges();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

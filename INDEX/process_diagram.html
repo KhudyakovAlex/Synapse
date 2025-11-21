@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Процесс разработки - Synapse</title>
+    <link rel="icon" type="image/png" href="assets/img/Synapse_ico.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.mermaid = {
+            startOnLoad: true,
+            theme: "default",
+            securityLevel: "loose"
+        };
+    </script>
+    <script defer src="assets/js/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            overflow: auto;
+            cursor: grab;
+        }
+        
+        body:active {
+            cursor: grabbing;
+        }
+        
+        .diagram-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .mermaid {
+            transform-origin: top left;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .mermaid.selecting {
+            user-select: text !important;
+            -moz-user-select: text !important;
+            -webkit-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="mermaid">
+<!-- DIAGRAM_CONTENT_PLACEHOLDER -->
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mermaid = document.querySelector('.mermaid');
+            
+            // Set cursor
+            document.body.style.cursor = 'grab';
+            
+            // Pan functionality
+            let isPanning = false;
+            let startX, startY;
+            let scrollLeft, scrollTop;
+            
+            document.body.addEventListener('mousedown', (e) => {
+                if (!e.shiftKey) {
+                    isPanning = true;
+                    document.body.style.cursor = 'grabbing';
+                    startX = e.pageX - document.body.scrollLeft;
+                    startY = e.pageY - document.body.scrollTop;
+                    scrollLeft = document.body.scrollLeft;
+                    scrollTop = document.body.scrollTop;
+                }
+            });
+            
+            document.body.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                e.preventDefault();
+                const x = e.pageX - document.body.scrollLeft;
+                const y = e.pageY - document.body.scrollTop;
+                const walkX = (x - startX);
+                const walkY = (y - startY);
+                window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
+            });
+            
+            document.body.addEventListener('mouseup', () => {
+                isPanning = false;
+                document.body.style.cursor = 'grab';
+            });
+            
+            document.body.addEventListener('mouseleave', () => {
+                isPanning = false;
+                document.body.style.cursor = 'grab';
+            });
+            
+            // Zoom functionality
+            let currentScale = 1;
+            const minScale = 0.5;
+            const maxScale = 5;
+            
+            mermaid.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                currentScale *= delta;
+                currentScale = Math.max(minScale, Math.min(maxScale, currentScale));
+                mermaid.style.transform = `scale(${currentScale})`;
+            });
+            
+            // Text selection with Shift
+            let isSelecting = false;
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Shift' && !isSelecting) {
+                    isSelecting = true;
+                    mermaid.classList.add('selecting');
+                    document.body.style.cursor = 'text';
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'Shift') {
+                    isSelecting = false;
+                    mermaid.classList.remove('selecting');
+                    document.body.style.cursor = 'grab';
+                }
+            });
+            
+            document.addEventListener('mousedown', (e) => {
+                if (e.shiftKey) {
+                    window.getSelection().removeAllRanges();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

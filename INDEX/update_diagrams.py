@@ -39,12 +39,28 @@ def update_diagram_in_html(html_path, diagram_id, new_diagram_content):
     
     return html_content != updated_html
 
+def create_diagram_page(diagram_content, title, output_path):
+    """Create a standalone HTML page for a diagram"""
+    template = Path(__file__).parent / 'process_diagram.html'
+    with open(template, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    # Replace placeholder with diagram content
+    html_content = html_content.replace('<!-- DIAGRAM_CONTENT_PLACEHOLDER -->', diagram_content)
+    html_content = html_content.replace('<title>Процесс разработки - Synapse</title>', 
+                                       f'<title>{title} - Synapse</title>')
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
 def main():
     # Paths
     base_dir = Path(__file__).parent.parent
     index_html = base_dir / 'INDEX' / 'index.html'
     process_md = base_dir / 'Project' / 'process.md'
     mindmap_md = base_dir / 'Project' / 'mindmap.md'
+    process_diagram_html = base_dir / 'INDEX' / 'process_diagram_full.html'
+    mindmap_diagram_html = base_dir / 'INDEX' / 'mindmap_diagram_full.html'
     
     print("Synapse Diagram Updater")
     print("=" * 50)
@@ -67,9 +83,13 @@ def main():
             process_diagram += '\n    click DSAPP "PDS/SynapsePDS_APP.html"'
         
         if update_diagram_in_html(index_html, 'process-diagram', process_diagram):
-            print("   [OK] Process diagram updated")
+            print("   [OK] Process diagram updated in index.html")
         else:
-            print("   [-] Process diagram unchanged")
+            print("   [-] Process diagram unchanged in index.html")
+        
+        # Create standalone diagram page
+        create_diagram_page(process_diagram, 'Процесс разработки', process_diagram_html)
+        print("   [OK] Created process_diagram_full.html")
     else:
         print("   [FAIL] Failed to extract process diagram")
     
@@ -78,9 +98,13 @@ def main():
     mindmap_diagram = extract_mermaid_from_md(mindmap_md)
     if mindmap_diagram:
         if update_diagram_in_html(index_html, 'mindmap-diagram', mindmap_diagram):
-            print("   [OK] Mindmap updated")
+            print("   [OK] Mindmap updated in index.html")
         else:
-            print("   [-] Mindmap unchanged")
+            print("   [-] Mindmap unchanged in index.html")
+        
+        # Create standalone diagram page
+        create_diagram_page(mindmap_diagram, 'Мозгокарта', mindmap_diagram_html)
+        print("   [OK] Created mindmap_diagram_full.html")
     else:
         print("   [FAIL] Failed to extract mindmap")
     
