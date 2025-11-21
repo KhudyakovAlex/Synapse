@@ -291,6 +291,24 @@ body {
     margin: 20px 0;
     display: flex;
     justify-content: center;
+    outline: none !important;
+    border: none !important;
+}
+
+.mermaid *,
+.mermaid svg,
+.mermaid svg * {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.mermaid:focus,
+.mermaid:active,
+.mermaid svg:focus,
+.mermaid svg:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 
