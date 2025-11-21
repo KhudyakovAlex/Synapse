@@ -293,6 +293,7 @@ body {
     justify-content: center;
     outline: none !important;
     border: none !important;
+    box-shadow: none !important;
 }
 
 .mermaid *,
@@ -300,6 +301,7 @@ body {
 .mermaid svg * {
     outline: none !important;
     -webkit-tap-highlight-color: transparent !important;
+    box-shadow: none !important;
 }
 
 .mermaid:focus,
@@ -308,6 +310,11 @@ body {
 .mermaid svg:active {
     outline: none !important;
     border: none !important;
+    box-shadow: none !important;
+}
+
+.mermaid svg {
+    filter: none !important;
     box-shadow: none !important;
 }
 
