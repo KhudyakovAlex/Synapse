@@ -138,7 +138,7 @@
 flowchart LR
     SBD((Совет<br>благородных<br>донов))
     ANAL((Анализ<br>Худяков))
-    PRD( ТЗ )
+    PRD( Техзадание )
     PRO((Проектирование<br>Худяков))
     DSUI( СР UI )
     DSFW( СР Прошивка )
@@ -197,7 +197,7 @@ mindmap
                     const processNodes = processDiagram.querySelectorAll('.node');
                     processNodes.forEach(node => {
                         const text = node.textContent.trim();
-                        if (text.includes('ТЗ')) {
+                        if (text.includes('Техзадание')) {
                             node.style.cursor = 'pointer';
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();

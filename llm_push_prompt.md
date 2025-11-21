@@ -206,24 +206,30 @@ D:\Git\Synapse\
 2. **Если изменены файлы, из которых генерируется сайт**:
    - `PRD/*.md` → нужно обновить `INDEX/PRD/*.html`
    - `PDS/*.md` → нужно обновить `INDEX/PDS/*.html`
-   - `Project/mindmap.md` → нужно обновить `INDEX/index.html` (мозгокарта)
+   - `Project/mindmap.md` → нужно **ВРУЧНУЮ** обновить содержимое `<div class="mermaid" id="mindmap-diagram">` в `INDEX/index.html`
+   - `Project/process.md` → нужно **ВРУЧНУЮ** обновить содержимое `<div class="mermaid" id="process-diagram">` в `INDEX/index.html` И обработчики кликов в JavaScript
    - `INDEX/assets/css/style.css` → проверить, что стили применены
    - `INDEX/assets/js/main.js` → проверить, что скрипты работают
    - `INDEX/index.html` → проверить структуру главной страницы
 
-3. **Запустить конвертер** (если изменены MD-файлы):
+3. **Запустить конвертер** (если изменены MD-файлы в PRD/ или PDS/):
    ```bash
    cd D:\Git\Synapse\INDEX
    python convert_to_html.py
    ```
 
-4. **Проверить, что изменения применились**:
+4. **Вручную обновить диаграммы** (если изменены Project/mindmap.md или Project/process.md):
+   - Скопировать содержимое Mermaid блока из исходного файла
+   - Вставить в соответствующий `<div class="mermaid">` в `INDEX/index.html`
+   - Обновить обработчики кликов в JavaScript (если изменились названия узлов)
+
+5. **Проверить, что изменения применились**:
    ```bash
    git status
    git diff INDEX/
    ```
 
-5. **Только после этого коммитить**
+6. **Только после этого коммитить**
 
 ---
 
@@ -366,13 +372,18 @@ git commit -m "Update database schema"
 git push
 ```
 
-### Сценарий 4: Изменена мозгокарта
+### Сценарий 4: Изменена мозгокарта или схема процесса
 ```bash
-# 1. Отредактировали Project/mindmap.md
-# 2. Обновили мозгокарту в INDEX/index.html (вручную или через скрипт)
-# 3. Закоммитили
+# 1. Отредактировали Project/mindmap.md или Project/process.md
+# 2. ВРУЧНО скопировали содержимое Mermaid блока в INDEX/index.html:
+#    - Для mindmap.md → <div class="mermaid" id="mindmap-diagram">
+#    - Для process.md → <div class="mermaid" id="process-diagram">
+# 3. Если изменились названия узлов - обновили JavaScript обработчики кликов
+# 4. Закоммитили
 git add Project/mindmap.md INDEX/index.html
-git commit -m "Update mindmap: add new section"
+# или
+git add Project/process.md INDEX/index.html
+git commit -m "Update process diagram: change ТЗ to Техзадание"
 git push
 ```
 
@@ -402,9 +413,12 @@ git push
 **Проблема:** Новый документ есть, но на него нет ссылки на главной
 **Решение:** Вручную добавить карточку с ссылкой в INDEX/index.html
 
-### ❌ Изменили Project/mindmap.md, но не обновили INDEX/index.html
-**Проблема:** Мозгокарта на сайте не соответствует исходному файлу
-**Решение:** Обновить содержимое `<div class="mermaid" id="mindmap-diagram">` в INDEX/index.html
+### ❌ Изменили Project/mindmap.md или Project/process.md, но не обновили INDEX/index.html
+**Проблема:** Диаграммы на сайте не соответствуют исходным файлам
+**Решение:** 
+1. Скопировать содержимое Mermaid блока из `Project/mindmap.md` или `Project/process.md`
+2. Вставить в соответствующий `<div class="mermaid" id="mindmap-diagram">` или `<div class="mermaid" id="process-diagram">` в `INDEX/index.html`
+3. Если изменились названия узлов - обновить обработчики кликов в JavaScript (например, `text.includes('ТЗ')` → `text.includes('Техзадание')`)
 
 ### ❌ Не проверили мобильную версию после изменения стилей
 **Проблема:** На десктопе всё хорошо, на мобильных — сломано
