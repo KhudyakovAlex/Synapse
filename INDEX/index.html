@@ -162,12 +162,19 @@ mindmap
                             if (circle) {
                                 circle.style.fill = '#006a8e';
                                 circle.style.stroke = '#004d6b';
+                                // Increase root node size by 1.2x
+                                const currentRx = circle.getAttribute('rx') || circle.getAttribute('r');
+                                const currentRy = circle.getAttribute('ry') || circle.getAttribute('r');
+                                if (currentRx) circle.setAttribute('rx', parseFloat(currentRx) * 1.2);
+                                if (currentRy) circle.setAttribute('ry', parseFloat(currentRy) * 1.2);
+                                if (circle.getAttribute('r')) circle.setAttribute('r', parseFloat(circle.getAttribute('r')) * 1.2);
                             }
                             const textElement = node.querySelector('text');
                             if (textElement) {
                                 textElement.style.fill = 'white';
                                 textElement.style.fontWeight = 'bold';
                                 textElement.style.textDecoration = 'underline';
+                                textElement.style.fontSize = '1.2em';
                             }
                             node.style.cursor = 'pointer';
                             
