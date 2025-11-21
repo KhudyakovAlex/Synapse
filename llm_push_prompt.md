@@ -205,26 +205,31 @@ D:\Git\Synapse\
    ```
    
 2. **Если изменены файлы, из которых генерируется сайт**:
-   - `PRD/*.md` → нужно обновить `INDEX/PRD/*.html`
-   - `PDS/*.md` → нужно обновить `INDEX/PDS/*.html`
-   - `Project/mindmap.md` → нужно **ВРУЧНУЮ** обновить содержимое `<div class="mermaid" id="mindmap-diagram">` в `INDEX/index.html`
-   - `Project/process.md` → нужно **ВРУЧНУЮ** обновить содержимое `<div class="mermaid" id="process-diagram">` в `INDEX/index.html` И обработчики кликов в JavaScript
+   - `PRD/*.md` → нужно запустить `convert_to_html.py`
+   - `PDS/*.md` → нужно запустить `convert_to_html.py`
+   - `Project/mindmap.md` → нужно запустить `convert_to_html.py` (обновится **АВТОМАТИЧЕСКИ**)
+   - `Project/process.md` → нужно запустить `convert_to_html.py` (обновится **АВТОМАТИЧЕСКИ**)
    - `INDEX/assets/css/style.css` → проверить, что стили применены
    - `INDEX/assets/js/main.js` → проверить, что скрипты работают
    - `INDEX/index.html` → проверить структуру главной страницы
 
-3. **Запустить конвертер** (если изменены MD-файлы в PRD/ или PDS/):
+3. **Запустить конвертер** (если изменены MD-файлы в PRD/, PDS/, или Project/):
    ```bash
    cd D:\Git\Synapse\INDEX
    python convert_to_html.py
    ```
+   
+   **Конвертер автоматически:**
+   - Конвертирует все MD-файлы из PRD/ и PDS/ в HTML
+   - Обновляет диаграммы из `Project/mindmap.md` и `Project/process.md` в `INDEX/index.html`
+   
+   **Если нужно обновить только диаграммы:**
+   ```bash
+   cd D:\Git\Synapse\INDEX
+   python update_diagrams.py
+   ```
 
-4. **Вручную обновить диаграммы** (если изменены Project/mindmap.md или Project/process.md):
-   - Скопировать содержимое Mermaid блока из исходного файла
-   - Вставить в соответствующий `<div class="mermaid">` в `INDEX/index.html`
-   - Обновить обработчики кликов в JavaScript (если изменились названия узлов)
-
-5. **Проверить, что изменения применились**:
+4. **Проверить, что изменения применились**:
    ```bash
    git status
    git diff INDEX/
@@ -294,6 +299,14 @@ git push
 - **НЕ ИЗМЕНЯТЬ** без необходимости
 - Поддерживает все текущие возможности
 - При изменении MD-файлов — **ВСЕГДА запускать**
+- Автоматически вызывает `update_diagrams.py` для обновления диаграмм
+
+### `update_diagrams.py`
+Автоматическое обновление диаграмм в INDEX/index.html
+- Читает `Project/mindmap.md` и `Project/process.md`
+- Обновляет содержимое `<div class="mermaid">` в `INDEX/index.html`
+- Вызывается автоматически из `convert_to_html.py`
+- Можно запускать отдельно: `python update_diagrams.py`
 
 ### `index.html` (корневой)
 Файл-редирект на INDEX/index.html
@@ -376,15 +389,14 @@ git push
 ### Сценарий 4: Изменена мозгокарта или схема процесса
 ```bash
 # 1. Отредактировали Project/mindmap.md или Project/process.md
-# 2. ВРУЧНО скопировали содержимое Mermaid блока в INDEX/index.html:
-#    - Для mindmap.md → <div class="mermaid" id="mindmap-diagram">
-#    - Для process.md → <div class="mermaid" id="process-diagram">
-# 3. Если изменились названия узлов - обновили JavaScript обработчики кликов
-# 4. Закоммитили
+# 2. Запустили конвертер (диаграммы обновятся АВТОМАТИЧЕСКИ)
+cd D:\Git\Synapse\INDEX
+python convert_to_html.py
+# 3. Закоммитили
 git add Project/mindmap.md INDEX/index.html
 # или
 git add Project/process.md INDEX/index.html
-git commit -m "Update process diagram: change ТЗ to Техзадание"
+git commit -m "Update process diagram: shorten Проектирование to Проектир."
 git push
 ```
 
@@ -414,12 +426,9 @@ git push
 **Проблема:** Новый документ есть, но на него нет ссылки на главной
 **Решение:** Вручную добавить карточку с ссылкой в INDEX/index.html
 
-### ❌ Изменили Project/mindmap.md или Project/process.md, но не обновили INDEX/index.html
+### ❌ Изменили Project/mindmap.md или Project/process.md, но не запустили конвертер
 **Проблема:** Диаграммы на сайте не соответствуют исходным файлам
-**Решение:** 
-1. Скопировать содержимое Mermaid блока из `Project/mindmap.md` или `Project/process.md`
-2. Вставить в соответствующий `<div class="mermaid" id="mindmap-diagram">` или `<div class="mermaid" id="process-diagram">` в `INDEX/index.html`
-3. Если изменились названия узлов - обновить обработчики кликов в JavaScript (например, `text.includes('ТЗ')` → `text.includes('Техзадание')`)
+**Решение:** Запустить `python convert_to_html.py` - диаграммы обновятся автоматически
 
 ### ❌ Не проверили мобильную версию после изменения стилей
 **Проблема:** На десктопе всё хорошо, на мобильных — сломано

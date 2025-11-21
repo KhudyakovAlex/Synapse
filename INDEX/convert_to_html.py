@@ -623,4 +623,16 @@ if __name__ == '__main__':
     # Create converter and run
     converter = MarkdownConverter(repo_root)
     converter.convert_all()
+    
+    # Update diagrams in index.html
+    print("\n" + "="*60)
+    print("Updating diagrams in INDEX/index.html...")
+    print("="*60)
+    try:
+        import subprocess
+        script_path = os.path.join(os.path.dirname(__file__), 'update_diagrams.py')
+        subprocess.run(['python', script_path], check=True)
+    except Exception as e:
+        print(f"Warning: Failed to update diagrams: {e}")
+        print("You may need to run update_diagrams.py manually")
 
