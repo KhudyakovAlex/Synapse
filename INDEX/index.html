@@ -70,7 +70,7 @@
             font-weight: 300;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #b8b8b8;
+            border-bottom: 1px solid #b8b8b8;
         }
         
         .doc-grid {
@@ -133,7 +133,7 @@
     <div class="main-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 60px 20px;">
         <!-- Process Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px;">
-            <h2 style="color: #b8b8b8; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #b8b8b8;">Процесс разработки</h2>
+            <h2 style="color: #b8b8b8; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #b8b8b8;">Процесс разработки</h2>
             <div class="mermaid" id="process-diagram" style="cursor: default; margin: 20px 0;">
 flowchart LR
     SBD((Совет<br>благородных<br>донов))
@@ -154,13 +154,16 @@ flowchart LR
     style ANAL fill:#F00,stroke:#000
     style PRO fill:#0F0,stroke:#000
 
-    click PRD "https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html"
+    click PRD "PRD/SynapsePRD.html"
+    click DSUI "PDS/SynapsePDS_APP_UI.html"
+    click DSFW "PDS/SynapsePDS_FW.html"
+    click DSAPP "PDS/SynapsePDS_APP.html"
             </div>
         </div>
 
         <!-- Mindmap Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px;">
-            <h2 style="color: #b8b8b8; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #b8b8b8;">Мозгокарта</h2>
+            <h2 style="color: #b8b8b8; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #b8b8b8;">Мозгокарта</h2>
             <div class="mermaid" id="mindmap-diagram" style="cursor: default; transform: scale(0.93); transform-origin: center; margin: 40px 0;">
 mindmap
   root((СИНАПС))
@@ -199,6 +202,24 @@ mindmap
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
                                 window.location.href = 'PRD/SynapsePRD.html';
+                            });
+                        } else if (text.includes('СР UI')) {
+                            node.style.cursor = 'pointer';
+                            node.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                window.location.href = 'PDS/SynapsePDS_APP_UI.html';
+                            });
+                        } else if (text.includes('СР Прошивка')) {
+                            node.style.cursor = 'pointer';
+                            node.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                window.location.href = 'PDS/SynapsePDS_FW.html';
+                            });
+                        } else if (text.includes('СР Приложение')) {
+                            node.style.cursor = 'pointer';
+                            node.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                window.location.href = 'PDS/SynapsePDS_APP.html';
                             });
                         }
                     });
