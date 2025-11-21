@@ -157,6 +157,20 @@ mindmap
                         const text = node.textContent.trim();
                         node.style.cursor = 'pointer';
                         
+                        // Style root node with blue background
+                        if (text.includes('СИНАПС')) {
+                            const circle = node.querySelector('circle, ellipse, rect, path');
+                            if (circle) {
+                                circle.style.fill = '#006a8e';
+                                circle.style.stroke = '#004d6b';
+                            }
+                            const textElement = node.querySelector('text');
+                            if (textElement) {
+                                textElement.style.fill = 'white';
+                                textElement.style.fontWeight = 'bold';
+                            }
+                        }
+                        
                         node.addEventListener('click', function(e) {
                             e.preventDefault();
                             if (text.includes('СИНАПС')) {
