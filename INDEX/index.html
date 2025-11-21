@@ -8,6 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script>
+        window.mermaid = {
+            startOnLoad: true,
+            theme: "base",
+            securityLevel: "loose"
+        };
+    </script>
+    <script defer src="assets/js/mermaid.min.js"></script>
     <style>
         .logo-bar {
             background: var(--accent-primary);
@@ -112,6 +120,39 @@
 
     <!-- Main Container -->
     <div class="main-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 60px 20px;">
+        <!-- Mindmap Section -->
+        <div class="section" style="margin-bottom: 40px;">
+            <div class="mermaid">
+---
+config:
+  theme: 'base'
+---
+
+
+  mindmap
+  root((<a href="https://khudyakovalex.github.io/Synapse/INDEX/" style="color:inherit; font-size: large; padding:20px; background-color:#006a8e; text-decoration:underline">СИНАПС))
+    (Контроллер)
+      (Прошивка)
+      (Плата)
+      (Корпус)
+        (Маркировка)
+      (Упаковка)
+    (<a href="https://khudyakovalex.github.io/Synapse/INDEX/PDS/db_schema_mermaid.html" style="color:black;  text-decoration:underline">DB)
+    (Мобильное<br>приложение)
+      (UI)
+      (Bluetooth)
+      (USML)
+      (LLM)
+      (Архитектура)
+    (<a href="https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html" style="color:black;  text-decoration:underline">Техзадание)
+      (Спецификации<br>на разработку)
+        (Прошивка)
+        (Приложение)
+        (UI)
+
+            </div>
+        </div>
+
         <!-- PRD Section -->
         <div class="section">
             <h2>Техническое задание (PRD)</h2>
