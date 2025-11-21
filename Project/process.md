@@ -6,7 +6,7 @@ flowchart LR
     
     ANAL((Анализ<br>Худяков))
     
-    PRD(Техническое<br>Задание)
+    PRD(Техническое<br>задание)
     
     PRO((Проектир.<br>Худяков))
     
@@ -61,7 +61,7 @@ flowchart LR
     style APPD fill:#BAF3FF,stroke:#999
     style FWD fill:#FFBAF3,stroke:#999
     
-    style SBD fill:#E0E0E0,stroke:#999
+    style SBD fill:#505050,stroke:#999,color:#fff
     style PRD fill:#E0E0E0,stroke:#999
     style DSUI fill:#E0E0E0,stroke:#999
     style DSAPP fill:#E0E0E0,stroke:#999
@@ -70,8 +70,8 @@ flowchart LR
     style DSFW fill:#E0E0E0,stroke:#999
     style UIUX fill:#E0E0E0,stroke:#999
     style UIUI fill:#E0E0E0,stroke:#999
-    style FW fill:#E0E0E0,stroke:#999
-    style APP fill:#E0E0E0,stroke:#999
+    style FW fill:#505050,stroke:#999,color:#fff
+    style APP fill:#505050,stroke:#999,color:#fff
 
     click PRD "https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html"
 ```

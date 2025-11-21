@@ -135,7 +135,84 @@
         <!-- Process Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Процесс разработки</h2>
-            <div class="mermaid" id="process-diagram" style="margin: 20px 0; padding: 0; background: transparent; cursor: pointer;" title="Нажмите для увеличения">
+            <div class="mermaid" id="process-diagram" style="margin: 20px 0; padding: 0; background: transparent; position: relative;" title="Нажмите для увеличения">
+flowchart LR
+    SBD((Совет<br>благородных<br>донов))
+    
+    ANAL((Анализ<br>Худяков))
+    
+    PRD(Техническое<br>задание)
+    
+    PRO((Проектир.<br>Худяков))
+    
+    DSUI(Спецификация<br>на разработку<br>UI)
+    DSAPP(Спецификация<br>на разработку<br>Приложение)
+    DSDB(Спецификация<br>на разработку<br>База данных)
+    DSP(Спецификация<br>на разработку<br>Протокол обмена<br>Приложение-Прошивка)
+    DSFW(Спецификация<br>на разработку<br>Прошивка)
+
+    UIUXD((UX-дизайн<br>Худяков))
+    UIUX( UX-макет )
+    APPD(( Программ.<br>Булатов ))
+
+    FWD(( Программ.<br>Саенко ))
+
+    UIUID((UI-дизайн<br>Брянкина))
+    UIUI( UI-макет )
+
+    FW( Прошивка )
+    APP( Приложение )
+
+    SBD ---> ANAL
+    ANAL ---> PRD
+    PRD ---> PRO
+    PRO ---> DSUI
+    PRO ---> DSFW
+    PRO ---> DSAPP
+    PRO ---> DSP
+    PRO ---> DSDB
+
+    DSUI ---> UIUXD
+    UIUXD ---> UIUX
+    UIUX ---> UIUID
+    UIUID ---> UIUI
+
+    UIUI ---> APPD
+    DSAPP ---> APPD
+    DSP ---> APPD
+    DSDB ---> APPD
+
+    DSFW ---> FWD
+    DSP ---> FWD
+    DSDB ---> FWD
+
+    FWD ---> FW
+    APPD ---> APP
+
+    style ANAL fill:#FFB3BA,stroke:#999
+    style PRO fill:#BAFFC9,stroke:#999
+    style UIUXD fill:#BAE1FF,stroke:#999
+    style UIUID fill:#FFFFBA,stroke:#999
+    style APPD fill:#BAF3FF,stroke:#999
+    style FWD fill:#FFBAF3,stroke:#999
+    
+    style SBD fill:#505050,stroke:#999,color:#fff
+    style PRD fill:#E0E0E0,stroke:#999
+    style DSUI fill:#E0E0E0,stroke:#999
+    style DSAPP fill:#E0E0E0,stroke:#999
+    style DSDB fill:#E0E0E0,stroke:#999
+    style DSP fill:#E0E0E0,stroke:#999
+    style DSFW fill:#E0E0E0,stroke:#999
+    style UIUX fill:#E0E0E0,stroke:#999
+    style UIUI fill:#E0E0E0,stroke:#999
+    style FW fill:#505050,stroke:#999,color:#fff
+    style APP fill:#505050,stroke:#999,color:#fff
+
+    click PRD "PRD/SynapsePRD.html"
+    click DSUI "PDS/SynapsePDS_APP_UI.html"
+    click DSFW "PDS/SynapsePDS_FW.html"
+    click DSAPP "PDS/SynapsePDS_APP.html"
+            </div>
 flowchart LR
     SBD((Совет<br>благородных<br>донов))
     
@@ -218,7 +295,34 @@ flowchart LR
         <!-- Mindmap Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Мозгокарта</h2>
-            <div class="mermaid" id="mindmap-diagram" style="transform: scale(0.93); transform-origin: center; margin: 40px 0; padding: 0; background: transparent; cursor: pointer;" title="Нажмите для увеличения">
+            <div class="mermaid" id="mindmap-diagram" style="transform: scale(0.93); transform-origin: center; margin: 40px 0; padding: 0; background: transparent; position: relative;" title="Нажмите для увеличения">
+---
+config:
+  theme: 'base'
+---
+
+
+  mindmap
+  root((<a href="https://khudyakovalex.github.io/Synapse/INDEX/" style="color:inherit; font-size: large; padding:20px; background-color:#006a8e; text-decoration:underline">СИНАПС))
+    (Контроллер)
+      (Прошивка)
+      (Плата)
+      (Корпус)
+        (Маркировка)
+      (Упаковка)
+    (<a href="https://khudyakovalex.github.io/Synapse/INDEX/PDS/db_schema_mermaid.html" style="color:black;  text-decoration:underline">DB)
+    (Мобильное<br>приложение)
+      (UI)
+      (Bluetooth)
+      (USML)
+      (LLM)
+      (Архитектура)
+    (<a href="https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html" style="color:black;  text-decoration:underline">Техзадание)
+      (Спецификации<br>на разработку)
+        (Прошивка)
+        (Приложение)
+        (UI)
+            </div>
 ---
 config:
   theme: 'base'
@@ -254,6 +358,9 @@ config:
                 // Process diagram click handler
                 const processDiagram = document.getElementById('process-diagram');
                 if (processDiagram) {
+                    // Set default cursor
+                    processDiagram.style.cursor = 'default';
+                    
                     // Add click handler for the whole diagram (background)
                     processDiagram.addEventListener('click', function(e) {
                         // Check if click was on SVG background, not on a node
@@ -262,6 +369,16 @@ config:
                         }
                     });
                     
+                    // Make zoom icon clickable
+                    const zoomIcon = processDiagram.querySelector('div[style*="position: absolute"]');
+                    if (zoomIcon) {
+                        zoomIcon.style.pointerEvents = 'auto';
+                        zoomIcon.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            window.open('process_diagram_full.html', '_blank');
+                        });
+                    }
+                    
                     const processNodes = processDiagram.querySelectorAll('.node');
                     processNodes.forEach(node => {
                         const text = node.textContent.trim();
@@ -269,24 +386,28 @@ config:
                             node.style.cursor = 'pointer';
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PRD/SynapsePRD.html';
                             });
                         } else if (text.includes('СР UI')) {
                             node.style.cursor = 'pointer';
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PDS/SynapsePDS_APP_UI.html';
                             });
                         } else if (text.includes('СР Прошивка')) {
                             node.style.cursor = 'pointer';
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PDS/SynapsePDS_FW.html';
                             });
                         } else if (text.includes('СР Приложение')) {
                             node.style.cursor = 'pointer';
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PDS/SynapsePDS_APP.html';
                             });
                         }
@@ -296,6 +417,9 @@ config:
                 // Mindmap click handlers
                 const mindmap = document.getElementById('mindmap-diagram');
                 if (mindmap) {
+                    // Set default cursor
+                    mindmap.style.cursor = 'default';
+                    
                     // Add click handler for the whole diagram (background)
                     mindmap.addEventListener('click', function(e) {
                         // Check if click was on SVG background, not on a node
@@ -303,6 +427,16 @@ config:
                             window.open('mindmap_diagram_full.html', '_blank');
                         }
                     });
+                    
+                    // Make zoom icon clickable
+                    const zoomIcon = mindmap.querySelector('div[style*="position: absolute"]');
+                    if (zoomIcon) {
+                        zoomIcon.style.pointerEvents = 'auto';
+                        zoomIcon.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            window.open('mindmap_diagram_full.html', '_blank');
+                        });
+                    }
                     
                     // Add click handlers to mindmap nodes
                     const nodes = mindmap.querySelectorAll('g.mindmap-node');
@@ -333,6 +467,7 @@ config:
                             
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'index.html';
                             });
                         } else if (text.includes('DB')) {
@@ -344,6 +479,7 @@ config:
                             
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PDS/db_schema_mermaid.html';
                             });
                         } else if (text.includes('Техзадание')) {
@@ -355,6 +491,7 @@ config:
                             
                             node.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 window.location.href = 'PRD/SynapsePRD.html';
                             });
                         }
