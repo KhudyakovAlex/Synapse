@@ -258,7 +258,7 @@ config:
                     processDiagram.addEventListener('click', function(e) {
                         // Check if click was on SVG background, not on a node
                         if (e.target.tagName === 'svg' || e.target.classList.contains('mermaid')) {
-                            window.location.href = 'process_diagram_full.html';
+                            window.open('process_diagram_full.html', '_blank');
                         }
                     });
                     
@@ -300,7 +300,7 @@ config:
                     mindmap.addEventListener('click', function(e) {
                         // Check if click was on SVG background, not on a node
                         if (e.target.tagName === 'svg' || e.target.classList.contains('mermaid')) {
-                            window.location.href = 'mindmap_diagram_full.html';
+                            window.open('mindmap_diagram_full.html', '_blank');
                         }
                     });
                     

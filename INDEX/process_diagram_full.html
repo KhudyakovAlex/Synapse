@@ -17,6 +17,14 @@
     </script>
     <script defer src="assets/js/mermaid.min.js"></script>
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #333333;
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -25,36 +33,50 @@
         
         body {
             font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #ffffff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
             overflow: auto;
-            cursor: grab;
-        }
-        
-        body:active {
-            cursor: grabbing;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         .diagram-container {
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            box-sizing: border-box;
         }
         
         .mermaid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
             transform-origin: top left;
-            user-select: none;
-            -moz-user-select: none;
             -webkit-user-select: none;
+            -moz-user-select: none;
             -ms-user-select: none;
+            user-select: none;
         }
         
-        .mermaid.selecting {
-            user-select: text !important;
-            -moz-user-select: text !important;
-            -webkit-user-select: text !important;
-            -ms-user-select: text !important;
+        .mermaid svg {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto !important;
+            height: auto !important;
         }
     </style>
 </head>
@@ -141,83 +163,95 @@ flowchart LR
     </div>
     
     <script>
+        // Zoom with mouse wheel
+        let currentScale = 1;
+        const minScale = 0.5;
+        const maxScale = 5;
+        const scaleStep = 0.1;
+        
+        // Pan with mouse drag
+        let isPanning = false;
+        let startX = 0;
+        let startY = 0;
+        let scrollLeft = 0;
+        let scrollTop = 0;
+        let shiftPressed = false;
+        
         document.addEventListener('DOMContentLoaded', () => {
             const mermaid = document.querySelector('.mermaid');
             
             // Set cursor
             document.body.style.cursor = 'grab';
             
-            // Pan functionality
-            let isPanning = false;
-            let startX, startY;
-            let scrollLeft, scrollTop;
-            
-            document.body.addEventListener('mousedown', (e) => {
-                if (!e.shiftKey) {
-                    isPanning = true;
-                    document.body.style.cursor = 'grabbing';
-                    startX = e.pageX - document.body.scrollLeft;
-                    startY = e.pageY - document.body.scrollTop;
-                    scrollLeft = document.body.scrollLeft;
-                    scrollTop = document.body.scrollTop;
+            // Zoom with wheel
+            document.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                if (e.deltaY < 0) {
+                    currentScale = Math.min(currentScale + scaleStep, maxScale);
+                } else {
+                    currentScale = Math.max(currentScale - scaleStep, minScale);
                 }
-            });
-            
-            document.body.addEventListener('mousemove', (e) => {
-                if (!isPanning) return;
-                e.preventDefault();
-                const x = e.pageX - document.body.scrollLeft;
-                const y = e.pageY - document.body.scrollTop;
-                const walkX = (x - startX);
-                const walkY = (y - startY);
-                window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
-            });
-            
-            document.body.addEventListener('mouseup', () => {
-                isPanning = false;
-                document.body.style.cursor = 'grab';
-            });
-            
-            document.body.addEventListener('mouseleave', () => {
-                isPanning = false;
-                document.body.style.cursor = 'grab';
-            });
-            
-            // Zoom functionality
-            let currentScale = 1;
-            const minScale = 0.5;
-            const maxScale = 5;
-            
-            mermaid.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                currentScale *= delta;
-                currentScale = Math.max(minScale, Math.min(maxScale, currentScale));
+                
                 mermaid.style.transform = `scale(${currentScale})`;
-            });
+            }, { passive: false });
             
-            // Text selection with Shift
-            let isSelecting = false;
-            
+            // Track Shift key
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Shift' && !isSelecting) {
-                    isSelecting = true;
-                    mermaid.classList.add('selecting');
+                if (e.key === 'Shift' && !shiftPressed) {
+                    shiftPressed = true;
                     document.body.style.cursor = 'text';
+                    document.body.style.webkitUserSelect = 'text';
+                    document.body.style.mozUserSelect = 'text';
+                    document.body.style.msUserSelect = 'text';
+                    document.body.style.userSelect = 'text';
+                    mermaid.style.webkitUserSelect = 'text';
+                    mermaid.style.mozUserSelect = 'text';
+                    mermaid.style.msUserSelect = 'text';
+                    mermaid.style.userSelect = 'text';
                 }
             });
             
             document.addEventListener('keyup', (e) => {
                 if (e.key === 'Shift') {
-                    isSelecting = false;
-                    mermaid.classList.remove('selecting');
-                    document.body.style.cursor = 'grab';
+                    shiftPressed = false;
+                    document.body.style.cursor = isPanning ? 'grabbing' : 'grab';
+                    // Don't change user-select back to none - keep selection visible
                 }
             });
             
+            // Pan with mouse (only if Shift not pressed)
             document.addEventListener('mousedown', (e) => {
-                if (e.shiftKey) {
+                if (shiftPressed) {
+                    // Clear previous selection to start fresh
                     window.getSelection().removeAllRanges();
+                    return; // Allow text selection
+                }
+                
+                isPanning = true;
+                document.body.style.cursor = 'grabbing';
+                startX = e.pageX - document.documentElement.scrollLeft;
+                startY = e.pageY - document.documentElement.scrollTop;
+                scrollLeft = document.documentElement.scrollLeft;
+                scrollTop = document.documentElement.scrollTop;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                
+                const x = e.pageX - document.documentElement.scrollLeft;
+                const y = e.pageY - document.documentElement.scrollTop;
+                const walkX = (x - startX);
+                const walkY = (y - startY);
+                
+                window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    document.body.style.cursor = shiftPressed ? 'text' : 'grab';
                 }
             });
         });
