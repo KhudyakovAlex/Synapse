@@ -285,7 +285,7 @@ config:
                     });
                     
                     // Make zoom icon clickable
-                    const zoomIcon = processDiagram.querySelector('div[style*="position: absolute"]');
+                    const zoomIcon = processDiagram.parentElement.querySelector('.zoom-icon');
                     if (zoomIcon) {
                         zoomIcon.style.pointerEvents = 'auto';
                         zoomIcon.addEventListener('click', function(e) {
@@ -344,7 +344,7 @@ config:
                     });
                     
                     // Make zoom icon clickable
-                    const zoomIcon = mindmap.querySelector('div[style*="position: absolute"]');
+                    const zoomIcon = mindmap.parentElement.querySelector('.zoom-icon');
                     if (zoomIcon) {
                         zoomIcon.style.pointerEvents = 'auto';
                         zoomIcon.addEventListener('click', function(e) {
