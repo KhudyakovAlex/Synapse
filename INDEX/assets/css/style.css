@@ -291,12 +291,6 @@ body {
     margin: 20px 0;
     display: flex;
     justify-content: center;
-    cursor: pointer;
-    transition: box-shadow 0.3s ease;
-}
-
-.mermaid:hover {
-    box-shadow: 0 4px 12px var(--shadow);
 }
 
 
