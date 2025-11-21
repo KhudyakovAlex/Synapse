@@ -59,7 +59,7 @@
                 padding: 0 !important;
             }
             
-            #mindmap-diagram {
+            #mindmap-diagram, #process-diagram {
                 margin: 20px 0 !important;
             }
         }
@@ -130,8 +130,36 @@
 
     <!-- Main Container -->
     <div class="main-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 60px 20px;">
+        <!-- Process Section -->
+        <div class="section" style="margin-bottom: 40px; padding: 10px;">
+            <h2 style="color: var(--text-primary); font-size: 2em; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--accent-primary);">Процесс разработки</h2>
+            <div class="mermaid" id="process-diagram" style="cursor: default; margin: 20px 0;">
+flowchart LR
+    SBD((Совет<br>благородных<br>донов))
+    ANAL((Анализ<br>Худяков))
+    PRD( ТЗ )
+    PRO((Проектирование<br>Худяков))
+    DSUI( СР UI )
+    DSFW( СР Прошивка )
+    DSAPP( СР Приложение )
+
+    SBD ---> ANAL
+    ANAL ---> PRD
+    PRD ---> PRO
+    PRO ---> DSUI
+    PRO ---> DSFW
+    PRO ---> DSAPP
+
+    style ANAL fill:#F00,stroke:#000
+    style PRO fill:#0F0,stroke:#000
+
+    click PRD "https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html"
+            </div>
+        </div>
+
         <!-- Mindmap Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px;">
+            <h2 style="color: var(--text-primary); font-size: 2em; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--accent-primary);">Мозгокарта</h2>
             <div class="mermaid" id="mindmap-diagram" style="cursor: default; transform: scale(0.93); transform-origin: center; margin: 40px 0;">
 mindmap
   root((СИНАПС))
@@ -159,6 +187,23 @@ mindmap
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
+                // Process diagram click handler
+                const processDiagram = document.getElementById('process-diagram');
+                if (processDiagram) {
+                    const processNodes = processDiagram.querySelectorAll('.node');
+                    processNodes.forEach(node => {
+                        const text = node.textContent.trim();
+                        if (text.includes('ТЗ')) {
+                            node.style.cursor = 'pointer';
+                            node.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                window.location.href = 'PRD/SynapsePRD.html';
+                            });
+                        }
+                    });
+                }
+                
+                // Mindmap click handlers
                 const mindmap = document.getElementById('mindmap-diagram');
                 if (mindmap) {
                     // Add click handlers to mindmap nodes
