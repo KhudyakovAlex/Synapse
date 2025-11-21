@@ -122,7 +122,7 @@
     <div class="main-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 60px 20px;">
         <!-- Mindmap Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px;">
-            <div class="mermaid" id="mindmap-diagram" style="cursor: default; transform: scale(1.4); transform-origin: center; margin: 60px 0;">
+            <div class="mermaid" id="mindmap-diagram" style="cursor: default; transform: scale(0.93); transform-origin: center; margin: 40px 0;">
 mindmap
   root((СИНАПС))
     (Контроллер)
@@ -162,20 +162,20 @@ mindmap
                             if (circle) {
                                 circle.style.fill = '#006a8e';
                                 circle.style.stroke = '#004d6b';
-                                circle.style.strokeWidth = '3';
-                                // Increase root node size
+                                circle.style.strokeWidth = '2';
+                                // Increase root node size by 2x (3 / 1.5 = 2)
                                 const currentRx = circle.getAttribute('rx') || circle.getAttribute('r');
                                 const currentRy = circle.getAttribute('ry') || circle.getAttribute('r');
-                                if (currentRx) circle.setAttribute('rx', parseFloat(currentRx) * 3);
-                                if (currentRy) circle.setAttribute('ry', parseFloat(currentRy) * 3);
-                                if (circle.getAttribute('r')) circle.setAttribute('r', parseFloat(circle.getAttribute('r')) * 3);
+                                if (currentRx) circle.setAttribute('rx', parseFloat(currentRx) * 2);
+                                if (currentRy) circle.setAttribute('ry', parseFloat(currentRy) * 2);
+                                if (circle.getAttribute('r')) circle.setAttribute('r', parseFloat(circle.getAttribute('r')) * 2);
                             }
                             const textElement = node.querySelector('text');
                             if (textElement) {
                                 textElement.style.fill = 'white';
                                 textElement.style.fontWeight = 'bold';
                                 textElement.style.textDecoration = 'underline';
-                                textElement.style.fontSize = '24px';
+                                textElement.style.fontSize = '18px';
                             }
                             node.style.cursor = 'pointer';
                             
