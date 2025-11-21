@@ -384,5 +384,16 @@ body {
         flex-wrap: wrap;
         justify-content: center;
     }
+    
+    /* Mindmap mobile styles */
+    #mindmap-diagram {
+        margin: 20px 0 !important;
+    }
+    
+    .section {
+        padding: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 
