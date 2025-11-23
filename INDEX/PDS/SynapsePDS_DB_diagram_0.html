@@ -3,19 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Процесс разработки - Synapse</title>
-    <link rel="icon" type="image/png" href="assets/img/Synapse_ico.png">
+    <title>База данных - Диаграмма 1 - Synapse Diagram</title>
+    <link rel="icon" type="image/png" href="../assets/img/Synapse_ico.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        window.mermaid = {
-            startOnLoad: true,
-            theme: "default",
-            securityLevel: "loose"
-        };
-    </script>
-    <script defer src="assets/js/mermaid.min.js"></script>
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -78,110 +70,16 @@
             width: auto !important;
             height: auto !important;
         }
+        
     </style>
-</head>
-<body>
-    <div class="diagram-container">
-        <div class="mermaid">
-flowchart LR
-    SBD((Совет<br>благородных<br>донов))
-    
-    ANAL((Анализ<br>Худяков))
-    
-    PRD(Техническое<br>задание)
-    
-    PRO((Проектир.<br>Худяков))
-    
-    DSUI(UI<br>Спецификация)
-    DSUX(UX<br>Спецификация)
-    DSAPP(Приложение<br>Спецификация)
-    DSDB(База данных<br>Спецификация)
-    DSP(USML<br>Спецификация)
-    DSB(Bluetooth-соединение<br>Спецификация)
-    DSLLM(Работа с LLM<br>Спецификация)
-    DSFW(Прошивка<br>Спецификация)
-    
-    
-
-    UIUXD((UX-дизайн<br>Худяков))
-    UIUX( UX-макет )
-    APPD(( Программ.<br>Булатов ))
-
-    FWD(( Программ.<br>Саенко ))
-
-    UIUID((UI-дизайн<br>Брянкина))
-    UIUI( UI-макет )
-
-    FW( Прошивка )
-    APP( Приложение )
-
-    SBD ---> ANAL
-    ANAL ---> PRD
-    PRD ---> PRO
-    PRO ---> DSUI
-    PRO ---> DSUX
-    PRO ---> DSFW
-    PRO ---> DSAPP
-    PRO ---> DSP
-    PRO ---> DSDB
-    PRO ---> DSB
-    PRO ---> DSLLM
-
-    DSUX ---> UIUXD
-    DSUI ---> UIUID
-    UIUXD ---> UIUX
-    UIUX ---> UIUID
-    UIUID ---> UIUI
-
-    UIUI ---> APPD
-    DSAPP ---> APPD
-    DSP ---> APPD
-    DSDB ---> APPD
-    DSB ---> APPD
-    DSLLM ---> APPD
-
-    DSFW ---> FWD
-    DSP ---> FWD
-    DSDB ---> FWD
-    DSB ---> FWD
-
-    FWD ---> FW
-    APPD ---> APP
-
-    style ANAL fill:#FFB3BA,stroke:#999
-    style PRO fill:#BAFFC9,stroke:#999
-    style UIUXD fill:#BAE1FF,stroke:#999
-    style UIUID fill:#FFFFBA,stroke:#999
-    style APPD fill:#BAF3FF,stroke:#999
-    style FWD fill:#FFBAF3,stroke:#999
-    
-    style SBD fill:#505050,stroke:#999,color:#fff
-    style PRD fill:#E0E0E0,stroke:#999
-    style DSUI fill:#E0E0E0,stroke:#999
-    style DSAPP fill:#E0E0E0,stroke:#999
-    style DSDB fill:#E0E0E0,stroke:#999
-    style DSP fill:#E0E0E0,stroke:#999
-    style DSFW fill:#E0E0E0,stroke:#999
-    style DSUX fill:#E0E0E0,stroke:#999
-    style DSB fill:#E0E0E0,stroke:#999
-    style DSLLM fill:#E0E0E0,stroke:#999
-    style UIUX fill:#E0E0E0,stroke:#999
-    style UIUI fill:#E0E0E0,stroke:#999
-    style FW fill:#505050,stroke:#999,color:#fff
-    style APP fill:#505050,stroke:#999,color:#fff
-
-    click PRD "PRD/SynapsePRD.html"
-    click DSUI "PDS/SynapsePDS_APP_UI.html"
-    click DSUX "PDS/SynapsePDS_APP_UX.html"
-    click DSAPP "PDS/SynapsePDS_APP.html"
-    click DSDB "PDS/SynapsePDS_DB.html"
-    click DSP "PDS/SynapsePDS_USML.html"
-    click DSB "PDS/SynapsePDS_Bluetooth.html"
-    click DSLLM "PDS/SynapsePDS_LLM.html"
-    click DSFW "PDS/SynapsePDS_FW.html"
-        </div>
-    </div>
-    
+    <script>
+        window.mermaid = {
+            startOnLoad: true,
+            theme: "default",
+            securityLevel: "loose"
+        };
+    </script>
+    <script defer src="../assets/js/mermaid.min.js"></script>
     <script>
         // Zoom with mouse wheel
         let currentScale = 1;
@@ -276,6 +174,144 @@ flowchart LR
             });
         });
     </script>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="mermaid">
+erDiagram
+    CONTROLLERS ||--o{ LOCATIONS : "содержит"
+    LOCATIONS ||--o{ LUMINAIRES : "содержит"
+    LOCATIONS ||--o{ PRES_SENSORS : "содержит"
+    LOCATIONS ||--o{ BUTTONS : "содержит"
+    GROUPS ||--o{ LUMINAIRES : "группирует"
+    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "участвует в"
+    BUTTONS ||--o{ ACTIONS : "имеет"
+    ACTIONS ||--o{ SUBACTIONS : "содержит"
+    PRES_SENSORS ||--o{ EVENTS : "генерирует"
+    LOCATIONS ||--o{ EVENTS : "связана с"
+
+    CONTROLLERS {
+        INTEGER ID PK
+        INTEGER SCALE
+        TEXT NAME
+        TEXT PASSWORD
+        INTEGER IS_SCHEDULE
+        INTEGER ICO_NUM
+    }
+
+    LOCATIONS {
+        INTEGER ID PK
+        TEXT NAME
+        INTEGER ICO_NUM
+        INTEGER SCALE
+        INTEGER POS_X
+        INTEGER POS_Y
+        INTEGER CONTROLLER_ID FK
+        INTEGER NUM
+        INTEGER IS_AUTO
+    }
+
+    LUMINAIRES {
+        INTEGER ID PK
+        TEXT NAME
+        INTEGER ICO_NUM
+        INTEGER POS_X
+        INTEGER POS_Y
+        INTEGER LOCATION_ID FK
+        INTEGER GROUP_ID FK
+        INTEGER DALI_ADDR
+        INTEGER LOCATION_NUM
+        INTEGER GROUP_NUM
+        INTEGER VAL_BRIGHT
+        INTEGER VAL_TW
+        INTEGER VAL_R
+        INTEGER VAL_G
+        INTEGER VAL_B
+        INTEGER VAL_W
+    }
+
+    SCENE_LUMINAIRES {
+        INTEGER ID PK
+        INTEGER LUMINAIRE_ID FK
+        INTEGER DALI_ADDR
+        INTEGER SCENE_NUM
+        INTEGER VAL_BRIGHT
+        INTEGER VAL_TW
+        INTEGER VAL_R
+        INTEGER VAL_G
+        INTEGER VAL_B
+        INTEGER VAL_W
+    }
+
+    GROUPS {
+        INTEGER ID PK
+        TEXT NAME
+        INTEGER ICO_NUM
+        INTEGER POS_X
+        INTEGER POS_Y
+        INTEGER LOCATION_ID FK
+        INTEGER NUM
+    }
+
+    PRES_SENSORS {
+        INTEGER ID PK
+        TEXT NAME
+        INTEGER ICO_NUM
+        INTEGER POS_X
+        INTEGER POS_Y
+        INTEGER LOCATION_ID FK
+        INTEGER DALI_ADDR
+        INTEGER LOCATION_NUM
+        INTEGER SCENE_NUM_ON
+        INTEGER SCENE_NUM_OFF
+        INTEGER DELAY_OFF
+        INTEGER IS_AUTO
+    }
+
+    BUTTONS {
+        INTEGER ID PK
+        TEXT NAME
+        INTEGER ICO_NUM
+        INTEGER POS_X
+        INTEGER POS_Y
+        INTEGER LOCATION_ID FK
+        INTEGER DALI_ADDR
+        INTEGER DALI_NUM
+        INTEGER LOCATION_NUM
+    }
+
+    ACTIONS {
+        INTEGER ID PK
+        INTEGER BUTTON_ID FK
+        INTEGER DALI_ADDR
+        INTEGER DALI_NUM
+        INTEGER DALI_INST
+        INTEGER NUM
+    }
+
+    SUBACTIONS {
+        INTEGER ID PK
+        INTEGER ACTION_ID FK
+        INTEGER DALI_ADDR
+        INTEGER DALI_NUM
+        INTEGER DALI_INST
+        INTEGER NUM
+        INTEGER TARGET_TYPE
+        INTEGER TARGET_NUM
+        INTEGER SCENE_NUM
+    }
+
+    EVENTS {
+        INTEGER ID PK
+        INTEGER PRES_SENSOR_ID FK
+        INTEGER LOCATION_ID FK
+        INTEGER DALI_ADDR
+        INTEGER LOCATION_NUM
+        INTEGER EVENT_TYPE
+        TEXT TIMESTAMP
+    }
+
+        </div>
+    </div>
 </body>
 </html>
-
