@@ -500,6 +500,24 @@ class MarkdownConverter:
         with open(md_file, 'r', encoding='utf-8') as f:
             md_content = f.read()
         
+        # Special handling for SynapsePDS_DB.md - inject schema from SynapsePDS_DB_scheme.md
+        if md_file.name == 'SynapsePDS_DB.md':
+            scheme_file = md_file.parent / 'SynapsePDS_DB_scheme.md'
+            if scheme_file.exists():
+                with open(scheme_file, 'r', encoding='utf-8') as f:
+                    scheme_content = f.read()
+                # Extract only the mermaid block from scheme file
+                mermaid_match = re.search(r'(```mermaid.*?```)', scheme_content, re.DOTALL)
+                if mermaid_match:
+                    mermaid_block = mermaid_match.group(1)
+                    # Insert mermaid block after metadata (after "Статус:" line)
+                    md_content = re.sub(
+                        r'(\*\*Статус:\*\*[^\n]*\n)',
+                        r'\1\n' + mermaid_block + '\n',
+                        md_content,
+                        count=1
+                    )
+        
         # Get title from first heading
         title_match = re.search(r'^#\s+(.+)$', md_content, re.MULTILINE)
         title = title_match.group(1) if title_match else md_file.stem
