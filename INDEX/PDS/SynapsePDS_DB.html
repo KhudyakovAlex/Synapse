@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>АПК Синапс v1.0. ПО. Спецификация на разработку. База данных - Synapse Documentation</title>
+    <title>База данных - Synapse Documentation</title>
     <link rel="icon" type="image/png" href="../assets/img/Synapse_ico.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
 
     <!-- Page Title -->
     <div class="page-title-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 20px 20px;">
-        <h1 style="color: var(--accent-primary); font-size: 2.25em; margin: 0; padding-bottom: 15px; border-bottom: 3px solid var(--accent-primary); font-weight: normal;">АПК Синапс v1.0. ПО. Спецификация на разработку. База данных</h1>
+        <h1 style="color: var(--accent-primary); font-size: 2.25em; margin: 0; padding-bottom: 15px; border-bottom: 3px solid var(--accent-primary); font-weight: normal;">База данных</h1>
     </div>
 
     <!-- Main Container -->
@@ -47,24 +47,35 @@
         <!-- Content -->
         <main class="content">
             
+<p>АПК Синапс v1.0. ПО. Спецификации на разработку.</p>
 <p><strong>Версия документа:</strong> 1.0<br />
-<strong>Дата создания:</strong> 22.11.2025<br />
+<strong>Дата создания:</strong> 24.11.2025<br />
 <strong>Статус:</strong> Черновик</p>
-<h2>1. Основные положения</h2>
-<p>1.1. Структура базы данных одинакова в приложении и в прошивке. При этом она:</p>
+<h2>1. Термины и определения</h2>
+<p>1.1. <strong>Рабочие</strong> данные — необходимые для организации работы освещения и в прошивке, и в приложении.</p>
+<p>1.2. <strong>Интерфейсные</strong> данные — используемые только приложением для организации пользовательского интерфейса. Примеры: названия светильников, номера иконок.</p>
+<h2>2. Основные положения</h2>
+<p>2.1. Структура базы данных одинакова в приложении и в прошивке. При этом она:</p>
 <ul>
 <li>в приложении в виде схемы в SQLite;</li>
-<li>в прошивке как массивы структур на языке C.</li>
+<li>в прошивке частично как массивы структур на языке C и частично как бинарный блок.</li>
 </ul>
-<p>1.2. Часть данных в БД актуальна только для приложения и в прошивке не используется (<strong>Интерфейсные</strong> данные). Эти данные хранятся в прошивке только в целях передачи их между телефонами, работающими с одним контроллером. Примеры: названия светильников, номера иконок. Эти данные хранятся в отдельном блоке памяти контроллера и передаются между приложением и прошивкой единым бинарным блоком.</p>
-<h2>2. Таблицы</h2>
-<p>2.1. Деление данных в прошивке/приложении:</p>
+<p>2.2. Интерфейсные данные хранятся в отдельном блоке памяти контроллера и передаются между приложением и прошивкой единым бинарным блоком.</p>
+<p>2.3. Интерфейсный блок и все рабочие данные передаются при подключении телефона к контроллеру. При отключённом контроллере телефон этих данных не хранит.</p>
+<p>2.4. Интерфейсный блок передаётся из телефона в контроллер при каждом изменении данных в телефоне и в обратном направлении при каждом изменении его в прошивке (случай нескольких подключённых к контроллеру телефонов).</p>
+<p>2.5. Большинство таблиц имеет два параллельных типа идентификаторов:</p>
+<ul>
+<li><strong>ID</strong> — для приложения (SQLite);</li>
+<li><strong>NUM/DALI_ADDR/DALI_NUM/DALI_INST</strong> — для прошивки (массивы структур C).</li>
+</ul>
+<h2>3. Таблицы</h2>
+<p>3.1. Деление данных в прошивке/приложении:</p>
 <ul>
 <li><strong>Рабочие</strong> — необходимые для организации работы освещения в прошивке и приложении (помечены в таблицах ниже жирным);</li>
 <li><strong>Интерфейсные</strong> — используемые только приложением.</li>
 </ul>
-<p>2.2. Типы данных у полей ниже: (ТИП_SQLite/ТИП_С) (в SQLite приложения / в структурах языка C прошивки).</p>
-<p>2.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллерах. В прошивке имеет одну запись.</p>
+<p>3.2. Типы данных у полей ниже: (ТИП_SQLite/ТИП_С) (в SQLite приложения / в структурах языка C прошивки).</p>
+<p>3.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллерах. В прошивке имеет одну запись.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>SCALE (INTEGER) — масштаб сетки с иконками локаций на странице контроллера;</li>
@@ -73,7 +84,7 @@
 <li><strong>IS_SCHEDULE</strong> (INTEGER/<strong>_Bool</strong>) — T/F — включена ли в контроллере работа по расписанию;</li>
 <li><strong>ICO_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 </ul>
-<p>2.4. <strong>LOCATIONS</strong> — локации.</p>
+<p>3.4. <strong>LOCATIONS</strong> — локации.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название локации;</li>
@@ -85,7 +96,7 @@
 <li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер локации для идентификации локации в прошивке;</li>
 <li><strong>IS_AUTO</strong> (INTEGER/<strong>_Bool</strong>) — работает ли локация в автоматическом режиме по датчикам (0/1).</li>
 </ul>
-<p>2.5. <strong>LUMINAIRES</strong> — светильники.</p>
+<p>3.5. <strong>LUMINAIRES</strong> — светильники.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название светильника;</li>
@@ -104,7 +115,7 @@
 <li><strong>VAL_B</strong> (INTEGER/<strong>uint8_t</strong>) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER/<strong>uint8_t</strong>) — значение белого канала (для RGBW).</li>
 </ul>
-<p>2.6. <strong>SCENE_LUMINAIRES</strong> — параметры светильников в сценах.</p>
+<p>3.6. <strong>SCENE_LUMINAIRES</strong> — параметры светильников в сценах.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>LUMINAIRE_ID (INTEGER, FK) — светильник в приложении;</li>
@@ -117,7 +128,7 @@
 <li><strong>VAL_B</strong> (INTEGER/<strong>uint8_t</strong>) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER/<strong>uint8_t</strong>) — значение белого канала (для RGBW).</li>
 </ul>
-<p>2.7. <strong>GROUPS</strong> — группы светильников.</p>
+<p>3.7. <strong>GROUPS</strong> — группы светильников.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название группы;</li>
@@ -130,7 +141,7 @@
 <li><strong>SCENE_BRIGHT_3</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 3;</li>
 <li><strong>SCENE_BRIGHT_4</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 4.</li>
 </ul>
-<p>2.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
+<p>3.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
@@ -144,7 +155,7 @@
 <li><strong>ACTION_NO_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>DELAY</strong> (INTEGER/<strong>uint8_t</strong>) — задержка HOLD_TIME.</li>
 </ul>
-<p>2.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
+<p>3.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
@@ -155,7 +166,7 @@
 <li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки датчика к ней в прошивке;</li>
 <li><strong>GROUP_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
 </ul>
-<p>2.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
+<p>3.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название панели;</li>
@@ -163,7 +174,7 @@
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес панели в DALI;</li>
 <li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки в прошивке.</li>
 </ul>
-<p>2.11. <strong>BUTTONS</strong> — кнопки.</p>
+<p>3.11. <strong>BUTTONS</strong> — кнопки.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название кнопки на панели;</li>
@@ -175,12 +186,12 @@
 <li><strong>ACTION_SHORT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по короткому нажатию; 0 — не повешено действие;</li>
 <li><strong>ACTION_LONG_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по долгому нажатию; 0 — не повешено действие.</li>
 </ul>
-<p>2.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
+<p>3.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для идентификации действия в прошивке.</li>
 </ul>
-<p>2.13. <strong>SUBACTIONS</strong> — поддействия с устройствами.</p>
+<p>3.13. <strong>SUBACTIONS</strong> — поддействия с устройствами (команды для пользователя).</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
@@ -198,13 +209,13 @@
 </ul>
 </li>
 <li><strong>VALUE</strong> (INTEGER/<strong>uint8_t</strong>) — значение в зависимости от объекта:<ul>
-<li>0–96 — сцена;</li>
-<li>100–196 — температура света;</li>
-<li>201–216 — 0/1 (выкл/вкл).</li>
+<li>если OBJECT_NUM из 0–96 — номер сцены;</li>
+<li>если OBJECT_NUM из 100–196 — температура света;</li>
+<li>если OBJECT_NUM из 201–216 — 0/1 (выкл/вкл).</li>
 </ul>
 </li>
 </ul>
-<p>2.14. <strong>EVENTS</strong> — события расписания.</p>
+<p>3.14. <strong>EVENTS</strong> — события расписания.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
@@ -213,19 +224,34 @@
 <li><strong>SMOOTH</strong> (INTEGER/<strong>_Bool</strong>) — плавное изменение параметров от предыдущих значений (яркость, температура света);</li>
 <li><strong>ACTION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие (для прошивки).</li>
 </ul>
-<h2>3. Ограничения по количеству записей в таблицах (для прошивки)</h2>
-<p>3.1. <strong>CONTROLLERS</strong> — 1.</p>
-<p>3.2. <strong>LOCATIONS</strong> — 16.</p>
-<p>3.3. <strong>LUMINAIRES</strong> — 64.</p>
-<p>3.4. <strong>SCENE_LUMINAIRES</strong> — 320.</p>
-<p>3.5. <strong>GROUPS</strong> — 16.</p>
-<p>3.6. <strong>PRES_SENSORS</strong> — 64.</p>
-<p>3.7. <strong>BRIGHT_SENSORS</strong> — 64.</p>
-<p>3.8. <strong>BUTTON_PANELS</strong> — 64.</p>
-<p>3.9. <strong>BUTTONS</strong> — 64.</p>
-<p>3.10. <strong>ACTIONS</strong> — 255.</p>
-<p>3.11. <strong>SUBACTIONS</strong> — 255.</p>
-<p>3.12. <strong>EVENTS</strong> — 255.</p>
+<h2>4. Ограничения по количеству записей в таблицах (для прошивки)</h2>
+<p>4.1. <strong>CONTROLLERS</strong> — 1.</p>
+<p>4.2. <strong>LOCATIONS</strong> — 16.</p>
+<p>4.3. <strong>LUMINAIRES</strong> — 64.</p>
+<p>4.4. <strong>SCENE_LUMINAIRES</strong> — 320.</p>
+<p>4.5. <strong>GROUPS</strong> — 16.</p>
+<p>4.6. <strong>PRES_SENSORS</strong> — 64.</p>
+<p>4.7. <strong>BRIGHT_SENSORS</strong> — 64.</p>
+<p>4.8. <strong>BUTTON_PANELS</strong> — 64.</p>
+<p>4.9. <strong>BUTTONS</strong> — 64.</p>
+<p>4.10. <strong>ACTIONS</strong> — 255.</p>
+<p>4.11. <strong>SUBACTIONS</strong> — 255.</p>
+<p>4.12. <strong>EVENTS</strong> — 255.</p>
+<h2>Вопросы</h2>
+<ol>
+<li>
+<p>Рабочие данные таки храним в Си или переносим в одну область с интерфейсными?</p>
+</li>
+<li>
+<p>Как рабочие и интерфейсные данные будут попадать во флэш-память?</p>
+</li>
+<li>
+<p>Не будет ли заморочным в смысле размера кода работать с бинарным блоком рабочих данных как с базой?</p>
+</li>
+<li>
+<p>Нужно ли добиваться сокращения размера рабочих данных (упаковывания SCENE_LUMINAIRES и EVENTS в первую очередь) за счет увеличения кода, работающего с ними?</p>
+</li>
+</ol>
         </main>
     </div>
 
