@@ -60,7 +60,7 @@
                 padding: 0 !important;
             }
             
-            #mindmap-diagram, #process-diagram {
+            #process-diagram {
                 margin: 20px 0 !important;
             }
         }
@@ -163,11 +163,16 @@ flowchart LR
     
     PRO((Проектир.<br>Худяков))
     
-    DSUI(Спецификация<br>на разработку<br>UI)
-    DSAPP(Спецификация<br>на разработку<br>Приложение)
-    DSDB(Спецификация<br>на разработку<br>База данных)
-    DSP(Спецификация<br>на разработку<br>Протокол обмена<br>Приложение-Прошивка)
-    DSFW(Спецификация<br>на разработку<br>Прошивка)
+    DSUI(UI<br>Спецификация<br>на разработку)
+    DSUX(UX<br>Спецификация<br>на разработку)
+    DSAPP(Приложение<br>Спецификация<br>на разработкуе)
+    DSDB(База данных<br>Спецификация<br>на разработку)
+    DSP(USML<br>Спецификация<br>на разработку)
+    DSB(Bluetooth-соединение<br>Спецификация<br>на разработку)
+    DSLLM(Работа с LLM<br>Спецификация<br>на разработку)
+    DSFW(Прошивка<br>Спецификация<br>на разработку)
+    
+    
 
     UIUXD((UX-дизайн<br>Худяков))
     UIUX( UX-макет )
@@ -185,12 +190,16 @@ flowchart LR
     ANAL ---> PRD
     PRD ---> PRO
     PRO ---> DSUI
+    PRO ---> DSUX
     PRO ---> DSFW
     PRO ---> DSAPP
     PRO ---> DSP
     PRO ---> DSDB
+    PRO ---> DSB
+    PRO ---> DSLLM
 
-    DSUI ---> UIUXD
+    DSUX ---> UIUXD
+    DSUI ---> UIUID
     UIUXD ---> UIUX
     UIUX ---> UIUID
     UIUID ---> UIUI
@@ -199,10 +208,13 @@ flowchart LR
     DSAPP ---> APPD
     DSP ---> APPD
     DSDB ---> APPD
+    DSB ---> APPD
+    DSLLM ---> APPD
 
     DSFW ---> FWD
     DSP ---> FWD
     DSDB ---> FWD
+    DSB ---> FWD
 
     FWD ---> FW
     APPD ---> APP
@@ -221,6 +233,9 @@ flowchart LR
     style DSDB fill:#E0E0E0,stroke:#999
     style DSP fill:#E0E0E0,stroke:#999
     style DSFW fill:#E0E0E0,stroke:#999
+    style DSUX fill:#E0E0E0,stroke:#999
+    style DSB fill:#E0E0E0,stroke:#999
+    style DSLLM fill:#E0E0E0,stroke:#999
     style UIUX fill:#E0E0E0,stroke:#999
     style UIUI fill:#E0E0E0,stroke:#999
     style FW fill:#505050,stroke:#999,color:#fff
@@ -228,8 +243,13 @@ flowchart LR
 
     click PRD "PRD/SynapsePRD.html"
     click DSUI "PDS/SynapsePDS_APP_UI.html"
-    click DSFW "PDS/SynapsePDS_FW.html"
+    click DSUX "PDS/SynapsePDS_APP_UX.html"
     click DSAPP "PDS/SynapsePDS_APP.html"
+    click DSDB "PDS/SynapsePDS_DB.html"
+    click DSP "PDS/SynapsePDS_USML.html"
+    click DSB "PDS/SynapsePDS_Bluetooth.html"
+    click DSLLM "PDS/SynapsePDS_LLM.html"
+    click DSFW "PDS/SynapsePDS_FW.html"
             </div>
         </div>
 
@@ -290,90 +310,6 @@ flowchart LR
                                 e.preventDefault();
                                 e.stopPropagation();
                                 window.location.href = 'PDS/SynapsePDS_APP.html';
-                            });
-                        }
-                    });
-                }
-                
-                // Mindmap click handlers
-                const mindmap = document.getElementById('mindmap-diagram');
-                if (mindmap) {
-                    // Set default cursor
-                    mindmap.style.cursor = 'default';
-                    
-                    // Add click handler for the whole diagram (background)
-                    mindmap.addEventListener('click', function(e) {
-                        // Check if click was on SVG background, not on a node
-                        if (e.target.tagName === 'svg' || e.target.classList.contains('mermaid')) {
-                            window.open('mindmap_diagram_full.html', '_blank');
-                        }
-                    });
-                    
-                    // Make zoom icon clickable
-                    const zoomIcon = mindmap.parentElement.querySelector('.zoom-icon');
-                    if (zoomIcon) {
-                        zoomIcon.style.pointerEvents = 'auto';
-                        zoomIcon.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            window.open('mindmap_diagram_full.html', '_blank');
-                        });
-                    }
-                    
-                    // Add click handlers to mindmap nodes
-                    const nodes = mindmap.querySelectorAll('g.mindmap-node');
-                    nodes.forEach(node => {
-                        const text = node.textContent.trim();
-                        
-                        // Style root node with blue background
-                        if (text.includes('СИНАПС')) {
-                            const circle = node.querySelector('circle, ellipse, rect, path');
-                            if (circle) {
-                                circle.style.fill = '#006a8e';
-                                circle.style.stroke = '#004d6b';
-                                // Increase root node size by 1.2x
-                                const currentRx = circle.getAttribute('rx') || circle.getAttribute('r');
-                                const currentRy = circle.getAttribute('ry') || circle.getAttribute('r');
-                                if (currentRx) circle.setAttribute('rx', parseFloat(currentRx) * 1.2);
-                                if (currentRy) circle.setAttribute('ry', parseFloat(currentRy) * 1.2);
-                                if (circle.getAttribute('r')) circle.setAttribute('r', parseFloat(circle.getAttribute('r')) * 1.2);
-                            }
-                            const textElement = node.querySelector('text');
-                            if (textElement) {
-                                textElement.style.fill = 'white';
-                                textElement.style.fontWeight = 'bold';
-                                textElement.style.textDecoration = 'underline';
-                                textElement.style.fontSize = '1.2em';
-                            }
-                            node.style.cursor = 'pointer';
-                            
-                            node.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                window.location.href = 'index.html';
-                            });
-                        } else if (text.includes('DB')) {
-                            const textElement = node.querySelector('text');
-                            if (textElement) {
-                                textElement.style.textDecoration = 'underline';
-                            }
-                            node.style.cursor = 'pointer';
-                            
-                            node.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                window.location.href = 'PDS/db_schema_mermaid.html';
-                            });
-                        } else if (text.includes('Техзадание')) {
-                            const textElement = node.querySelector('text');
-                            if (textElement) {
-                                textElement.style.textDecoration = 'underline';
-                            }
-                            node.style.cursor = 'pointer';
-                            
-                            node.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                window.location.href = 'PRD/SynapsePRD.html';
                             });
                         }
                     });

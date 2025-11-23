@@ -10,11 +10,16 @@ flowchart LR
     
     PRO((Проектир.<br>Худяков))
     
-    DSUI(Спецификация<br>на разработку<br>UI)
-    DSAPP(Спецификация<br>на разработку<br>Приложение)
-    DSDB(Спецификация<br>на разработку<br>База данных)
-    DSP(Спецификация<br>на разработку<br>Протокол обмена<br>Приложение-Прошивка)
-    DSFW(Спецификация<br>на разработку<br>Прошивка)
+    DSUI(UI<br>Спецификация<br>на разработку)
+    DSUX(UX<br>Спецификация<br>на разработку)
+    DSAPP(Приложение<br>Спецификация<br>на разработкуе)
+    DSDB(База данных<br>Спецификация<br>на разработку)
+    DSP(USML<br>Спецификация<br>на разработку)
+    DSB(Bluetooth-соединение<br>Спецификация<br>на разработку)
+    DSLLM(Работа с LLM<br>Спецификация<br>на разработку)
+    DSFW(Прошивка<br>Спецификация<br>на разработку)
+    
+    
 
     UIUXD((UX-дизайн<br>Худяков))
     UIUX( UX-макет )
@@ -32,12 +37,16 @@ flowchart LR
     ANAL ---> PRD
     PRD ---> PRO
     PRO ---> DSUI
+    PRO ---> DSUX
     PRO ---> DSFW
     PRO ---> DSAPP
     PRO ---> DSP
     PRO ---> DSDB
+    PRO ---> DSB
+    PRO ---> DSLLM
 
-    DSUI ---> UIUXD
+    DSUX ---> UIUXD
+    DSUI ---> UIUID
     UIUXD ---> UIUX
     UIUX ---> UIUID
     UIUID ---> UIUI
@@ -46,10 +55,13 @@ flowchart LR
     DSAPP ---> APPD
     DSP ---> APPD
     DSDB ---> APPD
+    DSB ---> APPD
+    DSLLM ---> APPD
 
     DSFW ---> FWD
     DSP ---> FWD
     DSDB ---> FWD
+    DSB ---> FWD
 
     FWD ---> FW
     APPD ---> APP
@@ -68,10 +80,22 @@ flowchart LR
     style DSDB fill:#E0E0E0,stroke:#999
     style DSP fill:#E0E0E0,stroke:#999
     style DSFW fill:#E0E0E0,stroke:#999
+    style DSUX fill:#E0E0E0,stroke:#999
+    style DSB fill:#E0E0E0,stroke:#999
+    style DSLLM fill:#E0E0E0,stroke:#999
     style UIUX fill:#E0E0E0,stroke:#999
     style UIUI fill:#E0E0E0,stroke:#999
     style FW fill:#505050,stroke:#999,color:#fff
     style APP fill:#505050,stroke:#999,color:#fff
 
-    click PRD "https://khudyakovalex.github.io/Synapse/INDEX/PRD/SynapsePRD.html"
+    click PRD "PRD/SynapsePRD.html"
+    click DSUI "PDS/SynapsePDS_APP_UI.html"
+    click DSUX "PDS/SynapsePDS_APP_UX.html"
+    click DSAPP "PDS/SynapsePDS_APP.html"
+    click DSDB "PDS/SynapsePDS_DB.html"
+    click DSP "PDS/SynapsePDS_USML.html"
+    click DSB "PDS/SynapsePDS_Bluetooth.html"
+    click DSLLM "PDS/SynapsePDS_LLM.html"
+    click DSFW "PDS/SynapsePDS_FW.html"
+
 ```
