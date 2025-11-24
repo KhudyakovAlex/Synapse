@@ -211,6 +211,49 @@ function initSearch() {
     }
 }
 
+// Smart sidebar scroll - shows top when scrolling up, bottom when scrolling down
+function initSmartSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (!sidebar) return;
+    
+    // Only apply on desktop
+    if (window.innerWidth <= 768) return;
+    
+    let lastScroll = window.pageYOffset;
+    let ticking = false;
+    
+    function updateSidebarPosition() {
+        const currentScroll = window.pageYOffset;
+        
+        // Determine scroll direction
+        if (currentScroll > lastScroll && currentScroll > 100) {
+            // Scrolling down - align to bottom
+            sidebar.style.alignSelf = 'flex-end';
+        } else {
+            // Scrolling up - align to top
+            sidebar.style.alignSelf = 'flex-start';
+        }
+        
+        lastScroll = currentScroll;
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateSidebarPosition);
+            ticking = true;
+        }
+    });
+    
+    // Reset on resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.style.alignSelf = '';
+        }
+    });
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     generateTOC();
@@ -218,5 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeCopy();
     initMermaidLinks();
     initSearch();
+    initSmartSidebar();
 });
 

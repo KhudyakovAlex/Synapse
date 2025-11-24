@@ -120,9 +120,13 @@ body {
 .sidebar {
     padding: 20px;
     height: fit-content;
+    max-height: calc(100vh - 100px);
     width: 300px;
     position: sticky;
     top: 20px;
+    align-self: flex-start;
+    transition: align-self 0.3s ease;
+    overflow-y: auto;
 }
 
 .sidebar[style*="display: none"] ~ .content {
