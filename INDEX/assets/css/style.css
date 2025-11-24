@@ -356,6 +356,14 @@ body {
 }
 
 /* Responsive */
+/* Desktop - keep header sticky */
+@media (min-width: 769px) {
+    .header {
+        position: sticky !important;
+        top: 0;
+    }
+}
+
 @media (max-width: 768px) {
     body {
         line-height: 1.3;
