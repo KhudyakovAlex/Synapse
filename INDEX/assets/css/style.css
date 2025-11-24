@@ -395,6 +395,10 @@ body {
         padding: 0;
     }
     
+    .header {
+        position: relative;
+    }
+    
     .header-container {
         padding: 0 10px !important;
     }
