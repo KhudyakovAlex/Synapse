@@ -510,9 +510,9 @@ class MarkdownConverter:
                 mermaid_match = re.search(r'(```mermaid.*?```)', scheme_content, re.DOTALL)
                 if mermaid_match:
                     mermaid_block = mermaid_match.group(1)
-                    # Insert mermaid block after metadata (after "Статус:" line)
+                    # Insert mermaid block after metadata (after "Последнее изменение:" line)
                     md_content = re.sub(
-                        r'(\*\*Статус:\*\*[^\n]*\n)',
+                        r'(\*\*Последнее изменение:\*\*[^\n]*\n)',
                         r'\1\n' + mermaid_block + '\n',
                         md_content,
                         count=1
