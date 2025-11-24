@@ -125,14 +125,13 @@
             color: white;
         }
         
+        .doc-card.featured {
+            grid-column: 1;
+        }
+
         .doc-card.featured .title,
         .doc-card.featured .description {
             color: white;
-        }
-
-        .row-break {
-            grid-column: 1 / -1;
-            height: 0;
         }
     </style>
 </head>
@@ -366,18 +365,12 @@ flowchart LR
                     </div>
                 </a>
 
-                <!-- Row break -->
-                <div class="row-break"></div>
-
                 <a href="PDS/SynapsePDS_FW.html" class="doc-card featured">
                     <div class="title">Прошивка</div>
                     <div class="description">
                         PDS/SynapsePDS_FW.md
                     </div>
                 </a>
-
-                <!-- Row break -->
-                <div class="row-break"></div>
 
                 <a href="PDS/SynapsePDS_APP.html" class="doc-card featured">
                     <div class="title">Приложение</div>
