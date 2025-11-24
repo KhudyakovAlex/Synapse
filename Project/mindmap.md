@@ -7,7 +7,6 @@ config:
   theme: 'base'
 ---
 
-
   mindmap
   root((<a href="https://khudyakovalex.github.io/Synapse/INDEX/" style="color:inherit; font-size: large; padding:20px; background-color:#006a8e; text-decoration:underline">СИНАПС))
     (Контроллер)

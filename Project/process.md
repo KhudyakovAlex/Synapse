@@ -51,6 +51,7 @@ flowchart LR
     UIUX ---> UIUID
     UIUID ---> UIUI
 
+    UIUX ---> APPD
     UIUI ---> APPD
     DSAPP ---> APPD
     DSP ---> APPD
