@@ -41,28 +41,68 @@ function generateTOC() {
             a.style.fontSize = '0.9em';
         }
         
+        // Add click handler for manual highlight
+        a.addEventListener('click', function(e) {
+            // Remove active class from all items
+            document.querySelectorAll('.sidebar ul li').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            li.classList.add('active');
+            
+            // Enable manual highlight mode
+            isManualHighlight = true;
+            lastScrollPosition = window.scrollY || window.pageYOffset;
+        });
+        
         li.appendChild(a);
         sidebarList.appendChild(li);
     });
     
     // Highlight current section on scroll
     window.addEventListener('scroll', highlightCurrentSection);
+    window.addEventListener('scroll', detectUserScroll);
 }
+
+// Variables for manual highlight control
+let isManualHighlight = false;
+let isProgrammaticScroll = false;
+let lastScrollPosition = 0;
 
 // Highlight active section in TOC
 function highlightCurrentSection() {
+    // Skip auto-highlight if manual highlight is active
+    if (isManualHighlight) {
+        return;
+    }
+    
     const sections = document.querySelectorAll('.content h2, .content h3');
     const tocLinks = document.querySelectorAll('.sidebar ul li a');
     
+    // Get current scroll position (top edge of viewport)
+    const scrollPosition = window.scrollY || window.pageYOffset;
+    
+    // Calculate reference point: header height + 20px offset
+    const header = document.querySelector('.header');
+    const headerHeight = header ? header.offsetHeight : 0;
+    const offset = headerHeight + 20;
+    const referencePoint = scrollPosition + offset;
+    
     let currentSection = null;
     
+    // Find the section that contains the reference point
+    // That is: the last section whose top is at or before the reference point
     sections.forEach(section => {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= 150 && rect.top >= -rect.height) {
+        const sectionTop = section.offsetTop;
+        
+        // Check if this section's top is at or above the reference point
+        if (sectionTop <= referencePoint) {
             currentSection = section.id;
         }
     });
     
+    // Highlight the corresponding TOC link
     tocLinks.forEach(link => {
         const li = link.parentElement;
         if (link.getAttribute('href') === `#${currentSection}`) {
@@ -71,6 +111,25 @@ function highlightCurrentSection() {
             li.classList.remove('active');
         }
     });
+}
+
+// Detect user scroll (not programmatic)
+function detectUserScroll() {
+    // Ignore programmatic scroll
+    if (isProgrammaticScroll) {
+        return;
+    }
+    
+    const currentScrollPosition = window.scrollY || window.pageYOffset;
+    
+    // If scroll position changed and we're in manual mode, immediately re-enable auto-highlight
+    if (isManualHighlight && Math.abs(currentScrollPosition - lastScrollPosition) > 3) {
+        // Re-enable auto-highlight immediately
+        isManualHighlight = false;
+        highlightCurrentSection();
+    }
+    
+    lastScrollPosition = currentScrollPosition;
 }
 
 // Smooth scroll to anchor links
@@ -82,11 +141,25 @@ function initSmoothScroll() {
             const target = document.getElementById(targetId);
             
             if (target) {
+                // Mark as programmatic scroll
+                isProgrammaticScroll = true;
+                
                 const offsetTop = target.offsetTop - 100; // Account for sticky header
+                const startPosition = window.scrollY || window.pageYOffset;
+                const distance = Math.abs(offsetTop - startPosition);
+                
+                // Estimate scroll duration (rough approximation)
+                const duration = Math.min(distance / 2, 1000); // Max 1 second
+                
                 window.scrollTo({
                     top: offsetTop,
                     behavior: 'smooth'
                 });
+                
+                // Wait for scroll to finish, then allow user scroll detection
+                setTimeout(() => {
+                    isProgrammaticScroll = false;
+                }, duration + 100);
             }
         });
     });
