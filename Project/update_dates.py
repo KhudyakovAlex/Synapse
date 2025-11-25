@@ -10,6 +10,18 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
+def get_repo_root():
+    """Получить корневую директорию Git репозитория"""
+    result = subprocess.run(
+        ['git', 'rev-parse', '--show-toplevel'],
+        capture_output=True,
+        text=True,
+        encoding='utf-8'
+    )
+    if result.returncode != 0:
+        raise RuntimeError("Не удалось определить корень Git репозитория")
+    return Path(result.stdout.strip())
+
 def get_staged_md_files():
     """Получить список MD-файлов, добавленных в индекс Git"""
     result = subprocess.run(
@@ -27,8 +39,9 @@ def get_staged_md_files():
     )]
     return [f for f in md_files if f]  # Убираем пустые строки
 
-def update_date_in_file(filepath):
+def update_date_in_file(repo_root, relative_path):
     """Обновить дату в файле"""
+    filepath = repo_root / relative_path
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -50,12 +63,12 @@ def update_date_in_file(filepath):
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(new_content)
             
-            # Добавляем обновленный файл в индекс
-            subprocess.run(['git', 'add', filepath])
-            print(f'✓ Обновлена дата в файле: {filepath}')
+            # Добавляем обновленный файл в индекс (используем относительный путь для Git)
+            subprocess.run(['git', 'add', relative_path], cwd=repo_root)
+            print(f'✓ Обновлена дата в файле: {relative_path}')
             return True
     except Exception as e:
-        print(f'✗ Ошибка при обновлении {filepath}: {e}')
+        print(f'✗ Ошибка при обновлении {relative_path}: {e}')
     
     return False
 
@@ -64,6 +77,12 @@ def main():
     print('=' * 60)
     print('Автоматическое обновление дат в документах')
     print('=' * 60)
+    
+    try:
+        repo_root = get_repo_root()
+    except RuntimeError as e:
+        print(f'✗ {e}')
+        return 1
     
     staged_files = get_staged_md_files()
     
@@ -74,8 +93,8 @@ def main():
     print(f'\nНайдено файлов для проверки: {len(staged_files)}')
     
     updated_count = 0
-    for filepath in staged_files:
-        if update_date_in_file(filepath):
+    for relative_path in staged_files:
+        if update_date_in_file(repo_root, relative_path):
             updated_count += 1
     
     if updated_count > 0:
