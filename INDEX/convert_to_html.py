@@ -343,6 +343,75 @@ class MarkdownConverter:
             
         return '\n'.join(result)
     
+    def fix_lists_in_html(self, html: str) -> str:
+        """Fix lists that might have been broken - convert paragraphs with list items to proper <ul>/<ol>"""
+        
+        def fix_paragraph_with_list(match):
+            para_content = match.group(1)
+            full_match = match.group(0)
+            
+            # Split content by newlines (both \n and <br />)
+            # First, replace <br /> with \n for easier processing
+            content_normalized = para_content.replace('<br />', '\n')
+            lines = content_normalized.split('\n')
+            
+            # Find list items and their positions
+            ul_items = []
+            list_start_line = None
+            
+            for i, line in enumerate(lines):
+                stripped = line.strip()
+                # Check if line starts with "- " (unordered list)
+                if re.match(r'^- ', stripped):
+                    if list_start_line is None:
+                        list_start_line = i
+                    # Extract item text
+                    item_text = re.sub(r'^-\s+', '', stripped).strip()
+                    if item_text:
+                        ul_items.append((i, item_text))
+            
+            if ul_items and len(ul_items) >= 1:
+                result_parts = []
+                
+                # Text before list
+                if list_start_line > 0:
+                    before_lines = [lines[i].strip() for i in range(list_start_line) if lines[i].strip()]
+                    before_text = ' '.join(before_lines).strip()
+                    if before_text:
+                        result_parts.append(f'<p>{before_text}</p>')
+                
+                # Build unordered list
+                list_html = '<ul>\n'
+                for idx, item_text in ul_items:
+                    item_text = item_text.strip()
+                    if item_text:
+                        list_html += f'  <li>{item_text}</li>\n'
+                list_html += '</ul>'
+                result_parts.append(list_html)
+                
+                # Text after list (if any)
+                last_item_line = ul_items[-1][0]
+                if last_item_line + 1 < len(lines):
+                    after_lines = [lines[i].strip() for i in range(last_item_line + 1, len(lines)) if lines[i].strip()]
+                    after_text = ' '.join(after_lines).strip()
+                    if after_text and not after_text.startswith('-'):
+                        result_parts.append(f'<p>{after_text}</p>')
+                
+                return '\n'.join(result_parts)
+            
+            return full_match
+        
+        # Process paragraphs that might contain lists
+        # Match paragraphs containing "- " pattern
+        html = re.sub(
+            r'<p>((?:[^<]|<(?!\/p>))*- .+?)</p>',
+            fix_paragraph_with_list,
+            html,
+            flags=re.MULTILINE | re.DOTALL
+        )
+        
+        return html
+    
     def convert_code_blocks(self, text: str) -> str:
         """Convert code blocks to HTML, preserving Mermaid diagrams"""
         # Mermaid blocks
@@ -492,6 +561,29 @@ class MarkdownConverter:
         # Return relative URL
         return diagram_filename
     
+    def preprocess_markdown(self, md_content: str) -> str:
+        """Preprocess markdown to ensure lists are properly formatted"""
+        lines = md_content.split('\n')
+        result = []
+        
+        for i, line in enumerate(lines):
+            # Check if current line is a list item
+            is_list_item = re.match(r'^\s*- ', line) or re.match(r'^\s*\d+\.\s+', line)
+            
+            if is_list_item and i > 0:
+                # Check if previous line is not empty and not a list item
+                prev_line = lines[i-1].strip()
+                if prev_line and not prev_line.endswith(':') and not re.match(r'^\s*- ', lines[i-1]) and not re.match(r'^\s*\d+\.\s+', lines[i-1]):
+                    # Check if previous line doesn't end with punctuation that suggests continuation
+                    if not prev_line.endswith((':', ';', ',')):
+                        # This might be a list that needs a blank line before it
+                        # But we'll be conservative - only add if it looks like a list start
+                        pass
+            
+            result.append(line)
+        
+        return '\n'.join(result)
+    
     def convert_file(self, md_file: Path):
         """Convert a single markdown file to HTML"""
         print(f"Converting: {md_file}")
@@ -499,6 +591,9 @@ class MarkdownConverter:
         # Read markdown
         with open(md_file, 'r', encoding='utf-8') as f:
             md_content = f.read()
+        
+        # Preprocess markdown to fix list formatting
+        md_content = self.preprocess_markdown(md_content)
         
         # Special handling for SynapsePDS_DB.md - inject schema from SynapsePDS_DB_scheme.md
         if md_file.name == 'SynapsePDS_DB.md':
@@ -535,12 +630,18 @@ class MarkdownConverter:
         # Convert markdown to HTML
         if MARKDOWN_AVAILABLE:
             # Use proper markdown library with extensions
+            # Note: nl2br conflicts with list processing, so we handle line breaks manually
             md = markdown.Markdown(extensions=[
                 'extra',  # Includes: tables, fenced_code, attr_list, def_list, footnotes, abbr
-                'nl2br',  # Convert single newlines to <br>
                 'sane_lists',  # Better list handling
             ])
             html_content = md.convert(md_content)
+            
+            # Convert two spaces + newline to <br> (markdown line breaks)
+            html_content = re.sub(r'  \n', '<br>\n', html_content)
+            
+            # Fix lists that might have been broken
+            html_content = self.fix_lists_in_html(html_content)
             
             # Post-process: Convert Mermaid code blocks to div.mermaid
             # AND create separate pages for each diagram
