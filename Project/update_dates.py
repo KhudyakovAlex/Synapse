@@ -7,6 +7,7 @@
 
 import re
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -103,8 +104,12 @@ def main():
         print('\nДаты не требуют обновления')
     
     print('=' * 60)
+    print('Скрипт завершён успешно')
+    sys.stdout.flush()  # Принудительно отправляем весь вывод
     return 0
 
 if __name__ == '__main__':
-    exit(main())
+    exit_code = main()
+    sys.stdout.flush()  # Принудительно отправляем весь вывод перед выходом
+    sys.exit(exit_code)
 
