@@ -344,7 +344,7 @@ class MarkdownConverter:
         return '\n'.join(result)
     
     def fix_lists_in_html(self, html: str) -> str:
-        """Fix lists that might have been broken - convert paragraphs with list items to proper <ul>/<ol>"""
+        """Fix lists that might have been broken - convert paragraphs with list items to proper <ul>/<ol> with nested support"""
         
         def fix_paragraph_with_list(match):
             para_content = match.group(1)
@@ -355,22 +355,21 @@ class MarkdownConverter:
             content_normalized = para_content.replace('<br />', '\n')
             lines = content_normalized.split('\n')
             
-            # Find list items and their positions
-            ul_items = []
+            # Find list items with their indentation levels
+            list_items = []
             list_start_line = None
             
             for i, line in enumerate(lines):
-                stripped = line.strip()
-                # Check if line starts with "- " (unordered list)
-                if re.match(r'^- ', stripped):
+                # Find lines starting with "- " (with optional leading whitespace)
+                match_item = re.match(r'^(\s*)- (.+)$', line)
+                if match_item:
+                    indent = len(match_item.group(1))  # Number of spaces before "-"
+                    item_text = match_item.group(2).strip()
                     if list_start_line is None:
                         list_start_line = i
-                    # Extract item text
-                    item_text = re.sub(r'^-\s+', '', stripped).strip()
-                    if item_text:
-                        ul_items.append((i, item_text))
+                    list_items.append((i, indent, item_text))
             
-            if ul_items and len(ul_items) >= 1:
+            if list_items and len(list_items) >= 1:
                 result_parts = []
                 
                 # Text before list
@@ -380,21 +379,54 @@ class MarkdownConverter:
                     if before_text:
                         result_parts.append(f'<p>{before_text}</p>')
                 
-                # Build unordered list
-                list_html = '<ul>\n'
-                for idx, item_text in ul_items:
-                    item_text = item_text.strip()
-                    if item_text:
-                        list_html += f'  <li>{item_text}</li>\n'
-                list_html += '</ul>'
+                # Build nested unordered list
+                def build_nested_list(items, start_idx=0, current_level=0):
+                    """Recursively build nested list structure"""
+                    if start_idx >= len(items):
+                        return '', start_idx
+                    
+                    html_parts = []
+                    i = start_idx
+                    
+                    while i < len(items):
+                        line_idx, indent, item_text = items[i]
+                        
+                        # If this item is at a deeper level, recurse
+                        if indent > current_level:
+                            nested_html, next_idx = build_nested_list(items, i, indent)
+                            html_parts.append(nested_html)
+                            i = next_idx
+                            continue
+                        
+                        # If this item is at a shallower level, we're done with this list
+                        if indent < current_level:
+                            break
+                        
+                        # Same level - add as list item
+                        html_parts.append(f'  <li>{item_text}')
+                        i += 1
+                        
+                        # Check if next item is nested
+                        if i < len(items) and items[i][1] > current_level:
+                            nested_html, next_idx = build_nested_list(items, i, items[i][1])
+                            html_parts.append(nested_html)
+                            html_parts.append('  </li>')
+                            i = next_idx
+                        else:
+                            html_parts.append('  </li>')
+                    
+                    list_html = '<ul>\n' + '\n'.join(html_parts) + '\n</ul>'
+                    return list_html, i
+                
+                list_html, _ = build_nested_list(list_items)
                 result_parts.append(list_html)
                 
                 # Text after list (if any)
-                last_item_line = ul_items[-1][0]
+                last_item_line = list_items[-1][0]
                 if last_item_line + 1 < len(lines):
                     after_lines = [lines[i].strip() for i in range(last_item_line + 1, len(lines)) if lines[i].strip()]
                     after_text = ' '.join(after_lines).strip()
-                    if after_text and not after_text.startswith('-'):
+                    if after_text and not re.match(r'^\s*- ', after_text):
                         result_parts.append(f'<p>{after_text}</p>')
                 
                 return '\n'.join(result_parts)
