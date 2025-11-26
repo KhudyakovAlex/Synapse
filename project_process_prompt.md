@@ -92,6 +92,17 @@ python Project/update_dates.py
 - Для каждой Mermaid диаграммы создавать отдельную страницу (например, `db_schema_mermaid_diagram_0.html`)
 - Сохранять относительные ссылки между документами
 
+### Раздел "Текущий статус" на главной странице
+- **⚠️ ВАЖНО**: Раздел "Текущий статус" на главной странице `INDEX/index.html` берётся из файла `Project/status.md`
+- **⚠️ ОБЯЗАТЕЛЬНО**: При изменении `Project/status.md` нужно **ВРУЧНУЮ** обновить соответствующий раздел в `INDEX/index.html`
+- Конвертер `convert_to_html.py` **НЕ обрабатывает** файл `Project/status.md` автоматически
+- Заголовок раздела на странице = главный заголовок (h1) из файла `Project/status.md`
+- В разделе должны быть ссылки на соответствующие страницы документации:
+  - "База данных" → `PDS/SynapsePDS_DB.html`
+  - "USML" → `PDS/SynapsePDS_USML.html`
+  - "Bluetooth-соединение" → `PDS/SynapsePDS_Bluetooth.html`
+  - И другие спецификации по аналогии
+
 ### Схема базы данных (Mermaid)
 - **⚠️ ВАЖНО**: Mermaid-схема БД хранится ТОЛЬКО в файле `PDS/SynapsePDS_DB_scheme.md`
 - **⚠️ НЕ ДОБАВЛЯТЬ** схему в файл `PDS/SynapsePDS_DB.md`!
@@ -303,6 +314,7 @@ JavaScript для интерактивности
    - `PDS/*.md` → нужно запустить `convert_to_html.py`
    - `Project/mindmap.md` → нужно запустить `convert_to_html.py` (обновится **АВТОМАТИЧЕСКИ**)
    - `Project/process.md` → нужно запустить `convert_to_html.py` (обновится **АВТОМАТИЧЕСКИ**)
+   - `Project/status.md` → **ОБЯЗАТЕЛЬНО** обновить раздел "Текущий статус" в `INDEX/index.html` вручную (конвертер не обрабатывает этот файл)
    - `INDEX/assets/css/style.css` → проверить, что стили применены
    - `INDEX/assets/js/main.js` → проверить, что скрипты работают
    - `INDEX/index.html` → проверить структуру главной страницы
