@@ -362,18 +362,19 @@
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
 <li><strong>ACTION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие (для прошивки);</li>
-<li><strong>OBJECT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — объект изменений:<ul>
+<li><strong>OBJECT_TYPE</strong> (INTEGER/<strong>uint8_t</strong>) — тип объекта изменений:<ul>
 <li>0 — весь объект;</li>
-<li>1–16 — локация;</li>
-<li>17–32 — группа;</li>
-<li>33–96 — светильник;</li>
-<li>100 — весь объект, меняем TW;</li>
-<li>101–116 — локация, меняем TW;</li>
-<li>117–132 — группа, меняем TW;</li>
-<li>133–196 — светильник, меняем TW;</li>
-<li>201–216 — локация, меняем АВТО.</li>
+<li>1 — локация;</li>
+<li>2 — группа;</li>
+<li>3 — светильник;</li>
+<li>4 — весь объект, меняем TW;</li>
+<li>5 — локация, меняем TW;</li>
+<li>6 — группа, меняем TW;</li>
+<li>7 — светильник, меняем TW;</li>
+<li>8 — локация, меняем АВТО.</li>
 </ul>
 </li>
+<li><strong>OBJECT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер объекта изменений;</li>
 <li><strong>VALUE</strong> (INTEGER/<strong>uint8_t</strong>) — значение в зависимости от объекта:<ul>
 <li>если OBJECT_NUM из 0–96 — номер сцены;</li>
 <li>если OBJECT_NUM из 100–196 — температура света;</li>
