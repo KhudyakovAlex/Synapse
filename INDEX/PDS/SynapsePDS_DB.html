@@ -53,7 +53,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 24.11.2025</p>
+<p><strong>Последнее изменение:</strong> 26.11.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_DB_diagram_0.html">erDiagram
     CONTROLLERS ||--o{ LOCATIONS : "содержит"
     LOCATIONS ||--o{ LUMINAIRES : "содержит"
@@ -65,10 +65,11 @@
     GROUPS ||--o{ BRIGHT_SENSORS : "управляет"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "участвует в"
     BUTTON_PANELS ||--o{ BUTTONS : "содержит"
-    BUTTONS ||--o{ ACTIONS : "короткое нажатие"
+    BUTTONS ||--o{ ACTION_SETS : "короткое нажатие"
     BUTTONS ||--o{ ACTIONS : "длинное нажатие"
     PRES_SENSORS ||--o{ ACTIONS : "движение есть"
     PRES_SENSORS ||--o{ ACTIONS : "движения нет"
+    ACTION_SETS ||--o{ ACTIONS : "содержит"
     ACTIONS ||--o{ SUBACTIONS : "содержит"
     ACTIONS ||--o{ EVENTS : "запускается по"
 
@@ -175,17 +176,25 @@
         INTEGER ID PK
         TEXT NAME
         INTEGER BUTTON_PANEL_ID FK
-        INTEGER ACTION_SHORT_ID FK
+        INTEGER ACTION_SET_SHORT_ID FK
         INTEGER ACTION_LONG_ID FK
         INTEGER DALI_ADDR
         INTEGER DALI_INST
-        INTEGER ACTION_SHORT_NUM
+        INTEGER ACTION_SET_SHORT_NUM
         INTEGER ACTION_LONG_NUM
+    }
+
+    ACTION_SETS {
+        INTEGER ID PK
+        INTEGER NUM
     }
 
     ACTIONS {
         INTEGER ID PK
+        INTEGER ACTION_SET_ID FK
+        INTEGER ACTION_SET_NUM
         INTEGER NUM
+        INTEGER POS
     }
 
     SUBACTIONS {

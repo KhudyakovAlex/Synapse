@@ -66,10 +66,10 @@ def update_date_in_file(repo_root, relative_path):
             
             # Добавляем обновленный файл в индекс (используем относительный путь для Git)
             subprocess.run(['git', 'add', relative_path], cwd=repo_root)
-            print(f'✓ Обновлена дата в файле: {relative_path}')
+            print(f'[OK] Обновлена дата в файле: {relative_path}')
             return True
     except Exception as e:
-        print(f'✗ Ошибка при обновлении {relative_path}: {e}')
+        print(f'[ERROR] Ошибка при обновлении {relative_path}: {e}')
     
     return False
 
@@ -82,7 +82,7 @@ def main():
     try:
         repo_root = get_repo_root()
     except RuntimeError as e:
-        print(f'✗ {e}')
+        print(f'[ERROR] {e}')
         return 1
     
     staged_files = get_staged_md_files()
@@ -99,7 +99,7 @@ def main():
             updated_count += 1
     
     if updated_count > 0:
-        print(f'\n✓ Автоматически обновлено дат: {updated_count}')
+        print(f'\n[OK] Автоматически обновлено дат: {updated_count}')
     else:
         print('\nДаты не требуют обновления')
     
