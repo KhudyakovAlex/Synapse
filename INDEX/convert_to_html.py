@@ -235,7 +235,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <a href="{root_path}index.html" style="margin-left: 10px;">
                 <img src="{root_path}assets/img/Synapse_black.png" alt="Synapse" style="height: 50px; display: block;">
             </a>
-            <a href="{github_url}" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease; margin-right: 10px;">GitHub →</a>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <a href="https://t.me/+az-cc3wBJssxNzcy" target="_blank" style="display: flex; align-items: center; color: white; text-decoration: none; transition: opacity 0.2s ease;">
+                    <img src="{root_path}assets/img/telegram.svg" alt="Telegram" style="width: 24px; height: 24px; display: block;">
+                </a>
+                <a href="{github_url}" target="_blank" style="color: white; text-decoration: none; font-weight: 500; font-size: 1.1em; transition: opacity 0.2s ease; margin-right: 10px;">GitHub →</a>
+            </div>
         </div>
     </div>
 
