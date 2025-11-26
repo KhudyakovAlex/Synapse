@@ -333,17 +333,20 @@
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название кнопки на панели;</li>
 <li>BUTTON_PANEL_ID (INTEGER, FK);</li>
-<li>ACTION_SHORT_ID (INTEGER, FK) — действие по короткому нажатию; не повешено — NULL;</li>
+<li>ACTION_SET_SHORT_ID (INTEGER, FK) — действие по короткому нажатию; не повешено — NULL;</li>
 <li>ACTION_LONG_ID (INTEGER, FK) — действие по долгому нажатию; не повешено — NULL;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI панели;</li>
 <li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_SHORT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по короткому нажатию; 0 — не повешено действие;</li>
+<li><strong>ACTION_SET_SHORT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по короткому нажатию; 0 — не повешено действие;</li>
 <li><strong>ACTION_LONG_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по долгому нажатию; 0 — не повешено действие.</li>
 </ul>
 <p>3.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
+<li>ACTION_SET_ID  (INTEGER, FK) - привязка к набору действий; если действие не входит ни в какой набор - NULL</li>
+<li><strong>ACTION_SET_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — привязка к набору действий; если действие не входит ни в какой набор - 0 (для прошивки);</li>
 <li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для идентификации действия в прошивке.</li>
+<li><strong>POS</strong> (INTEGER/<strong>uint8_t</strong>) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
 <p>3.13. <strong>SUBACTIONS</strong> — поддействия с устройствами (команды для пользователя).</p>
 <ul>
@@ -368,6 +371,13 @@
 <li>если OBJECT_NUM из 201–216 — 0/1 (выкл/вкл).</li>
 </ul>
 </li>
+</ul>
+<p>3.14. <strong>ACTION_SETS</strong> — наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
+<ul>
+  <li>ID (INTEGER, PK) — идентификатор в приложении;
+  </li>
+  <li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер набора действий для идентификации в прошивке; начинается с 1
+  </li>
 </ul>
 <p>3.14. <strong>EVENTS</strong> — события расписания.</p>
 <ul>
