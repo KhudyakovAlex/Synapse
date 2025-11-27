@@ -53,7 +53,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 26.11.2025</p>
+<p><strong>Последнее изменение:</strong> 27.11.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_DB_diagram_0.html">erDiagram
     CONTROLLERS ||--o{ LOCATIONS : "содержит"
     LOCATIONS ||--o{ LUMINAIRES : "содержит"
@@ -313,7 +313,6 @@
 <li>ACTION_NO_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI датчика;</li>
 <li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки датчика к ней в прошивке;</li>
 <li><strong>ACTION_YES_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>ACTION_NO_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>DELAY</strong> (INTEGER/<strong>uint8_t</strong>) — задержка HOLD_TIME.</li>
@@ -326,7 +325,6 @@
 <li>GROUP_ID (INTEGER, FK) — группа, которой управляет датчик; NULL, если группа не назначена;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес датчика в DALI;</li>
 <li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки датчика к ней в прошивке;</li>
 <li><strong>GROUP_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
 </ul>
 <p>3.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
@@ -335,7 +333,6 @@
 <li>NAME (TEXT) — название панели;</li>
 <li>LOCATION_ID (INTEGER, FK);</li>
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес панели в DALI;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки в прошивке.</li>
 </ul>
 <p>3.11. <strong>BUTTONS</strong> — кнопки.</p>
 <ul>

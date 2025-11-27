@@ -112,7 +112,6 @@
 - ACTION_NO_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;
 - **DALI_ADDR** (INTEGER/**uint8_t**) — короткий адрес DALI датчика;
 - **DALI_INST** (INTEGER/**uint8_t**) — номер инстанса датчика движения в DALI;
-- **LOCATION_NUM** (INTEGER/**uint8_t**) — идентификатор локации для привязки датчика к ней в прошивке;
 - **ACTION_YES_NUM** (INTEGER/**uint8_t**) — номер действия для прошивки; 0 — не повешено действие;
 - **ACTION_NO_NUM** (INTEGER/**uint8_t**) — номер действия для прошивки; 0 — не повешено действие;
 - **DELAY** (INTEGER/**uint8_t**) — задержка HOLD_TIME.
@@ -125,7 +124,6 @@
 - GROUP_ID (INTEGER, FK) — группа, которой управляет датчик; NULL, если группа не назначена;
 - **DALI_ADDR** (INTEGER/**uint8_t**) — короткий адрес датчика в DALI;
 - **DALI_INST** (INTEGER/**uint8_t**) — номер инстанса датчика движения в DALI;
-- **LOCATION_NUM** (INTEGER/**uint8_t**) — идентификатор локации для привязки датчика к ней в прошивке;
 - **GROUP_NUM** (INTEGER/**uint8_t**) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.
 
 3.10. **BUTTON_PANELS** — кнопочные панели.
@@ -134,7 +132,6 @@
 - NAME (TEXT) — название панели;
 - LOCATION_ID (INTEGER, FK);
 - **DALI_ADDR** (INTEGER/**uint8_t**) — короткий адрес панели в DALI;
-- **LOCATION_NUM** (INTEGER/**uint8_t**) — идентификатор локации для привязки в прошивке.
 
 3.11. **BUTTONS** — кнопки.
 
