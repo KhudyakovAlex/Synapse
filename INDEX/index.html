@@ -133,6 +133,60 @@
         .doc-card.featured .description {
             color: white;
         }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .status-block {
+            padding: 20px;
+            border-left: 3px solid var(--accent-primary);
+            background: var(--bg-secondary);
+        }
+
+        .status-block h3 {
+            color: var(--text-primary);
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .status-block ul {
+            margin-left: 20px;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        .status-block ul li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .status-block ul li:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-block a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .status-block a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -157,22 +211,30 @@
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Текущий статус</h2>
             
-            <h3 style="color: var(--text-primary); font-size: 1.35em; font-weight: normal; margin-top: 20px; margin-bottom: 15px;">Последнее сделано</h3>
-            <ul style="margin-left: 20px; margin-bottom: 20px;">
-                <li>Согласовано ТЗ (Саенко)</li>
-            </ul>
-            
-            <h3 style="color: var(--text-primary); font-size: 1.35em; font-weight: normal; margin-top: 20px; margin-bottom: 15px;">Сейчас делается</h3>
-            <ul style="margin-left: 20px; margin-bottom: 20px;">
-                <li>Согласуется спецификация <a href="PDS/SynapsePDS_DB.html" style="color: var(--accent-primary); text-decoration: none;">База данных</a> (Худяков с Саенко)</li>
-                <li>Согласуется формат спецификации <a href="PDS/SynapsePDS_USML.html" style="color: var(--accent-primary); text-decoration: none;">USML</a> (Худяков с Саенко)</li>
-            </ul>
-            
-            <h3 style="color: var(--text-primary); font-size: 1.35em; font-weight: normal; margin-top: 20px; margin-bottom: 15px;">Ближайшие планы</h3>
-            <ul style="margin-left: 20px; margin-bottom: 20px;">
-                <li>Доработка и согласование спецификации <a href="PDS/SynapsePDS_USML.html" style="color: var(--accent-primary); text-decoration: none;">USML</a> (Худяков)</li>
-                <li>Разработка спецификация <a href="PDS/SynapsePDS_Bluetooth.html" style="color: var(--accent-primary); text-decoration: none;">Bluetooth-соединение</a> (Худяков)</li>
-            </ul>
+            <div class="status-grid">
+                <div class="status-block">
+                    <h3>Последнее, что сделано</h3>
+                    <ul>
+                        <li>Согласовано Техническое задание (Худяков с Саенко)</li>
+                    </ul>
+                </div>
+                
+                <div class="status-block">
+                    <h3>Сейчас делается</h3>
+                    <ul>
+                        <li>Согласуется спецификация <a href="PDS/SynapsePDS_DB.html">База данных</a> (Худяков с Саенко)</li>
+                        <li>Согласуется формат спецификации <a href="PDS/SynapsePDS_USML.html">USML</a> (Худяков с Саенко)</li>
+                    </ul>
+                </div>
+                
+                <div class="status-block">
+                    <h3>Ближайшие планы</h3>
+                    <ul>
+                        <li>Доработка и согласование спецификации <a href="PDS/SynapsePDS_USML.html">USML</a> (Худяков)</li>
+                        <li>Разработка спецификация <a href="PDS/SynapsePDS_Bluetooth.html">Bluetooth-соединение</a> (Худяков)</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         
         <!-- Process Section -->
