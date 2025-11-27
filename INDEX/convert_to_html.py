@@ -807,7 +807,8 @@ if __name__ == '__main__':
     try:
         import subprocess
         script_path = os.path.join(os.path.dirname(__file__), 'update_diagrams.py')
-        subprocess.run(['python', script_path], check=True, timeout=60)
+        # Use -u flag for unbuffered output to prevent hangs in Windows
+        subprocess.run(['python', '-u', script_path], check=True, timeout=60)
     except subprocess.TimeoutExpired:
         print("Warning: update_diagrams.py timed out after 60 seconds")
         print("You may need to run update_diagrams.py manually")
