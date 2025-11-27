@@ -297,24 +297,19 @@
 <li>NAME (TEXT) — название группы;</li>
 <li>LOCATION_ID (INTEGER, FK) — идентификатор локации;</li>
 <li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки группы к ней в прошивке;</li>
-<li><strong>DALI_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALI;</li>
-<li><strong>SCENE_BRIGHT_0</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 0;</li>
-<li><strong>SCENE_BRIGHT_1</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 1;</li>
-<li><strong>SCENE_BRIGHT_2</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 2;</li>
-<li><strong>SCENE_BRIGHT_3</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 3;</li>
-<li><strong>SCENE_BRIGHT_4</strong> (INTEGER/<strong>uint8_t</strong>) — целевая освещённость при сцене 4.</li>
+<li><strong>DALI_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALIs.</li>
 </ul>
 <p>3.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
 <li>LOCATION_ID (INTEGER, FK);</li>
-<li>ACTION_YES_ID (INTEGER, FK) — действие на наличие движения; NULL — не повешено действие;</li>
-<li>ACTION_NO_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;</li>
+<li>ACTION_OCCUPANCY_ID (INTEGER, FK) — действие на наличие движения; NULL — не повешено действие;</li>
+<li>ACTION_VACANCY_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI датчика;</li>
 <li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса датчика движения в DALI;</li>
-<li><strong>ACTION_YES_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
-<li><strong>ACTION_NO_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
+<li><strong>ACTION_OCCUPANCY_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
+<li><strong>ACTION_VACANCY_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>DELAY</strong> (INTEGER/<strong>uint8_t</strong>) — задержка HOLD_TIME.</li>
 </ul>
 <p>3.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
@@ -360,22 +355,22 @@
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
 <li><strong>ACTION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие (для прошивки);</li>
 <li><strong>OBJECT_TYPE</strong> (INTEGER/<strong>uint8_t</strong>) — тип объекта изменений:<ul>
-<li>0 — весь объект;</li>
-<li>1 — локация;</li>
-<li>2 — группа;</li>
-<li>3 — светильник;</li>
-<li>4 — весь объект, меняем TW;</li>
-<li>5 — локация, меняем TW;</li>
-<li>6 — группа, меняем TW;</li>
-<li>7 — светильник, меняем TW;</li>
-<li>8 — локация, меняем АВТО.</li>
+<li>1 — весь объект;</li>
+<li>2 — локация;</li>
+<li>3 — группа;</li>
+<li>4 — светильник;</li>
 </ul>
 </li>
-<li><strong>OBJECT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер объекта изменений;</li>
+<li><strong>OBJECT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер объекта изменений:<ul>
+<li>1 — сцена;</li>
+<li>2 — температура TW;</li>
+<li>3 — флаг АВТО.</li>
+</ul>
+</li>
 <li><strong>VALUE</strong> (INTEGER/<strong>uint8_t</strong>) — значение в зависимости от объекта:<ul>
-<li>если OBJECT_NUM из 0–96 — номер сцены;</li>
-<li>если OBJECT_NUM из 100–196 — температура света;</li>
-<li>если OBJECT_NUM из 201–216 — 0/1 (выкл/вкл).</li>
+<li>сцена - 0..4;</li>
+<li>температура TW - 0..254;</li>
+<li>флаг АВТО - 0 / 1.</li>
 </ul>
 </li>
 </ul>
