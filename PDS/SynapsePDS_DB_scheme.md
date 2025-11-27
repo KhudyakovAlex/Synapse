@@ -2,27 +2,27 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 26.11.2025
+**Последнее изменение:** 27.11.2025
 
 ```mermaid
 erDiagram
-    CONTROLLERS ||--o{ LOCATIONS : "содержит"
-    LOCATIONS ||--o{ LUMINAIRES : "содержит"
-    LOCATIONS ||--o{ GROUPS : "содержит"
-    LOCATIONS ||--o{ PRES_SENSORS : "содержит"
-    LOCATIONS ||--o{ BRIGHT_SENSORS : "содержит"
-    LOCATIONS ||--o{ BUTTON_PANELS : "содержит"
-    GROUPS ||--o{ LUMINAIRES : "группирует"
-    GROUPS ||--o{ BRIGHT_SENSORS : "управляет"
-    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "участвует в"
-    BUTTON_PANELS ||--o{ BUTTONS : "содержит"
-    BUTTONS ||--o{ ACTION_SETS : "короткое нажатие"
-    BUTTONS ||--o{ ACTIONS : "длинное нажатие"
-    PRES_SENSORS ||--o{ ACTIONS : "движение есть"
-    PRES_SENSORS ||--o{ ACTIONS : "движения нет"
-    ACTION_SETS ||--o{ ACTIONS : "содержит"
-    ACTIONS ||--o{ SUBACTIONS : "содержит"
-    ACTIONS ||--o{ EVENTS : "запускается по"
+    CONTROLLERS ||--o{ LOCATIONS : "CONTROLLER_ID"
+    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_ID"
+    LOCATIONS ||--o{ GROUPS : "LOCATION_ID"
+    LOCATIONS ||--o{ PRES_SENSORS : "LOCATION_ID"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "LOCATION_ID"
+    LOCATIONS ||--o{ BUTTON_PANELS : "LOCATION_ID"
+    GROUPS ||--o{ LUMINAIRES : "GROUP_ID"
+    GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
+    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
+    BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
+    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_ID"
+    ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
+    ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
+    ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
+    ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
+    ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
+    ACTIONS ||--o{ EVENTS : "ACTION_ID"
 
     CONTROLLERS {
         INTEGER ID PK
@@ -93,7 +93,6 @@ erDiagram
         INTEGER ACTION_VACANCY_ID FK
         INTEGER DALI_ADDR
         INTEGER DALI_INST
-        INTEGER LOCATION_NUM
         INTEGER ACTION_OCCUPANCY_NUM
         INTEGER ACTION_VACANCY_NUM
         INTEGER DELAY
@@ -106,7 +105,6 @@ erDiagram
         INTEGER GROUP_ID FK
         INTEGER DALI_ADDR
         INTEGER DALI_INST
-        INTEGER LOCATION_NUM
         INTEGER GROUP_NUM
     }
 
@@ -115,7 +113,6 @@ erDiagram
         TEXT NAME
         INTEGER LOCATION_ID FK
         INTEGER DALI_ADDR
-        INTEGER LOCATION_NUM
     }
 
     BUTTONS {
@@ -161,4 +158,3 @@ erDiagram
         INTEGER ACTION_NUM
     }
 ```
-
