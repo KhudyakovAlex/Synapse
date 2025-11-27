@@ -68,6 +68,7 @@
         UI(UI)
         USM(USM)
         R(R)
+        C<C>
     end
 
     subgraph Контроллер
@@ -75,9 +76,10 @@
     end
 
     LLM<-->R
-    R<--> UI
-    R<--> USM
-    R<--> FW
+    R<-->UI
+    R<-->USM
+    R<-->C
+    C<-->FW
 </div>
 <p>Где:  </p>
 <p>USM - база данных, содержащая модель системы устройств в линии DALI<br />

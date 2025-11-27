@@ -26,6 +26,7 @@ flowchart LR
         UI(UI)
         USM(USM)
         R(R)
+        C<C>
     end
   
     subgraph Контроллер
@@ -33,9 +34,10 @@ flowchart LR
     end
 
     LLM<-->R
-    R<--> UI
-    R<--> USM
-    R<--> FW
+    R<-->UI
+    R<-->USM
+    R<-->C
+    C<-->FW
 ```
 
 Где:  
