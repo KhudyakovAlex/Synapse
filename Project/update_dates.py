@@ -17,7 +17,8 @@ def get_repo_root():
         ['git', 'rev-parse', '--show-toplevel'],
         capture_output=True,
         text=True,
-        encoding='utf-8'
+        encoding='utf-8',
+        timeout=10
     )
     if result.returncode != 0:
         raise RuntimeError("Не удалось определить корень Git репозитория")
@@ -29,7 +30,8 @@ def get_staged_md_files():
         ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
         capture_output=True,
         text=True,
-        encoding='utf-8'
+        encoding='utf-8',
+        timeout=10
     )
     files = result.stdout.strip().split('\n')
     # Фильтруем только MD-файлы в нужных директориях
@@ -65,8 +67,9 @@ def update_date_in_file(repo_root, relative_path):
                 f.write(new_content)
             
             # Добавляем обновленный файл в индекс (используем относительный путь для Git)
-            subprocess.run(['git', 'add', relative_path], cwd=repo_root)
+            subprocess.run(['git', 'add', relative_path], cwd=repo_root, timeout=10)
             print(f'[OK] Обновлена дата в файле: {relative_path}')
+            sys.stdout.flush()  # Принудительно отправляем вывод
             return True
     except Exception as e:
         print(f'[ERROR] Ошибка при обновлении {relative_path}: {e}')
@@ -92,11 +95,13 @@ def main():
         return 0
     
     print(f'\nНайдено файлов для проверки: {len(staged_files)}')
+    sys.stdout.flush()  # Принудительно отправляем вывод
     
     updated_count = 0
     for relative_path in staged_files:
         if update_date_in_file(repo_root, relative_path):
             updated_count += 1
+        sys.stdout.flush()  # Принудительно отправляем вывод после каждого файла
     
     if updated_count > 0:
         print(f'\n[OK] Автоматически обновлено дат: {updated_count}')
