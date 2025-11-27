@@ -623,11 +623,18 @@ class MarkdownConverter:
     
     def convert_file(self, md_file: Path):
         """Convert a single markdown file to HTML"""
+        import sys
         print(f"Converting: {md_file}")
+        sys.stdout.flush()
         
         # Read markdown
-        with open(md_file, 'r', encoding='utf-8') as f:
-            md_content = f.read()
+        try:
+            with open(md_file, 'r', encoding='utf-8') as f:
+                md_content = f.read()
+        except Exception as e:
+            print(f"  X Error reading {md_file}: {e}")
+            sys.stdout.flush()
+            raise
         
         # Preprocess markdown to fix list formatting
         md_content = self.preprocess_markdown(md_content)
@@ -740,16 +747,23 @@ class MarkdownConverter:
         )
         
         # Write HTML
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(html)
-        
-        print(f"  > Created: {output_file}")
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(html)
+            print(f"  > Created: {output_file}")
+            sys.stdout.flush()
+        except Exception as e:
+            print(f"  X Error writing {output_file}: {e}")
+            sys.stdout.flush()
+            raise
     
     def convert_all(self):
         """Convert all markdown files in PRD and PDS folders"""
+        import sys
         print("="*60)
         print("Synapse Documentation Converter")
         print("="*60)
+        sys.stdout.flush()
         
         # Find all .md files
         md_files = []
@@ -759,17 +773,21 @@ class MarkdownConverter:
                 md_files.extend(folder_path.glob('*.md'))
         
         print(f"\nFound {len(md_files)} markdown files\n")
+        sys.stdout.flush()
         
         # Convert each file
         for md_file in md_files:
             try:
                 self.convert_file(md_file)
+                sys.stdout.flush()  # Flush after each file
             except Exception as e:
                 print(f"  X Error converting {md_file}: {e}")
+                sys.stdout.flush()
         
         print("\n" + "="*60)
         print("Conversion complete!")
         print("="*60)
+        sys.stdout.flush()
 
 
 if __name__ == '__main__':
