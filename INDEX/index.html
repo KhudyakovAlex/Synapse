@@ -191,17 +191,20 @@
 
         /* Progress Hero responsive */
         @media (max-width: 768px) {
+            .progress-hero {
+                padding: 20px 0 0 0 !important;
+            }
+            
             .progress-hero > div {
                 flex-direction: column !important;
                 gap: 20px !important;
-                padding: 20px !important;
-                padding-left: 20px !important;
+                padding: 0 !important;
                 text-align: center;
             }
             
             .progress-hero #stage-image {
-                width: 250px !important;
-                border-radius: 8px !important;
+                width: 100% !important;
+                max-width: 400px !important;
             }
             
             .progress-hero #progress-percent {
@@ -247,13 +250,9 @@
                 </div>
                 
                 <!-- Days Left -->
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
+                <div>
                     <span style="font-size: 1.32em; color: #495057;">
-                        До вступления в бой: <strong id="days-left" style="color: var(--accent-primary);">—</strong> дней
+                        До вступления в бой, дней: <strong id="days-left" style="color: var(--accent-primary);">—</strong>
                     </span>
                 </div>
             </div>
