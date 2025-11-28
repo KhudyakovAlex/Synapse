@@ -305,11 +305,21 @@ class MarkdownConverter:
         return text
     
     def convert_urls(self, text: str) -> str:
-        """Convert plain URLs to clickable links"""
+        """Convert plain URLs to clickable links with truncated display text"""
         # Match URLs that are not already inside href="..." or <a> tags
         # Pattern: http:// or https:// followed by non-whitespace characters
         url_pattern = r'(?<!["\'>])(https?://[^\s<>\"\'\)]+)'
-        text = re.sub(url_pattern, r'<a href="\1" target="_blank">\1</a>', text)
+        
+        def truncate_url(match):
+            url = match.group(1)
+            # If URL is longer than 30 characters, truncate display text
+            if len(url) > 30:
+                display_text = url[:15] + " ... " + url[-15:]
+            else:
+                display_text = url
+            return f'<a href="{url}" target="_blank">{display_text}</a>'
+        
+        text = re.sub(url_pattern, truncate_url, text)
         return text
     
     def convert_lists(self, text: str) -> str:
