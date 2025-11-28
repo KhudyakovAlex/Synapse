@@ -33,6 +33,20 @@
 
 203_peregovornaya.svg - Переговорная.
 
+204_stolovaya.svg - Столовая.
+
+205_koridor.svg - Коридор.
+
+206_wc.svg - Тубзик.
+
+207_gostinaya.svg - Гостиная.
+
+208_kuhnya.svg - Кухня.
+
+209_spalnya.svg - Спальня.
+
+210_detskaya.svg - Детская.
+
 ## 3. Вопросы
 
 ## 4. Идеи
