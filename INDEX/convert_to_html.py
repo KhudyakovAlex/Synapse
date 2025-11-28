@@ -621,6 +621,46 @@ class MarkdownConverter:
         
         return '\n'.join(result)
     
+    def get_icon_folder_for_file(self, md_file: Path) -> str:
+        """Get the icon folder path based on the markdown filename"""
+        icon_folders = {
+            'SynapsePDS_Icons_Controllers.md': 'MOBILE/Images/Ico/Controller',
+            'SynapsePDS_Icons_Devices.md': 'MOBILE/Images/Ico/Device',
+            'SynapsePDS_Icons_Locations.md': 'MOBILE/Images/Ico/Location',
+        }
+        return icon_folders.get(md_file.name, None)
+    
+    def process_icon_lines(self, html_content: str, icon_folder: str) -> str:
+        """Insert SVG icons into lines that reference icon files (XXX_name.svg pattern)"""
+        # Pattern: lines starting with number_name.svg (e.g., "100_defult.svg  - Description")
+        # Match in paragraphs: <p>100_defult.svg ... </p>
+        
+        def replace_icon_line(match):
+            full_match = match.group(0)
+            svg_filename = match.group(1)
+            rest_of_line = match.group(2)
+            
+            # Build relative path from INDEX/PDS/ to MOBILE/Images/Ico/...
+            # HTML is in INDEX/PDS/, SVG is in MOBILE/Images/Ico/...
+            # Relative path: ../../MOBILE/Images/Ico/Controller/
+            icon_path = f"../../{icon_folder}/{svg_filename}"
+            
+            # Create img tag with 64x64 size
+            img_tag = f'<img src="{icon_path}" width="64" height="64" alt="{svg_filename}" style="vertical-align: middle; margin-right: 15px;">'
+            
+            return f'<p>{img_tag}{svg_filename}{rest_of_line}</p>'
+        
+        # Match paragraphs containing SVG filename pattern at the start
+        # Pattern: <p>NNN_name.svg followed by any text</p>
+        html_content = re.sub(
+            r'<p>(\d{3}_[a-zA-Z0-9_]+\.svg)(.*?)</p>',
+            replace_icon_line,
+            html_content,
+            flags=re.DOTALL
+        )
+        
+        return html_content
+    
     def convert_file(self, md_file: Path):
         """Convert a single markdown file to HTML"""
         import sys
@@ -724,6 +764,11 @@ class MarkdownConverter:
         
         # GitHub URL
         github_url = f"https://github.com/KhudyakovAlex/Synapse/blob/master/{rel_path}"
+        
+        # Process icon files (SynapsePDS_Icons_*.md)
+        icon_folder = self.get_icon_folder_for_file(md_file)
+        if icon_folder:
+            html_content = self.process_icon_lines(html_content, icon_folder)
         
         # Extract h1 from content for page title
         h1_match = re.search(r'<h1>(.*?)</h1>', html_content, re.DOTALL)

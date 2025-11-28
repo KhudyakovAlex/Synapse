@@ -117,6 +117,17 @@ python Project/update_dates.py
   - Обновлять связи при изменении внешних ключей
   - После изменений запускать `convert_to_html.py` для обновления HTML-страницы
 
+### Страницы с иконками (SVG)
+- **Файлы с иконками**:
+  - `PDS/SynapsePDS_Icons_Controllers.md` → SVG из `MOBILE/Images/Ico/Controller/`
+  - `PDS/SynapsePDS_Icons_Devices.md` → SVG из `MOBILE/Images/Ico/Device/`
+  - `PDS/SynapsePDS_Icons_Locations.md` → SVG из `MOBILE/Images/Ico/Location/`
+- **Автоматическая вставка**: Конвертер `convert_to_html.py` автоматически вставляет SVG-иконки в HTML-страницы
+- **Формат в MD-файле**: `XXX_nazvanie.svg  - Описание иконки`
+- **Результат в HTML**: перед текстом вставляется `<img src="..." width="64" height="64">`
+- **Если иконка не найдена**: HTML-код всё равно вставляется (браузер покажет, что файл отсутствует)
+- **Точное соответствие имён**: имя файла в MD должно точно совпадать с именем SVG-файла
+
 ---
 
 ## 3. Обновление сайта проекта в папке INDEX
