@@ -304,6 +304,14 @@ class MarkdownConverter:
         text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
         return text
     
+    def convert_urls(self, text: str) -> str:
+        """Convert plain URLs to clickable links"""
+        # Match URLs that are not already inside href="..." or <a> tags
+        # Pattern: http:// or https:// followed by non-whitespace characters
+        url_pattern = r'(?<!["\'>])(https?://[^\s<>\"\'\)]+)'
+        text = re.sub(url_pattern, r'<a href="\1" target="_blank">\1</a>', text)
+        return text
+    
     def convert_lists(self, text: str) -> str:
         """Convert markdown lists to HTML"""
         lines = text.split('\n')
@@ -726,6 +734,9 @@ class MarkdownConverter:
             
             # Fix lists that might have been broken
             html_content = self.fix_lists_in_html(html_content)
+            
+            # Convert plain URLs to clickable links
+            html_content = self.convert_urls(html_content)
             
             # Post-process: Convert Mermaid code blocks to div.mermaid
             # AND create separate pages for each diagram

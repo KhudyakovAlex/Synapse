@@ -64,6 +64,7 @@ python convert_to_html.py
   - Mermaid диаграммы → `<div class="mermaid">`
   - Два пробела в конце строки → `<br>`
   - Bold → `<strong>`, Italic → `<em>`
+  - URL-ссылки (http://, https://) → `<a href="..." target="_blank">`
 
 #### `INDEX/update_diagrams.py`
 Автоматическое обновление диаграмм в INDEX/index.html
