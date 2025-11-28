@@ -643,7 +643,7 @@ class MarkdownConverter:
         """Get the icon folder path based on the markdown filename"""
         icon_folders = {
             'SynapsePDS_Icons_Controllers.md': 'MOBILE/Images/Ico/Controller',
-            'SynapsePDS_Icons_Devices.md': 'MOBILE/Images/Ico/Device',
+            'SynapsePDS_Icons_Luminaires.md': 'MOBILE/Images/Ico/Luminaire',
             'SynapsePDS_Icons_Locations.md': 'MOBILE/Images/Ico/Location',
         }
         return icon_folders.get(md_file.name, None)

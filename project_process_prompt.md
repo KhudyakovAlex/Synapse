@@ -121,7 +121,7 @@ python Project/update_dates.py
 ### Страницы с иконками (SVG)
 - **Файлы с иконками**:
   - `PDS/SynapsePDS_Icons_Controllers.md` → SVG из `MOBILE/Images/Ico/Controller/`
-  - `PDS/SynapsePDS_Icons_Devices.md` → SVG из `MOBILE/Images/Ico/Device/`
+  - `PDS/SynapsePDS_Icons_Luminaires.md` → SVG из `MOBILE/Images/Ico/Luminaire/`
   - `PDS/SynapsePDS_Icons_Locations.md` → SVG из `MOBILE/Images/Ico/Location/`
 - **Автоматическая вставка**: Конвертер `convert_to_html.py` автоматически вставляет SVG-иконки в HTML-страницы
 - **Формат в MD-файле**: `XXX_nazvanie.svg  - Описание иконки`
