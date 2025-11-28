@@ -47,6 +47,56 @@
 
 210_detskaya.svg - Детская.
 
+211_vannaya.svg - Ванная комната.
+
+212_garderob.svg - Гардеробная.
+
+213_prihozhaya.svg - Прихожая.
+
+214_balkon.svg - Балкон / лоджия.
+
+215_terrasa.svg - Терраса.
+
+216_kladovaya.svg - Кладовая.
+
+217_servernaya.svg - Серверная.
+
+218_priemnaya.svg - Приёмная.
+
+219_arhiv.svg - Архив.
+
+220_otdyh.svg - Комната отдыха.
+
+221_razdevalka.svg - Раздевалка.
+
+222_dushevaya.svg - Душевая.
+
+223_kotelnaya.svg - Котельная.
+
+224_elektro.svg - Электрощитовая.
+
+225_masterskaya.svg - Мастерская.
+
+226_torg_zal.svg - Торговый зал.
+
+227_primerochnaya.svg - Примерочная.
+
+228_zal_restorana.svg - Зал ресторана.
+
+229_klass.svg - Класс / аудитория.
+
+230_palata.svg - Палата.
+
+231_lestnica.svg - Лестница.
+
+232_lift.svg - Лифт.
+
+233_bassein.svg - Бассейн.
+
+234_sauna.svg - Сауна / парная.
+
+235_sportzal.svg - Спортзал / тренажёрка.
+
 ## 3. Вопросы
 
 ## 4. Идеи
