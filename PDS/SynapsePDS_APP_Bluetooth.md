@@ -4,7 +4,10 @@
 
 **Последнее изменение:** 29.11.2025
 
-## 1. Термины и определения
+## 1. Интерфейс BluetoothModule.kt
+
+https://github.com/KhudyakovAlex/Synapse/blob/master/MOBILE/Android/bluetooth/BluetoothModule.kt
+
 
 ## 2. Вопросы
 
