@@ -322,6 +322,84 @@ class MarkdownConverter:
         text = re.sub(url_pattern, truncate_url, text)
         return text
     
+    def convert_md_file_links(self, text: str, current_file: Path) -> str:
+        """Convert references to .md files in the repository to clickable links to HTML pages"""
+        # List of known MD files in the repository
+        known_md_files = {
+            # PRD
+            'SynapsePRD.md': 'PRD/SynapsePRD.html',
+            'PRD/SynapsePRD.md': 'PRD/SynapsePRD.html',
+            'Идеи.md': 'PRD/Идеи.html',
+            'PRD/Идеи.md': 'PRD/Идеи.html',
+            # PDS
+            'SynapsePDS_APP.md': 'PDS/SynapsePDS_APP.html',
+            'PDS/SynapsePDS_APP.md': 'PDS/SynapsePDS_APP.html',
+            'SynapsePDS_APP_Bluetooth.md': 'PDS/SynapsePDS_APP_Bluetooth.html',
+            'PDS/SynapsePDS_APP_Bluetooth.md': 'PDS/SynapsePDS_APP_Bluetooth.html',
+            'SynapsePDS_APP_UI.md': 'PDS/SynapsePDS_APP_UI.html',
+            'PDS/SynapsePDS_APP_UI.md': 'PDS/SynapsePDS_APP_UI.html',
+            'SynapsePDS_APP_UX.md': 'PDS/SynapsePDS_APP_UX.html',
+            'PDS/SynapsePDS_APP_UX.md': 'PDS/SynapsePDS_APP_UX.html',
+            'SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
+            'PDS/SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
+            'SynapsePDS_DB.md': 'PDS/SynapsePDS_DB.html',
+            'PDS/SynapsePDS_DB.md': 'PDS/SynapsePDS_DB.html',
+            'SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
+            'PDS/SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
+            'SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
+            'PDS/SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
+            'SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
+            'PDS/SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
+            'SynapsePDS_FW_Logic.md': 'PDS/SynapsePDS_FW_Logic.html',
+            'PDS/SynapsePDS_FW_Logic.md': 'PDS/SynapsePDS_FW_Logic.html',
+            'SynapsePDS_Icons_Controllers.md': 'PDS/SynapsePDS_Icons_Controllers.html',
+            'PDS/SynapsePDS_Icons_Controllers.md': 'PDS/SynapsePDS_Icons_Controllers.html',
+            'SynapsePDS_Icons_Locations.md': 'PDS/SynapsePDS_Icons_Locations.html',
+            'PDS/SynapsePDS_Icons_Locations.md': 'PDS/SynapsePDS_Icons_Locations.html',
+            'SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
+            'PDS/SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
+            'SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
+            'PDS/SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
+            'SynapsePDS_USML.md': 'PDS/SynapsePDS_USML.html',
+            'PDS/SynapsePDS_USML.md': 'PDS/SynapsePDS_USML.html',
+        }
+        
+        # Determine relative path prefix based on current file location
+        try:
+            rel_from_index = current_file.relative_to(self.index_root)
+            depth = len(rel_from_index.parts) - 1
+            prefix = '../' * depth if depth > 0 else ''
+        except ValueError:
+            prefix = ''
+        
+        # Pattern to match .md filenames (not already in links)
+        # Match: SynapsePDS_USML.md or PDS/SynapsePDS_USML.md
+        # But not: href="...SynapsePDS_USML.md" or already linked
+        
+        def replace_md_link(match):
+            md_filename = match.group(0)
+            if md_filename in known_md_files:
+                html_path = prefix + known_md_files[md_filename]
+                return f'<a href="{html_path}">{md_filename}</a>'
+            return md_filename
+        
+        # Match MD filenames that are not already inside href or <a> tags
+        # Pattern matches: optional path + filename.md
+        for md_name, html_path in known_md_files.items():
+            # Escape special characters in the pattern
+            escaped_name = re.escape(md_name)
+            # Only replace if not already in a link
+            pattern = r'(?<!["\'/a-zA-Z])(' + escaped_name + r')(?!["\'])'
+            
+            def make_replacer(md_n, html_p):
+                def replacer(m):
+                    return f'<a href="{prefix}{html_p}">{md_n}</a>'
+                return replacer
+            
+            text = re.sub(pattern, make_replacer(md_name, html_path), text)
+        
+        return text
+    
     def convert_lists(self, text: str) -> str:
         """Convert markdown lists to HTML"""
         lines = text.split('\n')
@@ -747,6 +825,9 @@ class MarkdownConverter:
             
             # Convert plain URLs to clickable links
             html_content = self.convert_urls(html_content)
+            
+            # Convert MD file references to clickable links
+            html_content = self.convert_md_file_links(html_content, output_file)
             
             # Post-process: Convert Mermaid code blocks to div.mermaid
             # AND create separate pages for each diagram

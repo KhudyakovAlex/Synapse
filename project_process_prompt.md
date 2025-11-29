@@ -65,6 +65,7 @@ python convert_to_html.py
   - Два пробела в конце строки → `<br>`
   - Bold → `<strong>`, Italic → `<em>`
   - URL-ссылки (http://, https://) → `<a href="..." target="_blank">`
+  - Ссылки на MD-файлы репозитория (SynapsePDS_USML.md и т.п.) → `<a href="...html">` — автоматически преобразуются в кликабельные ссылки на соответствующие HTML-страницы
 
 #### `INDEX/update_diagrams.py`
 Автоматическое обновление диаграмм в INDEX/index.html
