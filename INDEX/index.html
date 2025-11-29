@@ -134,37 +134,35 @@
             color: white;
         }
 
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 25px;
-        }
-
         .status-block {
-            padding: 20px;
+            padding: 15px;
             border-left: 3px solid var(--accent-primary);
             background: var(--bg-secondary);
+            margin-bottom: 15px;
+        }
+
+        .status-block:last-child {
+            margin-bottom: 0;
         }
 
         .status-block h3 {
             color: var(--text-primary);
-            font-size: 1.0em;
+            font-size: 0.9em;
             font-weight: bold;
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .status-block ul {
-            margin-left: 20px;
+            margin-left: 18px;
             margin-bottom: 0;
             padding: 0;
         }
 
         .status-block ul li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-            font-size: 0.85em;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            font-size: 0.8em;
         }
 
         .status-block ul li:last-child {
@@ -182,35 +180,61 @@
             text-decoration: underline;
         }
 
-        @media (max-width: 1024px) {
-            .status-grid {
+        .hero-layout {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 40px;
+            align-items: start;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 0 20px;
+        }
+
+        .hero-ship {
+            flex-shrink: 0;
+        }
+
+        .hero-ship img {
+            width: 440px;
+            height: auto;
+            display: block;
+        }
+
+        .hero-progress {
+            padding-top: 30px;
+        }
+
+        .hero-status {
+            width: 320px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .hero-layout {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 30px;
+            }
+
+            .hero-ship {
+                text-align: center;
+            }
+
+            .hero-ship img {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .hero-progress {
+                padding-top: 0;
+                text-align: center;
+            }
+
+            .hero-status {
+                width: 100%;
             }
         }
 
-        /* Progress Hero responsive */
-        @media (max-width: 768px) {
-            .progress-hero {
-                padding: 20px 0 0 0 !important;
-            }
-            
-            .progress-hero > div {
-                flex-direction: column !important;
-                gap: 20px !important;
-                padding: 0 !important;
-                text-align: center;
-            }
-            
-            .progress-hero #stage-image {
-                width: 100% !important;
-                max-width: 400px !important;
-            }
-            
-            .progress-hero #progress-percent {
-                font-size: 2.5em !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -230,31 +254,57 @@
     </div>
 
     <!-- Progress Hero Block -->
-    <div class="progress-hero" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 0 20px;">
-        <div style="display: flex; align-items: center; gap: 40px; padding: 30px; padding-left: 0; background: #ffffff;">
-            <!-- Ship Image -->
-            <div style="flex-shrink: 0; margin: 0; padding: 0;">
-                <img id="stage-image" src="assets/img/stages/0.png" alt="Этап строительства" style="width: 440px; height: auto; display: block;">
+    <div class="hero-layout">
+        <!-- Ship Image -->
+        <div class="hero-ship">
+            <img id="stage-image" src="assets/img/stages/0.png" alt="Этап строительства">
+        </div>
+        
+        <!-- Progress Info -->
+        <div class="hero-progress">
+            <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;">
+                <span id="progress-percent" style="font-size: 4.2em; font-weight: 700; color: var(--accent-primary); line-height: 1;">0%</span>
+                <span style="font-size: 1.32em; color: #6c757d; font-weight: 400;">готовности</span>
             </div>
             
-            <!-- Progress Info -->
-            <div style="flex-grow: 0; max-width: 624px;">
-                <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;">
-                    <span id="progress-percent" style="font-size: 4.2em; font-weight: 700; color: var(--accent-primary); line-height: 1;">0%</span>
-                    <span style="font-size: 1.32em; color: #6c757d; font-weight: 400;">готовности</span>
-                </div>
-                
-                <!-- Progress Bar -->
-                <div style="background: #dee2e6; border-radius: 12px; height: 24px; overflow: hidden; margin-bottom: 18px;">
-                    <div id="progress-bar" style="background: linear-gradient(90deg, var(--accent-primary), #45a049); height: 100%; width: 0%; border-radius: 12px; transition: width 1s ease-out;"></div>
-                </div>
-                
-                <!-- Days Left -->
-                <div>
-                    <span style="font-size: 1em; color: #495057;">
-                        До введения в состав флота, дней: <strong id="days-left" style="color: var(--accent-primary);">—</strong>
-                    </span>
-                </div>
+            <!-- Progress Bar -->
+            <div style="background: #dee2e6; border-radius: 12px; height: 24px; overflow: hidden; margin-bottom: 18px;">
+                <div id="progress-bar" style="background: linear-gradient(90deg, var(--accent-primary), #45a049); height: 100%; width: 0%; border-radius: 12px; transition: width 1s ease-out;"></div>
+            </div>
+            
+            <!-- Days Left -->
+            <div>
+                <span style="font-size: 1em; color: #495057;">
+                    До введения в состав флота, дней: <strong id="days-left" style="color: var(--accent-primary);">—</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- Status Column -->
+        <div class="hero-status">
+            <div class="status-block">
+                <h3>Ближайшие планы</h3>
+                <ul>
+                    <li>Разработка спецификации <a href="PDS/SynapsePDS_APP_UX.html">Интерфейс пользователя - UX</a> (Худяков)</li>
+                </ul>
+            </div>
+            
+            <div class="status-block">
+                <h3>Сейчас делается</h3>
+                <ul>
+                    <li>Разработка прошивки <a href="PDS/SynapsePDS_FW_Bluetooth.html">Bluetooth-модуля контроллера</a> (Мадж)</li>
+                    <li>Разработка <a href="PDS/SynapsePDS_APP_Bluetooth.html">Bluetooth-модуля приложения</a> Андроид (Власов)</li>
+                    <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Logic.html">Логика работы прошивки</a> (Худяков)</li>
+                    <li>Доработка спецификации <a href="PDS/SynapsePDS_USML.html">USML</a> (параллельно с логикой) (Худяков)</li>
+                </ul>
+            </div>
+            
+            <div class="status-block">
+                <h3>Последнее, что сделано</h3>
+                <ul>
+                    <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Bluetooth.html">Прошивка. Bluetooth-соединение</a> (Худяков)</li>
+                    <li>Разработка спецификации <a href="PDS/SynapsePDS_APP_Bluetooth.html">Приложение. Bluetooth-соединение</a> (Худяков)</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -290,38 +340,6 @@
 
     <!-- Main Container -->
     <div class="main-container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px 60px 20px;">
-        <!-- Status Section -->
-        <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
-            <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Текущий статус</h2>
-            
-            <div class="status-grid">
-                <div class="status-block">
-                    <h3>Последнее, что сделано</h3>
-                    <ul>
-                        <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Bluetooth.html">Прошивка. Bluetooth-соединение</a> (Худяков)</li>
-                        <li>Разработка спецификации <a href="PDS/SynapsePDS_APP_Bluetooth.html">Приложение. Bluetooth-соединение</a> (Худяков)</li>
-                    </ul>
-                </div>
-                
-                <div class="status-block">
-                    <h3>Сейчас делается</h3>
-                    <ul>
-                        <li>Разработка прошивки <a href="PDS/SynapsePDS_FW_Bluetooth.html">Bluetooth-модуля контроллера</a> (Мадж)</li>
-                        <li>Разработка <a href="PDS/SynapsePDS_APP_Bluetooth.html">Bluetooth-модуля приложения</a> Андроид (Власов)</li>
-                        <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Logic.html">Логика работы прошивки</a> (Худяков)</li>
-                        <li>Доработка спецификации <a href="PDS/SynapsePDS_USML.html">USML</a> (параллельно с логикой) (Худяков)</li>
-                    </ul>
-                </div>
-                
-                <div class="status-block">
-                    <h3>Ближайшие планы</h3>
-                    <ul>
-                        <li>Разработка спецификации <a href="PDS/SynapsePDS_APP_UX.html">Интерфейс пользователя - UX</a> (Худяков)</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
         <!-- Process Section -->
         <div class="section" style="margin-bottom: 40px; padding: 10px; box-shadow: none !important;">
             <h2 style="color: #8d8d8d; font-size: 1.54em; font-weight: 300; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #8d8d8d;">Схема процесса разработки</h2>
