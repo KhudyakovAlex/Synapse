@@ -1,109 +1,80 @@
-package com.awada.synapse.bluetooth
+package com.synapse.mobile.android.bluetooth
 
 /**
- * Интерфейс для работы с Bluetooth-соединением контроллера Synapse.
- * 
- * Реализация должна обеспечивать:
- * - Поиск контроллеров Synapse по имени "SYNAPSE XXXXXXXX"
- * - Подключение/отключение от контроллера
- * - Передачу телеграмм USML между приложением и контроллером
- * - Обработку потери связи и автоматическое переподключение
+ * Результат подключения к контроллеру
  */
-interface BluetoothModule {
+enum class ConnectResult {
+    SUCCESS,           // 0 - подключились, всё ОК
+    WRONG_PIN,         // 1 - неверный пин-код
+    UNKNOWN_ERROR      // 2 - неизвестная ошибка
+}
 
-    /**
-     * Состояние Bluetooth-соединения
-     */
-    enum class ConnectionState {
-        DISCONNECTED,
-        CONNECTING,
-        CONNECTED,
-        RECONNECTING
-    }
+/**
+ * Результат отправки телеграммы
+ */
+enum class SendResult {
+    SUCCESS,           // отправлено успешно
+    NOT_CONNECTED,     // нет соединения
+    ERROR              // ошибка отправки
+}
 
-    /**
-     * Информация о найденном контроллере
-     */
-    data class ControllerInfo(
-        val id: String,              // Уникальный идентификатор Bluetooth-устройства
-        val name: String,            // Имя контроллера (например, "SYNAPSE 12345678" или "Этаж 2")
-        val iconNumber: Int,         // Номер иконки (0 = дефолтная)
-        val isConnected: Boolean     // Подключён ли сейчас
-    )
-
-    /**
-     * Callback для событий Bluetooth
-     */
-    interface BluetoothCallback {
-        fun onControllerFound(controller: ControllerInfo)
-        fun onConnectionStateChanged(state: ConnectionState)
-        fun onMessageReceived(message: String)
-        fun onError(error: BluetoothError)
-    }
-
-    /**
-     * Типы ошибок Bluetooth
-     */
-    enum class BluetoothError {
-        BLUETOOTH_DISABLED,
-        PERMISSION_DENIED,
-        CONNECTION_FAILED,
-        CONNECTION_LOST,
-        SEND_FAILED
-    }
-
-    /**
-     * Начать поиск контроллеров Synapse
-     */
-    fun startScan()
-
-    /**
-     * Остановить поиск контроллеров
-     */
-    fun stopScan()
-
+/**
+ * Контроллер Synapse
+ */
+interface SynapseController {
+    
+    /** Имя контроллера ("SYNAPSE XXXXXXXX" или пользовательское) */
+    val name: String
+    
+    /** Уникальный идентификатор (MAC-адрес) */
+    val id: String
+    
+    /** Номер иконки из библиотеки */
+    val iconNumber: Int
+    
     /**
      * Подключиться к контроллеру
-     * @param controllerId Уникальный идентификатор контроллера
-     * @param password Пароль (4 цифры)
+     * @param pinCode пин-код (4 цифры)
+     * @return результат подключения
      */
-    fun connect(controllerId: String, password: String)
-
+    fun connect(pinCode: String): ConnectResult
+    
     /**
      * Отключиться от контроллера
      */
     fun disconnect()
-
+    
     /**
-     * Отправить телеграмму USML контроллеру
-     * @param message Телеграмма в формате USML
+     * Отправить телеграмму контроллеру
+     * @param telegram USML-телеграмма
+     * @return результат отправки
      */
-    fun sendMessage(message: String)
-
+    fun sendTelegram(telegram: String): SendResult
+    
     /**
-     * Получить текущее состояние соединения
+     * Установить обработчик входящих телеграмм
+     * @param callback функция, вызываемая при получении телеграммы (null — отписаться)
      */
-    fun getConnectionState(): ConnectionState
-
+    fun setOnTelegramReceived(callback: ((telegram: String) -> Unit)?)
+    
     /**
-     * Получить информацию о подключённом контроллере
-     * @return null если не подключён
+     * Установить обработчик потери связи
+     * @param callback функция, вызываемая при разрыве соединения (null — отписаться)
      */
-    fun getConnectedController(): ControllerInfo?
+    fun setOnConnectionLost(callback: (() -> Unit)?)
+}
 
+/**
+ * Список контроллеров Synapse
+ */
+interface SynapseControllerList {
+    
     /**
-     * Получить список найденных контроллеров
+     * Сканировать доступные контроллеры
+     * Блокирующий вызов, возвращает список после завершения сканирования
+     * @param timeoutMs таймаут сканирования в миллисекундах (по умолчанию 5 секунд)
+     * @return список найденных контроллеров
      */
-    fun getDiscoveredControllers(): List<ControllerInfo>
-
-    /**
-     * Зарегистрировать callback для событий
-     */
-    fun registerCallback(callback: BluetoothCallback)
-
-    /**
-     * Удалить callback
-     */
-    fun unregisterCallback(callback: BluetoothCallback)
+    fun scan(timeoutMs: Long = 5000): List<SynapseController>
 }
 
