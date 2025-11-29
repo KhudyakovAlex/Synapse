@@ -4,42 +4,18 @@
 flowchart LR
     SBD((Совет<br>благородных<br>донов))
     
+    SBD ---> ANAL
+
     ANAL((Анализ<br>Худяков))
     
+    ANAL ---> PRD
+
     PRD(Техническое<br>задание)
     
-    PRO((Проектир.<br>Худяков))
-    
-    DSUI(UI<br>Спецификация)
-    DSUX(UX<br>Спецификация)
-    DSAPP(Приложение<br>Спецификация)
-    DSDB(База данных<br>Спецификация)
-    DSP(USML<br>Спецификация)
-    DSB(Bluetooth-соединение<br>Спецификация)
-    DSFWB(Прошивка. Bluetooth-соединение<br>Спецификация)
-    FWB(( Программ.<br>Мадж ))
-    DSAPPB(Приложение. Bluetooth-соединение<br>Спецификация)
-    APPB(( Программ.<br>Власов ))
-    DSLLM(Работа с LLM<br>Спецификация)
-    DSFW(Прошивка<br>Спецификация)
-    
-    
-
-    UIUXD((UX-дизайн<br>Худяков))
-    UIUX( UX-макет )
-    APPD(( Программ.<br>Худяков ))
-
-    FWD(( Программ.<br>Саенко ))
-
-    UIUID((UI-дизайн<br>Брянкина))
-    UIUI( UI-макет )
-
-    FW( Прошивка )
-    APP( Приложение )
-
-    SBD ---> ANAL
-    ANAL ---> PRD
     PRD ---> PRO
+
+    PRO((Проектир.<br>Худяков))
+
     PRO ---> DSUI
     PRO ---> DSUX
     PRO ---> DSFW
@@ -49,39 +25,72 @@ flowchart LR
     PRO ---> DSB
     PRO ---> DSLLM
 
+    DSUX(UX<br>Спецификация)
+    DSUI(UI<br>Спецификация)
+    DSAPP(Приложение<br>Спецификация)
+    DSDB(База данных<br>Спецификация)
+    DSP(USML<br>Спецификация)
+    DSB(Bluetooth-соединение<br>Спецификация)
+    DSLLM(Работа с LLM<br>Спецификация)
+    DSFW(Прошивка<br>Спецификация)
+
     DSUX ---> UIUXD
     DSUI ---> UIUID
+    DSB ---> DSFWB
+    DSB ---> DSAPPB
+
+    UIUXD((UX-дизайн<br>Худяков))
+    DSFWB(Прошивка. Bluetooth-соединение<br>Спецификация)
+    DSAPPB(Приложение. Bluetooth-соединение<br>Спецификация)
+
     UIUXD ---> UIUX
+    DSFWB ---> APPB
+    DSAPPB ---> FWB
+
+    UIUX( UX-макет )
+    APPB(( Программ.<br>Власов ))
+    FWB(( Программ.<br>Мадж ))
+
     UIUX ---> UIUID
+
+    UIUID((UI-дизайн<br>Брянкина))
+
     UIUID ---> UIUI
+
+    UIUI( UI-макет )
 
     UIUX ---> APPD
     UIUI ---> APPD
+
     DSAPP ---> APPD
     DSP ---> APPD
     DSDB ---> APPD
-    DSB ---> FWB
-    DSB ---> APPB
-    FWB ---> FWD
     APPB ---> APPD
     DSLLM ---> APPD
 
     DSFW ---> FWD
     DSP ---> FWD
     DSDB ---> FWD
-    DSB ---> FWD
+    FWB ---> FWD
+
+    APPD(( Программ.<br>Худяков ))
+    FWD(( Программ.<br>Саенко ))
 
     FWD ---> FW
     APPD ---> APP
 
+    FW( Прошивка )
+    APP( Приложение )
+
+    style SBD fill:#505050,stroke:#999,color:#fff
     style ANAL fill:#FFB3BA,stroke:#999
     style PRO fill:#BAFFC9,stroke:#999
     style UIUXD fill:#BAE1FF,stroke:#999
     style UIUID fill:#FFFFBA,stroke:#999
+    style APPB fill:#E8BAFF,stroke:#999
+    style FWB fill:#FFDAB3,stroke:#999
     style APPD fill:#BAF3FF,stroke:#999
     style FWD fill:#FFBAF3,stroke:#999
-    
-    style SBD fill:#505050,stroke:#999,color:#fff
     style PRD fill:#E0E0E0,stroke:#999
     style DSUI fill:#E0E0E0,stroke:#999
     style DSAPP fill:#E0E0E0,stroke:#999
@@ -93,6 +102,8 @@ flowchart LR
     style DSLLM fill:#E0E0E0,stroke:#999
     style UIUX fill:#E0E0E0,stroke:#999
     style UIUI fill:#E0E0E0,stroke:#999
+    style DSFWB fill:#E0E0E0,stroke:#999
+    style DSAPPB fill:#E0E0E0,stroke:#999
     style FW fill:#505050,stroke:#999,color:#fff
     style APP fill:#505050,stroke:#999,color:#fff
 
