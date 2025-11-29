@@ -116,5 +116,7 @@ flowchart LR
     click DSB "PDS/SynapsePDS_Bluetooth.html"
     click DSLLM "PDS/SynapsePDS_LLM.html"
     click DSFW "PDS/SynapsePDS_FW.html"
+    click DSFWB "PDS/SynapsePDS_FW_Bluetooth.html"
+    click DSAPPB "PDS/SynapsePDS_APP_Bluetooth.html"
 
 ```
