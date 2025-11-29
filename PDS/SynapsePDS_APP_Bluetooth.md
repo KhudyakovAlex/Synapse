@@ -6,7 +6,7 @@
 
 ## 1. Интерфейс BluetoothModule.kt
 
-https://github.com/KhudyakovAlex/Synapse/blob/master/MOBILE/Android/bluetooth/BluetoothModule.kt
+[BluetoothModule.kt на GitHub](https://github.com/KhudyakovAlex/Synapse/blob/master/MOBILE/Android/bluetooth/BluetoothModule.kt)
 
 
 ## 2. Вопросы
