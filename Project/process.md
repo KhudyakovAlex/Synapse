@@ -16,6 +16,10 @@ flowchart LR
     DSDB(База данных<br>Спецификация)
     DSP(USML<br>Спецификация)
     DSB(Bluetooth-соединение<br>Спецификация)
+    DSFWB(Прошивка. Bluetooth-соединение<br>Спецификация)
+    FWB(( Программ.<br>Мадж ))
+    DSAPPB(Приложение. Bluetooth-соединение<br>Спецификация)
+    APPB(( Программ.<br>Власов ))
     DSLLM(Работа с LLM<br>Спецификация)
     DSFW(Прошивка<br>Спецификация)
     
@@ -23,7 +27,7 @@ flowchart LR
 
     UIUXD((UX-дизайн<br>Худяков))
     UIUX( UX-макет )
-    APPD(( Программ.<br>Булатов ))
+    APPD(( Программ.<br>Худяков ))
 
     FWD(( Программ.<br>Саенко ))
 
@@ -56,7 +60,10 @@ flowchart LR
     DSAPP ---> APPD
     DSP ---> APPD
     DSDB ---> APPD
-    DSB ---> APPD
+    DSB ---> FWB
+    DSB ---> APPB
+    FWB ---> FWD
+    APPB ---> APPD
     DSLLM ---> APPD
 
     DSFW ---> FWD
