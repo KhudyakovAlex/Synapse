@@ -358,6 +358,8 @@ class MarkdownConverter:
             'PDS/SynapsePDS_Icons_Locations.md': 'PDS/SynapsePDS_Icons_Locations.html',
             'SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
             'PDS/SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
+            'SynapsePDS_Icons_System.md': 'PDS/SynapsePDS_Icons_System.html',
+            'PDS/SynapsePDS_Icons_System.md': 'PDS/SynapsePDS_Icons_System.html',
             'SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
             'PDS/SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
             'SynapsePDS_USML.md': 'PDS/SynapsePDS_USML.html',
@@ -723,6 +725,7 @@ class MarkdownConverter:
             'SynapsePDS_Icons_Controllers.md': 'MOBILE/Images/Ico/Controller',
             'SynapsePDS_Icons_Luminaires.md': 'MOBILE/Images/Ico/Luminaire',
             'SynapsePDS_Icons_Locations.md': 'MOBILE/Images/Ico/Location',
+            'SynapsePDS_Icons_System.md': 'MOBILE/Images/Ico/System',
         }
         return icon_folders.get(md_file.name, None)
     

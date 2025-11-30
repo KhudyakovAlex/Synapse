@@ -123,9 +123,12 @@ FW - firmware, прошивка в контроллере  </p>
 <strong>IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC</strong> — в блок с интерфейсными данными записать IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC<br />
 ]  </p>
 <h2>4. Телеграммы к FW — работа с прошивкой</h2>
-<p>4.1. <strong>CONTR</strong> (1) — работа с контроллером  </p>
+<p>4.1. <strong>DALI</strong> - работа с линией ДАЛИ</p>
 <p>Действия:  </p>
-<p><strong>GET</strong>  - запрос всех данных контроллера<br />
+<p><strong>INIT</strong> - команда на запуск инициализации линии</p>
+<p>4.2. <strong>CONTR</strong> — работа с контроллером  </p>
+<p>Действия:  </p>
+<p><strong>GET</strong> - запрос всех данных контроллера<br />
 Параметры: без параметров<br />
 Пример: [FW.CONTR_GET()]  </p>
 <p><strong>SET</strong> - изменение данных контроллера<br />
