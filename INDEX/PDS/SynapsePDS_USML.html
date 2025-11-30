@@ -124,18 +124,18 @@ FW - firmware, прошивка в контроллере  </p>
 ]  </p>
 <h2 id="4-телеграммы-к-fw-работа-с-прошивкой">4. Телеграммы к FW — работа с прошивкой</h2>
 <h3 id="41-dali-работа-с-линией-dali">4.1. DALI_ — работа с линией DALI</h3>
-<p>Действия:  </p>
-<p><strong>DALI_INIT()</strong> - команда на запуск инициализации линии
+<p><strong>DALI_INIT</strong>() - команда на запуск инициализации линии
 Пример: [FW.DALI_INIT()]</p>
-<p><strong>DALI_INIT_STATUS(TX STATUS)</strong> - команда со статусом инициализации
+<p><strong>DALI_INIT_STATUS</strong>(TX STATUS) - команда со статусом инициализации
 STATUS: START, LUM_READY, FINISH
-Пример: [USM.DALI_INIT_STATUS(LUM_READY)]</p>
+Пример:
+[USM.DALI_INIT_STATUS(LUM_READY)]</p>
 <h3 id="42-contr-работа-с-контроллером">4.2. CONTR_ — работа с контроллером</h3>
-<p>Действия:  </p>
-<p><strong>CONTR_GET()</strong> - запрос данных контроллера <br />
+<p><strong>CONTR_GET</strong>() - запрос данных контроллера <br />
 Пример: [FW.CONTR_GET()]  </p>
-<p><strong>CONTR_SET(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA)</strong> — изменение данных контроллера<br />
-Пример: [FW.CONTR_SET("Офис","1234",F,8,IGRpc3Rpb)]   </p>
+<p><strong>CONTR_SET</strong>(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера<br />
+Пример: 
+[FW.CONTR_SET("Офис","1234",F,8,IGRpc3Rpb)]   </p>
 <h2 id="5-телеграммы-к-usm-работа-с-usm">5. Телеграммы к USM — работа с USM</h2>
 <h2 id="6-телеграммы-к-ui-работа-с-пользовательским-интерфейсом">6. Телеграммы к UI — работа с пользовательским интерфейсом</h2>
 <h2 id="7-телеграммы-к-llm-работа-с-нейросетью-через-чат">7. Телеграммы к LLM — работа с нейросетью через чат</h2>

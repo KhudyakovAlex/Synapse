@@ -83,25 +83,23 @@ FW - firmware, прошивка в контроллере
 
 ### 4.1. DALI_ — работа с линией DALI
 
-Действия:  
-
-**DALI_INIT()** - команда на запуск инициализации линии
+**DALI_INIT**() - команда на запуск инициализации линии
 Пример: [FW.DALI_INIT()]
 
-**DALI_INIT_STATUS(TX STATUS)** - команда со статусом инициализации
+**DALI_INIT_STATUS**(TX STATUS) - команда со статусом инициализации
 STATUS: START, LUM_READY, FINISH
-Пример: [USM.DALI_INIT_STATUS(LUM_READY)]
+Пример:
+[USM.DALI_INIT_STATUS(LUM_READY)]
 
 
 ### 4.2. CONTR_ — работа с контроллером  
 
-Действия:  
-
-**CONTR_GET()** - запрос данных контроллера   
+**CONTR_GET**() - запрос данных контроллера   
 Пример: [FW.CONTR_GET()]  
 
-**CONTR_SET(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA)** — изменение данных контроллера  
-Пример: [FW.CONTR_SET("Офис","1234",F,8,IGRpc3Rpb)]   
+**CONTR_SET**(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера  
+Пример: 
+[FW.CONTR_SET("Офис","1234",F,8,IGRpc3Rpb)]   
 
 
 ## 5. Телеграммы к USM — работа с USM
