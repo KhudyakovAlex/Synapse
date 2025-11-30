@@ -66,7 +66,7 @@ FW - firmware, прошивка в контроллере
   - TF - T / F: T
   - DT - бинарные блоки в Base64.
 
-3.4. Пример телеги: [FW.CONTR_SET(25,"Этаж 2",IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC)]
+3.4. Пример телеги: [FW.CONTR_SET(25,"Этаж 2",IGlzIGRpc3RpbmNoZWQsIG5vdC)]
 
 3.5. Парсер принимает и понимает очередной элемент в телеге на основе последовательности ранее принятых элементов. Например:  
 
@@ -76,19 +76,19 @@ FW - firmware, прошивка в контроллере
 **SET** — установить  
 **25** — иконку с №25  
 **"Этаж 2"** — название контроллера "Этаж 2"  
-**IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC** — в блок с интерфейсными данными записать IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC  
+**IGlzIGRpc3Rpbmd1aXIG5vdC** — в блок с интерфейсными данными записать IGlzIGRpc3Rpbmd1aXNoZWQsIG5vdC  
 ]  
 
 ## 4. Телеграммы к FW — работа с прошивкой
 
 ### 4.1. DALI_ — работа с линией DALI
 
-**DALI_INIT**() - команда на запуск инициализации линии
+**DALI_INIT**() - команда на запуск инициализации линии  
 Пример: [FW.DALI_INIT()]
 
-**DALI_INIT_STATUS**(TX STATUS) - команда со статусом инициализации
-STATUS: START, LUM_READY, FINISH
-Пример:
+**DALI_INIT_STATUS**(TX STATUS) - команда со статусом инициализации  
+STATUS: START, LUM_READY, FINISH  
+Пример:  
 [USM.DALI_INIT_STATUS(LUM_READY)]
 
 
@@ -97,9 +97,9 @@ STATUS: START, LUM_READY, FINISH
 **CONTR_GET**() - запрос данных контроллера   
 Пример: [FW.CONTR_GET()]  
 
-**CONTR_SET**(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера  
-Пример: 
-[FW.CONTR_SET("Офис","1234",F,8,IGRpc3Rpb)]   
+**CONTR_SET**(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера   
+Пример:   
+[FW.CONTR_SET("Дом","1234",F,8,IGRpb)]   
 
 
 ## 5. Телеграммы к USM — работа с USM
