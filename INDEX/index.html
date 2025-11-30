@@ -257,7 +257,7 @@
     <div class="hero-layout">
         <!-- Ship Image -->
         <div class="hero-ship">
-            <img id="stage-image" src="assets/img/stages/0.png" alt="Этап строительства">
+            <img id="stage-image" alt="Этап строительства" style="opacity: 0; transition: opacity 0.3s ease;">
         </div>
         
         <!-- Progress Info -->
@@ -329,7 +329,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('progress-percent').textContent = percent + '%';
             document.getElementById('days-left').textContent = daysLeft;
-            document.getElementById('stage-image').src = 'assets/img/stages/' + imageIndex + '.png';
+            
+            // Загружаем картинку и показываем после загрузки
+            const stageImage = document.getElementById('stage-image');
+            stageImage.onload = function() {
+                stageImage.style.opacity = '1';
+            };
+            stageImage.src = 'assets/img/stages/' + imageIndex + '.png';
             
             // Анимация прогресс-бара
             setTimeout(function() {
