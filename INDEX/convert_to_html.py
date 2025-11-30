@@ -322,6 +322,52 @@ class MarkdownConverter:
         text = re.sub(url_pattern, truncate_url, text)
         return text
     
+    def convert_telegram_links(self, text: str, current_file: Path) -> str:
+        """Convert telegram codes like [FW.CONTR_GET()] to links to USML documentation"""
+        # Map telegram prefixes to anchor IDs in USML
+        # Format: prefix -> (anchor_id, section_title)
+        telegram_sections = {
+            'DALI_': ('41-dali_--работа-с-линией-dali', '4.1. DALI_'),
+            'CONTR_': ('42-contr_--работа-с-контроллером', '4.2. CONTR_'),
+        }
+        
+        # Determine relative path to USML from current file
+        try:
+            rel_from_index = current_file.relative_to(self.index_root)
+            depth = len(rel_from_index.parts) - 1
+            prefix = '../' * depth if depth > 0 else ''
+        except ValueError:
+            prefix = ''
+        
+        usml_path = prefix + 'PDS/SynapsePDS_USML.html'
+        
+        # Skip if we're in USML itself
+        if current_file.name == 'SynapsePDS_USML.html':
+            return text
+        
+        def replace_telegram(match):
+            full_code = match.group(0)  # e.g., <code>[FW.CONTR_GET()]</code>
+            telegram = match.group(1)    # e.g., [FW.CONTR_GET()]
+            
+            # Find matching section
+            for prefix_key, (anchor, section_title) in telegram_sections.items():
+                if prefix_key in telegram:
+                    # Create link to USML with anchor
+                    link = f'<a href="{usml_path}#{anchor}" title="См. {section_title} в USML"><code>{telegram}</code></a>'
+                    return link
+            
+            # No match found, return original
+            return full_code
+        
+        # Match telegram codes in <code> tags: <code>[FW.XXX_YYY(...)]</code> or <code>[USM.XXX_YYY(...)]</code>
+        text = re.sub(
+            r'<code>(\[(FW|USM)\.[A-Z_]+\([^)]*\)\])</code>',
+            replace_telegram,
+            text
+        )
+        
+        return text
+    
     def convert_md_file_links(self, text: str, current_file: Path) -> str:
         """Convert references to .md files in the repository to clickable links to HTML pages"""
         # List of known MD files in the repository
@@ -831,6 +877,9 @@ class MarkdownConverter:
             
             # Convert MD file references to clickable links
             html_content = self.convert_md_file_links(html_content, output_file)
+            
+            # Convert telegram codes to links to USML
+            html_content = self.convert_telegram_links(html_content, output_file)
             
             # Post-process: Convert Mermaid code blocks to div.mermaid
             # AND create separate pages for each diagram
