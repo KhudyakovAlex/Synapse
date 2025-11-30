@@ -172,12 +172,14 @@ body {
     padding-bottom: 10px;
     border-bottom: 2px solid var(--border-color);
     font-weight: normal;
+    scroll-margin-top: 100px;
 }
 
 .content h3 {
     color: var(--accent-secondary);
     font-size: 1.35em;
     margin: 25px 0 12px 0;
+    scroll-margin-top: 100px;
 }
 
 .content h4 {
