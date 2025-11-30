@@ -183,13 +183,13 @@ sequenceDiagram
     participant Прошивка
     participant Линия DALI
 
-    Приложение->>Прошивка:[FW.DALI.INIT()]
+    Приложение->>Прошивка:[FW.DALI_INIT()]
     Прошивка->>Линия DALI:Запуск инита
-    Прошивка->>Приложение:[FW.DALI.INIT_STATUS(START)]
+    Прошивка->>Приложение:[FW.DALI_INIT_STATUS(START)]
     Прошивка->>Линия DALI:Инит светильников
-    Прошивка->>Приложение:[FW.DALI.INIT_STATUS(LUM_READY)]
+    Прошивка->>Приложение:[FW.DALI_INIT_STATUS(LUM_READY)]
     Прошивка->>Линия DALI:Инит устройств упр.
-    Прошивка->>Приложение:[FW.DALI.INIT_STATUS(FINISH)]
+    Прошивка->>Приложение:[FW.DALI_INIT_STATUS(FINISH)]
 
         </div>
     </div>
