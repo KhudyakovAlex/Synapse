@@ -131,11 +131,31 @@ STATUS: START, LUM_READY, FINISH<br />
 Пример:<br />
 [USM.DALI_INIT_STATUS(LUM_READY)]</p>
 <h3 id="42-contr-работа-с-контроллером">4.2. CONTR_ — работа с контроллером</h3>
-<p><strong>CONTR_GET</strong>() - запрос данных контроллера <br />
-Пример: [FW.CONTR_GET()]  </p>
-<p><strong>CONTR_SET</strong>(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера <br />
+<p><strong>CONTR_GET_NAME</strong>() - запрос данных контроллера: название  <br />
+Пример: [FW.CONTR_GET_NAME()]  </p>
+<p><strong>CONTR_GET_PASSWORD</strong>() - запрос данных контроллера: пароль   <br />
+Пример: [FW.CONTR_GET_PASSWORD()] </p>
+<p><strong>CONTR_GET_IS_SCHEDULE</strong>() - запрос данных контроллера: работа по расписанию <br />
+Пример: [FW.CONTR_GET_IS_SCHEDULE()] </p>
+<p><strong>CONTR_GET_ICO_NUM</strong>() - запрос данных контроллера: номер иконки  <br />
+Пример: [FW.CONTR_GET_ICO_NUM()] </p>
+<p><strong>CONTR_GET_INTERFACE_DATA</strong>() - запрос данных контроллера: интерфейсные данные <br />
+Пример: [FW.CONTR_GET_INTERFACE_DATA()] </p>
+<p><strong>CONTR_SET_NAME</strong>(TX NAME) — изменение данных контроллера: название <br />
 Пример: <br />
-[FW.CONTR_SET("Дом","1234",F,8,IGRpb)]   </p>
+[FW.CONTR_SET("Дом")]   </p>
+<p><strong>CONTR_SET_PASSWORD</strong>(TX PASSWORD) — изменение данных контроллера: пароль <br />
+Пример: <br />
+[FW.CONTR_SET("1234")]</p>
+<p><strong>CONTR_SET_IS_SCHEDULE</strong>(TF IS_SCHEDULE) — изменение данных контроллера: работа по расписанию  <br />
+Пример: <br />
+[FW.CONTR_SET(F)]</p>
+<p><strong>CONTR_SET_ICO_NUM</strong>(NM ICO_NUM) — изменение данных контроллера: номер иконки <br />
+Пример: <br />
+[FW.CONTR_SET(8)]</p>
+<p><strong>CONTR_SET_INTERFACE_DATA</strong>(DT INTERFACE_DATA) — изменение данных контроллера: интерфейсные данные <br />
+Пример: <br />
+[FW.CONTR_SET(IGRpb)]</p>
 <h2 id="5-телеграммы-к-usm-работа-с-usm">5. Телеграммы к USM — работа с USM</h2>
 <h2 id="6-телеграммы-к-ui-работа-с-пользовательским-интерфейсом">6. Телеграммы к UI — работа с пользовательским интерфейсом</h2>
 <h2 id="7-телеграммы-к-llm-работа-с-нейросетью-через-чат">7. Телеграммы к LLM — работа с нейросетью через чат</h2>

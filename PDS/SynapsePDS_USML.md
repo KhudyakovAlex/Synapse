@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 30.11.2025
+**Последнее изменение:** 01.12.2025
 
 ## 1. Термины и определения
 
@@ -94,12 +94,40 @@ STATUS: START, LUM_READY, FINISH
 
 ### 4.2. CONTR_ — работа с контроллером  
 
-**CONTR_GET**() - запрос данных контроллера   
-Пример: [FW.CONTR_GET()]  
+**CONTR_GET_NAME**() - запрос данных контроллера: название    
+Пример: [FW.CONTR_GET_NAME()]  
 
-**CONTR_SET**(TX NAME, TX PASSWORD, TF IS_SCHEDULE, NM ICO_NUM, DT INTERFACE_DATA) — изменение данных контроллера   
+**CONTR_GET_PASSWORD**() - запрос данных контроллера: пароль     
+Пример: [FW.CONTR_GET_PASSWORD()] 
+
+**CONTR_GET_IS_SCHEDULE**() - запрос данных контроллера: работа по расписанию   
+Пример: [FW.CONTR_GET_IS_SCHEDULE()] 
+
+**CONTR_GET_ICO_NUM**() - запрос данных контроллера: номер иконки    
+Пример: [FW.CONTR_GET_ICO_NUM()] 
+
+**CONTR_GET_INTERFACE_DATA**() - запрос данных контроллера: интерфейсные данные   
+Пример: [FW.CONTR_GET_INTERFACE_DATA()] 
+
+**CONTR_SET_NAME**(TX NAME) — изменение данных контроллера: название   
 Пример:   
-[FW.CONTR_SET("Дом","1234",F,8,IGRpb)]   
+[FW.CONTR_SET("Дом")]   
+
+**CONTR_SET_PASSWORD**(TX PASSWORD) — изменение данных контроллера: пароль   
+Пример:   
+[FW.CONTR_SET("1234")]
+
+**CONTR_SET_IS_SCHEDULE**(TF IS_SCHEDULE) — изменение данных контроллера: работа по расписанию    
+Пример:   
+[FW.CONTR_SET(F)]
+
+**CONTR_SET_ICO_NUM**(NM ICO_NUM) — изменение данных контроллера: номер иконки   
+Пример:   
+[FW.CONTR_SET(8)]
+
+**CONTR_SET_INTERFACE_DATA**(DT INTERFACE_DATA) — изменение данных контроллера: интерфейсные данные   
+Пример:   
+[FW.CONTR_SET(IGRpb)]
 
 
 ## 5. Телеграммы к USM — работа с USM
