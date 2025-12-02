@@ -1021,6 +1021,90 @@ class MarkdownConverter:
         sys.stdout.flush()
 
 
+def update_ship_log(repo_root: str):
+    """Update ship log in INDEX/index.html from Project/log.md"""
+    import sys
+    
+    log_file = Path(repo_root) / 'Project' / 'log.md'
+    index_file = Path(repo_root) / 'INDEX' / 'index.html'
+    
+    if not log_file.exists():
+        print(f"  [!] Log file not found: {log_file}")
+        return
+    
+    if not index_file.exists():
+        print(f"  [!] Index file not found: {index_file}")
+        return
+    
+    # Read log.md
+    with open(log_file, 'r', encoding='utf-8') as f:
+        log_content = f.read()
+    
+    # Parse log entries
+    # Format: YYYY-MM-DD HH:MM — text
+    # Each entry is on its own line (may have empty lines between)
+    entries = []
+    for line in log_content.split('\n'):
+        line = line.strip()
+        if not line:
+            continue
+        
+        # Match: date time — text
+        match = re.match(r'^(\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2})\s*[—–-]\s*(.+)$', line)
+        if match:
+            date_time = match.group(1)
+            text = match.group(2)
+            entries.append((date_time, text))
+        elif line:
+            # Entry without timestamp - use as is
+            entries.append(('', line))
+    
+    if not entries:
+        print("  [!] No log entries found in log.md")
+        return
+    
+    # Generate HTML for log entries
+    log_html_parts = []
+    for date_time, text in entries:
+        if date_time:
+            log_html_parts.append(f'''            <div class="log-entry">
+                <span class="log-date">{date_time}</span>
+                <p class="log-text">{text}</p>
+            </div>''')
+        else:
+            log_html_parts.append(f'''            <div class="log-entry">
+                <p class="log-text">{text}</p>
+            </div>''')
+    
+    log_html = '\n'.join(log_html_parts)
+    
+    # Read index.html
+    with open(index_file, 'r', encoding='utf-8') as f:
+        index_content = f.read()
+    
+    # Replace log entries in index.html
+    # Pattern: find the hero-log div and replace its log-entry divs
+    pattern = r'(<div class="hero-log">.*?<h3>Судовой журнал</h3>\s*)((?:<div class="log-entry">.*?</div>\s*)+)(\s*</div>)'
+    
+    def replace_log(match):
+        before = match.group(1)
+        after = match.group(3)
+        return before + '\n' + log_html + '\n        ' + after
+    
+    new_content, count = re.subn(pattern, replace_log, index_content, flags=re.DOTALL)
+    
+    if count == 0:
+        print("  [!] Could not find log section in index.html")
+        return
+    
+    # Write updated index.html
+    with open(index_file, 'w', encoding='utf-8') as f:
+        f.write(new_content)
+    
+    print(f"  [OK] Updated ship log with {len(entries)} entries")
+    sys.stdout.flush()
+
+
 if __name__ == '__main__':
     # Get repository root (parent of INDEX directory)
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1048,4 +1132,16 @@ if __name__ == '__main__':
         print("You may need to run update_diagrams.py manually")
     finally:
         sys.stdout.flush()  # Принудительно отправляем вывод перед завершением
+    
+    # Update ship log from Project/log.md
+    print("\n" + "="*60)
+    print("Updating ship log in INDEX/index.html...")
+    print("="*60)
+    sys.stdout.flush()
+    try:
+        update_ship_log(repo_root)
+    except Exception as e:
+        print(f"Warning: Failed to update ship log: {e}")
+    finally:
+        sys.stdout.flush()
 
