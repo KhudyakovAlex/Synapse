@@ -180,58 +180,103 @@
             text-decoration: underline;
         }
 
-        .hero-layout {
+        .hero-grid {
             display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 40px;
-            align-items: center;
+            grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr) minmax(260px, 320px);
+            gap: 30px;
+            align-items: stretch;
             max-width: 1400px;
             margin: 0 auto;
             padding: 40px 20px 0 20px;
         }
 
-        .hero-ship {
-            flex-shrink: 0;
+        .hero-log,
+        .hero-center,
+        .hero-status-panel {
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
-        .hero-ship img {
-            width: 440px;
+        .hero-log {
+            background: #ffffff;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .hero-log h3 {
+            margin: 0;
+            font-size: 1.15em;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .log-entry {
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 14px;
+            margin-bottom: 6px;
+        }
+
+        .log-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-date {
+            display: block;
+            font-size: 0.85em;
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .log-text {
+            margin: 0;
+            font-size: 0.95em;
+            line-height: 1.45;
+            color: var(--text-primary);
+        }
+
+        .hero-center {
+            background: var(--bg-secondary);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .hero-center img {
+            width: 100%;
+            max-width: 420px;
             height: auto;
             display: block;
         }
 
         .hero-progress {
-            padding-top: 0;
+            width: 100%;
         }
 
-        .hero-status {
-            width: 320px;
-            flex-shrink: 0;
+        .hero-status-panel {
+            background: var(--bg-secondary);
+            padding: 24px;
         }
 
         @media (max-width: 1200px) {
-            .hero-layout {
+            .hero-grid {
                 grid-template-columns: 1fr;
-                gap: 30px;
             }
 
-            .hero-ship {
-                text-align: center;
+            .hero-center {
+                order: 1;
             }
 
-            .hero-ship img {
-                width: 100%;
-                max-width: 400px;
-                margin: 0 auto;
+            .hero-status-panel {
+                order: 2;
             }
 
-            .hero-progress {
-                padding-top: 0;
-                text-align: center;
-            }
-
-            .hero-status {
-                width: 100%;
+            .hero-log {
+                order: 3;
             }
         }
 
@@ -254,34 +299,43 @@
     </div>
 
     <!-- Progress Hero Block -->
-    <div class="hero-layout">
-        <!-- Ship Image -->
-        <div class="hero-ship">
-            <img id="stage-image" alt="Этап строительства" style="opacity: 0; transition: opacity 0.3s ease;">
+    <div class="hero-grid">
+        <!-- Ship log -->
+        <div class="hero-log">
+            <h3>Судовой журнал</h3>
+            <div class="log-entry">
+                <span class="log-date">2025-12-02 15:00</span>
+                <p class="log-text">У Маджа возникли смнения, что текущий BLE контроллеер потянет 4 одновременных подключения телефонов</p>
+            </div>
+            <div class="log-entry">
+                <span class="log-date">2025-12-02 15:00</span>
+                <p class="log-text">Цинга уже у половины экипажа</p>
+            </div>
         </div>
-        
-        <!-- Progress Info -->
-        <div class="hero-progress">
-            <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;">
-                <span id="progress-percent" style="font-size: 4.2em; font-weight: 300; color: var(--accent-primary); line-height: 1;">0%</span>
-                <span style="font-size: 1.32em; color: #6c757d; font-weight: 400;">готовности</span>
-            </div>
-            
-            <!-- Progress Bar -->
-            <div style="background: #dee2e6; border-radius: 12px; height: 24px; overflow: hidden; margin-bottom: 18px;">
-                <div id="progress-bar" style="background: linear-gradient(90deg, var(--accent-primary), #45a049); height: 100%; width: 0%; border-radius: 12px; transition: width 1s ease-out;"></div>
-            </div>
-            
-            <!-- Days Left -->
-            <div>
-                <span style="font-size: 1em; color: #495057;">
-                    До введения в состав флота, дней: <strong id="days-left" style="color: var(--accent-primary);">—</strong>
-                </span>
+
+        <!-- Ship + Progress Info -->
+        <div class="hero-center">
+            <img id="stage-image" alt="Этап строительства" style="opacity: 0; transition: opacity 0.3s ease;">
+            <div class="hero-progress">
+                <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;">
+                    <span id="progress-percent" style="font-size: 4.2em; font-weight: 300; color: var(--accent-primary); line-height: 1;">0%</span>
+                    <span style="font-size: 1.32em; color: #6c757d; font-weight: 400;">готовности</span>
+                </div>
+                
+                <div style="background: #dee2e6; border-radius: 12px; height: 24px; overflow: hidden; margin-bottom: 18px;">
+                    <div id="progress-bar" style="background: linear-gradient(90deg, var(--accent-primary), #45a049); height: 100%; width: 0%; border-radius: 12px; transition: width 1s ease-out;"></div>
+                </div>
+                
+                <div>
+                    <span style="font-size: 1em; color: #495057;">
+                        До введения в состав флота, дней: <strong id="days-left" style="color: var(--accent-primary);">—</strong>
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Status Column -->
-        <div class="hero-status">
+        <div class="hero-status-panel">
             <div class="status-block">
                 <h3>Прямо по курсу</h3>
                 <ul>
