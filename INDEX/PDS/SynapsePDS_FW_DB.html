@@ -55,312 +55,205 @@
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
 <p><strong>Последнее изменение:</strong> 04.12.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_diagram_0.html">erDiagram
-    CONTROLLERS ||--o{ LOCATIONS : "CONTROLLER_ID"
-    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_ID"
-    LOCATIONS ||--o{ GROUPS : "LOCATION_ID"
-    LOCATIONS ||--o{ PRES_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BRIGHT_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BUTTON_PANELS : "LOCATION_ID"
-    GROUPS ||--o{ LUMINAIRES : "GROUP_ID"
-    GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
-    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
-    BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
-    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_ID"
-    ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
-    ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
-    ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
-    ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
-    ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
-    ACTIONS ||--o{ EVENTS : "ACTION_ID"
+    CONTROLLERS ||--o{ LOCATIONS : "имеет"
+    LOCATIONS ||--o{ LUMINAIRES : "содержит"
+    LOCATIONS ||--o{ GROUPS : "содержит"
+    LOCATIONS ||--o{ PRES_SENSORS : "датчики"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "датчики"
+    LOCATIONS ||--o{ BUTTON_PANELS : "панели"
+    GROUPS ||--o{ LUMINAIRES : "управляет"
+    GROUPS ||--o{ BRIGHT_SENSORS : "используется"
+    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "значения в сценах"
+    BUTTON_PANELS ||--o{ BUTTONS : "кнопки"
+    ACTION_SETS ||--o{ BUTTONS : "перебор"
+    ACTIONS ||--o{ BUTTONS : "назначено"
+    ACTIONS ||--o{ PRES_SENSORS : "действует"
+    ACTIONS ||--o{ EVENTS : "расписание"
+    ACTIONS ||--o{ SUBACTIONS : "состоит"
 
     CONTROLLERS {
-        INTEGER ID PK
-        INTEGER SCALE
-        TEXT NAME
-        TEXT PASSWORD
-        INTEGER IS_SCHEDULE
-        INTEGER ICO_NUM
+        CHAR20 NAME
+        CHAR4 PASSWORD
+        BOOL IS_SCHEDULE
+        UINT8 ICO_NUM
     }
 
     LOCATIONS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER ICO_NUM
-        INTEGER SCALE
-        INTEGER POS_X
-        INTEGER POS_Y
-        INTEGER CONTROLLER_ID FK
-        INTEGER NUM
-        INTEGER IS_AUTO
+        UINT8 NUM
+        BOOL IS_AUTO
     }
 
     LUMINAIRES {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER ICO_NUM
-        INTEGER POS_X
-        INTEGER POS_Y
-        INTEGER LOCATION_ID FK
-        INTEGER GROUP_ID FK
-        INTEGER DALI_ADDR
-        INTEGER LOCATION_NUM
-        INTEGER GROUP_NUM
-        INTEGER VAL_BRIGHT
-        INTEGER VAL_TW
-        INTEGER VAL_R
-        INTEGER VAL_G
-        INTEGER VAL_B
-        INTEGER VAL_W
+        UINT8 DALI_ADDR
+        UINT8 LOCATION_NUM
+        UINT8 GROUP_NUM
+        UINT8 VAL_BRIGHT
+        UINT8 VAL_TW
+        UINT8 VAL_R
+        UINT8 VAL_G
+        UINT8 VAL_B
+        UINT8 VAL_W
     }
 
     SCENE_LUMINAIRES {
-        INTEGER ID PK
-        INTEGER LUMINAIRE_ID FK
-        INTEGER DALI_ADDR
-        INTEGER SCENE_NUM
-        INTEGER VAL_BRIGHT
-        INTEGER VAL_TW
-        INTEGER VAL_R
-        INTEGER VAL_G
-        INTEGER VAL_B
-        INTEGER VAL_W
+        UINT8 DALI_ADDR
+        UINT8 SCENE_NUM
+        UINT8 VAL_BRIGHT
+        UINT8 VAL_TW
+        UINT8 VAL_R
+        UINT8 VAL_G
+        UINT8 VAL_B
+        UINT8 VAL_W
     }
 
     GROUPS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER LOCATION_NUM
-        INTEGER DALI_NUM
+        UINT8 LOCATION_NUM
+        UINT8 DALI_NUM
     }
 
     PRES_SENSORS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER ACTION_OCCUPANCY_ID FK
-        INTEGER ACTION_VACANCY_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_OCCUPANCY_NUM
-        INTEGER ACTION_VACANCY_NUM
-        INTEGER DELAY
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 ACTION_OCCUPANCY_NUM
+        UINT8 ACTION_VACANCY_NUM
+        UINT8 DELAY
     }
 
     BRIGHT_SENSORS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER GROUP_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER GROUP_NUM
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 GROUP_NUM
     }
 
     BUTTON_PANELS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER DALI_ADDR
+        UINT8 DALI_ADDR
     }
 
     BUTTONS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER BUTTON_PANEL_ID FK
-        INTEGER ACTION_SET_SHORT_ID FK
-        INTEGER ACTION_LONG_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_SET_SHORT_NUM
-        INTEGER ACTION_LONG_NUM
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 ACTION_SET_SHORT_NUM
+        UINT8 ACTION_LONG_NUM
     }
 
     ACTION_SETS {
-        INTEGER ID PK
-        INTEGER NUM
+        UINT8 NUM
     }
 
     ACTIONS {
-        INTEGER ID PK
-        INTEGER ACTION_SET_ID FK
-        INTEGER ACTION_SET_NUM
-        INTEGER NUM
-        INTEGER POS
+        UINT8 ACTION_SET_NUM
+        UINT8 NUM
+        UINT8 POS
     }
 
     SUBACTIONS {
-        INTEGER ID PK
-        INTEGER ACTION_ID FK
-        INTEGER ACTION_NUM
-        INTEGER OBJECT_TYPE
-        INTEGER OBJECT_NUM
-        INTEGER VALUE
+        UINT8 ACTION_NUM
+        UINT8 OBJECT_TYPE
+        UINT8 OBJECT_NUM
+        UINT8 VALUE
     }
 
     EVENTS {
-        INTEGER ID PK
-        INTEGER ACTION_ID FK
-        TEXT DAYS
-        TEXT TIME
-        INTEGER SMOOTH
-        INTEGER ACTION_NUM
+        CHAR7 DAYS
+        CHAR4 TIME
+        BOOL SMOOTH
+        UINT8 ACTION_NUM
     }
 </div>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
-<p>1.1. <strong>Рабочие</strong> данные — необходимые для организации работы освещения и в прошивке, и в приложении.</p>
-<p>1.2. <strong>Интерфейсные</strong> данные — используемые только приложением для организации пользовательского интерфейса. Примеры: названия светильников, номера иконок.</p>
+<p>1.1. <strong>Рабочие</strong> данные — необходимые для организации работы освещения и в прошивке, и в приложении. В приложении находятся в таблицах SQLite, в прошивке в виде массивов структур C.</p>
+<p>1.2. <strong>Интерфейсные</strong> данные — используемые только приложением для организации пользовательского интерфейса.  Примеры: названия светильников, номера их иконок.. В приложении находятся в таблицах SQLite, в прошивке в виде единого блока где-то в постоянной памяти.</p>
 <h2 id="2-основные-положения">2. Основные положения</h2>
-<p>2.1. Структура базы данных одинакова в приложении и в прошивке. При этом она:</p>
-<ul>
-<li>в приложении в виде схемы в SQLite;</li>
-<li>в прошивке частично как массивы структур на языке C и частично как бинарный блок.</li>
-</ul>
-<p>2.2. Интерфейсные данные хранятся в отдельном блоке памяти контроллера и передаются между приложением и прошивкой единым бинарным блоком.</p>
-<p>2.3. Интерфейсный блок и все рабочие данные передаются при подключении телефона к контроллеру. При отключённом контроллере телефон этих данных не хранит.</p>
-<p>2.4. Интерфейсный блок передаётся из телефона в контроллер при каждом изменении данных в телефоне и в обратном направлении при каждом изменении его в прошивке (случай нескольких подключённых к контроллеру телефонов).</p>
-<p>2.5. Большинство таблиц имеет два параллельных типа идентификаторов:</p>
-<ul>
-<li><strong>ID</strong> — для приложения (SQLite);</li>
-<li><strong>NUM/DALI_ADDR/DALI_NUM/DALI_INST</strong> — для прошивки (массивы структур C).</li>
-</ul>
+<p>2.1. "Таблицы" БД  в прошивке разложены в массивы структур C. Тем не мнее ниже они простоты для представляются именн как таблицы.</p>
 <h2 id="3-таблицы">3. Таблицы</h2>
-<p>3.1. Деление данных в прошивке/приложении:</p>
+<p>3.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллере. Имеет одну запись.</p>
 <ul>
-<li><strong>Рабочие</strong> — необходимые для организации работы освещения в прошивке и приложении (помечены в таблицах ниже жирным);</li>
-<li><strong>Интерфейсные</strong> — используемые только приложением.</li>
-</ul>
-<p>3.2. Типы данных у полей ниже: (ТИП_SQLite/ТИП_С) (в SQLite приложения / в структурах языка C прошивки).</p>
-<p>3.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллерах. В прошивке имеет одну запись.</p>
-<ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>SCALE (INTEGER) — масштаб сетки с иконками локаций на странице контроллера;</li>
-<li><strong>NAME</strong> (TEXT/<strong>char[20]</strong>) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
-<li><strong>PASSWORD</strong> (TEXT/<strong>char[4]</strong>) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
-<li><strong>IS_SCHEDULE</strong> (INTEGER/<strong>_Bool</strong>) — T/F — включена ли в контроллере работа по расписанию;</li>
-<li><strong>ICO_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
+<li><strong>NAME</strong> (char[20]) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
+<li><strong>PASSWORD</strong> (char[4]) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
+<li><strong>IS_SCHEDULE</strong> (_Bool) — T/F — включена ли в контроллере работа по расписанию;</li>
+<li><strong>ICO_NUM</strong> (uint8_t) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 </ul>
 <p>3.4. <strong>LOCATIONS</strong> — локации.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название локации;</li>
-<li>ICO_NUM (INTEGER) — номер иконки, которую будет иметь локация в приложении; 0 — дефолтная;</li>
-<li>SCALE (INTEGER) — масштаб сетки с иконками светильников на странице локации;</li>
-<li>POS_X (INTEGER) — позиция слева направо по X в сетке локаций контроллера;</li>
-<li>POS_Y (INTEGER) — позиция сверху вниз по Y в сетке локаций контроллера;</li>
-<li>CONTROLLER_ID (INTEGER, FK);</li>
-<li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер локации для идентификации локации в прошивке;</li>
-<li><strong>IS_AUTO</strong> (INTEGER/<strong>_Bool</strong>) — работает ли локация в автоматическом режиме по датчикам (0/1).</li>
+<li><strong>NUM</strong> (uint8_t) — номер локации для идентификации локации в прошивке;</li>
+<li><strong>IS_AUTO</strong> (_Bool) — работает ли локация в автоматическом режиме по датчикам (0/1).</li>
 </ul>
 <p>3.5. <strong>LUMINAIRES</strong> — светильники.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название светильника;</li>
-<li>ICO_NUM (INTEGER) — номер иконки, которую будет иметь светильник в приложении; 0 — дефолтная;</li>
-<li>POS_X (INTEGER) — позиция слева направо по X в сетке светильников локации;</li>
-<li>POS_Y (INTEGER) — позиция сверху вниз по Y в сетке светильников локации;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
-<li>GROUP_ID (INTEGER, FK) — группа, в которую включён светильник; если не в группе — NULL;</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки светильника к ней в прошивке;</li>
-<li><strong>GROUP_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALI для привязки светильника в прошивке; если светильник не в группе — 255;</li>
-<li><strong>VAL_BRIGHT</strong> (INTEGER/<strong>uint8_t</strong>) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (INTEGER/<strong>uint8_t</strong>) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (INTEGER/<strong>uint8_t</strong>) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (INTEGER/<strong>uint8_t</strong>) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (INTEGER/<strong>uint8_t</strong>) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (INTEGER/<strong>uint8_t</strong>) — значение белого канала (для RGBW).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI;</li>
+<li><strong>LOCATION_NUM</strong> (uint8_t) — идентификатор локации для привязки светильника к ней в прошивке;</li>
+<li><strong>GROUP_NUM</strong> (uint8_t) — номер группы в DALI для привязки светильника в прошивке; если светильник не в группе — 255;</li>
+<li><strong>VAL_BRIGHT</strong> (uint8_t) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (uint8_t) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (uint8_t) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (uint8_t) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 </ul>
 <p>3.6. <strong>SCENE_LUMINAIRES</strong> — параметры светильников в сценах.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>LUMINAIRE_ID (INTEGER, FK) — светильник в приложении;</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — адрес светильника в DALI;</li>
-<li><strong>SCENE_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер сцены в DALI;</li>
-<li><strong>VAL_BRIGHT</strong> (INTEGER/<strong>uint8_t</strong>) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (INTEGER/<strong>uint8_t</strong>) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (INTEGER/<strong>uint8_t</strong>) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (INTEGER/<strong>uint8_t</strong>) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (INTEGER/<strong>uint8_t</strong>) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (INTEGER/<strong>uint8_t</strong>) — значение белого канала (для RGBW).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t) — адрес светильника в DALI;</li>
+<li><strong>SCENE_NUM</strong> (uint8_t*) — номер сцены в DALI;</li>
+<li><strong>VAL_BRIGHT</strong> (uint8_t) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (uint8_t) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (uint8_t) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (uint8_t) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 </ul>
 <p>3.7. <strong>GROUPS</strong> — группы светильников.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название группы;</li>
-<li>LOCATION_ID (INTEGER, FK) — идентификатор локации;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — идентификатор локации для привязки группы к ней в прошивке;</li>
-<li><strong>DALI_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALIs.</li>
+<li><strong>LOCATION_NUM</strong> (uint8_t) — идентификатор локации для привязки группы к ней в прошивке;</li>
+<li><strong>DALI_NUM</strong> (uint8_t) — номер группы в DALIs.</li>
 </ul>
 <p>3.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название датчика;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
-<li>ACTION_OCCUPANCY_ID (INTEGER, FK) — действие на наличие движения; NULL — не повешено действие;</li>
-<li>ACTION_VACANCY_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI датчика;</li>
-<li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса датчика движения в DALI;</li>
-<li><strong>ACTION_OCCUPANCY_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
-<li><strong>ACTION_VACANCY_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для прошивки; 0 — не повешено действие;</li>
-<li><strong>DELAY</strong> (INTEGER/<strong>uint8_t</strong>) — задержка HOLD_TIME.</li>
+<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI датчика;</li>
+<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
+<li><strong>ACTION_OCCUPANCY_NUM</strong> (uint8_t) — номер действия для прошивки; 0 — не повешено действие;</li>
+<li><strong>ACTION_VACANCY_NUM</strong> (uint8_t) — номер действия для прошивки; 0 — не повешено действие;</li>
+<li><strong>DELAY</strong> (uint8_t) — задержка HOLD_TIME.</li>
 </ul>
 <p>3.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название датчика;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
-<li>GROUP_ID (INTEGER, FK) — группа, которой управляет датчик; NULL, если группа не назначена;</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес датчика в DALI;</li>
-<li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса датчика движения в DALI;</li>
-<li><strong>GROUP_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
+<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес датчика в DALI;</li>
+<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
+<li><strong>GROUP_NUM</strong> (uint8_t) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
 </ul>
 <p>3.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название панели;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес панели в DALI;</li>
+<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес панели в DALI;</li>
 </ul>
 <p>3.11. <strong>BUTTONS</strong> — кнопки.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>NAME (TEXT) — название кнопки на панели;</li>
-<li>BUTTON_PANEL_ID (INTEGER, FK);</li>
-<li>ACTION_SET_SHORT_ID (INTEGER, FK) — действие по короткому нажатию; не повешено — NULL;</li>
-<li>ACTION_LONG_ID (INTEGER, FK) — действие по долгому нажатию; не повешено — NULL;</li>
-<li><strong>DALI_ADDR</strong> (INTEGER/<strong>uint8_t</strong>) — короткий адрес DALI панели;</li>
-<li><strong>DALI_INST</strong> (INTEGER/<strong>uint8_t</strong>) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_SET_SHORT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по короткому нажатию; 0 — не повешено действие;</li>
-<li><strong>ACTION_LONG_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие по долгому нажатию; 0 — не повешено действие.</li>
+<li><strong>DALI_ADDR</strong> (uint8_t*) — короткий адрес DALI панели;</li>
+<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса кнопки в DALI;</li>
+<li><strong>ACTION_SET_SHORT_NUM</strong> (uint8_t) — действие по короткому нажатию; 0 — не повешено действие;</li>
+<li><strong>ACTION_LONG_NUM</strong> (uint8_t) — действие по долгому нажатию; 0 — не повешено действие.</li>
 </ul>
 <p>3.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>ACTION_SET_ID  (INTEGER, FK) - привязка к набору действий; если действие не входит ни в какой набор - NULL</li>
-<li><strong>ACTION_SET_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — привязка к набору действий; если действие не входит ни в какой набор - 0 (для прошивки);</li>
-<li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер действия для идентификации действия в прошивке.</li>
-<li><strong>POS</strong> (INTEGER/<strong>uint8_t</strong>) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
+<li><strong>ACTION_SET_NUM</strong> (uint8_t) — привязка к набору действий; если действие не входит ни в какой набор - 0 (для прошивки);</li>
+<li><strong>NUM</strong> (uint8_t) — номер действия для идентификации действия в прошивке.</li>
+<li><strong>POS</strong> (uint8_t) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
 <p>3.13. <strong>SUBACTIONS</strong> — поддействия с устройствами (команды для пользователя).</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>ACTION_ID (INTEGER) — действие (для приложения);</li>
-<li><strong>ACTION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие (для прошивки);</li>
-<li><strong>OBJECT_TYPE</strong> (INTEGER/<strong>uint8_t</strong>) — тип объекта изменений:<ul>
+<li><strong>ACTION_NUM</strong> (uint8_t) — действие (для прошивки);</li>
+<li><strong>OBJECT_TYPE</strong> (uint8_t) — тип объекта изменений:<ul>
 <li>1 — весь объект;</li>
 <li>2 — локация;</li>
 <li>3 — группа;</li>
 <li>4 — светильник;</li>
 </ul>
 </li>
-<li><strong>OBJECT_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер объекта изменений:<ul>
+<li><strong>OBJECT_NUM</strong> (uint8_t) — номер объекта изменений:<ul>
 <li>1 — сцена;</li>
 <li>2 — температура TW;</li>
 <li>3 — флаг АВТО.</li>
 </ul>
 </li>
-<li><strong>VALUE</strong> (INTEGER/<strong>uint8_t</strong>) — значение в зависимости от объекта:<ul>
+<li><strong>VALUE</strong> (uint8_t) — значение в зависимости от объекта:<ul>
 <li>сцена - 0..4;</li>
 <li>температура TW - 0..254;</li>
 <li>флаг АВТО - 0 / 1.</li>
@@ -369,19 +262,15 @@
 </ul>
 <p>3.14. <strong>ACTION_SETS</strong> — наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
 <ul>
-  <li>ID (INTEGER, PK) — идентификатор в приложении;
-  </li>
-  <li><strong>NUM</strong> (INTEGER/<strong>uint8_t</strong>) — номер набора действий для идентификации в прошивке; начинается с 1
+  <li><strong>NUM</strong> (uint8_t) — номер набора действий для идентификации в прошивке; начинается с 1
   </li>
 </ul>
 <p>3.15. <strong>EVENTS</strong> — события расписания.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в приложении;</li>
-<li>ACTION_ID (INTEGER) — действие (для приложения);</li>
-<li><strong>DAYS</strong> (TEXT/<strong>char[7]</strong>) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
-<li><strong>TIME</strong> (TEXT/<strong>char[4]</strong>) — время события с точностью до минуты в формате HHMM 24H;</li>
-<li><strong>SMOOTH</strong> (INTEGER/<strong>_Bool</strong>) — плавное изменение параметров от предыдущих значений (яркость, температура света);</li>
-<li><strong>ACTION_NUM</strong> (INTEGER/<strong>uint8_t</strong>) — действие (для прошивки).</li>
+<li><strong>DAYS</strong> (char[7]) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
+<li><strong>TIME</strong> (char[4]) — время события с точностью до минуты в формате HHMM 24H;</li>
+<li><strong>SMOOTH</strong> (_Bool) — плавное изменение параметров от предыдущих значений (яркость, температура света);</li>
+<li><strong>ACTION_NUM</strong> (uint8_t) — действие (для прошивки).</li>
 </ul>
 <h2 id="4-ограничения-по-количеству-записей-в-таблицах-для-прошивки">4. Ограничения по количеству записей в таблицах (для прошивки)</h2>
 <p>4.1. <strong>CONTROLLERS</strong> — 1.</p>

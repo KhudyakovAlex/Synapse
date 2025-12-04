@@ -55,156 +55,109 @@
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
 <p><strong>Последнее изменение:</strong> 04.12.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_scheme_diagram_0.html">erDiagram
-    CONTROLLERS ||--o{ LOCATIONS : "CONTROLLER_ID"
-    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_ID"
-    LOCATIONS ||--o{ GROUPS : "LOCATION_ID"
-    LOCATIONS ||--o{ PRES_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BRIGHT_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BUTTON_PANELS : "LOCATION_ID"
-    GROUPS ||--o{ LUMINAIRES : "GROUP_ID"
-    GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
-    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
-    BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
-    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_ID"
-    ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
-    ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
-    ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
-    ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
-    ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
-    ACTIONS ||--o{ EVENTS : "ACTION_ID"
+    CONTROLLERS ||--o{ LOCATIONS : "имеет"
+    LOCATIONS ||--o{ LUMINAIRES : "содержит"
+    LOCATIONS ||--o{ GROUPS : "содержит"
+    LOCATIONS ||--o{ PRES_SENSORS : "датчики"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "датчики"
+    LOCATIONS ||--o{ BUTTON_PANELS : "панели"
+    GROUPS ||--o{ LUMINAIRES : "управляет"
+    GROUPS ||--o{ BRIGHT_SENSORS : "используется"
+    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "значения в сценах"
+    BUTTON_PANELS ||--o{ BUTTONS : "кнопки"
+    ACTION_SETS ||--o{ BUTTONS : "перебор"
+    ACTIONS ||--o{ BUTTONS : "назначено"
+    ACTIONS ||--o{ PRES_SENSORS : "действует"
+    ACTIONS ||--o{ EVENTS : "расписание"
+    ACTIONS ||--o{ SUBACTIONS : "состоит"
 
     CONTROLLERS {
-        INTEGER ID PK
-        INTEGER SCALE
-        TEXT NAME
-        TEXT PASSWORD
-        INTEGER IS_SCHEDULE
-        INTEGER ICO_NUM
+        CHAR20 NAME
+        CHAR4 PASSWORD
+        BOOL IS_SCHEDULE
+        UINT8 ICO_NUM
     }
 
     LOCATIONS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER ICO_NUM
-        INTEGER SCALE
-        INTEGER POS_X
-        INTEGER POS_Y
-        INTEGER CONTROLLER_ID FK
-        INTEGER NUM
-        INTEGER IS_AUTO
+        UINT8 NUM
+        BOOL IS_AUTO
     }
 
     LUMINAIRES {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER ICO_NUM
-        INTEGER POS_X
-        INTEGER POS_Y
-        INTEGER LOCATION_ID FK
-        INTEGER GROUP_ID FK
-        INTEGER DALI_ADDR
-        INTEGER LOCATION_NUM
-        INTEGER GROUP_NUM
-        INTEGER VAL_BRIGHT
-        INTEGER VAL_TW
-        INTEGER VAL_R
-        INTEGER VAL_G
-        INTEGER VAL_B
-        INTEGER VAL_W
+        UINT8 DALI_ADDR
+        UINT8 LOCATION_NUM
+        UINT8 GROUP_NUM
+        UINT8 VAL_BRIGHT
+        UINT8 VAL_TW
+        UINT8 VAL_R
+        UINT8 VAL_G
+        UINT8 VAL_B
+        UINT8 VAL_W
     }
 
     SCENE_LUMINAIRES {
-        INTEGER ID PK
-        INTEGER LUMINAIRE_ID FK
-        INTEGER DALI_ADDR
-        INTEGER SCENE_NUM
-        INTEGER VAL_BRIGHT
-        INTEGER VAL_TW
-        INTEGER VAL_R
-        INTEGER VAL_G
-        INTEGER VAL_B
-        INTEGER VAL_W
+        UINT8 DALI_ADDR
+        UINT8 SCENE_NUM
+        UINT8 VAL_BRIGHT
+        UINT8 VAL_TW
+        UINT8 VAL_R
+        UINT8 VAL_G
+        UINT8 VAL_B
+        UINT8 VAL_W
     }
 
     GROUPS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER LOCATION_NUM
-        INTEGER DALI_NUM
+        UINT8 LOCATION_NUM
+        UINT8 DALI_NUM
     }
 
     PRES_SENSORS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER ACTION_OCCUPANCY_ID FK
-        INTEGER ACTION_VACANCY_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_OCCUPANCY_NUM
-        INTEGER ACTION_VACANCY_NUM
-        INTEGER DELAY
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 ACTION_OCCUPANCY_NUM
+        UINT8 ACTION_VACANCY_NUM
+        UINT8 DELAY
     }
 
     BRIGHT_SENSORS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER GROUP_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER GROUP_NUM
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 GROUP_NUM
     }
 
     BUTTON_PANELS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER DALI_ADDR
+        UINT8 DALI_ADDR
     }
 
     BUTTONS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER BUTTON_PANEL_ID FK
-        INTEGER ACTION_SET_SHORT_ID FK
-        INTEGER ACTION_LONG_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_SET_SHORT_NUM
-        INTEGER ACTION_LONG_NUM
+        UINT8 DALI_ADDR
+        UINT8 DALI_INST
+        UINT8 ACTION_SET_SHORT_NUM
+        UINT8 ACTION_LONG_NUM
     }
 
     ACTION_SETS {
-        INTEGER ID PK
-        INTEGER NUM
+        UINT8 NUM
     }
 
     ACTIONS {
-        INTEGER ID PK
-        INTEGER ACTION_SET_ID FK
-        INTEGER ACTION_SET_NUM
-        INTEGER NUM
-        INTEGER POS
+        UINT8 ACTION_SET_NUM
+        UINT8 NUM
+        UINT8 POS
     }
 
     SUBACTIONS {
-        INTEGER ID PK
-        INTEGER ACTION_ID FK
-        INTEGER ACTION_NUM
-        INTEGER OBJECT_TYPE
-        INTEGER OBJECT_NUM
-        INTEGER VALUE
+        UINT8 ACTION_NUM
+        UINT8 OBJECT_TYPE
+        UINT8 OBJECT_NUM
+        UINT8 VALUE
     }
 
     EVENTS {
-        INTEGER ID PK
-        INTEGER ACTION_ID FK
-        TEXT DAYS
-        TEXT TIME
-        INTEGER SMOOTH
-        INTEGER ACTION_NUM
+        CHAR7 DAYS
+        CHAR4 TIME
+        BOOL SMOOTH
+        UINT8 ACTION_NUM
     }
 </div>
         </main>
