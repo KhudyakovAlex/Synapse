@@ -6,8 +6,11 @@
 
 ```mermaid
 erDiagram
-    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_NUM"
-    LOCATIONS ||--o{ GROUPS : "LOCATION_NUM"
+    LOCATIONS ||--o| LUMINAIRES : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| GROUPS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| PRES_SENSORS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| BRIGHT_SENSORS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| BUTTON_PANELS : "LOCATION_NUM nullable"
     GROUPS ||--o{ LUMINAIRES : "GROUP_NUM"
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_NUM"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "DALI_ADDR"
@@ -24,6 +27,7 @@ erDiagram
         CHAR20 NAME
         CHAR4 PASSWORD
         BOOL IS_SCHEDULE
+        BOOL IS_AUTO
         UINT8 ICO_NUM
     }
 
@@ -63,6 +67,7 @@ erDiagram
     PRES_SENSORS {
         UINT8 DALI_ADDR
         UINT8 DALI_INST
+        UINT8 LOCATION_NUM
         UINT8 ACTION_OCCUPANCY_NUM
         UINT8 ACTION_VACANCY_NUM
         UINT8 DELAY
@@ -71,11 +76,13 @@ erDiagram
     BRIGHT_SENSORS {
         UINT8 DALI_ADDR
         UINT8 DALI_INST
+        UINT8 LOCATION_NUM
         UINT8 GROUP_NUM
     }
 
     BUTTON_PANELS {
         UINT8 DALI_ADDR
+        UINT8 LOCATION_NUM
     }
 
     BUTTONS {

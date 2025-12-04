@@ -51,6 +51,7 @@
 - NAME — имя контроллера (строка)
 - PASSWORD — пароль (4 цифры) (строка)
 - IS_SCHEDULE — флаг включена ли работа по расписанию (T/F)
+- IS_AUTO — главный выключатель автоматического режима (T/F)
 - ICO_NUM — номер иконки контроллера (целое, значения 100..199)
 - INTERFACE_DATA — интерфейсные данные (энное количество байтов; см. ниже)
 
@@ -83,7 +84,7 @@ sequenceDiagram
 
 4.1.1. Что такое
 
-Удаляется из базы данных контроллера всё, что было настроено непосильным трудом (если что-то настраивалось), кроме настроек самого контроллера (имя, иконка, пароль). Инициализируются все светильники и устройства управления линии DALI, начиная с раздачи рандомных адресов и заканчивая сбросом всех настроек устройств в состояние RESET.
+Удаляется из базы данных контроллера всё, что было настроено непосильным трудом (если что-то настраивалось), кроме настроек самого контроллера (имя, иконка, пароль, IS_AUTO). Инициализируются все светильники и устройства управления линии DALI, начиная с раздачи рандомных адресов и заканчивая сбросом всех настроек устройств в состояние RESET. Все устройства создаются в корне (LOCATION_NUM = 0), локации не создаются.
 
 4.1.2. Порядок инициализации:
 
@@ -91,13 +92,13 @@ sequenceDiagram
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(START)]`.
 
-- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_SCHEDULE = F.
+- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_SCHEDULE = F, **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_AUTO = F.
 
 - Широковещательно выключаются в линии все светильники и светодиоды кнопочных панелей.
 
 - Раздаются короткие DALI-адреса светильникам. Светильник, получивший адрес, включается на макс.
 
-- Светильники добавляются в таблицу **[LUMINAIRES](SynapsePDS_FW_DB.html#35-luminaires)**.
+- Светильники добавляются в таблицу **[LUMINAIRES](SynapsePDS_FW_DB.html#35-luminaires)** с **LOCATION_NUM = 0** (без локации, в корне).
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(LUM_CREATED)]`.
 
@@ -111,7 +112,7 @@ sequenceDiagram
 
 - Раздаются короткие DALI-адреса устройствам управления.
 
-- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#310-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#311-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#38-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#39-bright-sensors)**.
+- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#310-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#311-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#38-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#39-bright-sensors)** с **LOCATION_NUM = 0** (без локации, в корне).
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(FINISH)]`.
 
@@ -156,7 +157,5 @@ sequenceDiagram
 ## 8. Работа по расписанию
 
 ## 9. Вопросы
-
-9.1. В какую локацию добавляются найденные при ПНР устройства?
 
 ## 10. Идеи

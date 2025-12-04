@@ -55,8 +55,11 @@
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
 <p><strong>Последнее изменение:</strong> 04.12.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_scheme_diagram_0.html">erDiagram
-    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_NUM"
-    LOCATIONS ||--o{ GROUPS : "LOCATION_NUM"
+    LOCATIONS ||--o| LUMINAIRES : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| GROUPS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| PRES_SENSORS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| BRIGHT_SENSORS : "LOCATION_NUM nullable"
+    LOCATIONS ||--o| BUTTON_PANELS : "LOCATION_NUM nullable"
     GROUPS ||--o{ LUMINAIRES : "GROUP_NUM"
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_NUM"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "DALI_ADDR"
@@ -73,6 +76,7 @@
         CHAR20 NAME
         CHAR4 PASSWORD
         BOOL IS_SCHEDULE
+        BOOL IS_AUTO
         UINT8 ICO_NUM
     }
 
@@ -112,6 +116,7 @@
     PRES_SENSORS {
         UINT8 DALI_ADDR
         UINT8 DALI_INST
+        UINT8 LOCATION_NUM
         UINT8 ACTION_OCCUPANCY_NUM
         UINT8 ACTION_VACANCY_NUM
         UINT8 DELAY
@@ -120,11 +125,13 @@
     BRIGHT_SENSORS {
         UINT8 DALI_ADDR
         UINT8 DALI_INST
+        UINT8 LOCATION_NUM
         UINT8 GROUP_NUM
     }
 
     BUTTON_PANELS {
         UINT8 DALI_ADDR
+        UINT8 LOCATION_NUM
     }
 
     BUTTONS {

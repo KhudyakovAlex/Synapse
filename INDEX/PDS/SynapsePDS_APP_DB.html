@@ -56,11 +56,11 @@
 <p><strong>Последнее изменение:</strong> 04.12.2025</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_APP_DB_diagram_0.html">erDiagram
     CONTROLLERS ||--o{ LOCATIONS : "CONTROLLER_ID"
-    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_ID"
-    LOCATIONS ||--o{ GROUPS : "LOCATION_ID"
-    LOCATIONS ||--o{ PRES_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BRIGHT_SENSORS : "LOCATION_ID"
-    LOCATIONS ||--o{ BUTTON_PANELS : "LOCATION_ID"
+    LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
+    LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
+    LOCATIONS ||--o| PRES_SENSORS : "LOCATION_ID nullable"
+    LOCATIONS ||--o| BRIGHT_SENSORS : "LOCATION_ID nullable"
+    LOCATIONS ||--o| BUTTON_PANELS : "LOCATION_ID nullable"
     GROUPS ||--o{ LUMINAIRES : "GROUP_ID"
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
@@ -79,6 +79,7 @@
         TEXT NAME
         TEXT PASSWORD
         INTEGER IS_SCHEDULE
+        INTEGER IS_AUTO
         INTEGER ICO_NUM
     }
 
@@ -227,6 +228,7 @@
 <li><strong>NAME</strong> (TEXT*) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
 <li><strong>PASSWORD</strong> (TEXT) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
 <li><strong>IS_SCHEDULE</strong> (INTEGER) — T/F — включена ли в контроллере работа по расписанию;</li>
+<li><strong>IS_AUTO</strong> (INTEGER) — T/F — главный выключатель автоматического режима для всего контроллера;</li>
 <li><strong>ICO_NUM</strong> (INTEGER) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 </ul>
 <h3 id="34-locations">3.4. LOCATIONS</h3>
@@ -250,10 +252,10 @@
 <li>ICO_NUM (INTEGER) — номер иконки, которую будет иметь светильник в приложении; 0 — дефолтная;</li>
 <li>POS_X (INTEGER) — позиция слева направо по X в сетке светильников локации;</li>
 <li>POS_Y (INTEGER) — позиция сверху вниз по Y в сетке светильников локации;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
+<li>LOCATION_ID (INTEGER, FK, NULL) — локация; NULL, если светильник без локации (в корне);</li>
 <li>GROUP_ID (INTEGER, FK) — группа, в которую включён светильник; если не в группе — NULL;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес DALI;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER) — идентификатор локации для привязки светильника к ней в прошивке;</li>
+<li><strong>LOCATION_NUM</strong> (INTEGER) — идентификатор локации для привязки светильника к ней в прошивке; 0 — светильник без локации;</li>
 <li><strong>GROUP_NUM</strong> (INTEGER) — номер группы в DALI для привязки светильника в прошивке; если светильник не в группе — 255;</li>
 <li><strong>VAL_BRIGHT</strong> (INTEGER) — значение яркости;</li>
 <li><strong>VAL_TW</strong> (INTEGER) — значение температуры белого света;</li>
@@ -281,8 +283,8 @@
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название группы;</li>
-<li>LOCATION_ID (INTEGER, FK) — идентификатор локации;</li>
-<li><strong>LOCATION_NUM</strong> (INTEGER) — идентификатор локации для привязки группы к ней в прошивке;</li>
+<li>LOCATION_ID (INTEGER, FK, NULL) — идентификатор локации; NULL, если группа без локации (в корне);</li>
+<li><strong>LOCATION_NUM</strong> (INTEGER) — идентификатор локации для привязки группы к ней в прошивке; 0 — группа без локации;</li>
 <li><strong>DALI_NUM</strong> (INTEGER) — номер группы в DALI.</li>
 </ul>
 <h3 id="38-pres-sensors">3.8. PRES_SENSORS</h3>
@@ -290,7 +292,7 @@
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
+<li>LOCATION_ID (INTEGER, FK, NULL) — локация; NULL, если датчик без локации (в корне);</li>
 <li>ACTION_OCCUPANCY_ID (INTEGER, FK) — действие на наличие движения; NULL — не повешено действие;</li>
 <li>ACTION_VACANCY_ID (INTEGER, FK) — действие на отсутствие движения; NULL — не повешено действие;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес DALI датчика;</li>
@@ -304,7 +306,7 @@
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
+<li>LOCATION_ID (INTEGER, FK, NULL) — локация; NULL, если датчик без локации (в корне);</li>
 <li>GROUP_ID (INTEGER, FK) — группа, которой управляет датчик; NULL, если группа не назначена;</li>
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес датчика в DALI;</li>
 <li><strong>DALI_INST</strong> (INTEGER) — номер инстанса датчика движения в DALI;</li>
@@ -315,7 +317,7 @@
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название панели;</li>
-<li>LOCATION_ID (INTEGER, FK);</li>
+<li>LOCATION_ID (INTEGER, FK, NULL) — локация; NULL, если панель без локации (в корне);</li>
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес панели в DALI;</li>
 </ul>
 <h3 id="311-buttons">3.11. BUTTONS</h3>
@@ -388,7 +390,7 @@
 <p>5.1. Рабочие данные таки храним в Си или переносим в одну область с интерфейсными?</p>
 <p>5.2. Как рабочие и интерфейсные данные будут попадать во флэш-память?</p>
 <p>5.3. Не будет ли заморочным в смысле размера кода работать с бинарным блоком рабочих данных как с базой?</p>
-<p>5.4. Как храим в БД заначения для димм., РГБ и ТВ?</p>
+<p>5.4. Как храним в БД значения для димм., РГБ и ТВ?</p>
 <h2 id="6-идеи">6. Идеи</h2>
         </main>
     </div>
