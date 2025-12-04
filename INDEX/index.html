@@ -310,6 +310,7 @@
             
             
             
+            
             <div class="log-entry">
                 <span class="log-date">2025-12-02 08:10</span>
                 <p class="log-text">У Маджа возникли сомнения, что текущий BLE контроллер потянет 4 одновременных подключения телефонов. Хреново...</p>
@@ -355,7 +356,7 @@
                 <h3>В процессе</h3>
                 <ul>
                     <li>Разработка прошивки <a href="PDS/SynapsePDS_FW_Bluetooth.html">Bluetooth-модуля контроллера</a> (Мадж)</li>
-                    <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Logic.html">Логика работы прошивки</a> (Худяков)</li>
+                    <li>Разработка спецификации <a href="PDS/SynapsePDS_FW_Logic.html">Прошивка. Логика работы</a> (Худяков)</li>
                     <li>Доработка спецификации <a href="PDS/SynapsePDS_USML.html">USML</a> (параллельно с логикой) (Худяков)</li>
                     <li>Наполнение библиотеки: <a href="PDS/SynapsePDS_Icons_Controllers.html">контроллеры</a>, <a href="PDS/SynapsePDS_Icons_Locations.html">локации</a>, <a href="PDS/SynapsePDS_Icons_Luminaires.html">светильники</a>, <a href="PDS/SynapsePDS_Icons_System.html">системные</a> (Брянкина)</li>
                 </ul>
@@ -443,14 +444,15 @@ flowchart LR
     PRO ---> DSP
     PRO ---> DSDB
     PRO ---> DSFWDB
+    PRO ---> DSFWL
     PRO ---> DSB
     PRO ---> DSLLM
 
     DSUX(UX<br>Спецификация)
     DSUI(UI<br>Спецификация)
     DSAPP(Приложение<br>Спецификация)
-    DSDB(База данных приложения<br>Спецификация)
-    DSFWDB(База данных прошивки<br>Спецификация)
+    DSDB(Приложение. База данных<br>Спецификация)
+    DSFWDB(Прошивка. База данных<br>Спецификация)
     DSFWL(Прошивка. Логика работы<br>Спецификация)
     DSP(USML<br>Спецификация)
     DSB(Bluetooth-соединение<br>Спецификация)
@@ -665,14 +667,14 @@ flowchart LR
                 </a>
 
                 <a href="PDS/SynapsePDS_FW_Logic.html" class="doc-card">
-                    <div class="title">Логика работы прошивки</div>
+                    <div class="title">Прошивка. Логика работы</div>
                     <div class="description">
                         PDS/SynapsePDS_FW_Logic.md
                     </div>
                 </a>
 
                 <a href="PDS/SynapsePDS_FW_DB.html" class="doc-card">
-                    <div class="title">База данных прошивки</div>
+                    <div class="title">Прошивка. База данных</div>
                     <div class="description">
                         PDS/SynapsePDS_FW_DB.md
                     </div>
@@ -695,7 +697,7 @@ flowchart LR
                 </a>
 
                 <a href="PDS/SynapsePDS_APP_DB.html" class="doc-card">
-                    <div class="title">База данных приложения</div>
+                    <div class="title">Приложение. База данных</div>
                     <div class="description">
                         PDS/SynapsePDS_APP_DB.md
                     </div>

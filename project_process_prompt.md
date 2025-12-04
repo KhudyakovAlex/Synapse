@@ -101,7 +101,7 @@ python Project/update_dates.py
 - Конвертер `convert_to_html.py` **НЕ обрабатывает** файл `Project/status.md` автоматически
 - Заголовок раздела на странице = главный заголовок (h1) из файла `Project/status.md`
 - В разделе должны быть ссылки на соответствующие страницы документации:
-  - "База данных приложения" → `PDS/SynapsePDS_APP_DB.html`
+  - "Приложение. База данных" → `PDS/SynapsePDS_APP_DB.html`
   - "USML" → `PDS/SynapsePDS_USML.html`
   - "Bluetooth-соединение" → `PDS/SynapsePDS_Bluetooth.html`
   - И другие спецификации по аналогии
