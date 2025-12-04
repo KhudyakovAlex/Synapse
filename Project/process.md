@@ -112,7 +112,7 @@ flowchart LR
     click DSUI "PDS/SynapsePDS_APP_UI.html"
     click DSUX "PDS/SynapsePDS_APP_UX.html"
     click DSAPP "PDS/SynapsePDS_APP.html"
-    click DSDB "PDS/SynapsePDS_DB.html"
+    click DSDB "PDS/SynapsePDS_APP_DB.html"
     click DSP "PDS/SynapsePDS_USML.html"
     click DSB "PDS/SynapsePDS_Bluetooth.html"
     click DSLLM "PDS/SynapsePDS_LLM.html"

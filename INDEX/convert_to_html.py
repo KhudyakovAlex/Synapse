@@ -417,8 +417,8 @@ class MarkdownConverter:
             'PDS/SynapsePDS_APP_UX.md': 'PDS/SynapsePDS_APP_UX.html',
             'SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
             'PDS/SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
-            'SynapsePDS_DB.md': 'PDS/SynapsePDS_DB.html',
-            'PDS/SynapsePDS_DB.md': 'PDS/SynapsePDS_DB.html',
+            'SynapsePDS_APP_DB.md': 'PDS/SynapsePDS_APP_DB.html',
+            'PDS/SynapsePDS_APP_DB.md': 'PDS/SynapsePDS_APP_DB.html',
             'SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
             'PDS/SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
             'SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
@@ -853,8 +853,8 @@ class MarkdownConverter:
         # Preprocess markdown to fix list formatting
         md_content = self.preprocess_markdown(md_content)
         
-        # Special handling for SynapsePDS_DB.md - inject schema from SynapsePDS_DB_scheme.md
-        if md_file.name == 'SynapsePDS_DB.md':
+        # Special handling for SynapsePDS_APP_DB.md - inject schema from SynapsePDS_DB_scheme.md
+        if md_file.name == 'SynapsePDS_APP_DB.md':
             scheme_file = md_file.parent / 'SynapsePDS_DB_scheme.md'
             if scheme_file.exists():
                 with open(scheme_file, 'r', encoding='utf-8') as f:
