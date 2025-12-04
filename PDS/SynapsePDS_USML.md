@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 01.12.2025
+**Последнее изменение:** 04.12.2025
 
 ## 1. Термины и определения
 
@@ -85,7 +85,7 @@ FW — firmware, прошивка в контроллере
 Пример: [FW.DALI_INIT()]
 
 **DALI_INIT_STATUS**(TX STATUS) — команда со статусом инициализации  
-STATUS: START, LUM_READY, FINISH  
+STATUS: START, LUM_CREATED, LUM_READY, FINISH  
 Пример:  
 [USM.DALI_INIT_STATUS(LUM_READY)]
 

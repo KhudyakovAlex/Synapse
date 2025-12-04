@@ -187,6 +187,8 @@ sequenceDiagram
     Прошивка->>Линия DALI:Запуск инита
     Прошивка->>Приложение:[FW.DALI_INIT_STATUS(START)]
     Прошивка->>Линия DALI:Инит светильников
+    Прошивка->>Приложение:[FW.DALI_INIT_STATUS(LUM_CREATED)]
+    Прошивка->>Линия DALI:Инит световых сцен
     Прошивка->>Приложение:[FW.DALI_INIT_STATUS(LUM_READY)]
     Прошивка->>Линия DALI:Инит устройств упр.
     Прошивка->>Приложение:[FW.DALI_INIT_STATUS(FINISH)]
