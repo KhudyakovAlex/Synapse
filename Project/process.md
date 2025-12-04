@@ -31,6 +31,7 @@ flowchart LR
     DSAPP(Приложение<br>Спецификация)
     DSDB(База данных приложения<br>Спецификация)
     DSFWDB(База данных прошивки<br>Спецификация)
+    DSFWL(Прошивка. Логика работы<br>Спецификация)
     DSP(USML<br>Спецификация)
     DSB(Bluetooth-соединение<br>Спецификация)
     DSLLM(Работа с LLM<br>Спецификация)
@@ -46,8 +47,8 @@ flowchart LR
     DSAPPB(Приложение. Bluetooth-соединение<br>Спецификация)
 
     UIUXD ---> UIUX
-    DSFWB ---> APPB
-    DSAPPB ---> FWB
+    DSAPPB ---> APPB
+    DSFWB ---> FWB
 
     UIUX( UX-макет )
     APPB(( Программ.<br>Власов ))
@@ -74,6 +75,7 @@ flowchart LR
     DSFW ---> FWD
     DSP ---> FWD
     DSFWDB ---> FWD
+    DSFWL ---> FWD
     FWB ---> FWD
 
     APPD(( Программ.<br>Худяков ))
@@ -108,6 +110,7 @@ flowchart LR
     style DSFWB fill:#E0E0E0,stroke:#999
     style DSAPPB fill:#E0E0E0,stroke:#999
     style DSFWDB fill:#E0E0E0,stroke:#999
+    style DSFWL fill:#E0E0E0,stroke:#999
     style FW fill:#505050,stroke:#999,color:#fff
     style APP fill:#505050,stroke:#999,color:#fff
 
@@ -123,5 +126,6 @@ flowchart LR
     click DSFWB "PDS/SynapsePDS_FW_Bluetooth.html"
     click DSAPPB "PDS/SynapsePDS_APP_Bluetooth.html"
     click DSFWDB "PDS/SynapsePDS_FW_DB.html"
+    click DSFWL "PDS/SynapsePDS_FW_Logic.html"
 
 ```
