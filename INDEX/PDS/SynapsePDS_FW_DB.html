@@ -164,19 +164,22 @@
 <h2 id="2-основные-положения">2. Основные положения</h2>
 <p>2.1. "Таблицы" БД  в прошивке разложены в массивы структур C. Тем не мнее ниже они простоты для представляются именн как таблицы.</p>
 <h2 id="3-таблицы">3. Таблицы</h2>
-<p>3.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллере. Имеет одну запись.</p>
+<h3 id="33-controllers">3.3. CONTROLLERS</h3>
+<p>Корневая таблица с информацией о контроллере. Имеет одну запись.</p>
 <ul>
 <li><strong>NAME</strong> (char[20]) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
 <li><strong>PASSWORD</strong> (char[4]) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
 <li><strong>IS_SCHEDULE</strong> (_Bool) — T/F — включена ли в контроллере работа по расписанию;</li>
 <li><strong>ICO_NUM</strong> (uint8_t) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 </ul>
-<p>3.4. <strong>LOCATIONS</strong> — локации.</p>
+<h3 id="34-locations">3.4. LOCATIONS</h3>
+<p>Локации.</p>
 <ul>
 <li><strong>NUM</strong> (uint8_t) — номер локации для идентификации локации в прошивке;</li>
 <li><strong>IS_AUTO</strong> (_Bool) — работает ли локация в автоматическом режиме по датчикам (0/1).</li>
 </ul>
-<p>3.5. <strong>LUMINAIRES</strong> — светильники.</p>
+<h3 id="35-luminaires">3.5. LUMINAIRES</h3>
+<p>Светильники.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI;</li>
 <li><strong>LOCATION_NUM</strong> (uint8_t) — идентификатор локации для привязки светильника к ней в прошивке;</li>
@@ -188,7 +191,8 @@
 <li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 </ul>
-<p>3.6. <strong>SCENE_LUMINAIRES</strong> — параметры светильников в сценах.</p>
+<h3 id="36-scene-luminaires">3.6. SCENE_LUMINAIRES</h3>
+<p>Параметры светильников в сценах.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t) — адрес светильника в DALI;</li>
 <li><strong>SCENE_NUM</strong> (uint8_t*) — номер сцены в DALI;</li>
@@ -199,12 +203,14 @@
 <li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 </ul>
-<p>3.7. <strong>GROUPS</strong> — группы светильников.</p>
+<h3 id="37-groups">3.7. GROUPS</h3>
+<p>Группы светильников.</p>
 <ul>
 <li><strong>LOCATION_NUM</strong> (uint8_t) — идентификатор локации для привязки группы к ней в прошивке;</li>
 <li><strong>DALI_NUM</strong> (uint8_t) — номер группы в DALIs.</li>
 </ul>
-<p>3.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
+<h3 id="38-pres-sensors">3.8. PRES_SENSORS</h3>
+<p>Датчики присутствия.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI датчика;</li>
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
@@ -212,30 +218,35 @@
 <li><strong>ACTION_VACANCY_NUM</strong> (uint8_t) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>DELAY</strong> (uint8_t) — задержка HOLD_TIME.</li>
 </ul>
-<p>3.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
+<h3 id="39-bright-sensors">3.9. BRIGHT_SENSORS</h3>
+<p>Датчики освещённости.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес датчика в DALI;</li>
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
 <li><strong>GROUP_NUM</strong> (uint8_t) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
 </ul>
-<p>3.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
+<h3 id="310-button-panels">3.10. BUTTON_PANELS</h3>
+<p>Кнопочные панели.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес панели в DALI;</li>
 </ul>
-<p>3.11. <strong>BUTTONS</strong> — кнопки.</p>
+<h3 id="311-buttons">3.11. BUTTONS</h3>
+<p>Кнопки.</p>
 <ul>
 <li><strong>DALI_ADDR</strong> (uint8_t*) — короткий адрес DALI панели;</li>
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса кнопки в DALI;</li>
 <li><strong>ACTION_SET_SHORT_NUM</strong> (uint8_t) — действие по короткому нажатию; 0 — не повешено действие;</li>
 <li><strong>ACTION_LONG_NUM</strong> (uint8_t) — действие по долгому нажатию; 0 — не повешено действие.</li>
 </ul>
-<p>3.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
+<h3 id="312-actions">3.12. ACTIONS</h3>
+<p>Действия с устройствами.</p>
 <ul>
 <li><strong>ACTION_SET_NUM</strong> (uint8_t) — привязка к набору действий; если действие не входит ни в какой набор - 0 (для прошивки);</li>
 <li><strong>NUM</strong> (uint8_t) — номер действия для идентификации действия в прошивке.</li>
 <li><strong>POS</strong> (uint8_t) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
-<p>3.13. <strong>SUBACTIONS</strong> — поддействия с устройствами (команды для пользователя).</p>
+<h3 id="313-subactions">3.13. SUBACTIONS</h3>
+<p>Поддействия с устройствами (команды для пользователя).</p>
 <ul>
 <li><strong>ACTION_NUM</strong> (uint8_t) — действие (для прошивки);</li>
 <li><strong>OBJECT_TYPE</strong> (uint8_t) — тип объекта изменений:<ul>
@@ -263,7 +274,8 @@
   <li><strong>NUM</strong> (uint8_t) — номер набора действий для идентификации в прошивке; начинается с 1
   </li>
 </ul>
-<p>3.15. <strong>EVENTS</strong> — события расписания.</p>
+<h3 id="315-events">3.15. EVENTS</h3>
+<p>События расписания.</p>
 <ul>
 <li><strong>DAYS</strong> (char[7]) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
 <li><strong>TIME</strong> (char[4]) — время события с точностью до минуты в формате HHMM 24H;</li>

@@ -219,7 +219,8 @@
 </ul>
 <h2 id="3-таблицы">3. Таблицы</h2>
 <p>3.1. <strong>Рабочие</strong> данные помечены в таблицах ниже жирным.</p>
-<p>3.3. <strong>CONTROLLERS</strong> — корневая таблица с информацией о контроллерах. В прошивке имеет одну запись.</p>
+<h3 id="33-controllers">3.3. CONTROLLERS</h3>
+<p>Корневая таблица с информацией о контроллерах. В прошивке имеет одну запись.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>SCALE (INTEGER) — масштаб сетки с иконками локаций на странице контроллера;</li>
@@ -228,7 +229,8 @@
 <li><strong>IS_SCHEDULE</strong> (INTEGER) — T/F — включена ли в контроллере работа по расписанию;</li>
 <li><strong>ICO_NUM</strong> (INTEGER) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 </ul>
-<p>3.4. <strong>LOCATIONS</strong> — локации.</p>
+<h3 id="34-locations">3.4. LOCATIONS</h3>
+<p>Локации.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название локации;</li>
@@ -240,7 +242,8 @@
 <li><strong>NUM</strong> (INTEGER) — номер локации для идентификации локации в прошивке;</li>
 <li><strong>IS_AUTO</strong> (INTEGER) — работает ли локация в автоматическом режиме по датчикам (0/1).</li>
 </ul>
-<p>3.5. <strong>LUMINAIRES</strong> — светильники.</p>
+<h3 id="35-luminaires">3.5. LUMINAIRES</h3>
+<p>Светильники.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название светильника;</li>
@@ -259,7 +262,8 @@
 <li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
 </ul>
-<p>3.6. <strong>SCENE_LUMINAIRES</strong> — параметры светильников в сценах.</p>
+<h3 id="36-scene-luminaires">3.6. SCENE_LUMINAIRES</h3>
+<p>Параметры светильников в сценах.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>LUMINAIRE_ID (INTEGER, FK) — светильник в приложении;</li>
@@ -272,7 +276,8 @@
 <li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
 </ul>
-<p>3.7. <strong>GROUPS</strong> — группы светильников.</p>
+<h3 id="37-groups">3.7. GROUPS</h3>
+<p>Группы светильников.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название группы;</li>
@@ -280,7 +285,8 @@
 <li><strong>LOCATION_NUM</strong> (INTEGER) — идентификатор локации для привязки группы к ней в прошивке;</li>
 <li><strong>DALI_NUM</strong> (INTEGER) — номер группы в DALI.</li>
 </ul>
-<p>3.8. <strong>PRES_SENSORS</strong> — датчики присутствия.</p>
+<h3 id="38-pres-sensors">3.8. PRES_SENSORS</h3>
+<p>Датчики присутствия.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
@@ -293,7 +299,8 @@
 <li><strong>ACTION_VACANCY_NUM</strong> (INTEGER) — номер действия для прошивки; 0 — не повешено действие;</li>
 <li><strong>DELAY</strong> (INTEGER) — задержка HOLD_TIME.</li>
 </ul>
-<p>3.9. <strong>BRIGHT_SENSORS</strong> — датчики освещённости.</p>
+<h3 id="39-bright-sensors">3.9. BRIGHT_SENSORS</h3>
+<p>Датчики освещённости.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название датчика;</li>
@@ -303,14 +310,16 @@
 <li><strong>DALI_INST</strong> (INTEGER) — номер инстанса датчика движения в DALI;</li>
 <li><strong>GROUP_NUM</strong> (INTEGER) — номер группы в DALI, которой управляет датчик; 255, если не назначена группа.</li>
 </ul>
-<p>3.10. <strong>BUTTON_PANELS</strong> — кнопочные панели.</p>
+<h3 id="310-button-panels">3.10. BUTTON_PANELS</h3>
+<p>Кнопочные панели.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название панели;</li>
 <li>LOCATION_ID (INTEGER, FK);</li>
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес панели в DALI;</li>
 </ul>
-<p>3.11. <strong>BUTTONS</strong> — кнопки.</p>
+<h3 id="311-buttons">3.11. BUTTONS</h3>
+<p>Кнопки.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>NAME (TEXT) — название кнопки на панели;</li>
@@ -322,7 +331,8 @@
 <li><strong>ACTION_SET_SHORT_NUM</strong> (INTEGER) — действие по короткому нажатию; 0 — не повешено действие;</li>
 <li><strong>ACTION_LONG_NUM</strong> (INTEGER) — действие по долгому нажатию; 0 — не повешено действие.</li>
 </ul>
-<p>3.12. <strong>ACTIONS</strong> — действия с устройствами.</p>
+<h3 id="312-actions">3.12. ACTIONS</h3>
+<p>Действия с устройствами.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_SET_ID  (INTEGER, FK) - привязка к набору действий; если действие не входит ни в какой набор - NULL</li>
@@ -330,7 +340,8 @@
 <li><strong>NUM</strong> (INTEGER) — номер действия для идентификации действия в прошивке.</li>
 <li><strong>POS</strong> (INTEGER) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
-<p>3.13. <strong>SUBACTIONS</strong> — поддействия с устройствами (команды для пользователя).</p>
+<h3 id="313-subactions">3.13. SUBACTIONS</h3>
+<p>Поддействия с устройствами (команды для пользователя).</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
@@ -355,14 +366,16 @@
 </ul>
 </li>
 </ul>
-<p>3.14. <strong>ACTION_SETS</strong> — наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
+<h3 id="314-action-sets">3.14. ACTION_SETS</h3>
+<p>Наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
 <ul>
   <li>ID (INTEGER, PK) — идентификатор в приложении;
   </li>
   <li><strong>NUM</strong> (INTEGER) — номер набора действий для идентификации в прошивке; начинается с 1
   </li>
 </ul>
-<p>3.15. <strong>EVENTS</strong> — события расписания.</p>
+<h3 id="315-events">3.15. EVENTS</h3>
+<p>События расписания.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в приложении;</li>
 <li>ACTION_ID (INTEGER) — действие (для приложения);</li>
