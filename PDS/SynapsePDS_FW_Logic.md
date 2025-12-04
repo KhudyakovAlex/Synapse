@@ -54,7 +54,7 @@
 - ICO_NUM — номер иконки контроллера (целое, значения 100..199)
 - INTERFACE_DATA — интерфейсные данные (энное количество байтов; см. ниже)
 
-3.2. Все эти данные хранятся в единственной записи в таблице **[CONTROLLERS](SynapsePDS_FW_DB.md#33-controllers)**.
+3.2. Все эти данные хранятся в единственной записи в таблице **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.
 
 3.2. Часть данных, которые контроллер хранит в постоянной памяти, являются интерфейсными — используемыми только приложениями. Их прошивка хранит единым блоком для синхронизации между несколькими телефонами. Единым блоком эти данные попадают в прошивку, единым блоком она приложению их и отдаёт. 
 
@@ -91,13 +91,13 @@ sequenceDiagram
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(START)]`.
 
-- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.md#33-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.md#33-controllers)**.IS_SCHEDULE = F.
+- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_SCHEDULE = F.
 
 - Широковещательно выключаются в линии все светильники и светодиоды кнопочных панелей.
 
 - Раздаются короткие DALI-адреса светильникам. Светильник, получивший адрес, включается на макс.
 
-- Светильники добавляются в таблицу **[LUMINAIRES](SynapsePDS_FW_DB.md#35-luminaires)**.
+- Светильники добавляются в таблицу **[LUMINAIRES](SynapsePDS_FW_DB.html#35-luminaires)**.
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(LUM_CREATED)]`.
 
@@ -111,7 +111,7 @@ sequenceDiagram
 
 - Раздаются короткие DALI-адреса устройствам управления.
 
-- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.md#310-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.md#311-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.md#38-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.md#39-bright-sensors)**.
+- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#310-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#311-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#38-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#39-bright-sensors)**.
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(FINISH)]`.
 

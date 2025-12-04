@@ -105,7 +105,7 @@
   <li>INTERFACE_DATA — интерфейсные данные (энное количество байтов; см. ниже)
   </li>
 </ul>
-<p>3.2. Все эти данные хранятся в единственной записи в таблице <strong><a href="SynapsePDS_FW_DB.md#33-controllers">CONTROLLERS</a></strong>.</p>
+<p>3.2. Все эти данные хранятся в единственной записи в таблице <strong><a href="SynapsePDS_FW_DB.html#33-controllers">CONTROLLERS</a></strong>.</p>
 <p>3.2. Часть данных, которые контроллер хранит в постоянной памяти, являются интерфейсными — используемыми только приложениями. Их прошивка хранит единым блоком для синхронизации между несколькими телефонами. Единым блоком эти данные попадают в прошивку, единым блоком она приложению их и отдаёт. </p>
 <p>3.3. Передача данных от приложения контроллеру (здесь и далее изменение названия):
 <a href="../PDS/SynapsePDS_USML.html#42-contr-работа-с-контроллером" title="См. 4.2. CONTR_ в USML"><code>[FW.CONTR_SET_NAME(...)]</code></a></p>
@@ -134,7 +134,7 @@
 <p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(START)]</code></a>.</p>
 </li>
 <li>
-<p>Очищаются все таблицы кроме <strong><a href="SynapsePDS_FW_DB.md#33-controllers">CONTROLLERS</a></strong>. Устанавливается <strong><a href="SynapsePDS_FW_DB.md#33-controllers">CONTROLLERS</a></strong>.IS_SCHEDULE = F.</p>
+<p>Очищаются все таблицы кроме <strong><a href="SynapsePDS_FW_DB.html#33-controllers">CONTROLLERS</a></strong>. Устанавливается <strong><a href="SynapsePDS_FW_DB.html#33-controllers">CONTROLLERS</a></strong>.IS_SCHEDULE = F.</p>
 </li>
 <li>
 <p>Широковещательно выключаются в линии все светильники и светодиоды кнопочных панелей.</p>
@@ -143,7 +143,7 @@
 <p>Раздаются короткие DALI-адреса светильникам. Светильник, получивший адрес, включается на макс.</p>
 </li>
 <li>
-<p>Светильники добавляются в таблицу <strong><a href="SynapsePDS_FW_DB.md#35-luminaires">LUMINAIRES</a></strong>.</p>
+<p>Светильники добавляются в таблицу <strong><a href="SynapsePDS_FW_DB.html#35-luminaires">LUMINAIRES</a></strong>.</p>
 </li>
 <li>
 <p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(LUM_CREATED)]</code></a>.</p>
@@ -164,7 +164,7 @@
 <p>Раздаются короткие DALI-адреса устройствам управления.</p>
 </li>
 <li>
-<p>Устройства управления добавляются в таблицы <strong><a href="SynapsePDS_FW_DB.md#310-button-panels">BUTTON_PANELS</a></strong>, <strong><a href="SynapsePDS_FW_DB.md#311-buttons">BUTTONS</a></strong>, <strong><a href="SynapsePDS_FW_DB.md#38-pres-sensors">PRES_SENSORS</a></strong>, <strong><a href="SynapsePDS_FW_DB.md#39-bright-sensors">BRIGHT_SENSORS</a></strong>.</p>
+<p>Устройства управления добавляются в таблицы <strong><a href="SynapsePDS_FW_DB.html#310-button-panels">BUTTON_PANELS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#311-buttons">BUTTONS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#38-pres-sensors">PRES_SENSORS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#39-bright-sensors">BRIGHT_SENSORS</a></strong>.</p>
 </li>
 <li>
 <p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(FINISH)]</code></a>.</p>
