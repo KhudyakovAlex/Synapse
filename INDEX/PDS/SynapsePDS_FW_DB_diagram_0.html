@@ -179,21 +179,20 @@
     <div class="diagram-container">
         <div class="mermaid">
 erDiagram
-    CONTROLLERS ||--o{ LOCATIONS : "имеет"
-    LOCATIONS ||--o{ LUMINAIRES : "содержит"
-    LOCATIONS ||--o{ GROUPS : "содержит"
-    LOCATIONS ||--o{ PRES_SENSORS : "датчики"
-    LOCATIONS ||--o{ BRIGHT_SENSORS : "датчики"
-    LOCATIONS ||--o{ BUTTON_PANELS : "панели"
-    GROUPS ||--o{ LUMINAIRES : "управляет"
-    GROUPS ||--o{ BRIGHT_SENSORS : "используется"
-    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "значения в сценах"
-    BUTTON_PANELS ||--o{ BUTTONS : "кнопки"
-    ACTION_SETS ||--o{ BUTTONS : "перебор"
-    ACTIONS ||--o{ BUTTONS : "назначено"
-    ACTIONS ||--o{ PRES_SENSORS : "действует"
-    ACTIONS ||--o{ EVENTS : "расписание"
-    ACTIONS ||--o{ SUBACTIONS : "состоит"
+    LOCATIONS ||--o{ LUMINAIRES : "LOCATION_NUM"
+    LOCATIONS ||--o{ GROUPS : "LOCATION_NUM"
+    LOCATIONS ||--o{ PRES_SENSORS : "LOCATION"
+    LOCATIONS ||--o{ BRIGHT_SENSORS : "LOCATION"
+    LOCATIONS ||--o{ BUTTON_PANELS : "LOCATION"
+    GROUPS ||--o{ LUMINAIRES : "GROUP_NUM"
+    GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_NUM"
+    LUMINAIRES ||--o{ SCENE_LUMINAIRES : "DALI_ADDR"
+    BUTTON_PANELS ||--o{ BUTTONS : "DALI_ADDR"
+    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_NUM"
+    ACTIONS ||--o{ BUTTONS : "NUM"
+    ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_NUM/ACTION_VACANCY_NUM"
+    ACTIONS ||--o{ EVENTS : "ACTION_NUM"
+    ACTIONS ||--o{ SUBACTIONS : "ACTION_NUM"
 
     CONTROLLERS {
         CHAR20 NAME
