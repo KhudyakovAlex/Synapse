@@ -421,8 +421,14 @@ class MarkdownConverter:
             'PDS/SynapsePDS_APP_DB.md': 'PDS/SynapsePDS_APP_DB.html',
             'SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
             'PDS/SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
+            'SynapsePDS_APP_DB_scheme.md': 'PDS/SynapsePDS_APP_DB_scheme.html',
+            'PDS/SynapsePDS_APP_DB_scheme.md': 'PDS/SynapsePDS_APP_DB_scheme.html',
+            'SynapsePDS_FW_DB_scheme.md': 'PDS/SynapsePDS_FW_DB_scheme.html',
+            'PDS/SynapsePDS_FW_DB_scheme.md': 'PDS/SynapsePDS_FW_DB_scheme.html',
             'SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
             'PDS/SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
+            'SynapsePDS_FW_DB.md': 'PDS/SynapsePDS_FW_DB.html',
+            'PDS/SynapsePDS_FW_DB.md': 'PDS/SynapsePDS_FW_DB.html',
             'SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
             'PDS/SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
             'SynapsePDS_FW_Logic.md': 'PDS/SynapsePDS_FW_Logic.html',
@@ -853,9 +859,13 @@ class MarkdownConverter:
         # Preprocess markdown to fix list formatting
         md_content = self.preprocess_markdown(md_content)
         
-        # Special handling for SynapsePDS_APP_DB.md - inject schema from SynapsePDS_DB_scheme.md
-        if md_file.name == 'SynapsePDS_APP_DB.md':
-            scheme_file = md_file.parent / 'SynapsePDS_DB_scheme.md'
+        # Special handling for database files - inject schema from corresponding scheme file
+        scheme_mapping = {
+            'SynapsePDS_APP_DB.md': 'SynapsePDS_APP_DB_scheme.md',
+            'SynapsePDS_FW_DB.md': 'SynapsePDS_FW_DB_scheme.md',
+        }
+        if md_file.name in scheme_mapping:
+            scheme_file = md_file.parent / scheme_mapping[md_file.name]
             if scheme_file.exists():
                 with open(scheme_file, 'r', encoding='utf-8') as f:
                     scheme_content = f.read()
