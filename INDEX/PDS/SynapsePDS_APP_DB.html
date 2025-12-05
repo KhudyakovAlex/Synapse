@@ -217,7 +217,7 @@
 <p>2.5. Значения в полях ID этой базы (кроме CONTROLLERS) соответствуют индексам соответствующих элементов в соответствующих массивах БД прошивки.</p>
 <h2 id="3-таблицы">3. Таблицы</h2>
 <p><strong>Рабочие</strong> данные помечены в таблицах ниже жирным.</p>
-<h3 id="32-controllers">3.2. CONTROLLERS</h3>
+<h3 id="31-controllers">3.1. CONTROLLERS</h3>
 <p>Таблица с информацией о контроллерах, к которым коннектились и которые не удалили. Чтобы видеть контроллеры, с которыми в данный момент не на связи, и чтобы не вводить пароли, если уже их правильно вводили.</p>
 <ul>
 <li>ID (INTEGER, PK)</li>
@@ -230,7 +230,7 @@
 <li><strong>STATUS</strong> (TEXT) — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
 <li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная в для всего объекта (0,1,2,3,4)</li>
 </ul>
-<h3 id="33-locations">3.3. LOCATIONS</h3>
+<h3 id="32-locations">3.2. LOCATIONS</h3>
 <p>Локации.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -243,7 +243,7 @@
 <li><strong>IS_AUTO</strong> (TEXT) — работает ли локация в автоматическом режиме по датчикам (T/F).</li>
 <li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная в этой локации (0,1,2,3,4)</li>
 </ul>
-<h3 id="34-groups">3.4. GROUPS</h3>
+<h3 id="33-groups">3.3. GROUPS</h3>
 <p>Группы светильников.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -253,7 +253,7 @@
 <li><strong>DALI_NUM</strong> (INTEGER) — номер группы в DALI.</li>
 <li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная в этой группе (0,1,2,3,4)</li>
 </ul>
-<h3 id="35-luminaires">3.5. LUMINAIRES</h3>
+<h3 id="34-luminaires">3.4. LUMINAIRES</h3>
 <p>Светильники.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -273,7 +273,7 @@
 <li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
 <li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
 </ul>
-<h3 id="36-scene-luminaires">3.6. SCENE_LUMINAIRES</h3>
+<h3 id="35-scene-luminaires">3.5. SCENE_LUMINAIRES</h3>
 <p>Параметры светильников в сценах.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -286,7 +286,7 @@
 <li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
 </ul>
-<h3 id="37-pres-sensors">3.7. PRES_SENSORS</h3>
+<h3 id="36-pres-sensors">3.6. PRES_SENSORS</h3>
 <p>Датчики присутствия.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -299,7 +299,7 @@
 <li><strong>ACTION_VACANCY_ID</strong> (INTEGER) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
 <li><strong>DELAY</strong> (INTEGER) — задержка HOLD_TIME.</li>
 </ul>
-<h3 id="38-bright-sensors">3.8. BRIGHT_SENSORS</h3>
+<h3 id="37-bright-sensors">3.7. BRIGHT_SENSORS</h3>
 <p>Датчики освещённости.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -310,7 +310,7 @@
 <li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
 <li><strong>GROUP_ID</strong> (INTEGER) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
 </ul>
-<h3 id="39-button-panels">3.9. BUTTON_PANELS</h3>
+<h3 id="38-button-panels">3.8. BUTTON_PANELS</h3>
 <p>Кнопочные панели.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -319,7 +319,7 @@
 <li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес панели в DALI;</li>
 <li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
 </ul>
-<h3 id="310-buttons">3.10. BUTTONS</h3>
+<h3 id="39-buttons">3.9. BUTTONS</h3>
 <p>Кнопки.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -330,7 +330,7 @@
 <li><strong>ACTION_SET_SHORT_ID</strong> (INTEGER) — действие по короткому нажатию; -1 — не повешено действие;</li>
 <li><strong>ACTION_LONG_ID</strong> (INTEGER) — действие по долгому нажатию; -1 — не повешено действие.</li>
 </ul>
-<h3 id="311-actions">3.11. ACTIONS</h3>
+<h3 id="310-actions">3.10. ACTIONS</h3>
 <p>Действия с устройствами.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -338,7 +338,7 @@
 <li><strong>ACTION_SET_ID</strong> (INTEGER) — привязка к набору действий; если действие не входит ни в какой набор: -1;</li>
 <li><strong>POS</strong> (INTEGER) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
-<h3 id="312-subactions">3.12. SUBACTIONS</h3>
+<h3 id="311-subactions">3.11. SUBACTIONS</h3>
 <p>Поддействия с устройствами (команды для пользователя).</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
@@ -364,13 +364,13 @@
 </ul>
 </li>
 </ul>
-<h3 id="313-action-sets">3.13. ACTION_SETS</h3>
+<h3 id="312-action-sets">3.12. ACTION_SETS</h3>
 <p>Наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
 <li><strong>EXIST</strong> (TEXT) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F)</li>
 </ul>
-<h3 id="314-events">3.14. EVENTS</h3>
+<h3 id="313-events">3.13. EVENTS</h3>
 <p>События расписания.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>

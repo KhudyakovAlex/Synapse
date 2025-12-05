@@ -179,24 +179,17 @@
     <div class="diagram-container">
         <div class="mermaid">
 flowchart LR
-    LLM(LLM)
-
     subgraph Телефон
-        UI(UI)
-        USM(USM)
-        R(R)
+        APPUSM(APP.USM)
         C{{C}}
     end
 
     subgraph Контроллер
-        FW(FW)
+        FWUSM(FW.USM)
     end
 
-    LLM<-->R
-    R<-->UI
-    R<-->USM
-    R<-->C
-    C<-->FW
+    APPUSM<-->C
+    C<-->FWUSM
 
         </div>
     </div>
