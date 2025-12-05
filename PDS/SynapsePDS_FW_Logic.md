@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 04.12.2025
+**Последнее изменение:** 05.12.2025
 
 ## 1. Термины и определения
 
@@ -55,7 +55,7 @@
 - ICO_NUM — номер иконки контроллера (целое, значения 100..199)
 - INTERFACE_DATA — интерфейсные данные (энное количество байтов; см. ниже)
 
-3.2. Эти данные (кроме INTERFACE_DATA) хранятся в единственной записи в таблице **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.
+3.2. Эти данные (кроме INTERFACE_DATA) хранятся в единственной записи в таблице **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**.
 
 3.2. Часть данных, которые контроллер хранит в постоянной памяти, являются интерфейсными — используемыми только приложениями. Их прошивка хранит единым блоком для синхронизации между несколькими телефонами. Единым блоком эти данные попадают в прошивку, единым блоком она приложению их и отдаёт. 
 
@@ -92,7 +92,7 @@ sequenceDiagram
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(START)]`.
 
-- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_SCHEDULE = F, **[CONTROLLERS](SynapsePDS_FW_DB.html#33-controllers)**.IS_AUTO = F.
+- Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**.IS_SCHEDULE = F, **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**.IS_AUTO = F.
 
 - Широковещательно выключаются в линии все светильники и светодиоды кнопочных панелей.
 
@@ -112,7 +112,7 @@ sequenceDiagram
 
 - Раздаются короткие DALI-адреса устройствам управления.
 
-- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#310-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#311-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#38-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#39-bright-sensors)** с **LOCATION_NUM = 0** (без локации, в корне).
+- Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#39-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#310-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#37-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#38-bright-sensors)** с **LOCATION_NUM = 0** (без локации, в корне).
 
 - Отправляется телега приложению: `[FW.DALI_INIT_STATUS(FINISH)]`.
 
