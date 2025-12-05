@@ -31,6 +31,7 @@ erDiagram
         UINT8 ICO_NUM
         CHAR1 STATUS
         UINT8 SCENE_NUM
+        BLOB IDATA
     }
 
     LOCATIONS {

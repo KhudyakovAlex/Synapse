@@ -2,11 +2,10 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 04.12.2025
+**Последнее изменение:** 05.12.2025
 
 ```mermaid
 erDiagram
-    CONTROLLERS ||--o{ LOCATIONS : "CONTROLLER_ID"
     LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
     LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
     LOCATIONS ||--o| PRES_SENSORS : "LOCATION_ID nullable"
@@ -22,16 +21,18 @@ erDiagram
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
     ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
     ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
-    ACTIONS ||--o{ EVENTS : "ACTION_ID"
+    ACTION_SETS ||--o{ EVENTS : "ACTION_SET_ID"
 
     CONTROLLERS {
         INTEGER ID PK
         INTEGER SCALE
         TEXT NAME
         TEXT PASSWORD
-        INTEGER IS_SCHEDULE
-        INTEGER IS_AUTO
+        TEXT IS_SCHEDULE
+        TEXT IS_AUTO
         INTEGER ICO_NUM
+        TEXT STATUS
+        INTEGER SCENE_NUM
     }
 
     LOCATIONS {
@@ -41,9 +42,18 @@ erDiagram
         INTEGER SCALE
         INTEGER POS_X
         INTEGER POS_Y
-        INTEGER CONTROLLER_ID FK
-        INTEGER NUM
-        INTEGER IS_AUTO
+        TEXT EXIST
+        TEXT IS_AUTO
+        INTEGER SCENE_NUM
+    }
+
+    GROUPS {
+        INTEGER ID PK
+        TEXT NAME
+        TEXT EXIST
+        INTEGER LOCATION_ID FK
+        INTEGER DALI_NUM
+        INTEGER SCENE_NUM
     }
 
     LUMINAIRES {
@@ -52,99 +62,87 @@ erDiagram
         INTEGER ICO_NUM
         INTEGER POS_X
         INTEGER POS_Y
+        TEXT EXIST
+        INTEGER DALI_ADDR
         INTEGER LOCATION_ID FK
         INTEGER GROUP_ID FK
-        INTEGER DALI_ADDR
-        INTEGER LOCATION_NUM
-        INTEGER GROUP_NUM
         INTEGER VAL_BRIGHT
         INTEGER VAL_TW
         INTEGER VAL_R
         INTEGER VAL_G
         INTEGER VAL_B
         INTEGER VAL_W
+        INTEGER SCENE_NUM
     }
 
     SCENE_LUMINAIRES {
         INTEGER ID PK
-        INTEGER LUMINAIRE_ID FK
-        INTEGER DALI_ADDR
         INTEGER SCENE_NUM
+        INTEGER LUMINAIRE_ID FK
         INTEGER VAL_BRIGHT
         INTEGER VAL_TW
         INTEGER VAL_R
         INTEGER VAL_G
         INTEGER VAL_B
         INTEGER VAL_W
-    }
-
-    GROUPS {
-        INTEGER ID PK
-        TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER LOCATION_NUM
-        INTEGER DALI_NUM
     }
 
     PRES_SENSORS {
         INTEGER ID PK
         TEXT NAME
+        TEXT EXIST
+        INTEGER DALI_ADDR
+        INTEGER DALI_INST
         INTEGER LOCATION_ID FK
         INTEGER ACTION_OCCUPANCY_ID FK
         INTEGER ACTION_VACANCY_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_OCCUPANCY_NUM
-        INTEGER ACTION_VACANCY_NUM
         INTEGER DELAY
     }
 
     BRIGHT_SENSORS {
         INTEGER ID PK
         TEXT NAME
-        INTEGER LOCATION_ID FK
-        INTEGER GROUP_ID FK
+        TEXT EXIST
         INTEGER DALI_ADDR
         INTEGER DALI_INST
-        INTEGER GROUP_NUM
+        INTEGER LOCATION_ID FK
+        INTEGER GROUP_ID FK
     }
 
     BUTTON_PANELS {
         INTEGER ID PK
         TEXT NAME
-        INTEGER LOCATION_ID FK
+        TEXT EXIST
         INTEGER DALI_ADDR
+        INTEGER LOCATION_ID FK
     }
 
     BUTTONS {
         INTEGER ID PK
         TEXT NAME
+        TEXT EXIST
         INTEGER BUTTON_PANEL_ID FK
+        INTEGER DALI_INST
         INTEGER ACTION_SET_SHORT_ID FK
         INTEGER ACTION_LONG_ID FK
-        INTEGER DALI_ADDR
-        INTEGER DALI_INST
-        INTEGER ACTION_SET_SHORT_NUM
-        INTEGER ACTION_LONG_NUM
-    }
-
-    ACTION_SETS {
-        INTEGER ID PK
-        INTEGER NUM
     }
 
     ACTIONS {
         INTEGER ID PK
+        TEXT EXIST
         INTEGER ACTION_SET_ID FK
-        INTEGER ACTION_SET_NUM
-        INTEGER NUM
         INTEGER POS
+    }
+
+    ACTION_SETS {
+        INTEGER ID PK
+        TEXT EXIST
     }
 
     SUBACTIONS {
         INTEGER ID PK
+        TEXT EXIST
         INTEGER ACTION_ID FK
-        INTEGER ACTION_NUM
         INTEGER OBJECT_TYPE
         INTEGER OBJECT_NUM
         INTEGER VALUE
@@ -152,10 +150,10 @@ erDiagram
 
     EVENTS {
         INTEGER ID PK
-        INTEGER ACTION_ID FK
+        TEXT EXIST
         TEXT DAYS
         TEXT TIME
-        INTEGER SMOOTH
-        INTEGER ACTION_NUM
+        TEXT SMOOTH
+        INTEGER ACTION_SET_ID FK
     }
 ```
