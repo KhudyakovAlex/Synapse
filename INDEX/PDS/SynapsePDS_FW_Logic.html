@@ -53,7 +53,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 05.12.2025</p>
+<p><strong>Последнее изменение:</strong> 06.12.2025</p>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
 <p>1.1. <strong>Прошивка</strong> — firmware в контроллере.</p>
 <p>1.2. <strong>Приложение</strong> — интерфейсное мобильное приложение в телефоне.</p>
@@ -75,11 +75,11 @@
 <p>2.9. Схема взаимодействия в общих чертах:</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_Logic_diagram_0.html">flowchart TB
     SAW((Автономная<br>работа<br>контроллера))
-    BC(блютус-подключение<br>телефона<br>к контроллеру)
+    BC(Блютус-подключение<br>телефона<br>к контроллеру)
     DD(Загрузка USM<br>контроллера в телефон)
     P{Ввод пароля<br>пользователем}
-    W(обмен телегами<br>прошивки и приложения)
-    BDC(блютус-отключение)
+    W(Обмен телегами<br>прошивки и приложения)
+    BDC(Блютус-отключение)
     EAW((Автономная<br>работа<br>контроллера))
 
     SAW-->BC
@@ -120,7 +120,7 @@
 <p>Прошивка получает от приложения телегу <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT()]</code></a>.</p>
 </li>
 <li>
-<p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(START)]</code></a>.</p>
+<p>Отправляется телега приложению: <code>[(START)]</code>.</p>
 </li>
 <li>
 <p>Очищаются все таблицы кроме <strong><a href="SynapsePDS_FW_DB.html#32-controllers">CONTROLLERS</a></strong>. Устанавливается <strong><a href="SynapsePDS_FW_DB.html#32-controllers">CONTROLLERS</a></strong>.IS_SCHEDULE = F, <strong><a href="SynapsePDS_FW_DB.html#32-controllers">CONTROLLERS</a></strong>.IS_AUTO = F.</p>
@@ -135,7 +135,7 @@
 <p>Светильники добавляются в таблицу <strong><a href="SynapsePDS_FW_DB.html#35-luminaires">LUMINAIRES</a></strong> с <strong>LOCATION_NUM = 0</strong> (без локации, в корне).</p>
 </li>
 <li>
-<p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(LUM_CREATED)]</code></a>.</p>
+<p>Отправляется телега приложению: <code>[(LUM_CREATED)]</code>.</p>
 </li>
 <li>
 <p>В светильники в линии DALI записываются значения для сцен 0..4.  </p>
@@ -147,7 +147,7 @@
 </ul>
 </li>
 <li>
-<p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(LUM_READY)]</code></a>.</p>
+<p>Отправляется телега приложению: <code>[(LUM_READY)]</code>.</p>
 </li>
 <li>
 <p>Раздаются короткие DALI-адреса устройствам управления.</p>
@@ -156,7 +156,7 @@
 <p>Устройства управления добавляются в таблицы <strong><a href="SynapsePDS_FW_DB.html#39-button-panels">BUTTON_PANELS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#310-buttons">BUTTONS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#37-pres-sensors">PRES_SENSORS</a></strong>, <strong><a href="SynapsePDS_FW_DB.html#38-bright-sensors">BRIGHT_SENSORS</a></strong> с <strong>LOCATION_NUM = 0</strong> (без локации, в корне).</p>
 </li>
 <li>
-<p>Отправляется телега приложению: <a href="../PDS/SynapsePDS_USML.html#41-dali-работа-с-линией-dali" title="См. 4.1. DALI_ в USML"><code>[FW.DALI_INIT_STATUS(FINISH)]</code></a>.</p>
+<p>Отправляется телега приложению: <code>[(FINISH)]</code>.</p>
 </li>
 </ul>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_Logic_diagram_1.html">sequenceDiagram

@@ -35,11 +35,11 @@
 ```mermaid
 flowchart TB
     SAW((Автономная<br>работа<br>контроллера))
-    BC(блютус-подключение<br>телефона<br>к контроллеру)
+    BC(Блютус-подключение<br>телефона<br>к контроллеру)
     DD(Загрузка USM<br>контроллера в телефон)
     P{Ввод пароля<br>пользователем}
-    W(обмен телегами<br>прошивки и приложения)
-    BDC(блютус-отключение)
+    W(Обмен телегами<br>прошивки и приложения)
+    BDC(Блютус-отключение)
     EAW((Автономная<br>работа<br>контроллера))
 
     SAW-->BC
@@ -79,7 +79,7 @@ flowchart TB
 
 - Прошивка получает от приложения телегу `[FW.DALI_INIT()]`.
 
-- Отправляется телега приложению: `[FW.DALI_INIT_STATUS(START)]`.
+- Отправляется телега приложению: `[(START)]`.
 
 - Очищаются все таблицы кроме **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**. Устанавливается **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**.IS_SCHEDULE = F, **[CONTROLLERS](SynapsePDS_FW_DB.html#32-controllers)**.IS_AUTO = F.
 
@@ -89,7 +89,7 @@ flowchart TB
 
 - Светильники добавляются в таблицу **[LUMINAIRES](SynapsePDS_FW_DB.html#35-luminaires)** с **LOCATION_NUM = 0** (без локации, в корне).
 
-- Отправляется телега приложению: `[FW.DALI_INIT_STATUS(LUM_CREATED)]`.
+- Отправляется телега приложению: `[(LUM_CREATED)]`.
 
 - В светильники в линии DALI записываются значения для сцен 0..4.  
     - реле (тип 7) яркость: 0 - 0%, 1..4 - 100%
@@ -97,13 +97,13 @@ flowchart TB
     - RGB, RGBW (тип 8): красный цвет яркостью от 0, 25, 50, 75, 100%
     - TW (тип 8) яркости: 0, 25, 50, 75, 100% соответственно и температуру везде 4000K
 
-- Отправляется телега приложению: `[FW.DALI_INIT_STATUS(LUM_READY)]`.
+- Отправляется телега приложению: `[(LUM_READY)]`.
 
 - Раздаются короткие DALI-адреса устройствам управления.
 
 - Устройства управления добавляются в таблицы **[BUTTON_PANELS](SynapsePDS_FW_DB.html#39-button-panels)**, **[BUTTONS](SynapsePDS_FW_DB.html#310-buttons)**, **[PRES_SENSORS](SynapsePDS_FW_DB.html#37-pres-sensors)**, **[BRIGHT_SENSORS](SynapsePDS_FW_DB.html#38-bright-sensors)** с **LOCATION_NUM = 0** (без локации, в корне).
 
-- Отправляется телега приложению: `[FW.DALI_INIT_STATUS(FINISH)]`.
+- Отправляется телега приложению: `[(FINISH)]`.
 
 ```mermaid
 sequenceDiagram
