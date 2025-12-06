@@ -61,7 +61,7 @@ flowchart LR
 
 - **Content** - блок байтов; часть данных USM, ограничиваемая TABLE и FIELD;  
    
-Т.о. в телеге может отсутсвовать как TABLE так и FIELD, но если есть FIELD должна быть и TABLE. Более того, в последнем случае должна быть конкретизирована запись таблицы, передать заначения какого-то поля всех записей таблицы нельзя.
+Т.о. в телеге может отсутствовать как TABLE так и FIELD, но если есть FIELD должна быть и TABLE. Более того, в последнем случае должна быть конкретизирована запись таблицы, передать значения какого-то поля всех записей таблицы нельзя.
 
 Варианты / примеры:
 
@@ -135,8 +135,7 @@ flowchart LR
 - **ACTION_VACANCY_ID** (short)
 - **DELAY** (uint8_t)
 
-### 3.7. BRIGHT_SENSORS
-
+**BRIGHT_SENSORS**
 - **ID** (short)
 - **EXIST** (char[1])
 - **DALI_ADDR** (uint8_t)
@@ -150,8 +149,7 @@ flowchart LR
 - **DALI_ADDR** (uint8_t)
 - **LOCATION_ID** (short)
 
-### 3.9. BUTTONS
-
+**BUTTONS**
 - **ID** (short)
 - **EXIST** (char[1])
 - **BUTTON_PANEL_ID** (short)
@@ -186,6 +184,6 @@ flowchart LR
 - **ACTION_SET_ID** (short)
 
 
-## 8. Вопросы
+## 4. Вопросы
 
-## 9. Идеи
+## 5. Идеи
