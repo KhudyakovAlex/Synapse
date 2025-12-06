@@ -114,6 +114,198 @@
 <li>SET.LOCATION[7](пукп уа ум9) - запись таблицы LOCATION с ID = 7</li>
 <li>SET.LOCATION[7].NAME(Хрень) - значение поля NAME в записи таблицы LOCATION с ID = 7</li>
 </ol>
+<h3 id="32-формат-блока-content">3.2 Формат блока Content</h3>
+<p>3.2.1. При формировании Content важен порядок, в котором в него добавляются таблицы, записи, поля записей, и размер типов добавляемых значений. Чтобы кто-то правильно прочитал кто-то должен сначала правильно записать!</p>
+<p>3.2.2. Вот единственно верный порядок-структура:</p>
+<p><strong>CONTROLLERS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>NAME</strong> (char[20])
+  </li>
+  <li><strong>PASSWORD</strong> (char[4])
+  </li>
+  <li><strong>IS_SCHEDULE</strong> (char[1])
+  </li>
+  <li><strong>IS_AUTO</strong> (char[1])
+  </li>
+  <li><strong>ICO_NUM</strong> (uint8_t)
+  </li>
+  <li><strong>STATUS</strong> (char[1])
+  </li>
+  <li><strong>SCENE_NUM</strong> (uint8_t)
+  </li>
+  <li><strong>IDATA</strong> (BLOB(50000))
+  </li>
+</ul>
+<p><strong>LOCATIONS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>IS_AUTO</strong> (char[1])
+  </li>
+  <li><strong>SCENE_NUM</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>GROUPS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>LOCATION_ID</strong> (short)
+  </li>
+  <li><strong>DALI_NUM</strong> (uint8_t)
+  </li>
+  <li><strong>SCENE_NUM</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>LUMINAIRES</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>DALI_ADDR</strong> (uint8_t)
+  </li>
+  <li><strong>LOCATION_ID</strong> (short)
+  </li>
+  <li><strong>GROUP_ID</strong> (short)
+  </li>
+  <li><strong>VAL_BRIGHT</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_TW</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_R</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_G</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_B</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_W</strong> (uint8_t)
+  </li>
+  <li><strong>SCENE_NUM</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>SCENE_LUMINAIRES</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>SCENE_NUM</strong> (uint8_t)
+  </li>
+  <li><strong>LUMINAIRE_ID</strong> (short)
+  </li>
+  <li><strong>VAL_BRIGHT</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_TW</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_R</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_G</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_B</strong> (uint8_t)
+  </li>
+  <li><strong>VAL_W</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>PRES_SENSORS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>DALI_ADDR</strong> (uint8_t)
+  </li>
+  <li><strong>DALI_INST</strong> (uint8_t)
+  </li>
+  <li><strong>LOCATION_ID</strong> (short)
+  </li>
+  <li><strong>ACTION_OCCUPANCY_ID</strong> (short)
+  </li>
+  <li><strong>ACTION_VACANCY_ID</strong> (short)
+  </li>
+  <li><strong>DELAY</strong> (uint8_t)
+  </li>
+</ul>
+<h3 id="37-bright-sensors">3.7. BRIGHT_SENSORS</h3>
+<ul>
+<li><strong>ID</strong> (short)</li>
+<li><strong>EXIST</strong> (char[1])</li>
+<li><strong>DALI_ADDR</strong> (uint8_t)</li>
+<li><strong>DALI_INST</strong> (uint8_t)</li>
+<li><strong>LOCATION_ID</strong> (short)</li>
+<li><strong>GROUP_ID</strong> (short)</li>
+</ul>
+<p><strong>BUTTON_PANELS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>DALI_ADDR</strong> (uint8_t)
+  </li>
+  <li><strong>LOCATION_ID</strong> (short)
+  </li>
+</ul>
+<h3 id="39-buttons">3.9. BUTTONS</h3>
+<ul>
+<li><strong>ID</strong> (short)</li>
+<li><strong>EXIST</strong> (char[1])</li>
+<li><strong>BUTTON_PANEL_ID</strong> (short)</li>
+<li><strong>DALI_INST</strong> (uint8_t)</li>
+<li><strong>ACTION_SET_SHORT_ID</strong> (short)</li>
+<li><strong>ACTION_LONG_ID</strong> (short)</li>
+</ul>
+<p><strong>ACTIONS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>ACTION_SET_ID</strong> (short)
+  </li>
+  <li><strong>POS</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>SUBACTIONS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>ACTION_ID</strong> (short)
+  </li>
+  <li><strong>OBJECT_TYPE</strong> (uint8_t)
+  </li>
+  <li><strong>OBJECT_NUM</strong> (uint8_t)
+  </li>
+  <li><strong>VALUE</strong> (uint8_t)
+  </li>
+</ul>
+<p><strong>ACTION_SETS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+</ul>
+<p><strong>EVENTS</strong></p>
+<ul>
+  <li><strong>ID</strong> (short)
+  </li>
+  <li><strong>EXIST</strong> (char[1])
+  </li>
+  <li><strong>DAYS</strong> (char[7])
+  </li>
+  <li><strong>TIME</strong> (char[4])
+  </li>
+  <li><strong>SMOOTH</strong> (char[1])
+  </li>
+  <li><strong>ACTION_SET_ID</strong> (short)
+  </li>
+</ul>
 <h2 id="8-вопросы">8. Вопросы</h2>
 <h2 id="9-идеи">9. Идеи</h2>
         </main>

@@ -70,6 +70,121 @@ flowchart LR
 3. SET.LOCATION\[7](пукп уа ум9) - запись таблицы LOCATION с ID = 7
 4. SET.LOCATION\[7].NAME(Хрень) - значение поля NAME в записи таблицы LOCATION с ID = 7
 
+### 3.2 Формат блока Content
+
+3.2.1. При формировании Content важен порядок, в котором в него добавляются таблицы, записи, поля записей, и размер типов добавляемых значений. Чтобы кто-то правильно прочитал кто-то должен сначала правильно записать!
+
+3.2.2. Вот единственно верный порядок-структура:
+
+**CONTROLLERS**
+- **ID** (short)
+- **NAME** (char[20])
+- **PASSWORD** (char[4])
+- **IS_SCHEDULE** (char[1])
+- **IS_AUTO** (char[1])
+- **ICO_NUM** (uint8_t)
+- **STATUS** (char[1])
+- **SCENE_NUM** (uint8_t)
+- **IDATA** (BLOB(50000))
+
+**LOCATIONS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **IS_AUTO** (char[1])
+- **SCENE_NUM** (uint8_t)
+
+**GROUPS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **LOCATION_ID** (short)
+- **DALI_NUM** (uint8_t)
+- **SCENE_NUM** (uint8_t)
+
+**LUMINAIRES**
+- **ID** (short)
+- **EXIST** (char[1])
+- **DALI_ADDR** (uint8_t)
+- **LOCATION_ID** (short)
+- **GROUP_ID** (short)
+- **VAL_BRIGHT** (uint8_t)
+- **VAL_TW** (uint8_t)
+- **VAL_R** (uint8_t)
+- **VAL_G** (uint8_t)
+- **VAL_B** (uint8_t)
+- **VAL_W** (uint8_t)
+- **SCENE_NUM** (uint8_t)
+
+**SCENE_LUMINAIRES**
+- **ID** (short)
+- **SCENE_NUM** (uint8_t)
+- **LUMINAIRE_ID** (short)
+- **VAL_BRIGHT** (uint8_t)
+- **VAL_TW** (uint8_t)
+- **VAL_R** (uint8_t)
+- **VAL_G** (uint8_t)
+- **VAL_B** (uint8_t)
+- **VAL_W** (uint8_t)
+
+**PRES_SENSORS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **DALI_ADDR** (uint8_t)
+- **DALI_INST** (uint8_t)
+- **LOCATION_ID** (short)
+- **ACTION_OCCUPANCY_ID** (short)
+- **ACTION_VACANCY_ID** (short)
+- **DELAY** (uint8_t)
+
+### 3.7. BRIGHT_SENSORS
+
+- **ID** (short)
+- **EXIST** (char[1])
+- **DALI_ADDR** (uint8_t)
+- **DALI_INST** (uint8_t)
+- **LOCATION_ID** (short)
+- **GROUP_ID** (short)
+
+**BUTTON_PANELS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **DALI_ADDR** (uint8_t)
+- **LOCATION_ID** (short)
+
+### 3.9. BUTTONS
+
+- **ID** (short)
+- **EXIST** (char[1])
+- **BUTTON_PANEL_ID** (short)
+- **DALI_INST** (uint8_t)
+- **ACTION_SET_SHORT_ID** (short)
+- **ACTION_LONG_ID** (short)
+
+**ACTIONS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **ACTION_SET_ID** (short)
+- **POS** (uint8_t)
+
+**SUBACTIONS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **ACTION_ID** (short)
+- **OBJECT_TYPE** (uint8_t)
+- **OBJECT_NUM** (uint8_t)
+- **VALUE** (uint8_t)
+
+**ACTION_SETS**
+- **ID** (short)
+- **EXIST** (char[1])
+
+**EVENTS**
+- **ID** (short)
+- **EXIST** (char[1])
+- **DAYS** (char[7])
+- **TIME** (char[4])
+- **SMOOTH** (char[1])
+- **ACTION_SET_ID** (short)
+
 
 ## 8. Вопросы
 
