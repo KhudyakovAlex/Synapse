@@ -178,12 +178,24 @@
 <body>
     <div class="diagram-container">
         <div class="mermaid">
-sequenceDiagram
-    participant Приложение
-    participant Прошивка
+flowchart TB
+    SAW((Автономная<br>работа<br>контроллера))
+    BC(блютус-подключение<br>телефона<br>к контроллеру)
+    DD(Загрузка USM<br>контроллера в телефон)
+    P{Ввод пароля<br>пользователем}
+    W(обмен телегами<br>прошивки и приложения)
+    BDC(блютус-отключение)
+    EAW((Автономная<br>работа<br>контроллера))
 
-    Приложение->>Прошивка:[FW.CONTR_GET_NAME()]
-    Прошивка->>Приложение:[USM.CONTR_SET_NAME(...)]
+    SAW-->BC
+    BC-->DD
+    DD-->P
+
+    P -->|Угадал| W
+    W-->BDC
+    P -->|Не угадал| BDC
+
+    BDC-->EAW
 
         </div>
     </div>
