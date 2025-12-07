@@ -103,7 +103,6 @@ flowchart LR
 - **ID** (short)
 - **EXIST** (char[1])
 - **LOCATION_ID** (short)
-- **DALI_NUM** (uint8_t)
 - **SCENE_NUM** (uint8_t)
 
 **LUMINAIRES**
