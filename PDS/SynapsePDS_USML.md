@@ -168,13 +168,11 @@ flowchart LR
 
 **ACTIONS**
 - **ID** (short)
-- **EXIST** (char[1])
 - **ACTION_SET_ID** (short)
 - **POS** (uint8_t)
 
 **SUBACTIONS**
 - **ID** (short)
-- **EXIST** (char[1])
 - **ACTION_ID** (short)
 - **OBJECT_TYPE** (uint8_t)
 - **OBJECT_NUM** (uint8_t)

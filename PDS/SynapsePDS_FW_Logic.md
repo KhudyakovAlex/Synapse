@@ -178,7 +178,27 @@ sequenceDiagram
 
 ### 4.8. Назначение действий на присутствие и отсутствие датчиков присутствия
 
-4.8.1. 
+4.8.1. При назначении действия с ID = <ACTID\> на присутствие датчика ID = <PSID\>:
+- в прошивку поступает SET.PRES_SENSORS[<PSID\>].ACTION_OCCUPANCY_ID(<ACTID\>)
+- прошивка выставляет у себя в USM у датчика ACTION_OCCUPANCY_ID = <ACTID\>
+- прошивка отправляет телегу SET.PRES_SENSORS[<PSID\>].ACTION_OCCUPANCY_ID(<ACTID\>)
+
+4.8.2. При снятии действия на присутствие с датчика ID = <PSID\>:
+- в прошивку поступает SET.PRES_SENSORS[<PSID\>].ACTION_OCCUPANCY_ID(-1)
+- прошивка выставляет у себя в USM у датчика ACTION_OCCUPANCY_ID = -1
+- прошивка отправляет телегу SET.PRES_SENSORS[<PSID\>].ACTION_OCCUPANCY_ID(-1)
+
+4.8.3. При добавлении в действие с ID = <ACTID\> поддействия с ID = <SACTID\> (OBJECT_TYPE, OBJECT_NUM, VALUE):
+- в прошивку поступает SET.SUBACTIONS[<SACTID\>](...)
+- прошивка сохраняет это в своей USM
+- прошивка отправляет ту же телегу SET.SUBACTIONS[<SACTID\>](...) приложению
+
+4.8.4. При удалении из действия поддействия с ID = <SACTID\>:
+- в прошивку поступает SET.SUBACTIONS[<SACTID\>].ACTION_ID(-1)
+- прошивка сохраняет это в своей USM
+- прошивка отправляет ту же телегу SET.SUBACTIONS[<SACTID\>].ACTION_ID(-1) приложению
+
+4.8.5. Аналогичные чудеса происходят при работе с ACTION_VACANCY_ID.
 
 ## 5. Настройка
 
