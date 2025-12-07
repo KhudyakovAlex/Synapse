@@ -119,11 +119,12 @@ flowchart LR
 - **VAL_B** (uint8_t)
 - **VAL_W** (uint8_t)
 - **SCENE_NUM** (uint8_t)
+- **STATUS** (char[1])
 
 **SCENE_LUMINAIRES**
 - **ID** (short)
 - **SCENE_NUM** (uint8_t)
-- **LUMINAIRE_ID** (short)
+- **LUMINAIRE_ID** (uint8_t)
 - **VAL_BRIGHT** (uint8_t)
 - **VAL_TW** (uint8_t)
 - **VAL_R** (uint8_t)
@@ -140,6 +141,7 @@ flowchart LR
 - **ACTION_OCCUPANCY_ID** (short)
 - **ACTION_VACANCY_ID** (short)
 - **DELAY** (uint8_t)
+- **STATUS** (char[1])
 
 **BRIGHT_SENSORS**
 - **ID** (short)
@@ -148,12 +150,14 @@ flowchart LR
 - **DALI_INST** (uint8_t)
 - **LOCATION_ID** (short)
 - **GROUP_ID** (short)
+- **STATUS** (char[1])
 
 **BUTTON_PANELS**
 - **ID** (short)
 - **EXIST** (char[1])
 - **DALI_ADDR** (uint8_t)
 - **LOCATION_ID** (short)
+- **STATUS** (char[1])
 
 **BUTTONS**
 - **ID** (short)
