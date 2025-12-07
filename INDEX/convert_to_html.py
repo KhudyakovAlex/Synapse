@@ -399,53 +399,44 @@ class MarkdownConverter:
     
     def convert_md_file_links(self, text: str, current_file: Path) -> str:
         """Convert references to .md files in the repository to clickable links to HTML pages"""
-        # List of known MD files in the repository
-        known_md_files = {
+        # List of known files in the repository (with and without .md extension)
+        known_files = {
             # PRD
-            'SynapsePRD.md': 'PRD/SynapsePRD.html',
-            'PRD/SynapsePRD.md': 'PRD/SynapsePRD.html',
-            'Идеи.md': 'PRD/Идеи.html',
-            'PRD/Идеи.md': 'PRD/Идеи.html',
+            'SynapsePRD': 'PRD/SynapsePRD.html',
+            'Идеи': 'PRD/Идеи.html',
             # PDS
-            'SynapsePDS_APP.md': 'PDS/SynapsePDS_APP.html',
-            'PDS/SynapsePDS_APP.md': 'PDS/SynapsePDS_APP.html',
-            'SynapsePDS_APP_Bluetooth.md': 'PDS/SynapsePDS_APP_Bluetooth.html',
-            'PDS/SynapsePDS_APP_Bluetooth.md': 'PDS/SynapsePDS_APP_Bluetooth.html',
-            'SynapsePDS_APP_UI.md': 'PDS/SynapsePDS_APP_UI.html',
-            'PDS/SynapsePDS_APP_UI.md': 'PDS/SynapsePDS_APP_UI.html',
-            'SynapsePDS_APP_UX.md': 'PDS/SynapsePDS_APP_UX.html',
-            'PDS/SynapsePDS_APP_UX.md': 'PDS/SynapsePDS_APP_UX.html',
-            'SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
-            'PDS/SynapsePDS_Bluetooth.md': 'PDS/SynapsePDS_Bluetooth.html',
-            'SynapsePDS_APP_DB.md': 'PDS/SynapsePDS_APP_DB.html',
-            'PDS/SynapsePDS_APP_DB.md': 'PDS/SynapsePDS_APP_DB.html',
-            'SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
-            'PDS/SynapsePDS_DB_scheme.md': 'PDS/SynapsePDS_DB_scheme.html',
-            'SynapsePDS_APP_DB_scheme.md': 'PDS/SynapsePDS_APP_DB_scheme.html',
-            'PDS/SynapsePDS_APP_DB_scheme.md': 'PDS/SynapsePDS_APP_DB_scheme.html',
-            'SynapsePDS_FW_DB_scheme.md': 'PDS/SynapsePDS_FW_DB_scheme.html',
-            'PDS/SynapsePDS_FW_DB_scheme.md': 'PDS/SynapsePDS_FW_DB_scheme.html',
-            'SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
-            'PDS/SynapsePDS_FW.md': 'PDS/SynapsePDS_FW.html',
-            'SynapsePDS_FW_DB.md': 'PDS/SynapsePDS_FW_DB.html',
-            'PDS/SynapsePDS_FW_DB.md': 'PDS/SynapsePDS_FW_DB.html',
-            'SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
-            'PDS/SynapsePDS_FW_Bluetooth.md': 'PDS/SynapsePDS_FW_Bluetooth.html',
-            'SynapsePDS_FW_Logic.md': 'PDS/SynapsePDS_FW_Logic.html',
-            'PDS/SynapsePDS_FW_Logic.md': 'PDS/SynapsePDS_FW_Logic.html',
-            'SynapsePDS_Icons_Controllers.md': 'PDS/SynapsePDS_Icons_Controllers.html',
-            'PDS/SynapsePDS_Icons_Controllers.md': 'PDS/SynapsePDS_Icons_Controllers.html',
-            'SynapsePDS_Icons_Locations.md': 'PDS/SynapsePDS_Icons_Locations.html',
-            'PDS/SynapsePDS_Icons_Locations.md': 'PDS/SynapsePDS_Icons_Locations.html',
-            'SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
-            'PDS/SynapsePDS_Icons_Luminaires.md': 'PDS/SynapsePDS_Icons_Luminaires.html',
-            'SynapsePDS_Icons_System.md': 'PDS/SynapsePDS_Icons_System.html',
-            'PDS/SynapsePDS_Icons_System.md': 'PDS/SynapsePDS_Icons_System.html',
-            'SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
-            'PDS/SynapsePDS_LLM.md': 'PDS/SynapsePDS_LLM.html',
-            'SynapsePDS_USML.md': 'PDS/SynapsePDS_USML.html',
-            'PDS/SynapsePDS_USML.md': 'PDS/SynapsePDS_USML.html',
+            'SynapsePDS_APP': 'PDS/SynapsePDS_APP.html',
+            'SynapsePDS_APP_Bluetooth': 'PDS/SynapsePDS_APP_Bluetooth.html',
+            'SynapsePDS_APP_UI': 'PDS/SynapsePDS_APP_UI.html',
+            'SynapsePDS_APP_UX': 'PDS/SynapsePDS_APP_UX.html',
+            'SynapsePDS_Bluetooth': 'PDS/SynapsePDS_Bluetooth.html',
+            'SynapsePDS_APP_DB': 'PDS/SynapsePDS_APP_DB.html',
+            'SynapsePDS_DB_scheme': 'PDS/SynapsePDS_DB_scheme.html',
+            'SynapsePDS_APP_DB_scheme': 'PDS/SynapsePDS_APP_DB_scheme.html',
+            'SynapsePDS_FW_DB_scheme': 'PDS/SynapsePDS_FW_DB_scheme.html',
+            'SynapsePDS_FW': 'PDS/SynapsePDS_FW.html',
+            'SynapsePDS_FW_DB': 'PDS/SynapsePDS_FW_DB.html',
+            'SynapsePDS_FW_Bluetooth': 'PDS/SynapsePDS_FW_Bluetooth.html',
+            'SynapsePDS_FW_Logic': 'PDS/SynapsePDS_FW_Logic.html',
+            'SynapsePDS_Icons_Controllers': 'PDS/SynapsePDS_Icons_Controllers.html',
+            'SynapsePDS_Icons_Locations': 'PDS/SynapsePDS_Icons_Locations.html',
+            'SynapsePDS_Icons_Luminaires': 'PDS/SynapsePDS_Icons_Luminaires.html',
+            'SynapsePDS_Icons_System': 'PDS/SynapsePDS_Icons_System.html',
+            'SynapsePDS_LLM': 'PDS/SynapsePDS_LLM.html',
+            'SynapsePDS_USML': 'PDS/SynapsePDS_USML.html',
         }
+        
+        # Build full mapping including .md variants and path variants
+        known_md_files = {}
+        for name, html_path in known_files.items():
+            # Without extension
+            known_md_files[name] = html_path
+            # With .md extension
+            known_md_files[name + '.md'] = html_path
+            # With path prefix (PRD/ or PDS/)
+            folder = html_path.split('/')[0]
+            known_md_files[folder + '/' + name] = html_path
+            known_md_files[folder + '/' + name + '.md'] = html_path
         
         # Determine relative path prefix based on current file location
         try:
