@@ -119,6 +119,7 @@ body {
 /* Sidebar */
 .sidebar {
     padding: 20px;
+    padding-bottom: 60px; /* Large bottom padding to ensure last items are visible when scrolling */
     width: 300px;
     position: sticky;
     top: 90px;
@@ -127,7 +128,6 @@ body {
     overscroll-behavior: contain;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
-    padding-bottom: 30px; /* Add extra padding at bottom to ensure last items are visible */
 }
 
 /* Hide scrollbar for sidebar (Chrome, Safari) */
