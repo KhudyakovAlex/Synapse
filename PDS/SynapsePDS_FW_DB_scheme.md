@@ -94,7 +94,6 @@ erDiagram
     }
 
     BUTTONS {
-        BOOL EXIST
         UINT8 BUTTON_PANEL_ID
         UINT8 DALI_INST
         SHORT ACTION_SET_SHORT_NUM
