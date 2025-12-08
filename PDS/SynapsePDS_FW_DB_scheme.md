@@ -101,13 +101,11 @@ erDiagram
     }
 
     ACTIONS {
-        BOOL EXIST
         SHORT ACTION_SET_NUM
         UINT8 POS
     }
 
     SUBACTIONS {
-        BOOL EXIST
         SHORT ACTION_ID
         UINT8 OBJECT_TYPE
         UINT8 OBJECT_NUM
@@ -119,6 +117,6 @@ erDiagram
         CHAR7 DAYS
         CHAR4 TIME
         BOOL SMOOTH
-        SHORT ACTION_SET_ID
+        SHORT ACTION_ID
     }
 ```

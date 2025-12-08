@@ -198,7 +198,7 @@ flowchart LR
 - **DAYS** (7)
 - **TIME** (4)
 - **SMOOTH** (1)
-- **ACTION_SET_ID** (2)
+- **ACTION_ID** (2)
 
 ### 3.3. JSON-представление структуры Content
 
@@ -306,7 +306,7 @@ flowchart LR
     "DAYS": 7,
     "TIME": 4,
     "SMOOTH": 1,
-    "ACTION_SET_ID": 2
+    "ACTION_ID": 2
   }
 }
 ```

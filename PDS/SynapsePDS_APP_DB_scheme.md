@@ -143,6 +143,6 @@ erDiagram
         TEXT DAYS
         TEXT TIME
         TEXT SMOOTH
-        INTEGER ACTION_SET_ID FK
+        INTEGER ACTION_ID FK
     }
 ```

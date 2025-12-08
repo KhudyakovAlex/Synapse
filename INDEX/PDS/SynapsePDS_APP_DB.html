@@ -192,7 +192,7 @@
         TEXT DAYS
         TEXT TIME
         TEXT SMOOTH
-        INTEGER ACTION_SET_ID FK
+        INTEGER ACTION_ID FK
     }
 </div>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
@@ -361,7 +361,7 @@
 <li><strong>DAYS</strong> (TEXT) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
 <li><strong>TIME</strong> (TEXT) — время события с точностью до минуты в формате HHMM 24H;</li>
 <li><strong>SMOOTH</strong> (TEXT) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);</li>
-<li><strong>ACTION_SET_ID</strong> (INTEGER) — набор действий; -1 — не назначен.</li>
+<li><strong>ACTION_ID</strong> (INTEGER) — действие; -1 — не назначено.</li>
 </ul>
 <h2 id="4-вопросы">4. Вопросы</h2>
 <p>4.1. Рабочие данные таки храним в Си или переносим в одну область с интерфейсными?</p>
