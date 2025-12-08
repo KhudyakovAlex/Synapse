@@ -220,7 +220,7 @@
 <li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 <li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="35-scene-luminaires">3.5. SCENE_LUMINAIRES</h3>
 <p>Параметры светильников в сценах.</p>
@@ -244,7 +244,7 @@
 <li><strong>ACTION_OCCUPANCY_ID</strong> (short) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
 <li><strong>ACTION_VACANCY_ID</strong> (short) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
 <li><strong>DELAY</strong> (uint8_t) — задержка HOLD_TIME.</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="37-bright-sensors">3.7. BRIGHT_SENSORS</h3>
 <p>Датчики освещённости.</p>
@@ -254,7 +254,7 @@
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
 <li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
 <li><strong>GROUP_ID</strong> (short) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="38-button-panels">3.8. BUTTON_PANELS</h3>
 <p>Кнопочные панели.</p>
@@ -262,7 +262,7 @@
 <li><strong>EXIST</strong> (char[1]) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
 <li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес панели в DALI;</li>
 <li><strong>LOCATION_ID</strong> (short) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="39-buttons">3.9. BUTTONS</h3>
 <p>Кнопки.</p>
