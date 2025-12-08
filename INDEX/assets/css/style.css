@@ -122,11 +122,12 @@ body {
     width: 300px;
     position: sticky;
     top: 90px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 110px);
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
+    padding-bottom: 30px; /* Add extra padding at bottom to ensure last items are visible */
 }
 
 /* Hide scrollbar for sidebar (Chrome, Safari) */
