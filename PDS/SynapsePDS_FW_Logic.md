@@ -124,7 +124,7 @@ flowchart TB
 
 - Статус в CONTROLLERS.STATUS устанавливается в A.
 
-- Отправляется телега приложению: `SET()`.
+- Отправляется телега приложению: `SET(...)`.
 
 ```mermaid
 sequenceDiagram

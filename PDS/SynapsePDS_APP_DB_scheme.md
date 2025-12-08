@@ -70,6 +70,7 @@ erDiagram
         INTEGER VAL_B
         INTEGER VAL_W
         INTEGER SCENE_NUM
+        TEXT STATUS
     }
 
     SCENE_LUMINAIRES {
@@ -94,6 +95,7 @@ erDiagram
         INTEGER ACTION_OCCUPANCY_ID FK
         INTEGER ACTION_VACANCY_ID FK
         INTEGER DELAY
+        TEXT STATUS
     }
 
     BRIGHT_SENSORS {
@@ -104,6 +106,7 @@ erDiagram
         INTEGER DALI_INST
         INTEGER LOCATION_ID FK
         INTEGER GROUP_ID FK
+        TEXT STATUS
     }
 
     BUTTON_PANELS {
@@ -112,6 +115,7 @@ erDiagram
         TEXT EXIST
         INTEGER DALI_ADDR
         INTEGER LOCATION_ID FK
+        TEXT STATUS
     }
 
     BUTTONS {

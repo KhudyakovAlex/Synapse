@@ -56,6 +56,7 @@ erDiagram
         UINT8 VAL_B
         UINT8 VAL_W
         UINT8 SCENE_NUM
+        CHAR1 STATUS
     }
 
     SCENE_LUMINAIRES {
@@ -77,6 +78,7 @@ erDiagram
         SHORT ACTION_OCCUPANCY_ID
         SHORT ACTION_VACANCY_ID
         UINT8 DELAY
+        CHAR1 STATUS
     }
 
     BRIGHT_SENSORS {
@@ -85,12 +87,14 @@ erDiagram
         UINT8 DALI_INST
         SHORT LOCATION_ID
         SHORT GROUP_ID
+        CHAR1 STATUS
     }
 
     BUTTON_PANELS {
         BOOL EXIST
         UINT8 DALI_ADDR
         SHORT LOCATION_ID
+        CHAR1 STATUS
     }
 
     BUTTONS {
