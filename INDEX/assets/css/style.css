@@ -408,6 +408,8 @@ body {
     .sidebar {
         position: static;
         padding: 20px;
+        max-height: none !important;
+        overflow-y: visible !important;
     }
     
     .content {
