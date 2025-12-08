@@ -173,6 +173,9 @@ body {
 /* Content */
 .content {
     padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    word-wrap: break-word;
 }
 
 .content h2 {
@@ -231,6 +234,8 @@ body {
     font-family: 'Courier New', Consolas, monospace;
     font-size: 0.9em;
     color: var(--accent-secondary);
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .content pre {
@@ -239,12 +244,16 @@ body {
     overflow-x: auto;
     margin: 20px 0;
     border-left: 4px solid var(--accent-primary);
+    max-width: 100%;
 }
 
 .content pre code {
     background: none;
     padding: 0;
     color: var(--text-primary);
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: pre;
 }
 
 /* Tables */
@@ -415,6 +424,8 @@ body {
     
     .content {
         padding: 0;
+        max-width: 100%;
+        overflow-x: hidden;
     }
     
     .header {
