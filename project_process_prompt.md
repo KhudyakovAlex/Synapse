@@ -76,8 +76,6 @@ python convert_to_html.py
   - Два пробела в конце строки → `<br>`
   - Bold → `<strong>`, Italic → `<em>`
   - URL-ссылки (http://, https://) → `<a href="..." target="_blank">`
-  - Упоминания файлов репозитория (SynapsePDS_USML.md, SynapsePDS_USML и т.п.) → автоматически преобразуются в кликабельные ссылки на соответствующие HTML-страницы
-  - **ВАЖНО**: Если имя файла содержит более короткое имя другого файла (например, `SynapsePDS_FW_DB` содержит `SynapsePDS_FW`), используй явную markdown ссылку `[SynapsePDS_FW_DB](SynapsePDS_FW_DB.md)` вместо простого текста, чтобы конвертер не создал неправильную ссылку
 
 #### `INDEX/update_diagrams.py`
 Автоматическое обновление диаграмм в INDEX/index.html

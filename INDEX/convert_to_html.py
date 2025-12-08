@@ -397,104 +397,6 @@ class MarkdownConverter:
         
         return text
     
-    def convert_md_file_links(self, text: str, current_file: Path) -> str:
-        """Convert references to .md files in the repository to clickable links to HTML pages"""
-        # List of known files in the repository (with and without .md extension)
-        known_files = {
-            # PRD
-            'SynapsePRD': 'PRD/SynapsePRD.html',
-            'Идеи': 'PRD/Идеи.html',
-            # PDS
-            'SynapsePDS_APP': 'PDS/SynapsePDS_APP.html',
-            'SynapsePDS_APP_Bluetooth': 'PDS/SynapsePDS_APP_Bluetooth.html',
-            'SynapsePDS_APP_UI': 'PDS/SynapsePDS_APP_UI.html',
-            'SynapsePDS_APP_UX': 'PDS/SynapsePDS_APP_UX.html',
-            'SynapsePDS_Bluetooth': 'PDS/SynapsePDS_Bluetooth.html',
-            'SynapsePDS_APP_DB': 'PDS/SynapsePDS_APP_DB.html',
-            'SynapsePDS_DB_scheme': 'PDS/SynapsePDS_DB_scheme.html',
-            'SynapsePDS_APP_DB_scheme': 'PDS/SynapsePDS_APP_DB_scheme.html',
-            'SynapsePDS_FW_DB_scheme': 'PDS/SynapsePDS_FW_DB_scheme.html',
-            'SynapsePDS_FW': 'PDS/SynapsePDS_FW.html',
-            'SynapsePDS_FW_DB': 'PDS/SynapsePDS_FW_DB.html',
-            'SynapsePDS_FW_Bluetooth': 'PDS/SynapsePDS_FW_Bluetooth.html',
-            'SynapsePDS_FW_Logic': 'PDS/SynapsePDS_FW_Logic.html',
-            'SynapsePDS_Icons_Controllers': 'PDS/SynapsePDS_Icons_Controllers.html',
-            'SynapsePDS_Icons_Locations': 'PDS/SynapsePDS_Icons_Locations.html',
-            'SynapsePDS_Icons_Luminaires': 'PDS/SynapsePDS_Icons_Luminaires.html',
-            'SynapsePDS_Icons_System': 'PDS/SynapsePDS_Icons_System.html',
-            'SynapsePDS_LLM': 'PDS/SynapsePDS_LLM.html',
-            'SynapsePDS_USML': 'PDS/SynapsePDS_USML.html',
-        }
-        
-        # Build full mapping including .md variants and path variants
-        known_md_files = {}
-        for name, html_path in known_files.items():
-            # Without extension
-            known_md_files[name] = html_path
-            # With .md extension
-            known_md_files[name + '.md'] = html_path
-            # With path prefix (PRD/ or PDS/)
-            folder = html_path.split('/')[0]
-            known_md_files[folder + '/' + name] = html_path
-            known_md_files[folder + '/' + name + '.md'] = html_path
-        
-        # Determine relative path prefix based on current file location
-        try:
-            rel_from_index = current_file.relative_to(self.index_root)
-            depth = len(rel_from_index.parts) - 1
-            prefix = '../' * depth if depth > 0 else ''
-        except ValueError:
-            prefix = ''
-        
-        # Pattern to match .md filenames (not already in links)
-        # Match: SynapsePDS_USML.md or PDS/SynapsePDS_USML.md
-        # But not: href="...SynapsePDS_USML.md" or already linked
-        
-        def replace_md_link(match):
-            md_filename = match.group(0)
-            if md_filename in known_md_files:
-                html_path = prefix + known_md_files[md_filename]
-                return f'<a href="{html_path}">{md_filename}</a>'
-            return md_filename
-        
-        # Match MD filenames that are not already inside href or <a> tags
-        # Pattern matches: optional path + filename.md
-        
-        # Protect existing <a> tags by temporarily replacing them
-        link_placeholders = {}
-        placeholder_counter = 0
-        
-        def replace_link(match):
-            nonlocal placeholder_counter
-            placeholder = f'__PROTECTED_LINK_{placeholder_counter}__'
-            link_placeholders[placeholder] = match.group(0)
-            placeholder_counter += 1
-            return placeholder
-        
-        # Replace all <a> tags with placeholders (non-greedy to avoid matching nested tags incorrectly)
-        protected_text = re.sub(r'<a[^>]+>.*?</a>', replace_link, text, flags=re.DOTALL)
-        
-        # Sort by length descending to match longer names first (e.g., SynapsePDS_FW_DB before SynapsePDS_FW)
-        for md_name, html_path in sorted(known_md_files.items(), key=lambda x: len(x[0]), reverse=True):
-            # Escape special characters in the pattern
-            escaped_name = re.escape(md_name)
-            # Only replace if not already in a link
-            pattern = r'(?<!["\'/a-zA-Z])(' + escaped_name + r')(?!["\'])'
-            
-            def make_replacer(md_n, html_p):
-                def replacer(m):
-                    return f'<a href="{prefix}{html_p}">{md_n}</a>'
-                return replacer
-            
-            protected_text = re.sub(pattern, make_replacer(md_name, html_path), protected_text)
-        
-        # Restore protected links
-        result = protected_text
-        for placeholder, original_link in link_placeholders.items():
-            result = result.replace(placeholder, original_link)
-        
-        return result
-    
     def convert_lists(self, text: str) -> str:
         """Convert markdown lists to HTML"""
         lines = text.split('\n')
@@ -928,9 +830,6 @@ class MarkdownConverter:
             
             # Convert plain URLs to clickable links
             html_content = self.convert_urls(html_content)
-            
-            # Convert MD file references to clickable links
-            html_content = self.convert_md_file_links(html_content, output_file)
             
             # Convert telegram codes to links to USML
             html_content = self.convert_telegram_links(html_content, output_file)
