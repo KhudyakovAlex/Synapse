@@ -459,7 +459,23 @@ class MarkdownConverter:
         
         # Match MD filenames that are not already inside href or <a> tags
         # Pattern matches: optional path + filename.md
-        for md_name, html_path in known_md_files.items():
+        
+        # Protect existing <a> tags by temporarily replacing them
+        link_placeholders = {}
+        placeholder_counter = 0
+        
+        def replace_link(match):
+            nonlocal placeholder_counter
+            placeholder = f'__PROTECTED_LINK_{placeholder_counter}__'
+            link_placeholders[placeholder] = match.group(0)
+            placeholder_counter += 1
+            return placeholder
+        
+        # Replace all <a> tags with placeholders (non-greedy to avoid matching nested tags incorrectly)
+        protected_text = re.sub(r'<a[^>]+>.*?</a>', replace_link, text, flags=re.DOTALL)
+        
+        # Sort by length descending to match longer names first (e.g., SynapsePDS_FW_DB before SynapsePDS_FW)
+        for md_name, html_path in sorted(known_md_files.items(), key=lambda x: len(x[0]), reverse=True):
             # Escape special characters in the pattern
             escaped_name = re.escape(md_name)
             # Only replace if not already in a link
@@ -470,9 +486,14 @@ class MarkdownConverter:
                     return f'<a href="{prefix}{html_p}">{md_n}</a>'
                 return replacer
             
-            text = re.sub(pattern, make_replacer(md_name, html_path), text)
+            protected_text = re.sub(pattern, make_replacer(md_name, html_path), protected_text)
         
-        return text
+        # Restore protected links
+        result = protected_text
+        for placeholder, original_link in link_placeholders.items():
+            result = result.replace(placeholder, original_link)
+        
+        return result
     
     def convert_lists(self, text: str) -> str:
         """Convert markdown lists to HTML"""
