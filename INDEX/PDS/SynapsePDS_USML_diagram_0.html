@@ -185,18 +185,25 @@ flowchart LR
 
     subgraph Телефон
         UI[UI]
-        APPUSM(APP.USM)
+        APPUSM(APP-USM)
+        C-IN{{C-IN}}
+        C-OUT{{C-OUT}}
     end
 
     subgraph Контроллер
-        FWUSM(FW.USM)
+        FWUSM(FW-USM)
     end
 
     APPUSM-.JSON.->UI
     APPUSM-.JSON.->LLM
-    LLM-->FWUSM
-    UI-->FWUSM
-    FWUSM-->APPUSM
+    LLM-.JSON.->C-OUT
+    UI-.JSON.->C-OUT
+    C-OUT-.FW-USML.->FWUSM
+    FWUSM-.FW-USML.->C-IN
+    C-IN-.USML.->APPUSM
+
+    style APPUSM fill:#ffcccc,stroke:#cc0000,color:#660000
+    style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
 
         </div>
     </div>
