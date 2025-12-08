@@ -241,8 +241,10 @@ body {
     font-family: 'Courier New', Consolas, monospace;
     font-size: 0.9em;
     color: var(--accent-secondary);
-    word-break: break-word;
-    overflow-wrap: break-word;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+    max-width: 100%;
 }
 
 .content pre {
@@ -407,11 +409,13 @@ body {
         overflow-wrap: break-word;
     }
     
-    .content li code {
-        word-break: break-all;
-        overflow-wrap: anywhere;
-        max-width: 100%;
-        display: inline-block;
+    .content li code,
+    .content p code,
+    .content code {
+        word-break: break-all !important;
+        overflow-wrap: anywhere !important;
+        white-space: pre-wrap !important;
+        max-width: 100% !important;
     }
     
     .container {
