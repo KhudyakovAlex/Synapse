@@ -62,6 +62,23 @@
             
             #process-diagram {
                 margin: 20px 0 !important;
+                max-width: 100%;
+                overflow: visible !important;
+            }
+            
+            /* Prevent horizontal scroll on mobile for process diagram container */
+            .section > div[style*="position: relative"] {
+                overflow-x: hidden !important;
+                max-width: 100%;
+            }
+            
+            /* Scale down process diagram on mobile */
+            #process-diagram .mermaid,
+            #process-diagram svg {
+                max-width: 100% !important;
+                height: auto !important;
+                transform: scale(0.7);
+                transform-origin: left top;
             }
         }
         
@@ -299,6 +316,7 @@
         <!-- Ship log -->
         <div class="hero-log">
             <h3>Судовой журнал</h3>
+            
             
             
             
