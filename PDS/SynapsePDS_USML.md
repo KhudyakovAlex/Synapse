@@ -50,7 +50,7 @@ flowchart LR
 
 ### 3.1. SET
 
-Передача части USM в виде блока байтов. 
+Передача части USM в виде блока байтов. Обработчик этой телеги не только может менять состояние своей БД, но и выполнять другие действия. В частности FW.USM, получив телегу и изменив по данным в ней состояние своей БД, должен отправить соотв телегу SET в APP.USM дабы совершить акт экспликации.
 
 `SET.TABLE[ID].FIELD(Content)`
 
@@ -78,116 +78,233 @@ flowchart LR
 
 ### 3.2. Формат блока Content
 
-3.2.1. При формировании Content важен порядок, в котором в него добавляются таблицы, записи, поля записей, и размер типов добавляемых значений. Чтобы кто-то правильно прочитал кто-то должен сначала правильно записать!
+3.2.1. При формировании Content в него суются последовательно в порядке, указанном ниже, значения полей без разделителей непосредственно в их байтовом представлении.
 
-3.2.2. Вот единственно верный порядок-структура:
+3.2.2. Важен порядок, в котором в Content добавляются таблицы, записи, поля записей, и размер типов добавляемых значений. Чтобы кто-то правильно прочитал, кто-то должен сначала правильно записать!
+
+3.2.3. Вот единственно верный порядок-структура (с указанием размера в байтах каждого поля):
 
 **CONTROLLERS**
-- **ID** (short)
-- **NAME** (char[20])
-- **PASSWORD** (char[4])
-- **IS_SCHEDULE** (char[1])
-- **IS_AUTO** (char[1])
-- **ICO_NUM** (uint8_t)
-- **STATUS** (char[1])
-- **SCENE_NUM** (uint8_t)
-- **IDATA** (BLOB(50000))
+- **ID** (2)
+- **NAME** (20)
+- **PASSWORD** (4)
+- **IS_SCHEDULE** (1)
+- **IS_AUTO** (1)
+- **ICO_NUM** (1)
+- **STATUS** (1)
+- **SCENE_NUM** (1)
+- **IDATA** (50000)
 
 **LOCATIONS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **IS_AUTO** (char[1])
-- **SCENE_NUM** (uint8_t)
+- **ID** (2)
+- **EXIST** (1)
+- **IS_AUTO** (1)
+- **SCENE_NUM** (1)
 
 **GROUPS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **LOCATION_ID** (short)
-- **SCENE_NUM** (uint8_t)
+- **ID** (2)
+- **EXIST** (1)
+- **LOCATION_ID** (2)
+- **SCENE_NUM** (1)
 
 **LUMINAIRES**
-- **ID** (short)
-- **EXIST** (char[1])
-- **DALI_ADDR** (uint8_t)
-- **LOCATION_ID** (short)
-- **GROUP_ID** (short)
-- **VAL_BRIGHT** (uint8_t)
-- **VAL_TW** (uint8_t)
-- **VAL_R** (uint8_t)
-- **VAL_G** (uint8_t)
-- **VAL_B** (uint8_t)
-- **VAL_W** (uint8_t)
-- **SCENE_NUM** (uint8_t)
-- **STATUS** (char[1])
+- **ID** (2)
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **LOCATION_ID** (2)
+- **GROUP_ID** (2)
+- **VAL_BRIGHT** (1)
+- **VAL_TW** (1)
+- **VAL_R** (1)
+- **VAL_G** (1)
+- **VAL_B** (1)
+- **VAL_W** (1)
+- **SCENE_NUM** (1)
+- **STATUS** (1)
 
 **SCENE_LUMINAIRES**
-- **ID** (short)
-- **SCENE_NUM** (uint8_t)
-- **LUMINAIRE_ID** (uint8_t)
-- **VAL_BRIGHT** (uint8_t)
-- **VAL_TW** (uint8_t)
-- **VAL_R** (uint8_t)
-- **VAL_G** (uint8_t)
-- **VAL_B** (uint8_t)
-- **VAL_W** (uint8_t)
+- **ID** (2)
+- **SCENE_NUM** (1)
+- **LUMINAIRE_ID** (1)
+- **VAL_BRIGHT** (1)
+- **VAL_TW** (1)
+- **VAL_R** (1)
+- **VAL_G** (1)
+- **VAL_B** (1)
+- **VAL_W** (1)
 
 **PRES_SENSORS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **DALI_ADDR** (uint8_t)
-- **DALI_INST** (uint8_t)
-- **LOCATION_ID** (short)
-- **ACTION_OCCUPANCY_ID** (short)
-- **ACTION_VACANCY_ID** (short)
-- **DELAY** (uint8_t)
-- **STATUS** (char[1])
+- **ID** (2)
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **DALI_INST** (1)
+- **LOCATION_ID** (2)
+- **ACTION_OCCUPANCY_ID** (2)
+- **ACTION_VACANCY_ID** (2)
+- **DELAY** (1)
+- **STATUS** (1)
 
 **BRIGHT_SENSORS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **DALI_ADDR** (uint8_t)
-- **DALI_INST** (uint8_t)
-- **LOCATION_ID** (short)
-- **GROUP_ID** (short)
-- **STATUS** (char[1])
+- **ID** (2)
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **DALI_INST** (1)
+- **LOCATION_ID** (2)
+- **GROUP_ID** (2)
+- **STATUS** (1)
 
 **BUTTON_PANELS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **DALI_ADDR** (uint8_t)
-- **LOCATION_ID** (short)
-- **STATUS** (char[1])
+- **ID** (2)
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **LOCATION_ID** (2)
+- **STATUS** (1)
 
 **BUTTONS**
-- **ID** (short)
-- **BUTTON_PANEL_ID** (short)
-- **DALI_INST** (uint8_t)
-- **ACTION_SET_SHORT_ID** (short)
-- **ACTION_LONG_ID** (short)
+- **ID** (2)
+- **BUTTON_PANEL_ID** (2)
+- **DALI_INST** (1)
+- **ACTION_SET_SHORT_ID** (2)
+- **ACTION_LONG_ID** (2)
 
 **ACTIONS**
-- **ID** (short)
-- **ACTION_SET_ID** (short)
-- **POS** (uint8_t)
+- **ID** (2)
+- **ACTION_SET_ID** (2)
+- **POS** (1)
 
 **SUBACTIONS**
-- **ID** (short)
-- **ACTION_ID** (short)
-- **OBJECT_TYPE** (uint8_t)
-- **OBJECT_NUM** (uint8_t)
-- **VALUE** (uint8_t)
+- **ID** (2)
+- **ACTION_ID** (2)
+- **OBJECT_TYPE** (1)
+- **OBJECT_NUM** (1)
+- **VALUE** (1)
 
 **ACTION_SETS**
-- **ID** (short)
+- **ID** (2)
 
 **EVENTS**
-- **ID** (short)
-- **EXIST** (char[1])
-- **DAYS** (char[7])
-- **TIME** (char[4])
-- **SMOOTH** (char[1])
-- **ACTION_SET_ID** (short)
+- **ID** (2)
+- **EXIST** (1)
+- **DAYS** (7)
+- **TIME** (4)
+- **SMOOTH** (1)
+- **ACTION_SET_ID** (2)
 
+### 3.3. JSON-представление структуры Content
+
+> **Правило:** При любом изменении структуры Content (добавление/удаление полей, изменение размеров, изменение порядка) необходимо увеличить версию `VERSION`.
+
+```json
+{
+  "VERSION": 1,
+  "CONTROLLERS": {
+    "ID": 2,
+    "NAME": 20,
+    "PASSWORD": 4,
+    "IS_SCHEDULE": 1,
+    "IS_AUTO": 1,
+    "ICO_NUM": 1,
+    "STATUS": 1,
+    "SCENE_NUM": 1,
+    "IDATA": 50000
+  },
+  "LOCATIONS": {
+    "ID": 2,
+    "EXIST": 1,
+    "IS_AUTO": 1,
+    "SCENE_NUM": 1
+  },
+  "GROUPS": {
+    "ID": 2,
+    "EXIST": 1,
+    "LOCATION_ID": 2,
+    "SCENE_NUM": 1
+  },
+  "LUMINAIRES": {
+    "ID": 2,
+    "EXIST": 1,
+    "DALI_ADDR": 1,
+    "LOCATION_ID": 2,
+    "GROUP_ID": 2,
+    "VAL_BRIGHT": 1,
+    "VAL_TW": 1,
+    "VAL_R": 1,
+    "VAL_G": 1,
+    "VAL_B": 1,
+    "VAL_W": 1,
+    "SCENE_NUM": 1,
+    "STATUS": 1
+  },
+  "SCENE_LUMINAIRES": {
+    "ID": 2,
+    "SCENE_NUM": 1,
+    "LUMINAIRE_ID": 1,
+    "VAL_BRIGHT": 1,
+    "VAL_TW": 1,
+    "VAL_R": 1,
+    "VAL_G": 1,
+    "VAL_B": 1,
+    "VAL_W": 1
+  },
+  "PRES_SENSORS": {
+    "ID": 2,
+    "EXIST": 1,
+    "DALI_ADDR": 1,
+    "DALI_INST": 1,
+    "LOCATION_ID": 2,
+    "ACTION_OCCUPANCY_ID": 2,
+    "ACTION_VACANCY_ID": 2,
+    "DELAY": 1,
+    "STATUS": 1
+  },
+  "BRIGHT_SENSORS": {
+    "ID": 2,
+    "EXIST": 1,
+    "DALI_ADDR": 1,
+    "DALI_INST": 1,
+    "LOCATION_ID": 2,
+    "GROUP_ID": 2,
+    "STATUS": 1
+  },
+  "BUTTON_PANELS": {
+    "ID": 2,
+    "EXIST": 1,
+    "DALI_ADDR": 1,
+    "LOCATION_ID": 2,
+    "STATUS": 1
+  },
+  "BUTTONS": {
+    "ID": 2,
+    "BUTTON_PANEL_ID": 2,
+    "DALI_INST": 1,
+    "ACTION_SET_SHORT_ID": 2,
+    "ACTION_LONG_ID": 2
+  },
+  "ACTIONS": {
+    "ID": 2,
+    "ACTION_SET_ID": 2,
+    "POS": 1
+  },
+  "SUBACTIONS": {
+    "ID": 2,
+    "ACTION_ID": 2,
+    "OBJECT_TYPE": 1,
+    "OBJECT_NUM": 1,
+    "VALUE": 1
+  },
+  "ACTION_SETS": {
+    "ID": 2
+  },
+  "EVENTS": {
+    "ID": 2,
+    "EXIST": 1,
+    "DAYS": 7,
+    "TIME": 4,
+    "SMOOTH": 1,
+    "ACTION_SET_ID": 2
+  }
+}
+```
 
 ## 4. Вопросы
 

@@ -119,10 +119,19 @@ body {
 /* Sidebar */
 .sidebar {
     padding: 20px;
-    height: fit-content;
     width: 300px;
     position: sticky;
     top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Hide scrollbar for sidebar (Chrome, Safari) */
+.sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 .sidebar[style*="display: none"] ~ .content {
