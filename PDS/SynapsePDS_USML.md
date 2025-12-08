@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 07.12.2025
+**Последнее изменение:** 08.12.2025
 
 ## 1. Термины и определения
 
@@ -52,18 +52,18 @@ flowchart LR
 
 Передача части USM в виде блока байтов. 
 
-**SET.TABLE[ID].FIELD(Content)**
+`SET.TABLE[ID].FIELD(Content)`
 
 где:  
   
 - **TABLE[ID]** - ограничение Content по таблице:  
-    - все таблицы - вся USM без ограничений: опускается (пример: SET(..))  
-    - вся таблица: TABLE[] (пример: SET.LOCATION\[](..))  
-    - запись таблицы по PK ID: TABLE[ID] (пример: SET.LOCATION\[4](..))  
+    - все таблицы - вся USM без ограничений: опускается (пример: `SET(..)`)  
+    - вся таблица: TABLE[] (пример: `SET.LOCATION[](..)`)  
+    - запись таблицы по PK ID: TABLE[ID] (пример: `SET.LOCATION[4](..)`)  
 
 - **FIELD** - ограничение Content по полю записи:
-    - вся запись: опускается (пример: SET.LOCATION\[4](..))  
-    - поле записи: FIELD (пример: SET.LOCATION\[4].NAME(..))  
+    - вся запись: опускается (пример: `SET.LOCATION[4](..)`)  
+    - поле записи: FIELD (пример: `SET.LOCATION[4].NAME(..)`)  
 
 - **Content** - блок байтов; часть данных USM, ограничиваемая TABLE и FIELD;  
    
@@ -71,10 +71,10 @@ flowchart LR
 
 Варианты / примеры:
 
-1. SET(уокр298498ап3цпп п3к укп кпцпу пкупцкпвам) - вся USM
-2. SET.LOCATION\[](пукп уа ум9п98  п9889 ап) - вся таблица LOCATION
-3. SET.LOCATION\[7](пукп уа ум9) - запись таблицы LOCATION с ID = 7
-4. SET.LOCATION\[7].NAME(Хрень) - значение поля NAME в записи таблицы LOCATION с ID = 7
+1. `SET(уокр298498ап3цпп п3к укп кпцпу пкупцкпвам)` - вся USM
+2. `SET.LOCATION[](пукп уа ум9п98  п9889 ап)` - вся таблица LOCATION
+3. `SET.LOCATION[7](пукп уа ум9)` - запись таблицы LOCATION с ID = 7
+4. `SET.LOCATION[7].NAME(Хрень)` - значение поля NAME в записи таблицы LOCATION с ID = 7
 
 ### 3.2. Формат блока Content
 
@@ -160,7 +160,6 @@ flowchart LR
 
 **BUTTONS**
 - **ID** (short)
-- **EXIST** (char[1])
 - **BUTTON_PANEL_ID** (short)
 - **DALI_INST** (uint8_t)
 - **ACTION_SET_SHORT_ID** (short)
@@ -180,7 +179,6 @@ flowchart LR
 
 **ACTION_SETS**
 - **ID** (short)
-- **EXIST** (char[1])
 
 **EVENTS**
 - **ID** (short)

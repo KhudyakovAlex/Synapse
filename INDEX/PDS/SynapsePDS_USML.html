@@ -87,22 +87,22 @@
 <h2 id="3-формат-телеграмм">3. Формат телеграмм</h2>
 <h3 id="31-set">3.1. SET</h3>
 <p>Передача части USM в виде блока байтов. </p>
-<p><strong>SET.TABLE[ID].FIELD(Content)</strong></p>
+<p><code>SET.TABLE[ID].FIELD(Content)</code></p>
 <p>где:  </p>
 <ul>
 <li>
 <p><strong>TABLE[ID]</strong> - ограничение Content по таблице:  </p>
 <ul>
-<li>все таблицы - вся USM без ограничений: опускается (пример: SET(..))  </li>
-<li>вся таблица: TABLE[] (пример: SET.LOCATION[](..))  </li>
-<li>запись таблицы по PK ID: TABLE[ID] (пример: SET.LOCATION[4](..))  </li>
+<li>все таблицы - вся USM без ограничений: опускается (пример: <code>SET(..)</code>)  </li>
+<li>вся таблица: TABLE[] (пример: <code>SET.LOCATION[](..)</code>)  </li>
+<li>запись таблицы по PK ID: TABLE[ID] (пример: <code>SET.LOCATION[4](..)</code>)  </li>
 </ul>
 </li>
 <li>
 <p><strong>FIELD</strong> - ограничение Content по полю записи:</p>
 <ul>
-<li>вся запись: опускается (пример: SET.LOCATION[4](..))  </li>
-<li>поле записи: FIELD (пример: SET.LOCATION[4].NAME(..))  </li>
+<li>вся запись: опускается (пример: <code>SET.LOCATION[4](..)</code>)  </li>
+<li>поле записи: FIELD (пример: <code>SET.LOCATION[4].NAME(..)</code>)  </li>
 </ul>
 </li>
 <li>
@@ -112,10 +112,10 @@
 <p>Т.о. в телеге может отсутствовать как TABLE так и FIELD, но если есть FIELD должна быть и TABLE. Более того, в последнем случае должна быть конкретизирована запись таблицы, передать значения какого-то поля всех записей таблицы нельзя.</p>
 <p>Варианты / примеры:</p>
 <ol>
-<li>SET(уокр298498ап3цпп п3к укп кпцпу пкупцкпвам) - вся USM</li>
-<li>SET.LOCATION[](пукп уа ум9п98  п9889 ап) - вся таблица LOCATION</li>
-<li>SET.LOCATION[7](пукп уа ум9) - запись таблицы LOCATION с ID = 7</li>
-<li>SET.LOCATION[7].NAME(Хрень) - значение поля NAME в записи таблицы LOCATION с ID = 7</li>
+<li><code>SET(уокр298498ап3цпп п3к укп кпцпу пкупцкпвам)</code> - вся USM</li>
+<li><code>SET.LOCATION[](пукп уа ум9п98  п9889 ап)</code> - вся таблица LOCATION</li>
+<li><code>SET.LOCATION[7](пукп уа ум9)</code> - запись таблицы LOCATION с ID = 7</li>
+<li><code>SET.LOCATION[7].NAME(Хрень)</code> - значение поля NAME в записи таблицы LOCATION с ID = 7</li>
 </ol>
 <h3 id="32-формат-блока-content">3.2. Формат блока Content</h3>
 <p>3.2.1. При формировании Content важен порядок, в котором в него добавляются таблицы, записи, поля записей, и размер типов добавляемых значений. Чтобы кто-то правильно прочитал кто-то должен сначала правильно записать!</p>
@@ -268,8 +268,6 @@
 <ul>
   <li><strong>ID</strong> (short)
   </li>
-  <li><strong>EXIST</strong> (char[1])
-  </li>
   <li><strong>BUTTON_PANEL_ID</strong> (short)
   </li>
   <li><strong>DALI_INST</strong> (uint8_t)
@@ -304,8 +302,6 @@
 <p><strong>ACTION_SETS</strong></p>
 <ul>
   <li><strong>ID</strong> (short)
-  </li>
-  <li><strong>EXIST</strong> (char[1])
   </li>
 </ul>
 <p><strong>EVENTS</strong></p>

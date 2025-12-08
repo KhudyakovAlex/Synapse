@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 05.12.2025
+**Последнее изменение:** 08.12.2025
 
 ```mermaid
 erDiagram
@@ -120,7 +120,6 @@ erDiagram
     BUTTONS {
         INTEGER ID PK
         TEXT NAME
-        TEXT EXIST
         INTEGER BUTTON_PANEL_ID FK
         INTEGER DALI_INST
         INTEGER ACTION_SET_SHORT_ID FK
@@ -129,19 +128,16 @@ erDiagram
 
     ACTIONS {
         INTEGER ID PK
-        TEXT EXIST
         INTEGER ACTION_SET_ID FK
         INTEGER POS
     }
 
     ACTION_SETS {
         INTEGER ID PK
-        TEXT EXIST
     }
 
     SUBACTIONS {
         INTEGER ID PK
-        TEXT EXIST
         INTEGER ACTION_ID FK
         INTEGER OBJECT_TYPE
         INTEGER OBJECT_NUM
