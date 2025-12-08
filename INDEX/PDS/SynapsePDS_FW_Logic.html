@@ -266,21 +266,21 @@
 <h3 id="411-назначение-действий-на-настенные-кнопки">4.11. Назначение действий на настенные кнопки</h3>
 <p>4.11.1. Когда (<strong>первым шагом</strong>) мы вешаем на <strong>короткое нажатие</strong> кнопки с ID = <BID> набор действий (набор — потому как надо дать возможность перебирать эти действия каруселью):</p>
 <ul>
-  <li>в прошивку поступает <code>SET.BUTTONS[&lt;BID&gt;].ACTION_SET_SHORT_ID(&lt;ASID&gt;)</code>
+  <li>в прошивку поступает <code>SET.BUTTONS[&lt;BID&gt;].ACTION_SET_SHORT_NUM(&lt;ASID&gt;)</code>
   </li>
-  <li>прошивка выставляет у себя в USM у кнопки ACTION_SET_SHORT_ID = <ASID>
+  <li>прошивка выставляет у себя в USM у кнопки ACTION_SET_SHORT_NUM = <ASID>
   </li>
-  <li>прошивка отправляет назад ту же телегу <code>SET.BUTTONS[&lt;BID&gt;].ACTION_SET_SHORT_ID(&lt;ASID&gt;)</code>
+  <li>прошивка отправляет назад ту же телегу <code>SET.BUTTONS[&lt;BID&gt;].ACTION_SET_SHORT_NUM(&lt;ASID&gt;)</code>
   </li>
 </ul>
 <p>4.11.2. Снятие набора с <strong>короткого нажатия</strong> производится аналогично, но передачей в качестве <ASID> -1.</p>
 <p>4.11.3. Потом добавляем в набор действия телегами:</p>
 <ul>
-  <li>в прошивку поступает <code>SET.ACTIONS[&lt;ACTID&gt;].ACTION_SET_ID(&lt;ASID&gt;)</code>
+  <li>в прошивку поступает <code>SET.ACTIONS[&lt;ACTID&gt;].ACTION_SET_NUM(&lt;ASID&gt;)</code>
   </li>
-  <li>прошивка выставляет у себя в USM у действия с ID = <ACTID> ACTION_SET_ID = <ASID>
+  <li>прошивка выставляет у себя в USM у действия с ID = <ACTID> ACTION_SET_NUM = <ASID>
   </li>
-  <li>прошивка отправляет назад ту же телегу <code>SET.ACTIONS[&lt;ACTID&gt;].ACTION_SET_ID(&lt;ASID&gt;)</code>
+  <li>прошивка отправляет назад ту же телегу <code>SET.ACTIONS[&lt;ACTID&gt;].ACTION_SET_NUM(&lt;ASID&gt;)</code>
   </li>
 </ul>
 <p>4.11.4. Удаление действия из набора производится аналогично, но с <ASID> = -1.</p>

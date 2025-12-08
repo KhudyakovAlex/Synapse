@@ -64,13 +64,10 @@
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
     BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
-    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_ID"
     ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
-    ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
     ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
-    ACTION_SETS ||--o{ EVENTS : "ACTION_SET_ID"
 
     CONTROLLERS {
         INTEGER ID PK
@@ -171,18 +168,14 @@
         TEXT NAME
         INTEGER BUTTON_PANEL_ID FK
         INTEGER DALI_INST
-        INTEGER ACTION_SET_SHORT_ID FK
+        INTEGER ACTION_SET_SHORT_NUM FK
         INTEGER ACTION_LONG_ID FK
     }
 
     ACTIONS {
         INTEGER ID PK
-        INTEGER ACTION_SET_ID FK
+        INTEGER ACTION_SET_NUM FK
         INTEGER POS
-    }
-
-    ACTION_SETS {
-        INTEGER ID PK
     }
 
     SUBACTIONS {
@@ -325,14 +318,14 @@
 <li>NAME (TEXT) — название кнопки на панели;</li>
 <li><strong>BUTTON_PANEL_ID</strong> (INTEGER) — кнопочная панель, в которой кнопка расположена;</li>
 <li><strong>DALI_INST</strong> (INTEGER) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_SET_SHORT_ID</strong> (INTEGER) — действие по короткому нажатию; -1 — не повешено действие;</li>
+<li><strong>ACTION_SET_SHORT_NUM</strong> (INTEGER) — действие по короткому нажатию; -1 — не повешено действие;</li>
 <li><strong>ACTION_LONG_ID</strong> (INTEGER) — действие по долгому нажатию; -1 — не повешено действие.</li>
 </ul>
 <h3 id="310-actions">3.10. ACTIONS</h3>
 <p>Действия с устройствами.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li><strong>ACTION_SET_ID</strong> (INTEGER) — привязка к набору действий; если действие не входит ни в какой набор: -1;</li>
+<li><strong>ACTION_SET_NUM</strong> (INTEGER) — привязка к набору действий; если действие не входит ни в какой набор: -1;</li>
 <li><strong>POS</strong> (INTEGER) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
 </ul>
 <h3 id="311-subactions">3.11. SUBACTIONS</h3>
@@ -360,12 +353,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="312-action-sets">3.12. ACTION_SETS</h3>
-<p>Наборы действий для навешивания на короткие нажатия кнопок (когда перебираем действия одной кнопкой).</p>
-<ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-</ul>
-<h3 id="313-events">3.13. EVENTS</h3>
+<h3 id="312-events">3.12. EVENTS</h3>
 <p>События расписания.</p>
 <ul>
 <li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>

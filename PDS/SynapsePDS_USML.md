@@ -164,12 +164,12 @@ flowchart LR
 - **ID** (2)
 - **BUTTON_PANEL_ID** (2)
 - **DALI_INST** (1)
-- **ACTION_SET_SHORT_ID** (2)
+- **ACTION_SET_SHORT_NUM** (2)
 - **ACTION_LONG_ID** (2)
 
 **ACTIONS**
 - **ID** (2)
-- **ACTION_SET_ID** (2)
+- **ACTION_SET_NUM** (2)
 - **POS** (1)
 
 **SUBACTIONS**
@@ -178,9 +178,6 @@ flowchart LR
 - **OBJECT_TYPE** (1)
 - **OBJECT_NUM** (1)
 - **VALUE** (1)
-
-**ACTION_SETS**
-- **ID** (2)
 
 **EVENTS**
 - **ID** (2)
@@ -194,7 +191,7 @@ flowchart LR
 
 ```json
 {
-  "VERSION": 1,
+  "VERSION": 3,
   "CONTROLLERS": {
     "ID": 2,
     "NAME": 20,
@@ -275,12 +272,12 @@ flowchart LR
     "ID": 2,
     "BUTTON_PANEL_ID": 2,
     "DALI_INST": 1,
-    "ACTION_SET_SHORT_ID": 2,
+    "ACTION_SET_SHORT_NUM": 2,
     "ACTION_LONG_ID": 2
   },
   "ACTIONS": {
     "ID": 2,
-    "ACTION_SET_ID": 2,
+    "ACTION_SET_NUM": 2,
     "POS": 1
   },
   "SUBACTIONS": {
@@ -289,9 +286,6 @@ flowchart LR
     "OBJECT_TYPE": 1,
     "OBJECT_NUM": 1,
     "VALUE": 1
-  },
-  "ACTION_SETS": {
-    "ID": 2
   },
   "EVENTS": {
     "ID": 2,

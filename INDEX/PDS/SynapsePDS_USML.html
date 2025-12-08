@@ -273,7 +273,7 @@
   </li>
   <li><strong>DALI_INST</strong> (1)
   </li>
-  <li><strong>ACTION_SET_SHORT_ID</strong> (2)
+  <li><strong>ACTION_SET_SHORT_NUM</strong> (2)
   </li>
   <li><strong>ACTION_LONG_ID</strong> (2)
   </li>
@@ -282,7 +282,7 @@
 <ul>
   <li><strong>ID</strong> (2)
   </li>
-  <li><strong>ACTION_SET_ID</strong> (2)
+  <li><strong>ACTION_SET_NUM</strong> (2)
   </li>
   <li><strong>POS</strong> (1)
   </li>
@@ -298,11 +298,6 @@
   <li><strong>OBJECT_NUM</strong> (1)
   </li>
   <li><strong>VALUE</strong> (1)
-  </li>
-</ul>
-<p><strong>ACTION_SETS</strong></p>
-<ul>
-  <li><strong>ID</strong> (2)
   </li>
 </ul>
 <p><strong>EVENTS</strong></p>
@@ -322,7 +317,7 @@
 </ul>
 <h3 id="33-json-представление-структуры-content">3.3. JSON-представление структуры Content</h3>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 1,
+  &quot;VERSION&quot;: 3,
   &quot;CONTROLLERS&quot;: {
     &quot;ID&quot;: 2,
     &quot;NAME&quot;: 20,
@@ -403,12 +398,12 @@
     &quot;ID&quot;: 2,
     &quot;BUTTON_PANEL_ID&quot;: 2,
     &quot;DALI_INST&quot;: 1,
-    &quot;ACTION_SET_SHORT_ID&quot;: 2,
+    &quot;ACTION_SET_SHORT_NUM&quot;: 2,
     &quot;ACTION_LONG_ID&quot;: 2
   },
   &quot;ACTIONS&quot;: {
     &quot;ID&quot;: 2,
-    &quot;ACTION_SET_ID&quot;: 2,
+    &quot;ACTION_SET_NUM&quot;: 2,
     &quot;POS&quot;: 1
   },
   &quot;SUBACTIONS&quot;: {
@@ -417,9 +412,6 @@
     &quot;OBJECT_TYPE&quot;: 1,
     &quot;OBJECT_NUM&quot;: 1,
     &quot;VALUE&quot;: 1
-  },
-  &quot;ACTION_SETS&quot;: {
-    &quot;ID&quot;: 2
   },
   &quot;EVENTS&quot;: {
     &quot;ID&quot;: 2,

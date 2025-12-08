@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 05.12.2025
+**Последнее изменение:** 08.12.2025
 
 ```mermaid
 erDiagram
@@ -15,12 +15,9 @@ erDiagram
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
     BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
-    ACTION_SETS ||--o{ BUTTONS : "ACTION_SET_SHORT_ID"
-    ACTION_SETS ||--o{ ACTIONS : "ACTION_SET_ID"
     ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
-    ACTION_SETS ||--o{ EVENTS : "ACTION_SET_ID"
     ACTIONS ||--o{ SUBACTIONS : "ACTION_ID"
 
     CONTROLLERS {
@@ -100,18 +97,14 @@ erDiagram
         BOOL EXIST
         UINT8 BUTTON_PANEL_ID
         UINT8 DALI_INST
-        SHORT ACTION_SET_SHORT_ID
+        SHORT ACTION_SET_SHORT_NUM
         SHORT ACTION_LONG_ID
     }
 
     ACTIONS {
         BOOL EXIST
-        SHORT ACTION_SET_ID
+        SHORT ACTION_SET_NUM
         UINT8 POS
-    }
-
-    ACTION_SETS {
-        BOOL EXIST
     }
 
     SUBACTIONS {
