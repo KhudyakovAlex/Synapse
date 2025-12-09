@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 09.12.2025, 15:47 МСК
+**Последнее изменение:** 09.12.2025, 15:56 МСК
 
 ## 1. Термины и определения
 
@@ -44,13 +44,13 @@ flowchart LR
       FWUSM[(FW-USM)]
     end
 
-    APPUSM -.JSON.-> UI
-    APPUSM -.JSON.-> LLM
-    LLM -.JSON.-> C-OUT
-    UI -.JSON.-> C-OUT
-    C-OUT e1@--> FWUSM
-    FWUSM -.USML.-> C-IN
-    C-IN -.JSON.-> APPUSM
+    APPUSM e1@-.JSON.-> UI
+    APPUSM e2@-.JSON.-> LLM
+    LLM e3@-.JSON.-> C-OUT
+    UI e4@-.JSON.-> C-OUT
+    C-OUT e5@-.USML.-> FWUSM
+    FWUSM e6@-.USML.-> C-IN
+    C-IN e7@-.JSON.-> APPUSM
 
     style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
     style Конвертер fill:#dddddd,stroke:#dddddd,color:#555555
@@ -63,7 +63,13 @@ flowchart LR
     style C-IN fill:#ffffff,stroke:#888888,color:#555555
     style C-OUT fill:#ffffff,stroke:#888888,color:#555555
 
-    e1@{ animation: fast }
+    e1@{ animation: slow }
+    e2@{ animation: slow }
+    e3@{ animation: slow }
+    e4@{ animation: slow }
+    e5@{ animation: slow }
+    e6@{ animation: slow }
+    e7@{ animation: slow }
 ```
 
 2.2. Экземпляр USM в приложении (APP-USM) — своего рода кэш USM контроллера (FW-USM). Так же как USM контроллера хранит состояние устройств DALI, чтобы за ним каждый раз не лазать в линию, так и USM в приложении нужен для оперативного получения состояния системы LLM'кой и UI.

@@ -94,14 +94,14 @@ DIAGRAM_TEMPLATE = """<!DOCTYPE html>
         }}
         
     </style>
-    <script>
-        window.mermaid = {{
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({{ 
             startOnLoad: true,
             theme: "default",
             securityLevel: "loose"
-        }};
+        }});
     </script>
-    <script defer src="{js_path}assets/js/mermaid.min.js"></script>
     <script>
         // Zoom with mouse wheel
         let currentScale = 1;
@@ -226,7 +226,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             securityLevel: "loose"
         }};
     </script>
-    <script defer src="{js_path}assets/js/mermaid.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({{ startOnLoad: true }});
+    </script>
 </head>
 <body>
     <!-- Logo Bar -->
