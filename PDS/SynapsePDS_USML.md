@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 09.12.2025, 15:39 МСК
+**Последнее изменение:** 09.12.2025, 15:42 МСК
 
 ## 1. Термины и определения
 
@@ -31,31 +31,29 @@ flowchart LR
     end
 
     subgraph Телефон
-      direction LR
-      UI@{ shape: div-rect, label: "Кнопочный UI" }
-      APPUSM@{ shape: cyl, label: "APP-USM" }
+      UI[Кнопочный UI]
+      APPUSM[(APP-USM)]
 
-      subgraph USML/JSON-конвертер
-        direction LR
+      subgraph Конвертер["USML/JSON-конвертер"]
         C-IN{{USML/JSON}}
         C-OUT{{JSON/USML}}
       end
     end
   
     subgraph Контроллер
-      FWUSM@{ shape: cyl, label: "FW-USM" }
+      FWUSM[(FW-USM)]
     end
 
-    APPUSM e1@-.JSON.-> UI
-    APPUSM e2@-.JSON.-> LLM
-    LLM e3@-.JSON.-> C-OUT
-    UI e4@-.JSON.-> C-OUT
-    C-OUT e5@-.USML.-> FWUSM
-    FWUSM e6@-.USML.-> C-IN
-    C-IN e7@-.JSON.-> APPUSM
+    APPUSM -.JSON.-> UI
+    APPUSM -.JSON.-> LLM
+    LLM -.JSON.-> C-OUT
+    UI -.JSON.-> C-OUT
+    C-OUT -.USML.-> FWUSM
+    FWUSM -.USML.-> C-IN
+    C-IN -.JSON.-> APPUSM
 
     style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
-    style USML/JSON-конвертер fill:#dddddd,stroke:#dddddd,color:#555555
+    style Конвертер fill:#dddddd,stroke:#dddddd,color:#555555
     style Телефон fill:#f1f1f1,stroke:#f1f1f1,color:#555555
     style Контроллер fill:#eeeeee,stroke:#eeeeee,color:#555555
     style LLM fill:#ffcc99,stroke:#ff8800,color:#663300
@@ -64,14 +62,6 @@ flowchart LR
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
     style C-IN fill:#ffffff,stroke:#888888,color:#555555
     style C-OUT fill:#ffffff,stroke:#888888,color:#555555
-
-    e1@{ animation: slow }
-    e2@{ animation: slow }
-    e3@{ animation: slow }
-    e4@{ animation: slow }
-    e5@{ animation: slow }
-    e6@{ animation: slow }
-    e7@{ animation: slow }
 ```
 
 2.2. Экземпляр USM в приложении (APP-USM) — своего рода кэш USM контроллера (FW-USM). Так же как USM контроллера хранит состояние устройств DALI, чтобы за ним каждый раз не лазать в линию, так и USM в приложении нужен для оперативного получения состояния системы LLM'кой и UI.
