@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 09.12.2025, 19:40 МСК
+**Последнее изменение:** 09.12.2025, 19:53 МСК
 
 ## 1. Термины и определения
 
@@ -155,32 +155,6 @@
 - **SMOOTH** (char[1]) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);
 - **ACTION_ID** (short) — действие.
 
-## 4. Количество записей в таблицах
-
-4.1. **CONTROLLERS** — 1.
-
-4.2. **LOCATIONS** — 16.
-
-4.3. **LUMINAIRES** — 64.
-
-4.4. **SCENE_LUMINAIRES** — 320.
-
-4.5. **GROUPS** — 16.
-
-4.6. **PRES_SENSORS** — 64.
-
-4.7. **BRIGHT_SENSORS** — 64.
-
-4.8. **BUTTON_PANELS** — 64.
-
-4.9. **BUTTONS** — 64.
-
-4.10. **ACTIONS** — 255.
-
-4.11. **SUBACTIONS** — 255.
-
-4.12. **EVENTS** — 255.
-
 ## 5. Структура БД прошивки (USM прошивки)
 
 **CONTROLLERS** (1)
@@ -227,7 +201,7 @@
 - **VAL_B** (1)
 - **VAL_W** (1)
 
-**PRES_SENSORS** (16)
+**PRES_SENSORS** (64)
 - **EXIST** (1)
 - **DALI_ADDR** (1)
 - **DALI_INST** (1)
@@ -237,7 +211,7 @@
 - **DELAY** (1)
 - **STATUS** (1)
 
-**BRIGHT_SENSORS** (16)
+**BRIGHT_SENSORS** (64)
 - **EXIST** (1)
 - **DALI_ADDR** (1)
 - **DALI_INST** (1)
@@ -245,23 +219,23 @@
 - **GROUP_ID** (2)
 - **STATUS** (1)
 
-**BUTTON_PANELS** (16)
+**BUTTON_PANELS** (64)
 - **EXIST** (1)
 - **DALI_ADDR** (1)
 - **LOCATION_ID** (2)
 - **STATUS** (1)
 
-**BUTTONS** (128)
+**BUTTONS** (512)
 - **BUTTON_PANEL_ID** (2)
 - **DALI_INST** (1)
 - **ACTION_SET_SHORT_NUM** (2)
 - **ACTION_LONG_ID** (2)
 
-**ACTIONS** (256)
+**ACTIONS** (512)
 - **ACTION_SET_NUM** (2)
 - **POS** (1)
 
-**SUBACTIONS** (256)
+**SUBACTIONS** (512)
 - **ACTION_ID** (2)
 - **OBJECT_TYPE** (1)
 - **OBJECT_NUM** (1)
@@ -280,7 +254,7 @@
 
 ```json
 {
-  "VERSION": 5,
+  "VERSION": 6,
   "CONTROLLERS": {
     "RECORDS": 1,
     "FIELDS": {
@@ -341,7 +315,7 @@
     }
   },
   "PRES_SENSORS": {
-    "RECORDS": 16,
+    "RECORDS": 64,
     "FIELDS": {
       "EXIST": 1,
       "DALI_ADDR": 1,
@@ -354,7 +328,7 @@
     }
   },
   "BRIGHT_SENSORS": {
-    "RECORDS": 16,
+    "RECORDS": 64,
     "FIELDS": {
       "EXIST": 1,
       "DALI_ADDR": 1,
@@ -365,7 +339,7 @@
     }
   },
   "BUTTON_PANELS": {
-    "RECORDS": 16,
+    "RECORDS": 64,
     "FIELDS": {
       "EXIST": 1,
       "DALI_ADDR": 1,
@@ -374,7 +348,7 @@
     }
   },
   "BUTTONS": {
-    "RECORDS": 128,
+    "RECORDS": 512,
     "FIELDS": {
       "BUTTON_PANEL_ID": 2,
       "DALI_INST": 1,
@@ -383,14 +357,14 @@
     }
   },
   "ACTIONS": {
-    "RECORDS": 256,
+    "RECORDS": 512,
     "FIELDS": {
       "ACTION_SET_NUM": 2,
       "POS": 1
     }
   },
   "SUBACTIONS": {
-    "RECORDS": 256,
+    "RECORDS": 512,
     "FIELDS": {
       "ACTION_ID": 2,
       "OBJECT_TYPE": 1,

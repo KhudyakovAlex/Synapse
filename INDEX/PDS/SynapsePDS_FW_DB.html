@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 09.12.2025, 19:19 МСК</p>
+<p><strong>Последнее изменение:</strong> 09.12.2025, 19:40 МСК</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_diagram_0.html">erDiagram
     LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
     LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
@@ -314,19 +314,6 @@
 <li><strong>SMOOTH</strong> (char[1]) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);</li>
 <li><strong>ACTION_ID</strong> (short) — действие.</li>
 </ul>
-<h2 id="4-количество-записей-в-таблицах">4. Количество записей в таблицах</h2>
-<p>4.1. <strong>CONTROLLERS</strong> — 1.</p>
-<p>4.2. <strong>LOCATIONS</strong> — 16.</p>
-<p>4.3. <strong>LUMINAIRES</strong> — 64.</p>
-<p>4.4. <strong>SCENE_LUMINAIRES</strong> — 320.</p>
-<p>4.5. <strong>GROUPS</strong> — 16.</p>
-<p>4.6. <strong>PRES_SENSORS</strong> — 64.</p>
-<p>4.7. <strong>BRIGHT_SENSORS</strong> — 64.</p>
-<p>4.8. <strong>BUTTON_PANELS</strong> — 64.</p>
-<p>4.9. <strong>BUTTONS</strong> — 64.</p>
-<p>4.10. <strong>ACTIONS</strong> — 255.</p>
-<p>4.11. <strong>SUBACTIONS</strong> — 255.</p>
-<p>4.12. <strong>EVENTS</strong> — 255.</p>
 <h2 id="5-структура-бд-прошивки-usm-прошивки">5. Структура БД прошивки (USM прошивки)</h2>
 <p><strong>CONTROLLERS</strong> (1)</p>
 <ul>
@@ -411,7 +398,7 @@
   <li><strong>VAL_W</strong> (1)
   </li>
 </ul>
-<p><strong>PRES_SENSORS</strong> (16)</p>
+<p><strong>PRES_SENSORS</strong> (64)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -430,7 +417,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BRIGHT_SENSORS</strong> (16)</p>
+<p><strong>BRIGHT_SENSORS</strong> (64)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -445,7 +432,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BUTTON_PANELS</strong> (16)</p>
+<p><strong>BUTTON_PANELS</strong> (64)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -456,7 +443,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BUTTONS</strong> (128)</p>
+<p><strong>BUTTONS</strong> (512)</p>
 <ul>
   <li><strong>BUTTON_PANEL_ID</strong> (2)
   </li>
@@ -467,14 +454,14 @@
   <li><strong>ACTION_LONG_ID</strong> (2)
   </li>
 </ul>
-<p><strong>ACTIONS</strong> (256)</p>
+<p><strong>ACTIONS</strong> (512)</p>
 <ul>
   <li><strong>ACTION_SET_NUM</strong> (2)
   </li>
   <li><strong>POS</strong> (1)
   </li>
 </ul>
-<p><strong>SUBACTIONS</strong> (256)</p>
+<p><strong>SUBACTIONS</strong> (512)</p>
 <ul>
   <li><strong>ACTION_ID</strong> (2)
   </li>
@@ -501,7 +488,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 5,
+  &quot;VERSION&quot;: 6,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -562,7 +549,7 @@
     }
   },
   &quot;PRES_SENSORS&quot;: {
-    &quot;RECORDS&quot;: 16,
+    &quot;RECORDS&quot;: 64,
     &quot;FIELDS&quot;: {
       &quot;EXIST&quot;: 1,
       &quot;DALI_ADDR&quot;: 1,
@@ -575,7 +562,7 @@
     }
   },
   &quot;BRIGHT_SENSORS&quot;: {
-    &quot;RECORDS&quot;: 16,
+    &quot;RECORDS&quot;: 64,
     &quot;FIELDS&quot;: {
       &quot;EXIST&quot;: 1,
       &quot;DALI_ADDR&quot;: 1,
@@ -586,7 +573,7 @@
     }
   },
   &quot;BUTTON_PANELS&quot;: {
-    &quot;RECORDS&quot;: 16,
+    &quot;RECORDS&quot;: 64,
     &quot;FIELDS&quot;: {
       &quot;EXIST&quot;: 1,
       &quot;DALI_ADDR&quot;: 1,
@@ -595,7 +582,7 @@
     }
   },
   &quot;BUTTONS&quot;: {
-    &quot;RECORDS&quot;: 128,
+    &quot;RECORDS&quot;: 512,
     &quot;FIELDS&quot;: {
       &quot;BUTTON_PANEL_ID&quot;: 2,
       &quot;DALI_INST&quot;: 1,
@@ -604,14 +591,14 @@
     }
   },
   &quot;ACTIONS&quot;: {
-    &quot;RECORDS&quot;: 256,
+    &quot;RECORDS&quot;: 512,
     &quot;FIELDS&quot;: {
       &quot;ACTION_SET_NUM&quot;: 2,
       &quot;POS&quot;: 1
     }
   },
   &quot;SUBACTIONS&quot;: {
-    &quot;RECORDS&quot;: 256,
+    &quot;RECORDS&quot;: 512,
     &quot;FIELDS&quot;: {
       &quot;ACTION_ID&quot;: 2,
       &quot;OBJECT_TYPE&quot;: 1,
