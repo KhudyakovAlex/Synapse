@@ -474,6 +474,47 @@ class MarkdownConverter:
         
         return result
     
+    def convert_section_links(self, text: str, current_file: Path) -> str:
+        """Convert references like '**ИмяДокумента** — раздел N «Название раздела»' to links with anchors"""
+        # Determine relative path prefix based on current file location
+        try:
+            rel_from_index = current_file.relative_to(self.index_root)
+            depth = len(rel_from_index.parts) - 1
+            prefix = '../' * depth if depth > 0 else ''
+        except ValueError:
+            prefix = ''
+        
+        # Pattern: **ИмяДокумента** — раздел N «Название раздела»
+        # Captures: (doc_name, section_num, section_title)
+        pattern = r'\*\*([A-Za-z0-9_]+)\*\*\s*—\s*раздел\s+([\d.]+)\s+«([^»]+)»'
+        
+        def make_section_link(match):
+            doc_name = match.group(1)
+            section_num = match.group(2)
+            section_title = match.group(3)
+            
+            # Create anchor from section number and title
+            # Remove dots from section number for anchor (3.2 -> 32)
+            anchor_num = section_num.replace('.', '')
+            # Convert title to lowercase, replace spaces with hyphens
+            anchor_title = section_title.lower().strip()
+            anchor_title = re.sub(r'\s+', '-', anchor_title)
+            # Remove special characters except hyphens and cyrillic letters
+            anchor_title = re.sub(r'[^\w\-а-яё]', '', anchor_title, flags=re.UNICODE)
+            
+            anchor = f"#{anchor_num}-{anchor_title}"
+            
+            # Determine HTML file path
+            html_file = f"{doc_name}.html"
+            
+            # Create full link
+            full_link = f'{prefix}PDS/{html_file}{anchor}'
+            
+            # Return link preserving original text
+            return f'<a href="{full_link}"><strong>{doc_name}</strong> — раздел {section_num} «{section_title}»</a>'
+        
+        return re.sub(pattern, make_section_link, text)
+    
     def convert_lists(self, text: str) -> str:
         """Convert markdown lists to HTML"""
         lines = text.split('\n')
@@ -907,6 +948,9 @@ class MarkdownConverter:
             
             # Convert plain URLs to clickable links
             html_content = self.convert_urls(html_content)
+            
+            # Convert section references with anchors (must be before convert_md_file_links)
+            html_content = self.convert_section_links(html_content, output_file)
             
             # Convert MD file references to clickable links
             html_content = self.convert_md_file_links(html_content, output_file)
