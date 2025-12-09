@@ -314,7 +314,7 @@
 <li><strong>SMOOTH</strong> (char[1]) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);</li>
 <li><strong>ACTION_ID</strong> (short) — действие.</li>
 </ul>
-<h2 id="4-ограничения-по-количеству-записей-в-таблицах-для-прошивки">4. Ограничения по количеству записей в таблицах (для прошивки)</h2>
+<h2 id="4-количество-записей-в-таблицах">4. Количество записей в таблицах</h2>
 <p>4.1. <strong>CONTROLLERS</strong> — 1.</p>
 <p>4.2. <strong>LOCATIONS</strong> — 16.</p>
 <p>4.3. <strong>LUMINAIRES</strong> — 64.</p>
@@ -328,7 +328,7 @@
 <p>4.11. <strong>SUBACTIONS</strong> — 255.</p>
 <p>4.12. <strong>EVENTS</strong> — 255.</p>
 <h2 id="5-структура-бд-прошивки-usm-прошивки">5. Структура БД прошивки (USM прошивки)</h2>
-<p><strong>CONTROLLERS</strong></p>
+<p><strong>CONTROLLERS</strong> (1)</p>
 <ul>
   <li><strong>NAME</strong> (20)
   </li>
@@ -347,7 +347,7 @@
   <li><strong>IDATA</strong> (50000)
   </li>
 </ul>
-<p><strong>LOCATIONS</strong></p>
+<p><strong>LOCATIONS</strong> (16)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -356,7 +356,7 @@
   <li><strong>SCENE_NUM</strong> (1)
   </li>
 </ul>
-<p><strong>GROUPS</strong></p>
+<p><strong>GROUPS</strong> (16)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -365,7 +365,7 @@
   <li><strong>SCENE_NUM</strong> (1)
   </li>
 </ul>
-<p><strong>LUMINAIRES</strong></p>
+<p><strong>LUMINAIRES</strong> (64)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -392,7 +392,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>SCENE_LUMINAIRES</strong></p>
+<p><strong>SCENE_LUMINAIRES</strong> (320)</p>
 <ul>
   <li><strong>SCENE_NUM</strong> (1)
   </li>
@@ -411,7 +411,7 @@
   <li><strong>VAL_W</strong> (1)
   </li>
 </ul>
-<p><strong>PRES_SENSORS</strong></p>
+<p><strong>PRES_SENSORS</strong> (16)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -430,7 +430,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BRIGHT_SENSORS</strong></p>
+<p><strong>BRIGHT_SENSORS</strong> (16)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -445,7 +445,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BUTTON_PANELS</strong></p>
+<p><strong>BUTTON_PANELS</strong> (16)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -456,7 +456,7 @@
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
-<p><strong>BUTTONS</strong></p>
+<p><strong>BUTTONS</strong> (128)</p>
 <ul>
   <li><strong>BUTTON_PANEL_ID</strong> (2)
   </li>
@@ -467,14 +467,14 @@
   <li><strong>ACTION_LONG_ID</strong> (2)
   </li>
 </ul>
-<p><strong>ACTIONS</strong></p>
+<p><strong>ACTIONS</strong> (256)</p>
 <ul>
   <li><strong>ACTION_SET_NUM</strong> (2)
   </li>
   <li><strong>POS</strong> (1)
   </li>
 </ul>
-<p><strong>SUBACTIONS</strong></p>
+<p><strong>SUBACTIONS</strong> (256)</p>
 <ul>
   <li><strong>ACTION_ID</strong> (2)
   </li>
@@ -485,7 +485,7 @@
   <li><strong>VALUE</strong> (1)
   </li>
 </ul>
-<p><strong>EVENTS</strong></p>
+<p><strong>EVENTS</strong> (256)</p>
 <ul>
   <li><strong>EXIST</strong> (1)
   </li>
@@ -498,8 +498,141 @@
   <li><strong>ACTION_ID</strong> (2)
   </li>
 </ul>
-<h2 id="6-вопросы">6. Вопросы</h2>
-<h2 id="7-идеи">7. <a href="../PRD/Идеи.html">Идеи</a></h2>
+<h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
+<p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
+<pre><code class="language-json">{
+  &quot;VERSION&quot;: 5,
+  &quot;CONTROLLERS&quot;: {
+    &quot;RECORDS&quot;: 1,
+    &quot;FIELDS&quot;: {
+      &quot;NAME&quot;: 20,
+      &quot;PASSWORD&quot;: 4,
+      &quot;IS_SCHEDULE&quot;: 1,
+      &quot;IS_AUTO&quot;: 1,
+      &quot;ICO_NUM&quot;: 1,
+      &quot;STATUS&quot;: 1,
+      &quot;SCENE_NUM&quot;: 1,
+      &quot;IDATA&quot;: 50000
+    }
+  },
+  &quot;LOCATIONS&quot;: {
+    &quot;RECORDS&quot;: 16,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;IS_AUTO&quot;: 1,
+      &quot;SCENE_NUM&quot;: 1
+    }
+  },
+  &quot;GROUPS&quot;: {
+    &quot;RECORDS&quot;: 16,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;LOCATION_ID&quot;: 2,
+      &quot;SCENE_NUM&quot;: 1
+    }
+  },
+  &quot;LUMINAIRES&quot;: {
+    &quot;RECORDS&quot;: 64,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;DALI_ADDR&quot;: 1,
+      &quot;LOCATION_ID&quot;: 2,
+      &quot;GROUP_ID&quot;: 2,
+      &quot;VAL_BRIGHT&quot;: 1,
+      &quot;VAL_TW&quot;: 1,
+      &quot;VAL_R&quot;: 1,
+      &quot;VAL_G&quot;: 1,
+      &quot;VAL_B&quot;: 1,
+      &quot;VAL_W&quot;: 1,
+      &quot;SCENE_NUM&quot;: 1,
+      &quot;STATUS&quot;: 1
+    }
+  },
+  &quot;SCENE_LUMINAIRES&quot;: {
+    &quot;RECORDS&quot;: 320,
+    &quot;FIELDS&quot;: {
+      &quot;SCENE_NUM&quot;: 1,
+      &quot;LUMINAIRE_ID&quot;: 1,
+      &quot;VAL_BRIGHT&quot;: 1,
+      &quot;VAL_TW&quot;: 1,
+      &quot;VAL_R&quot;: 1,
+      &quot;VAL_G&quot;: 1,
+      &quot;VAL_B&quot;: 1,
+      &quot;VAL_W&quot;: 1
+    }
+  },
+  &quot;PRES_SENSORS&quot;: {
+    &quot;RECORDS&quot;: 16,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;DALI_ADDR&quot;: 1,
+      &quot;DALI_INST&quot;: 1,
+      &quot;LOCATION_ID&quot;: 2,
+      &quot;ACTION_OCCUPANCY_ID&quot;: 2,
+      &quot;ACTION_VACANCY_ID&quot;: 2,
+      &quot;DELAY&quot;: 1,
+      &quot;STATUS&quot;: 1
+    }
+  },
+  &quot;BRIGHT_SENSORS&quot;: {
+    &quot;RECORDS&quot;: 16,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;DALI_ADDR&quot;: 1,
+      &quot;DALI_INST&quot;: 1,
+      &quot;LOCATION_ID&quot;: 2,
+      &quot;GROUP_ID&quot;: 2,
+      &quot;STATUS&quot;: 1
+    }
+  },
+  &quot;BUTTON_PANELS&quot;: {
+    &quot;RECORDS&quot;: 16,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;DALI_ADDR&quot;: 1,
+      &quot;LOCATION_ID&quot;: 2,
+      &quot;STATUS&quot;: 1
+    }
+  },
+  &quot;BUTTONS&quot;: {
+    &quot;RECORDS&quot;: 128,
+    &quot;FIELDS&quot;: {
+      &quot;BUTTON_PANEL_ID&quot;: 2,
+      &quot;DALI_INST&quot;: 1,
+      &quot;ACTION_SET_SHORT_NUM&quot;: 2,
+      &quot;ACTION_LONG_ID&quot;: 2
+    }
+  },
+  &quot;ACTIONS&quot;: {
+    &quot;RECORDS&quot;: 256,
+    &quot;FIELDS&quot;: {
+      &quot;ACTION_SET_NUM&quot;: 2,
+      &quot;POS&quot;: 1
+    }
+  },
+  &quot;SUBACTIONS&quot;: {
+    &quot;RECORDS&quot;: 256,
+    &quot;FIELDS&quot;: {
+      &quot;ACTION_ID&quot;: 2,
+      &quot;OBJECT_TYPE&quot;: 1,
+      &quot;OBJECT_NUM&quot;: 1,
+      &quot;VALUE&quot;: 1
+    }
+  },
+  &quot;EVENTS&quot;: {
+    &quot;RECORDS&quot;: 256,
+    &quot;FIELDS&quot;: {
+      &quot;EXIST&quot;: 1,
+      &quot;DAYS&quot;: 7,
+      &quot;TIME&quot;: 4,
+      &quot;SMOOTH&quot;: 1,
+      &quot;ACTION_ID&quot;: 2
+    }
+  }
+}
+</code></pre>
+<h2 id="7-вопросы">7. Вопросы</h2>
+<h2 id="8-идеи">8. <a href="../PRD/Идеи.html">Идеи</a></h2>
         </main>
     </div>
 
