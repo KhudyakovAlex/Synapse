@@ -201,7 +201,7 @@ flowchart LR
     APPUSM -.JSON.-> LLM
     LLM -.JSON.-> C-OUT
     UI -.JSON.-> C-OUT
-    C-OUT -.USML.-> FWUSM
+    C-OUT e1@--> FWUSM
     FWUSM -.USML.-> C-IN
     C-IN -.JSON.-> APPUSM
 
@@ -215,6 +215,8 @@ flowchart LR
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
     style C-IN fill:#ffffff,stroke:#888888,color:#555555
     style C-OUT fill:#ffffff,stroke:#888888,color:#555555
+
+    e1@{ animation: fast }
 
         </div>
     </div>

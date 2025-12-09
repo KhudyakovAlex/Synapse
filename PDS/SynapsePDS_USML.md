@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 09.12.2025, 15:42 МСК
+**Последнее изменение:** 09.12.2025, 15:47 МСК
 
 ## 1. Термины и определения
 
@@ -48,7 +48,7 @@ flowchart LR
     APPUSM -.JSON.-> LLM
     LLM -.JSON.-> C-OUT
     UI -.JSON.-> C-OUT
-    C-OUT -.USML.-> FWUSM
+    C-OUT e1@--> FWUSM
     FWUSM -.USML.-> C-IN
     C-IN -.JSON.-> APPUSM
 
@@ -62,6 +62,8 @@ flowchart LR
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
     style C-IN fill:#ffffff,stroke:#888888,color:#555555
     style C-OUT fill:#ffffff,stroke:#888888,color:#555555
+
+    e1@{ animation: fast }
 ```
 
 2.2. Экземпляр USM в приложении (APP-USM) — своего рода кэш USM контроллера (FW-USM). Так же как USM контроллера хранит состояние устройств DALI, чтобы за ним каждый раз не лазать в линию, так и USM в приложении нужен для оперативного получения состояния системы LLM'кой и UI.
