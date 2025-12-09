@@ -53,12 +53,15 @@ def update_date_in_file(repo_root, relative_path):
         if '**Последнее изменение:**' not in content:
             return False
         
-        # Получаем текущую дату в формате DD.MM.YYYY
-        current_date = datetime.now().strftime('%d.%m.%Y')
+        # Получаем текущую дату и время в московском часовом поясе (UTC+3)
+        from datetime import timezone, timedelta
+        moscow_tz = timezone(timedelta(hours=3))
+        moscow_time = datetime.now(moscow_tz)
+        current_datetime = moscow_time.strftime('%d.%m.%Y, %H:%M МСК')
         
-        # Заменяем дату
-        pattern = r'\*\*Последнее изменение:\*\* \d{2}\.\d{2}\.\d{4}'
-        replacement = f'**Последнее изменение:** {current_date}'
+        # Заменяем дату и время
+        pattern = r'\*\*Последнее изменение:\*\* \d{2}\.\d{2}\.\d{4}(?:, \d{2}:\d{2} МСК)?'
+        replacement = f'**Последнее изменение:** {current_datetime}'
         new_content = re.sub(pattern, replacement, content)
         
         # Если дата изменилась, записываем файл
