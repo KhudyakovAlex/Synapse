@@ -180,30 +180,51 @@
         <div class="mermaid">
 flowchart LR
     subgraph Сервер
-        LLM((LLM))
+      LLM((LLM))
     end
 
     subgraph Телефон
-        UI[UI]
-        APPUSM(APP-USM)
-        C-IN{{C-IN}}
-        C-OUT{{C-OUT}}
+      direction LR
+      UI@{ shape: div-rect, label: "Кнопочный UI" }
+      APPUSM@{ shape: cyl, label: "APP-USM" }
+
+      subgraph USML/JSON-конвертер
+        direction LR
+        C-IN{{USML/JSON}}
+        C-OUT{{JSON/USML}}
+      end<br>
     end
 
     subgraph Контроллер
-        FWUSM(FW-USM)
+      FWUSM@{ shape: cyl, label: "FW-USM" }
     end
 
-    APPUSM-.JSON.->UI
-    APPUSM-.JSON.->LLM
-    LLM-.JSON.->C-OUT
-    UI-.JSON.->C-OUT
-    C-OUT-.FW-USML.->FWUSM
-    FWUSM-.FW-USML.->C-IN
-    C-IN-.USML.->APPUSM
+    APPUSM e1@-.JSON.-> UI
+    APPUSM e2@-.JSON.-> LLM
+    LLM e3@-.JSON.-> C-OUT
+    UI e4@-.JSON.-> C-OUT
+    C-OUT e5@-.USML.-> FWUSM
+    FWUSM e6@-.USML.-> C-IN
+    C-IN e7@-.JSON.-> APPUSM
 
+    style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style USML/JSON-конвертер fill:#dddddd,stroke:#dddddd,color:#555555
+    style Телефон fill:#f1f1f1,stroke:#f1f1f1,color:#555555
+    style Контроллер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style LLM fill:#ffcc99,stroke:#ff8800,color:#663300
+    style UI fill:#b3ffb3,stroke:#00cc00,color:#006600
     style APPUSM fill:#ffcccc,stroke:#cc0000,color:#660000
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
+    style C-IN fill:#ffffff,stroke:#888888,color:#555555
+    style C-OUT fill:#ffffff,stroke:#888888,color:#555555
+
+    e1@{ animation: slow }
+    e2@{ animation: slow }
+    e3@{ animation: slow }
+    e4@{ animation: slow }
+    e5@{ animation: slow }
+    e6@{ animation: slow }
+    e7@{ animation: slow }
 
         </div>
     </div>

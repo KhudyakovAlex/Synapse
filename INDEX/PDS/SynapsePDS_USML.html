@@ -56,43 +56,64 @@
 <p><strong>Последнее изменение:</strong> 08.12.2025</p>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
 <p>1.1. <strong>USM</strong> (Unit System Model) — виртуальная модель системы освещения.</p>
-<p>1.2. <strong>FW-USM</strong> — USM в прошивке.</p>
-<p>1.3. <strong>APP-USM</strong> — USM в приложении.</p>
-<p>1.4. <strong>USML</strong> (Unit System Model Language) — система команд (телеграмм) для обмена данными с экземплярами USM.</p>
-<p>1.5. <strong>FW-USML</strong> — неизвестная науке система команд, применяемая на стороне контроллера. Однозначно конвертируется из USML и обратно.</p>
+<p>1.2. <strong>FW-USM</strong> — USM в прошивке.  В виде массивов структур языка С. Описано в <a href="../PDS/SynapsePDS_FW_DB.html">SynapsePDS_FW_DB</a>.</p>
+<p>1.3. <strong>APP-USM</strong> — USM в приложении. В виде реляционной базы в SQLite. Описано в <a href="../PDS/SynapsePDS_APP_DB.html">SynapsePDS_APP_DB</a>.</p>
+<p>1.4. <strong>USML</strong> (Unit System Model Language) — система команд (телеграмм) для обмена данными между приложением и USM в прошивке.</p>
+<p>1.5. <strong>JSON/USML-конвертер</strong> - конвртилка телеграмм из формата JSON в USML и взад.</p>
 <p>1.6. <strong>Телеграмма</strong>, она же <strong>телега</strong> — название команды в USML, названная так, дабы отличать их от других команд.</p>
 <p>1.7. <strong>АПК</strong> — аппаратно-программный комплекс Синапс.</p>
 <h2 id="2-общие-моменты">2. Общие моменты</h2>
 <p>2.1. Передача данных в АПК:</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_USML_diagram_0.html">flowchart LR
     subgraph Сервер
-        LLM((LLM))
+      LLM((LLM))
     end
 
     subgraph Телефон
-        UI[UI]
-        APPUSM(APP-USM)
-        C-IN{{C-IN}}
-        C-OUT{{C-OUT}}
+      direction LR
+      UI@{ shape: div-rect, label: "Кнопочный UI" }
+      APPUSM@{ shape: cyl, label: "APP-USM" }
+
+      subgraph USML/JSON-конвертер
+        direction LR
+        C-IN{{USML/JSON}}
+        C-OUT{{JSON/USML}}
+      end<br>
     end
 
     subgraph Контроллер
-        FWUSM(FW-USM)
+      FWUSM@{ shape: cyl, label: "FW-USM" }
     end
 
-    APPUSM-.JSON.->UI
-    APPUSM-.JSON.->LLM
-    LLM-.JSON.->C-OUT
-    UI-.JSON.->C-OUT
-    C-OUT-.FW-USML.->FWUSM
-    FWUSM-.FW-USML.->C-IN
-    C-IN-.USML.->APPUSM
+    APPUSM e1@-.JSON.-> UI
+    APPUSM e2@-.JSON.-> LLM
+    LLM e3@-.JSON.-> C-OUT
+    UI e4@-.JSON.-> C-OUT
+    C-OUT e5@-.USML.-> FWUSM
+    FWUSM e6@-.USML.-> C-IN
+    C-IN e7@-.JSON.-> APPUSM
 
+    style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style USML/JSON-конвертер fill:#dddddd,stroke:#dddddd,color:#555555
+    style Телефон fill:#f1f1f1,stroke:#f1f1f1,color:#555555
+    style Контроллер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style LLM fill:#ffcc99,stroke:#ff8800,color:#663300
+    style UI fill:#b3ffb3,stroke:#00cc00,color:#006600
     style APPUSM fill:#ffcccc,stroke:#cc0000,color:#660000
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
+    style C-IN fill:#ffffff,stroke:#888888,color:#555555
+    style C-OUT fill:#ffffff,stroke:#888888,color:#555555
+
+    e1@{ animation: slow }
+    e2@{ animation: slow }
+    e3@{ animation: slow }
+    e4@{ animation: slow }
+    e5@{ animation: slow }
+    e6@{ animation: slow }
+    e7@{ animation: slow }
 </div>
 <p>2.2. Экземпляр USM в приложении (APP-USM) — своего рода кэш USM контроллера (FW-USM). Так же как USM контроллера хранит состояние устройств DALI, чтобы за ним каждый раз не лазать в линию, так и USM в приложении нужен для оперативного получения состояния системы LLM'кой и UI.</p>
-<p>2.3. Команды на изменение своего состояния FW-USM получает от LLM и UI (после их конвертации в C-OUT из JSON в FW-USML).</p>
+<p>2.3. Команды на изменение своего состояния FW-USM получает от LLM и UI (после их конвертации в JSON/USML-конвертер из JSON в USML).</p>
 <p>2.4. Изменив своё состояние, FW-USM отправляет телеги об этом в APP-USM всех телефонов, которые в данный момент подключены к контроллеру.</p>
 <h2 id="3-формат-телеграмм">3. Формат телеграмм</h2>
 <h3 id="31-set">3.1. SET</h3>

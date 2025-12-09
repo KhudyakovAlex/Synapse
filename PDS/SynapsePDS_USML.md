@@ -2,19 +2,19 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 08.12.2025
+**Последнее изменение:** 09.12.2025
 
 ## 1. Термины и определения
 
 1.1. **USM** (Unit System Model) — виртуальная модель системы освещения.
 
-1.2. **FW-USM** — USM в прошивке.
+1.2. **FW-USM** — USM в прошивке.  В виде массивов структур языка С. Описано в SynapsePDS_FW_DB.
 
-1.3. **APP-USM** — USM в приложении.
+1.3. **APP-USM** — USM в приложении. В виде реляционной базы в SQLite. Описано в SynapsePDS_APP_DB.
 
-1.4. **USML** (Unit System Model Language) — система команд (телеграмм) для обмена данными с экземплярами USM.
+1.4. **USML** (Unit System Model Language) — система команд (телеграмм) для обмена данными между приложением и USM в прошивке.
 
-1.5. **FW-USML** — неизвестная науке система команд, применяемая на стороне контроллера. Однозначно конвертируется из USML и обратно.
+1.5. **JSON/USML-конвертер** - конвртилка телеграмм из формата JSON в USML и взад.
 
 1.6. **Телеграмма**, она же **телега** — название команды в USML, названная так, дабы отличать их от других команд.
 
@@ -27,35 +27,56 @@
 ```mermaid
 flowchart LR
     subgraph Сервер
-        LLM((LLM))
+      LLM((LLM))
     end
 
     subgraph Телефон
-        UI[UI]
-        APPUSM(APP-USM)
-        C-IN{{C-IN}}
-        C-OUT{{C-OUT}}
+      direction LR
+      UI@{ shape: div-rect, label: "Кнопочный UI" }
+      APPUSM@{ shape: cyl, label: "APP-USM" }
+
+      subgraph USML/JSON-конвертер
+        direction LR
+        C-IN{{USML/JSON}}
+        C-OUT{{JSON/USML}}
+      end  
     end
   
     subgraph Контроллер
-        FWUSM(FW-USM)
+      FWUSM@{ shape: cyl, label: "FW-USM" }
     end
 
-    APPUSM-.JSON.->UI
-    APPUSM-.JSON.->LLM
-    LLM-.JSON.->C-OUT
-    UI-.JSON.->C-OUT
-    C-OUT-.FW-USML.->FWUSM
-    FWUSM-.FW-USML.->C-IN
-    C-IN-.USML.->APPUSM
+    APPUSM e1@-.JSON.-> UI
+    APPUSM e2@-.JSON.-> LLM
+    LLM e3@-.JSON.-> C-OUT
+    UI e4@-.JSON.-> C-OUT
+    C-OUT e5@-.USML.-> FWUSM
+    FWUSM e6@-.USML.-> C-IN
+    C-IN e7@-.JSON.-> APPUSM
 
+    style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style USML/JSON-конвертер fill:#dddddd,stroke:#dddddd,color:#555555
+    style Телефон fill:#f1f1f1,stroke:#f1f1f1,color:#555555
+    style Контроллер fill:#eeeeee,stroke:#eeeeee,color:#555555
+    style LLM fill:#ffcc99,stroke:#ff8800,color:#663300
+    style UI fill:#b3ffb3,stroke:#00cc00,color:#006600
     style APPUSM fill:#ffcccc,stroke:#cc0000,color:#660000
     style FWUSM fill:#cce5ff,stroke:#0066cc,color:#003366
+    style C-IN fill:#ffffff,stroke:#888888,color:#555555
+    style C-OUT fill:#ffffff,stroke:#888888,color:#555555
+
+    e1@{ animation: slow }
+    e2@{ animation: slow }
+    e3@{ animation: slow }
+    e4@{ animation: slow }
+    e5@{ animation: slow }
+    e6@{ animation: slow }
+    e7@{ animation: slow }
 ```
 
 2.2. Экземпляр USM в приложении (APP-USM) — своего рода кэш USM контроллера (FW-USM). Так же как USM контроллера хранит состояние устройств DALI, чтобы за ним каждый раз не лазать в линию, так и USM в приложении нужен для оперативного получения состояния системы LLM'кой и UI.
 
-2.3. Команды на изменение своего состояния FW-USM получает от LLM и UI (после их конвертации в C-OUT из JSON в FW-USML).
+2.3. Команды на изменение своего состояния FW-USM получает от LLM и UI (после их конвертации в JSON/USML-конвертер из JSON в USML).
 
 2.4. Изменив своё состояние, FW-USM отправляет телеги об этом в APP-USM всех телефонов, которые в данный момент подключены к контроллеру.
 
