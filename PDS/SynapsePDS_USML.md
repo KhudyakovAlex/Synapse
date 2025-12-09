@@ -39,7 +39,7 @@ flowchart LR
         direction LR
         C-IN{{USML/JSON}}
         C-OUT{{JSON/USML}}
-      end  
+      end
     end
   
     subgraph Контроллер
@@ -50,8 +50,8 @@ flowchart LR
     APPUSM e2@-.JSON.-> LLM
     LLM e3@-.JSON.-> C-OUT
     UI e4@-.JSON.-> C-OUT
-    C-OUT e5@-.USML.-> FWUSM
-    FWUSM e6@-.USML.-> C-IN
+    C-OUT e5@==.USML.==> FWUSM
+    FWUSM e6@==.USML.==> C-IN
     C-IN e7@-.JSON.-> APPUSM
 
     style Сервер fill:#eeeeee,stroke:#eeeeee,color:#555555
