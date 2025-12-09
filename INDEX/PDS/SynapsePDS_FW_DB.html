@@ -327,8 +327,179 @@
 <p>4.10. <strong>ACTIONS</strong> — 255.</p>
 <p>4.11. <strong>SUBACTIONS</strong> — 255.</p>
 <p>4.12. <strong>EVENTS</strong> — 255.</p>
-<h2 id="5-вопросы">5. Вопросы</h2>
-<h2 id="6-идеи">6. <a href="../PRD/Идеи.html">Идеи</a></h2>
+<h2 id="5-структура-бд-прошивки-usm-прошивки">5. Структура БД прошивки (USM прошивки)</h2>
+<p><strong>CONTROLLERS</strong></p>
+<ul>
+  <li><strong>NAME</strong> (20)
+  </li>
+  <li><strong>PASSWORD</strong> (4)
+  </li>
+  <li><strong>IS_SCHEDULE</strong> (1)
+  </li>
+  <li><strong>IS_AUTO</strong> (1)
+  </li>
+  <li><strong>ICO_NUM</strong> (1)
+  </li>
+  <li><strong>STATUS</strong> (1)
+  </li>
+  <li><strong>SCENE_NUM</strong> (1)
+  </li>
+  <li><strong>IDATA</strong> (50000)
+  </li>
+</ul>
+<p><strong>LOCATIONS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>IS_AUTO</strong> (1)
+  </li>
+  <li><strong>SCENE_NUM</strong> (1)
+  </li>
+</ul>
+<p><strong>GROUPS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>LOCATION_ID</strong> (2)
+  </li>
+  <li><strong>SCENE_NUM</strong> (1)
+  </li>
+</ul>
+<p><strong>LUMINAIRES</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>DALI_ADDR</strong> (1)
+  </li>
+  <li><strong>LOCATION_ID</strong> (2)
+  </li>
+  <li><strong>GROUP_ID</strong> (2)
+  </li>
+  <li><strong>VAL_BRIGHT</strong> (1)
+  </li>
+  <li><strong>VAL_TW</strong> (1)
+  </li>
+  <li><strong>VAL_R</strong> (1)
+  </li>
+  <li><strong>VAL_G</strong> (1)
+  </li>
+  <li><strong>VAL_B</strong> (1)
+  </li>
+  <li><strong>VAL_W</strong> (1)
+  </li>
+  <li><strong>SCENE_NUM</strong> (1)
+  </li>
+  <li><strong>STATUS</strong> (1)
+  </li>
+</ul>
+<p><strong>SCENE_LUMINAIRES</strong></p>
+<ul>
+  <li><strong>SCENE_NUM</strong> (1)
+  </li>
+  <li><strong>LUMINAIRE_ID</strong> (1)
+  </li>
+  <li><strong>VAL_BRIGHT</strong> (1)
+  </li>
+  <li><strong>VAL_TW</strong> (1)
+  </li>
+  <li><strong>VAL_R</strong> (1)
+  </li>
+  <li><strong>VAL_G</strong> (1)
+  </li>
+  <li><strong>VAL_B</strong> (1)
+  </li>
+  <li><strong>VAL_W</strong> (1)
+  </li>
+</ul>
+<p><strong>PRES_SENSORS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>DALI_ADDR</strong> (1)
+  </li>
+  <li><strong>DALI_INST</strong> (1)
+  </li>
+  <li><strong>LOCATION_ID</strong> (2)
+  </li>
+  <li><strong>ACTION_OCCUPANCY_ID</strong> (2)
+  </li>
+  <li><strong>ACTION_VACANCY_ID</strong> (2)
+  </li>
+  <li><strong>DELAY</strong> (1)
+  </li>
+  <li><strong>STATUS</strong> (1)
+  </li>
+</ul>
+<p><strong>BRIGHT_SENSORS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>DALI_ADDR</strong> (1)
+  </li>
+  <li><strong>DALI_INST</strong> (1)
+  </li>
+  <li><strong>LOCATION_ID</strong> (2)
+  </li>
+  <li><strong>GROUP_ID</strong> (2)
+  </li>
+  <li><strong>STATUS</strong> (1)
+  </li>
+</ul>
+<p><strong>BUTTON_PANELS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>DALI_ADDR</strong> (1)
+  </li>
+  <li><strong>LOCATION_ID</strong> (2)
+  </li>
+  <li><strong>STATUS</strong> (1)
+  </li>
+</ul>
+<p><strong>BUTTONS</strong></p>
+<ul>
+  <li><strong>BUTTON_PANEL_ID</strong> (2)
+  </li>
+  <li><strong>DALI_INST</strong> (1)
+  </li>
+  <li><strong>ACTION_SET_SHORT_NUM</strong> (2)
+  </li>
+  <li><strong>ACTION_LONG_ID</strong> (2)
+  </li>
+</ul>
+<p><strong>ACTIONS</strong></p>
+<ul>
+  <li><strong>ACTION_SET_NUM</strong> (2)
+  </li>
+  <li><strong>POS</strong> (1)
+  </li>
+</ul>
+<p><strong>SUBACTIONS</strong></p>
+<ul>
+  <li><strong>ACTION_ID</strong> (2)
+  </li>
+  <li><strong>OBJECT_TYPE</strong> (1)
+  </li>
+  <li><strong>OBJECT_NUM</strong> (1)
+  </li>
+  <li><strong>VALUE</strong> (1)
+  </li>
+</ul>
+<p><strong>EVENTS</strong></p>
+<ul>
+  <li><strong>EXIST</strong> (1)
+  </li>
+  <li><strong>DAYS</strong> (7)
+  </li>
+  <li><strong>TIME</strong> (4)
+  </li>
+  <li><strong>SMOOTH</strong> (1)
+  </li>
+  <li><strong>ACTION_ID</strong> (2)
+  </li>
+</ul>
+<h2 id="6-вопросы">6. Вопросы</h2>
+<h2 id="7-идеи">7. <a href="../PRD/Идеи.html">Идеи</a></h2>
         </main>
     </div>
 

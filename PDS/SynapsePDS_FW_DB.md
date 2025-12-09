@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 09.12.2025, 15:39 МСК
+**Последнее изменение:** 09.12.2025, 19:19 МСК
 
 ## 1. Термины и определения
 
@@ -181,6 +181,99 @@
 
 4.12. **EVENTS** — 255.
 
-## 5. Вопросы
+## 5. Структура БД прошивки (USM прошивки)
 
-## 6. Идеи
+**CONTROLLERS**
+- **NAME** (20)
+- **PASSWORD** (4)
+- **IS_SCHEDULE** (1)
+- **IS_AUTO** (1)
+- **ICO_NUM** (1)
+- **STATUS** (1)
+- **SCENE_NUM** (1)
+- **IDATA** (50000)
+
+**LOCATIONS**
+- **EXIST** (1)
+- **IS_AUTO** (1)
+- **SCENE_NUM** (1)
+
+**GROUPS**
+- **EXIST** (1)
+- **LOCATION_ID** (2)
+- **SCENE_NUM** (1)
+
+**LUMINAIRES**
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **LOCATION_ID** (2)
+- **GROUP_ID** (2)
+- **VAL_BRIGHT** (1)
+- **VAL_TW** (1)
+- **VAL_R** (1)
+- **VAL_G** (1)
+- **VAL_B** (1)
+- **VAL_W** (1)
+- **SCENE_NUM** (1)
+- **STATUS** (1)
+
+**SCENE_LUMINAIRES**
+- **SCENE_NUM** (1)
+- **LUMINAIRE_ID** (1)
+- **VAL_BRIGHT** (1)
+- **VAL_TW** (1)
+- **VAL_R** (1)
+- **VAL_G** (1)
+- **VAL_B** (1)
+- **VAL_W** (1)
+
+**PRES_SENSORS**
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **DALI_INST** (1)
+- **LOCATION_ID** (2)
+- **ACTION_OCCUPANCY_ID** (2)
+- **ACTION_VACANCY_ID** (2)
+- **DELAY** (1)
+- **STATUS** (1)
+
+**BRIGHT_SENSORS**
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **DALI_INST** (1)
+- **LOCATION_ID** (2)
+- **GROUP_ID** (2)
+- **STATUS** (1)
+
+**BUTTON_PANELS**
+- **EXIST** (1)
+- **DALI_ADDR** (1)
+- **LOCATION_ID** (2)
+- **STATUS** (1)
+
+**BUTTONS**
+- **BUTTON_PANEL_ID** (2)
+- **DALI_INST** (1)
+- **ACTION_SET_SHORT_NUM** (2)
+- **ACTION_LONG_ID** (2)
+
+**ACTIONS**
+- **ACTION_SET_NUM** (2)
+- **POS** (1)
+
+**SUBACTIONS**
+- **ACTION_ID** (2)
+- **OBJECT_TYPE** (1)
+- **OBJECT_NUM** (1)
+- **VALUE** (1)
+
+**EVENTS**
+- **EXIST** (1)
+- **DAYS** (7)
+- **TIME** (4)
+- **SMOOTH** (1)
+- **ACTION_ID** (2)
+
+## 6. Вопросы
+
+## 7. Идеи
