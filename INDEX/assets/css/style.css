@@ -188,6 +188,11 @@ body {
     scroll-margin-top: 100px;
 }
 
+.content h2.numbered {
+    color: #555555;
+    font-weight: bold;
+}
+
 .content h3 {
     color: var(--accent-secondary);
     font-size: 1.35em;
