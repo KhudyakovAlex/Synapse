@@ -195,6 +195,7 @@
 <li><strong>ICO_NUM</strong> (uint8_t) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
 <li><strong>STATUS</strong> (char[1]) — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
 <li><strong>SCENE_NUM</strong> (uint8_t) — световая сцена, включённая для всего объекта (0,1,2,3,4)</li>
+<li><strong>TIMESTAMP</strong> (uint32_t) — текущие дата и время в формате Unix timestamp (количество секунд с 01.01.1970 00:00:00 UTC); обновляется при каждом подключении телефона.</li>
 <li><strong>IDATA</strong> (BLOB(50000)) — интерфейсные данные; просто обозначим это здесь, чтобы где-то было; понятно, что это некая отдельная область памяти в контроллере. В версии USM приложения этого поля нет, оно там разложено по дополнительным полям в этих же таблицах. Всё по честному: тут нет этих доп. полей, там нет этого BLOB поля. Конвертация происходит в JSON/USML-конверторе приложения.</li>
 </ul>
 <h3 id="42-locations">4.2. LOCATIONS</h3>
@@ -332,6 +333,8 @@
   <li><strong>STATUS</strong> (1)
   </li>
   <li><strong>SCENE_NUM</strong> (1)
+  </li>
+  <li><strong>TIMESTAMP</strong> (4)
   </li>
   <li><strong>IDATA</strong> (50000)
   </li>
@@ -490,7 +493,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 6,
+  &quot;VERSION&quot;: 7,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -501,6 +504,7 @@
       &quot;ICO_NUM&quot;: 1,
       &quot;STATUS&quot;: 1,
       &quot;SCENE_NUM&quot;: 1,
+      &quot;TIMESTAMP&quot;: 4,
       &quot;IDATA&quot;: 50000
     }
   },
