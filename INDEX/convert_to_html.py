@@ -283,10 +283,8 @@ class MarkdownConverter:
         """Convert markdown headings to HTML"""
         # H1
         text = re.sub(r'^# (.+)$', r'<h1>\1</h1>', text, flags=re.MULTILINE)
-        # H2 with numbers (e.g., "## 1. Title" or "## 1.1. Title")
-        text = re.sub(r'^## (\d+\.(?:\d+\.)?\s+.+)$', r'<h2 class="numbered">\1</h2>', text, flags=re.MULTILINE)
-        # H2 without numbers
-        text = re.sub(r'^## ([^\d].*)$', r'<h2>\1</h2>', text, flags=re.MULTILINE)
+        # H2
+        text = re.sub(r'^## (.+)$', r'<h2>\1</h2>', text, flags=re.MULTILINE)
         # H3
         text = re.sub(r'^### (.+)$', r'<h3>\1</h3>', text, flags=re.MULTILINE)
         # H4
