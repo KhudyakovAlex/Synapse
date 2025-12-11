@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 08.12.2025
+**Последнее изменение:** 11.12.2025, 19:07 МСК
 
 ```mermaid
 erDiagram
@@ -30,6 +30,7 @@ erDiagram
         INTEGER ICO_NUM
         TEXT STATUS
         INTEGER SCENE_NUM
+        INTEGER TIMESTAMP
     }
 
     LOCATIONS {
