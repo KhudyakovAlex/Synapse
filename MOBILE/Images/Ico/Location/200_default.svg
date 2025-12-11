@@ -1,34 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Скачано с сайта svg4.ru / Downloaded from svg4.ru -->
-<svg width="800px" height="800px" viewBox="0 0 16 16" id="device-16px" xmlns="http://www.w3.org/2000/svg">
-  <rect id="Retângulo_223" data-name="Retângulo 223" width="16" height="16" fill="#ccc" opacity="0"/>
-  <g id="Icone" transform="translate(0.648 0.648)">
-    <g id="Retângulo_203" data-name="Retângulo 203" transform="translate(2.352 2.352)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">
-      <rect width="10" height="10" stroke="none"/>
-      <rect x="0.5" y="0.5" width="9" height="9" fill="none"/>
-    </g>
-    <g id="Retângulo_206" data-name="Retângulo 206" transform="translate(5.352 5.352)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">
-      <rect width="4" height="4" stroke="none"/>
-      <rect x="0.5" y="0.5" width="3" height="3" fill="none"/>
-    </g>
-    <g id="Grupo_327" data-name="Grupo 327" transform="translate(-0.191 1)">
-      <line id="Linha_24" data-name="Linha 24" y1="3" transform="translate(5.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_28" data-name="Linha 28" y1="3" transform="translate(7.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_29" data-name="Linha 29" y1="3" transform="translate(9.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-    </g>
-    <g id="Grupo_328" data-name="Grupo 328" transform="translate(-0.191 -11)">
-      <line id="Linha_24-2" data-name="Linha 24" y1="3" transform="translate(5.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_28-2" data-name="Linha 28" y1="3" transform="translate(7.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_29-2" data-name="Linha 29" y1="3" transform="translate(9.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-    </g>
-    <g id="Grupo_329" data-name="Grupo 329" transform="translate(1 14.895) rotate(-90)">
-      <line id="Linha_24-3" data-name="Linha 24" y1="3" transform="translate(5.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_28-3" data-name="Linha 28" y1="3" transform="translate(7.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_29-3" data-name="Linha 29" y1="3" transform="translate(9.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-    </g>
-    <g id="Grupo_330" data-name="Grupo 330" transform="translate(-11 14.895) rotate(-90)">
-      <line id="Linha_24-4" data-name="Linha 24" y1="3" transform="translate(5.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_28-4" data-name="Linha 28" y1="3" transform="translate(7.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-      <line id="Linha_29-4" data-name="Linha 29" y1="3" transform="translate(9.543 10.852)" fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1"/>
-    </g>
-  </g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="32" height="32" fill="white"/>
+<path d="M20.501 16.123C21.1354 16.1235 21.6503 16.6389 21.6504 17.2734C21.6502 17.9078 21.1353 18.4224 20.501 18.4229C19.8663 18.4229 19.3508 17.9081 19.3506 17.2734C19.3507 16.6387 19.8662 16.123 20.501 16.123Z" fill="black"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M20.0664 11.1377C20.0664 11.69 19.6187 12.1377 19.0664 12.1377H13.0459C12.4936 12.1377 12.0459 11.69 12.0459 11.1377V9.50586C12.0459 8.95357 12.4936 8.50586 13.0459 8.50586H19.0664C19.6187 8.50586 20.0664 8.95357 20.0664 9.50586V11.1377ZM13.0664 11.1162H19.0459V9.52637H13.0664V11.1162Z" fill="black"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M23.501 1.7627C23.7824 1.76315 24.0107 1.99193 24.0107 2.27344V30.2734C24.0106 30.5548 23.7823 30.7828 23.501 30.7832H8.50098C8.21925 30.7832 7.98945 30.5551 7.98926 30.2734V2.27344C7.98932 1.99165 8.21917 1.7627 8.50098 1.7627H23.501ZM9.01074 29.7627H22.9902V2.7832H9.01074V29.7627Z" fill="black"/>
 </svg>
