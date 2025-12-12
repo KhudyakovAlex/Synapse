@@ -124,6 +124,9 @@
         INTEGER VAL_B
         INTEGER VAL_W
         INTEGER SCENE_NUM
+        INTEGER MIN_LEVEL
+        INTEGER MAX_LEVEL
+        INTEGER FADE_TIME
         TEXT STATUS
     }
 
@@ -276,6 +279,9 @@
 <li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
 <li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
+<li><strong>MIN_LEVEL</strong> (INTEGER) — минимальный уровень яркости светильника;</li>
+<li><strong>MAX_LEVEL</strong> (INTEGER) — максимальный уровень яркости светильника;</li>
+<li><strong>FADE_TIME</strong> (INTEGER) — время плавного перехода между уровнями яркости.</li>
 <li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="45-scene-luminaires">4.5. SCENE_LUMINAIRES</h3>

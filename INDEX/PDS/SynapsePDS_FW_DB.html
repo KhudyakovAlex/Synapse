@@ -110,6 +110,9 @@
         UINT8 VAL_B
         UINT8 VAL_W
         UINT8 SCENE_NUM
+        UINT8 MIN_LEVEL
+        UINT8 MAX_LEVEL
+        UINT8 FADE_TIME
         CHAR1 STATUS
     }
 
@@ -232,6 +235,9 @@
 <li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
 <li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
 <li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
+<li><strong>MIN_LEVEL</strong> (uint8_t) — минимальный уровень яркости светильника;</li>
+<li><strong>MAX_LEVEL</strong> (uint8_t) — максимальный уровень яркости светильника;</li>
+<li><strong>FADE_TIME</strong> (uint8_t) — время плавного перехода между уровнями яркости.</li>
 <li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="45-scene-luminaires">4.5. SCENE_LUMINAIRES</h3>
@@ -511,7 +517,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 9,
+  &quot;VERSION&quot;: 10,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -556,6 +562,9 @@
       &quot;VAL_B&quot;: 1,
       &quot;VAL_W&quot;: 1,
       &quot;SCENE_NUM&quot;: 1,
+      &quot;MIN_LEVEL&quot;: 1,
+      &quot;MAX_LEVEL&quot;: 1,
+      &quot;FADE_TIME&quot;: 1,
       &quot;STATUS&quot;: 1
     }
   },

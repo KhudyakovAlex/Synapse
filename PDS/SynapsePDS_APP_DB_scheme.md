@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 12.12.2025, 15:15 МСК
+**Последнее изменение:** 12.12.2025, 18:38 МСК
 
 ```mermaid
 erDiagram
@@ -72,6 +72,9 @@ erDiagram
         INTEGER VAL_B
         INTEGER VAL_W
         INTEGER SCENE_NUM
+        INTEGER MIN_LEVEL
+        INTEGER MAX_LEVEL
+        INTEGER FADE_TIME
         TEXT STATUS
     }
 
