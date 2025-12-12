@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 11.12.2025, 14:20 МСК
+**Последнее изменение:** 12.12.2025, 11:32 МСК
 
 ## 1. Назначение документа
 
@@ -104,6 +104,11 @@
 - **DALI_INST** (uint8_t) — номер инстанса датчика движения в DALI;
 - **LOCATION_ID** (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);
 - **GROUP_ID** (short) — группа, к которой привязан датчик; -1 — группа не назначена.
+- **SCENE_BRIGHTNESS_0** (uint8_t) — целевая освещённость для сцены 0;
+- **SCENE_BRIGHTNESS_1** (uint8_t) — целевая освещённость для сцены 1;
+- **SCENE_BRIGHTNESS_2** (uint8_t) — целевая освещённость для сцены 2;
+- **SCENE_BRIGHTNESS_3** (uint8_t) — целевая освещённость для сцены 3;
+- **SCENE_BRIGHTNESS_4** (uint8_t) — целевая освещённость для сцены 4;
 - **STATUS** (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.
 
 ### 4.8. BUTTON_PANELS
@@ -223,6 +228,11 @@
 - **DALI_INST** (1)
 - **LOCATION_ID** (2)
 - **GROUP_ID** (2)
+- **SCENE_BRIGHTNESS_0** (1)
+- **SCENE_BRIGHTNESS_1** (1)
+- **SCENE_BRIGHTNESS_2** (1)
+- **SCENE_BRIGHTNESS_3** (1)
+- **SCENE_BRIGHTNESS_4** (1)
 - **STATUS** (1)
 
 **BUTTON_PANELS** (64)
@@ -260,7 +270,7 @@
 
 ```json
 {
-  "VERSION": 7,
+  "VERSION": 8,
   "CONTROLLERS": {
     "RECORDS": 1,
     "FIELDS": {
@@ -342,6 +352,11 @@
       "DALI_INST": 1,
       "LOCATION_ID": 2,
       "GROUP_ID": 2,
+      "SCENE_BRIGHTNESS_0": 1,
+      "SCENE_BRIGHTNESS_1": 1,
+      "SCENE_BRIGHTNESS_2": 1,
+      "SCENE_BRIGHTNESS_3": 1,
+      "SCENE_BRIGHTNESS_4": 1,
       "STATUS": 1
     }
   },

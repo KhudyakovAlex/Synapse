@@ -140,6 +140,11 @@
         UINT8 DALI_INST
         SHORT LOCATION_ID
         SHORT GROUP_ID
+        UINT8 SCENE_BRIGHTNESS_0
+        UINT8 SCENE_BRIGHTNESS_1
+        UINT8 SCENE_BRIGHTNESS_2
+        UINT8 SCENE_BRIGHTNESS_3
+        UINT8 SCENE_BRIGHTNESS_4
         CHAR1 STATUS
     }
 
@@ -261,6 +266,11 @@
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
 <li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
 <li><strong>GROUP_ID</strong> (short) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
+<li><strong>SCENE_BRIGHTNESS_0</strong> (uint8_t) — целевая освещённость для сцены 0;</li>
+<li><strong>SCENE_BRIGHTNESS_1</strong> (uint8_t) — целевая освещённость для сцены 1;</li>
+<li><strong>SCENE_BRIGHTNESS_2</strong> (uint8_t) — целевая освещённость для сцены 2;</li>
+<li><strong>SCENE_BRIGHTNESS_3</strong> (uint8_t) — целевая освещённость для сцены 3;</li>
+<li><strong>SCENE_BRIGHTNESS_4</strong> (uint8_t) — целевая освещённость для сцены 4;</li>
 <li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="48-button-panels">4.8. BUTTON_PANELS</h3>
@@ -435,6 +445,16 @@
   </li>
   <li><strong>GROUP_ID</strong> (2)
   </li>
+  <li><strong>SCENE_BRIGHTNESS_0</strong> (1)
+  </li>
+  <li><strong>SCENE_BRIGHTNESS_1</strong> (1)
+  </li>
+  <li><strong>SCENE_BRIGHTNESS_2</strong> (1)
+  </li>
+  <li><strong>SCENE_BRIGHTNESS_3</strong> (1)
+  </li>
+  <li><strong>SCENE_BRIGHTNESS_4</strong> (1)
+  </li>
   <li><strong>STATUS</strong> (1)
   </li>
 </ul>
@@ -494,7 +514,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 7,
+  &quot;VERSION&quot;: 8,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -576,6 +596,11 @@
       &quot;DALI_INST&quot;: 1,
       &quot;LOCATION_ID&quot;: 2,
       &quot;GROUP_ID&quot;: 2,
+      &quot;SCENE_BRIGHTNESS_0&quot;: 1,
+      &quot;SCENE_BRIGHTNESS_1&quot;: 1,
+      &quot;SCENE_BRIGHTNESS_2&quot;: 1,
+      &quot;SCENE_BRIGHTNESS_3&quot;: 1,
+      &quot;SCENE_BRIGHTNESS_4&quot;: 1,
       &quot;STATUS&quot;: 1
     }
   },

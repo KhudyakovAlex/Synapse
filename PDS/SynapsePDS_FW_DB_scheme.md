@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 11.12.2025, 19:07 МСК
+**Последнее изменение:** 12.12.2025, 11:32 МСК
 
 ```mermaid
 erDiagram
@@ -88,6 +88,11 @@ erDiagram
         UINT8 DALI_INST
         SHORT LOCATION_ID
         SHORT GROUP_ID
+        UINT8 SCENE_BRIGHTNESS_0
+        UINT8 SCENE_BRIGHTNESS_1
+        UINT8 SCENE_BRIGHTNESS_2
+        UINT8 SCENE_BRIGHTNESS_3
+        UINT8 SCENE_BRIGHTNESS_4
         CHAR1 STATUS
     }
 

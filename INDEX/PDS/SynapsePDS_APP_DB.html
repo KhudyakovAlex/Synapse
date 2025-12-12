@@ -159,6 +159,11 @@
         INTEGER DALI_INST
         INTEGER LOCATION_ID FK
         INTEGER GROUP_ID FK
+        INTEGER SCENE_BRIGHTNESS_0
+        INTEGER SCENE_BRIGHTNESS_1
+        INTEGER SCENE_BRIGHTNESS_2
+        INTEGER SCENE_BRIGHTNESS_3
+        INTEGER SCENE_BRIGHTNESS_4
         TEXT STATUS
     }
 
@@ -310,6 +315,11 @@
 <li><strong>DALI_INST</strong> (INTEGER) — номер инстанса датчика движения в DALI;</li>
 <li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
 <li><strong>GROUP_ID</strong> (INTEGER) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
+<li><strong>SCENE_BRIGHTNESS_0</strong> (INTEGER) — целевая освещённость для сцены 0;</li>
+<li><strong>SCENE_BRIGHTNESS_1</strong> (INTEGER) — целевая освещённость для сцены 1;</li>
+<li><strong>SCENE_BRIGHTNESS_2</strong> (INTEGER) — целевая освещённость для сцены 2;</li>
+<li><strong>SCENE_BRIGHTNESS_3</strong> (INTEGER) — целевая освещённость для сцены 3;</li>
+<li><strong>SCENE_BRIGHTNESS_4</strong> (INTEGER) — целевая освещённость для сцены 4;</li>
 <li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="48-button-panels">4.8. BUTTON_PANELS</h3>
