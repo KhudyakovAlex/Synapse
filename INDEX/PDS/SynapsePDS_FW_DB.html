@@ -67,6 +67,7 @@
     GROUPS ||--o{ BRIGHT_SENSORS : "GROUP_ID"
     LUMINAIRES ||--o{ SCENE_LUMINAIRES : "LUMINAIRE_ID"
     BUTTON_PANELS ||--o{ BUTTONS : "BUTTON_PANEL_ID"
+    BUTTONS ||--o{ ACTIONS : "BUTTON_SHORT_ID"
     ACTIONS ||--o{ BUTTONS : "ACTION_LONG_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_OCCUPANCY_ID"
     ACTIONS ||--o{ PRES_SENSORS : "ACTION_VACANCY_ID"
@@ -158,12 +159,11 @@
     BUTTONS {
         UINT8 BUTTON_PANEL_ID
         UINT8 DALI_INST
-        SHORT ACTION_SET_SHORT_NUM
         SHORT ACTION_LONG_ID
     }
 
     ACTIONS {
-        SHORT ACTION_SET_NUM
+        SHORT BUTTON_SHORT_ID
         UINT8 POS
     }
 
@@ -286,14 +286,13 @@
 <ul>
 <li><strong>BUTTON_PANEL_ID</strong> (short) — кнопочная панель, в которой кнопка расположена;</li>
 <li><strong>DALI_INST</strong> (uint8_t) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_SET_SHORT_NUM</strong> (short) — действие по короткому нажатию; -1 — не повешено действие;</li>
 <li><strong>ACTION_LONG_ID</strong> (short) — действие по долгому нажатию; -1 — не повешено действие.</li>
 </ul>
 <h3 id="410-actions">4.10. ACTIONS</h3>
 <p>Действия с устройствами.</p>
 <ul>
-<li><strong>ACTION_SET_NUM</strong> (short) — привязка к набору действий; если действие не входит ни в какой набор: -1;</li>
-<li><strong>POS</strong> (uint8_t) — номер по порядку действия (начиная с 1) в списке действий, привязанных к кнопке (случай перебора действий одной кнопкой)</li>
+<li><strong>BUTTON_SHORT_ID</strong> (short) — кнопка, на короткое нажатие которой навешено действие; -1 — действие не привязано к короткому нажатию кнопки (может быть привязано к датчику или событию расписания);</li>
+<li><strong>POS</strong> (uint8_t) — позиция действия в наборе (начиная с 1); для перебора нескольких действий одной кнопкой.</li>
 </ul>
 <h3 id="411-subactions">4.11. SUBACTIONS</h3>
 <p>Поддействия действий.</p>
@@ -475,14 +474,12 @@
   </li>
   <li><strong>DALI_INST</strong> (1)
   </li>
-  <li><strong>ACTION_SET_SHORT_NUM</strong> (2)
-  </li>
   <li><strong>ACTION_LONG_ID</strong> (2)
   </li>
 </ul>
 <p><strong>ACTIONS</strong> (512)</p>
 <ul>
-  <li><strong>ACTION_SET_NUM</strong> (2)
+  <li><strong>BUTTON_SHORT_ID</strong> (2)
   </li>
   <li><strong>POS</strong> (1)
   </li>
@@ -514,7 +511,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 8,
+  &quot;VERSION&quot;: 9,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -618,14 +615,13 @@
     &quot;FIELDS&quot;: {
       &quot;BUTTON_PANEL_ID&quot;: 2,
       &quot;DALI_INST&quot;: 1,
-      &quot;ACTION_SET_SHORT_NUM&quot;: 2,
       &quot;ACTION_LONG_ID&quot;: 2
     }
   },
   &quot;ACTIONS&quot;: {
     &quot;RECORDS&quot;: 512,
     &quot;FIELDS&quot;: {
-      &quot;ACTION_SET_NUM&quot;: 2,
+      &quot;BUTTON_SHORT_ID&quot;: 2,
       &quot;POS&quot;: 1
     }
   },
