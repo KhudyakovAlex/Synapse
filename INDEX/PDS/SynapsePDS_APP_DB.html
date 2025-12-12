@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 12.12.2025, 18:38 МСК</p>
+<p><strong>Последнее изменение:</strong> 12.12.2025, 18:53 МСК</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_APP_DB_diagram_0.html">erDiagram
     LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
     LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
@@ -223,156 +223,169 @@
 <p>2.4. В целях подстроиться максимально под структуру БД контроллера таблицы здесь (кроме CONTROLLERS) имеют на постоянке столько записей, сколько элементов имеют соответствующие массивы в прошивке: в прошивке в массиве 64 элемента под светильники и тут 64 записи. Записи эти в таблицах не создаются и не удаляются, а просто заполняются данными из соответствующих массивов прошивки.</p>
 <p>2.5. Значения в полях ID этой базы (кроме CONTROLLERS) соответствуют индексам соответствующих элементов в соответствующих массивах БД прошивки.</p>
 <h2 id="4-таблицы">4. Таблицы</h2>
-<p><strong>Рабочие</strong> данные помечены в таблицах ниже жирным.</p>
+<p><strong>Рабочие</strong> данные помечены в таблицах ниже жирным.<br />
+Формат поля в таблицах: ИМЯ_ПОЛЯ (ТИП_ДАННЫХ / НАЧАЛЬНОЕ_ЗНАЧЕНИЕ).</p>
 <h3 id="41-controllers">4.1. CONTROLLERS</h3>
 <p>Таблица с информацией о контроллерах, к которым коннектились и которые не удалили. Чтобы видеть контроллеры, с которыми в данный момент не на связи, и чтобы не вводить пароли, если уже их правильно вводили.</p>
 <ul>
-<li>ID (INTEGER, PK)</li>
-<li>SCALE (INTEGER) — масштаб сетки с иконками локаций на странице контроллера;</li>
-<li><strong>NAME</strong> (TEXT) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
-<li><strong>PASSWORD</strong> (TEXT) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
-<li><strong>IS_SCHEDULE</strong> (TEXT) — включена ли в контроллере работа по расписанию (T/F);</li>
-<li><strong>IS_AUTO</strong> (TEXT) — главный выключатель автоматического режима для всего контроллера (T/F);</li>
-<li><strong>ICO_NUM</strong> (INTEGER) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
-<li><strong>STATUS</strong> (TEXT) — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
-<li><strong>SCENE_NUM</strong> (INTEGER) — световая сцена, включённая для всего объекта (0,1,2,3,4)</li>
-<li><strong>TIMESTAMP</strong> (INTEGER) — текущие дата и время в формате Unix timestamp (количество секунд с 01.01.1970 00:00:00 UTC)</li>
+<li>ID (INTEGER / PK)</li>
+<li>SCALE (INTEGER / 0) — масштаб сетки с иконками локаций на странице контроллера;</li>
+<li><strong>NAME</strong> (TEXT / "") — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
+<li><strong>PASSWORD</strong> (TEXT / "") — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
+<li><strong>IS_SCHEDULE</strong> (INTEGER / 0) — включена ли в контроллере работа по расписанию (1/0);</li>
+<li><strong>IS_AUTO</strong> (INTEGER / 0) — главный выключатель автоматического режима для всего контроллера (1/0);</li>
+<li><strong>ICO_NUM</strong> (INTEGER / 100) — номер иконки, которую будет иметь контроллер в приложении; 100 — дефолтная.</li>
+<li><strong>STATUS</strong> (TEXT / "A") — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>SCENE_NUM</strong> (INTEGER / -1) — световая сцена, включённая для всего объекта (0,1,2,3,4)</li>
+<li><strong>TIMESTAMP</strong> (INTEGER / 0) — текущие дата и время в формате Unix timestamp (количество секунд с 01.01.1970 00:00:00 UTC)</li>
 </ul>
 <h3 id="42-locations">4.2. LOCATIONS</h3>
 <p>Локации.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название локации;</li>
-<li>ICO_NUM (INTEGER) — номер иконки, которую будет иметь локация в приложении; 0 — дефолтная;</li>
-<li>SCALE (INTEGER) — масштаб сетки с иконками светильников на странице локации;</li>
-<li>POS_X (INTEGER) — позиция слева направо по X в сетке локаций контроллера;</li>
-<li>POS_Y (INTEGER) — позиция сверху вниз по Y в сетке локаций контроллера;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>IS_AUTO</strong> (TEXT) — работает ли локация в автоматическом режиме по датчикам (T/F).</li>
-<li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная в этой локации (0,1,2,3,4)</li>
+<li>ID (INTEGER / PK, 0..15) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название локации;</li>
+<li>ICO_NUM (INTEGER / 200) — номер иконки, которую будет иметь локация в приложении; 200 — дефолтная;</li>
+<li>SCALE (INTEGER / 0) — масштаб сетки с иконками светильников на странице локации;</li>
+<li>POS_X (INTEGER / 0) — позиция слева направо по X в сетке локаций контроллера;</li>
+<li>POS_Y (INTEGER / 0) — позиция сверху вниз по Y в сетке локаций контроллера;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>IS_AUTO</strong> (INTEGER / 0) — работает ли локация в автоматическом режиме по датчикам (1/0).</li>
+<li><strong>SCENE_NUM</strong> (INTEGER / -1) - световая сцена, включенная в этой локации (0,1,2,3,4)</li>
 </ul>
 <h3 id="43-groups">4.3. GROUPS</h3>
 <p>Группы светильников.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название группы;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязана группа; -1 — группа без локации (в корне);</li>
-<li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная в этой группе (0,1,2,3,4)</li>
+<li>ID (INTEGER / PK, 0..15) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название группы;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>LOCATION_ID</strong> (INTEGER / -1) — локация, к которой привязана группа; -1 — группа без локации (в корне);</li>
+<li><strong>SCENE_NUM</strong> (INTEGER / -1) - световая сцена, включенная в этой группе (0,1,2,3,4)</li>
 </ul>
 <h3 id="44-luminaires">4.4. LUMINAIRES</h3>
 <p>Светильники.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название светильника;</li>
-<li>ICO_NUM (INTEGER) — номер иконки, которую будет иметь светильник в приложении; 0 — дефолтная;</li>
-<li>POS_X (INTEGER) — позиция слева направо по X в сетке светильников локации;</li>
-<li>POS_Y (INTEGER) — позиция сверху вниз по Y в сетке светильников локации;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес DALI;</li>
-<li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязан светильник; -1 — светильник без локации (в корне);</li>
-<li><strong>GROUP_ID</strong> (INTEGER) — группа, к которой привязан светильник; если светильник не в группе: -1;</li>
-<li><strong>VAL_BRIGHT</strong> (INTEGER) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (INTEGER) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (INTEGER) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (INTEGER) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
-<li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
-<li><strong>MIN_LEVEL</strong> (INTEGER) — минимальный уровень яркости светильника;</li>
-<li><strong>MAX_LEVEL</strong> (INTEGER) — максимальный уровень яркости светильника;</li>
-<li><strong>FADE_TIME</strong> (INTEGER) — время плавного перехода между уровнями яркости.</li>
-<li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li>ID (INTEGER / PK, 0..63) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название светильника;</li>
+<li>ICO_NUM (INTEGER / 300) — номер иконки, которую будет иметь светильник в приложении; 300 — дефолтная;</li>
+<li>POS_X (INTEGER / 0) — позиция слева направо по X в сетке светильников локации;</li>
+<li>POS_Y (INTEGER / 0) — позиция сверху вниз по Y в сетке светильников локации;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>DALI_ADDR</strong> (INTEGER / -1) — короткий адрес DALI;</li>
+<li><strong>LOCATION_ID</strong> (INTEGER / -1) — локация, к которой привязан светильник; -1 — светильник без локации (в корне);</li>
+<li><strong>GROUP_ID</strong> (INTEGER / -1) — группа, к которой привязан светильник; если светильник не в группе: -1;</li>
+<li><strong>VAL_BRIGHT</strong> (INTEGER / -1) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (INTEGER / -1) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (INTEGER / -1) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (INTEGER / -1) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (INTEGER / -1) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (INTEGER / -1) — значение белого канала (для RGBW).</li>
+<li><strong>SCENE_NUM</strong> (INTEGER / -1) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
+<li><strong>MIN_LEVEL</strong> (INTEGER / -1) — минимальный уровень яркости светильника;</li>
+<li><strong>MAX_LEVEL</strong> (INTEGER / -1) — максимальный уровень яркости светильника;</li>
+<li><strong>FADE_TIME</strong> (INTEGER / -1) — время плавного перехода между уровнями яркости.</li>
+<li><strong>STATUS</strong> (TEXT / "A") — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="45-scene-luminaires">4.5. SCENE_LUMINAIRES</h3>
-<p>Параметры светильников в сценах.</p>
+<p>Параметры светильников в сценах. При инициализации началньго значения SCENE_NUM перебирается от 0 до 4 и для каждого номера сцены создаются 64 записи с LUMINAIRE_ID = 0..63. В VAL_BRIGHT и VAL_W в зависимости от сцены записываются:</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li><strong>SCENE_NUM</strong> (INTEGER) - световая сцена (0,1,2,3,4)</li>
-<li><strong>LUMINAIRE_ID</strong> (INTEGER) — светильник;</li>
-<li><strong>VAL_BRIGHT</strong> (INTEGER) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (INTEGER) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (INTEGER) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (INTEGER) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (INTEGER) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (INTEGER) — значение белого канала (для RGBW).</li>
+  <li>0 - 0
+  </li>
+  <li>1 - 63
+  </li>
+  <li>2 - 127
+  </li>
+  <li>3 - 185
+  </li>
+  <li>4 - 255
+  </li>
+</ul>
+<ul>
+<li>ID (INTEGER / PK, 0..319) — идентификатор в соответствующем массиве в прошивке;</li>
+<li><strong>SCENE_NUM</strong> (INTEGER / 0,1,2,3,4) - световая сцена (0,1,2,3,4)</li>
+<li><strong>LUMINAIRE_ID</strong> (INTEGER / 0..63) — светильник;</li>
+<li><strong>VAL_BRIGHT</strong> (INTEGER 0..255) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (INTEGER / 127) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (INTEGER / 255) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (INTEGER / 0) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (INTEGER / 0) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (INTEGER / 0..255) — значение белого канала (для RGBW).</li>
 </ul>
 <h3 id="46-pres-sensors">4.6. PRES_SENSORS</h3>
 <p>Датчики присутствия.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название датчика;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес DALI датчика;</li>
-<li><strong>DALI_INST</strong> (INTEGER) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
-<li><strong>ACTION_OCCUPANCY_ID</strong> (INTEGER) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
-<li><strong>ACTION_VACANCY_ID</strong> (INTEGER) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
-<li><strong>HOLD_TIME</strong> (INTEGER) — задержка перед срабатыванием действия на отсутствие.</li>
-<li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li>ID (INTEGER / PK, 0..64) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название датчика;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>DALI_ADDR</strong> (INTEGER / -1) — короткий адрес DALI датчика;</li>
+<li><strong>DALI_INST</strong> (INTEGER / -1) — номер инстанса датчика движения в DALI;</li>
+<li><strong>LOCATION_ID</strong> (INTEGER / -1) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
+<li><strong>ACTION_OCCUPANCY_ID</strong> (INTEGER / -1) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
+<li><strong>ACTION_VACANCY_ID</strong> (INTEGER / -1) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
+<li><strong>HOLD_TIME</strong> (INTEGER / -1) — задержка перед срабатыванием действия на отсутствие.</li>
+<li><strong>STATUS</strong> (TEXT / "A") — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="47-bright-sensors">4.7. BRIGHT_SENSORS</h3>
 <p>Датчики освещённости.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название датчика;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес DALI датчика;</li>
-<li><strong>DALI_INST</strong> (INTEGER) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
-<li><strong>GROUP_ID</strong> (INTEGER) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
-<li><strong>SCENE_BRIGHTNESS_0</strong> (INTEGER) — целевая освещённость для сцены 0;</li>
-<li><strong>SCENE_BRIGHTNESS_1</strong> (INTEGER) — целевая освещённость для сцены 1;</li>
-<li><strong>SCENE_BRIGHTNESS_2</strong> (INTEGER) — целевая освещённость для сцены 2;</li>
-<li><strong>SCENE_BRIGHTNESS_3</strong> (INTEGER) — целевая освещённость для сцены 3;</li>
-<li><strong>SCENE_BRIGHTNESS_4</strong> (INTEGER) — целевая освещённость для сцены 4;</li>
-<li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li>ID (INTEGER / PK, 0..64) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название датчика;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>DALI_ADDR</strong> (INTEGER / -1) — короткий адрес DALI датчика;</li>
+<li><strong>DALI_INST</strong> (INTEGER / -1) — номер инстанса датчика движения в DALI;</li>
+<li><strong>LOCATION_ID</strong> (INTEGER / -1) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
+<li><strong>GROUP_ID</strong> (INTEGER / -1) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
+<li><strong>SCENE_BRIGHTNESS_0</strong> (INTEGER / -1) — целевая освещённость для сцены 0;</li>
+<li><strong>SCENE_BRIGHTNESS_1</strong> (INTEGER / -1) — целевая освещённость для сцены 1;</li>
+<li><strong>SCENE_BRIGHTNESS_2</strong> (INTEGER / -1) — целевая освещённость для сцены 2;</li>
+<li><strong>SCENE_BRIGHTNESS_3</strong> (INTEGER / -1) — целевая освещённость для сцены 3;</li>
+<li><strong>SCENE_BRIGHTNESS_4</strong> (INTEGER / -1) — целевая освещённость для сцены 4;</li>
+<li><strong>STATUS</strong> (TEXT / "A") — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="48-button-panels">4.8. BUTTON_PANELS</h3>
 <p>Кнопочные панели.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название панели;</li>
-<li><strong>EXIST</strong> (TEXT) - задействована ли запись в работе или это пустое место где может храниться запись (T/F)</li>
-<li><strong>DALI_ADDR</strong> (INTEGER) — короткий адрес панели в DALI;</li>
-<li><strong>LOCATION_ID</strong> (INTEGER) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
-<li><strong>STATUS</strong> (TEXT) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li>ID (INTEGER / PK, 0..64) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название панели;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) - задействована ли запись в работе или это пустое место где может храниться запись (1/0)</li>
+<li><strong>DALI_ADDR</strong> (INTEGER / -1) — короткий адрес панели в DALI;</li>
+<li><strong>LOCATION_ID</strong> (INTEGER / -1) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
+<li><strong>STATUS</strong> (TEXT / "A") — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="49-buttons">4.9. BUTTONS</h3>
 <p>Кнопки.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li>NAME (TEXT) — название кнопки на панели;</li>
-<li><strong>BUTTON_PANEL_ID</strong> (INTEGER) — кнопочная панель, в которой кнопка расположена;</li>
-<li><strong>DALI_INST</strong> (INTEGER) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_LONG_ID</strong> (INTEGER) — действие по долгому нажатию; -1 — не повешено действие.</li>
+<li>ID (INTEGER / PK, 0..511) — идентификатор в соответствующем массиве в прошивке;</li>
+<li>NAME (TEXT / "") — название кнопки на панели;</li>
+<li><strong>BUTTON_PANEL_ID</strong> (INTEGER / -1) — кнопочная панель, в которой кнопка расположена;</li>
+<li><strong>DALI_INST</strong> (, -1) — номер инстанса кнопки в DALI;</li>
+<li><strong>ACTION_LONG_ID</strong> (INTEGER / -1) — действие по долгому нажатию; -1 — не повешено действие.</li>
 </ul>
 <h3 id="410-actions">4.10. ACTIONS</h3>
 <p>Действия с устройствами.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li><strong>BUTTON_SHORT_ID</strong> (INTEGER) — кнопка, на короткое нажатие которой навешено действие; -1 — действие не привязано к короткому нажатию кнопки (может быть привязано к датчику или событию расписания);</li>
-<li><strong>POS</strong> (INTEGER) — позиция действия в наборе (начиная с 1); для перебора нескольких действий одной кнопкой.</li>
+<li>ID (INTEGER / PK, 0..511) — идентификатор в соответствующем массиве в прошивке;</li>
+<li><strong>BUTTON_SHORT_ID</strong> (INTEGER / 0..511) — кнопка, на короткое нажатие которой навешено действие; -1 — действие не привязано к короткому нажатию кнопки (может быть привязано к датчику или событию расписания);</li>
+<li><strong>POS</strong> (INTEGER / -1) — позиция действия в наборе (начиная с 1); для перебора нескольких действий одной кнопкой.</li>
 </ul>
 <h3 id="411-subactions">4.11. SUBACTIONS</h3>
 <p>Поддействия с устройствами (команды для пользователя).</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li><strong>ACTION_ID</strong> (INTEGER) — действие;</li>
-<li><strong>OBJECT_TYPE</strong> (INTEGER) — тип объекта изменений:<ul>
+<li>ID (INTEGER / PK, 0..511) — идентификатор в соответствующем массиве в прошивке;</li>
+<li><strong>ACTION_ID</strong> (INTEGER / -1) — действие;</li>
+<li><strong>OBJECT_TYPE</strong> (INTEGER / -1) — тип объекта изменений:<ul>
 <li>1 — весь объект;</li>
 <li>2 — локация;</li>
 <li>3 — группа;</li>
 <li>4 — светильник;</li>
 </ul>
 </li>
-<li><strong>OBJECT_NUM</strong> (INTEGER) — номер объекта изменений:<ul>
+<li><strong>OBJECT_NUM</strong> (INTEGER / -1) — номер объекта изменений:<ul>
 <li>1 — сцена;</li>
 <li>2 — температура TW;</li>
 <li>3 — флаг АВТО.</li>
 </ul>
 </li>
-<li><strong>VALUE</strong> (INTEGER) — значение в зависимости от объекта:<ul>
+<li><strong>VALUE</strong> (INTEGER / -1) — значение в зависимости от объекта:<ul>
 <li>сцена - 0..4;</li>
 <li>температура TW - 0..254;</li>
 <li>флаг АВТО - 0 / 1.</li>
@@ -382,12 +395,12 @@
 <h3 id="412-events">4.12. EVENTS</h3>
 <p>События расписания.</p>
 <ul>
-<li>ID (INTEGER, PK) — идентификатор в соответствующем массиве в прошивке;</li>
-<li><strong>EXIST</strong> (TEXT) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F)</li>
-<li><strong>DAYS</strong> (TEXT) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
-<li><strong>TIME</strong> (TEXT) — время события с точностью до минуты в формате HHMM 24H;</li>
-<li><strong>SMOOTH</strong> (TEXT) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);</li>
-<li><strong>ACTION_ID</strong> (INTEGER) — действие; -1 — не назначено.</li>
+<li>ID (INTEGER / PK, 0..256) — идентификатор в соответствующем массиве в прошивке;</li>
+<li><strong>EXIST</strong> (INTEGER / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0)</li>
+<li><strong>DAYS</strong> (TEXT / "") — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
+<li><strong>TIME</strong> (TEXT / "") — время события с точностью до минуты в формате HHMM 24H;</li>
+<li><strong>SMOOTH</strong> (INTEGER / 0) — плавное изменение параметров от предыдущих значений (яркость, температура света) (1/0);</li>
+<li><strong>ACTION_ID</strong> (INTEGER / -1) — действие; -1 — не назначено.</li>
 </ul>
 <h2 id="5-вопросы">5. Вопросы</h2>
 <p>4.1. Рабочие данные таки храним в Си или переносим в одну область с интерфейсными?</p>

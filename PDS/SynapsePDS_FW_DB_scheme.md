@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 12.12.2025, 18:53 МСК
+**Последнее изменение:** 12.12.2025, 20:19 МСК
 
 ```mermaid
 erDiagram
@@ -24,8 +24,8 @@ erDiagram
     CONTROLLERS {
         CHAR20 NAME
         CHAR4 PASSWORD
-        BOOL IS_SCHEDULE
-        BOOL IS_AUTO
+        UINT8 IS_SCHEDULE
+        UINT8 IS_AUTO
         UINT8 ICO_NUM
         CHAR1 STATUS
         UINT8 SCENE_NUM
@@ -34,20 +34,20 @@ erDiagram
     }
 
     LOCATIONS {
-        BOOL EXIST
-        BOOL IS_AUTO
+        UINT8 EXIST
+        UINT8 IS_AUTO
         UINT8 SCENE_NUM
     }
 
     GROUPS {
-        BOOL EXIST
+        UINT8 EXIST
         SHORT LOCATION_ID
         UINT8 DALI_NUM
         UINT8 SCENE_NUM
     }
 
     LUMINAIRES {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         SHORT LOCATION_ID
         SHORT GROUP_ID
@@ -76,7 +76,7 @@ erDiagram
     }
 
     PRES_SENSORS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         UINT8 DALI_INST
         SHORT LOCATION_ID
@@ -87,7 +87,7 @@ erDiagram
     }
 
     BRIGHT_SENSORS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         UINT8 DALI_INST
         SHORT LOCATION_ID
@@ -101,7 +101,7 @@ erDiagram
     }
 
     BUTTON_PANELS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         SHORT LOCATION_ID
         CHAR1 STATUS
@@ -126,10 +126,10 @@ erDiagram
     }
 
     EVENTS {
-        BOOL EXIST
+        UINT8 EXIST
         CHAR7 DAYS
         CHAR4 TIME
-        BOOL SMOOTH
+        UINT8 SMOOTH
         SHORT ACTION_ID
     }
 ```

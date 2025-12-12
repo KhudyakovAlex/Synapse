@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 12.12.2025, 18:38 МСК</p>
+<p><strong>Последнее изменение:</strong> 12.12.2025, 18:53 МСК</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_diagram_0.html">erDiagram
     LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
     LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
@@ -76,8 +76,8 @@
     CONTROLLERS {
         CHAR20 NAME
         CHAR4 PASSWORD
-        BOOL IS_SCHEDULE
-        BOOL IS_AUTO
+        UINT8 IS_SCHEDULE
+        UINT8 IS_AUTO
         UINT8 ICO_NUM
         CHAR1 STATUS
         UINT8 SCENE_NUM
@@ -86,20 +86,20 @@
     }
 
     LOCATIONS {
-        BOOL EXIST
-        BOOL IS_AUTO
+        UINT8 EXIST
+        UINT8 IS_AUTO
         UINT8 SCENE_NUM
     }
 
     GROUPS {
-        BOOL EXIST
+        UINT8 EXIST
         SHORT LOCATION_ID
         UINT8 DALI_NUM
         UINT8 SCENE_NUM
     }
 
     LUMINAIRES {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         SHORT LOCATION_ID
         SHORT GROUP_ID
@@ -128,7 +128,7 @@
     }
 
     PRES_SENSORS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         UINT8 DALI_INST
         SHORT LOCATION_ID
@@ -139,7 +139,7 @@
     }
 
     BRIGHT_SENSORS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         UINT8 DALI_INST
         SHORT LOCATION_ID
@@ -153,7 +153,7 @@
     }
 
     BUTTON_PANELS {
-        BOOL EXIST
+        UINT8 EXIST
         UINT8 DALI_ADDR
         SHORT LOCATION_ID
         CHAR1 STATUS
@@ -178,10 +178,10 @@
     }
 
     EVENTS {
-        BOOL EXIST
+        UINT8 EXIST
         CHAR7 DAYS
         CHAR4 TIME
-        BOOL SMOOTH
+        UINT8 SMOOTH
         SHORT ACTION_ID
     }
 </div>
@@ -197,127 +197,127 @@
 <h3 id="41-controllers">4.1. CONTROLLERS</h3>
 <p>Таблица с информацией о контроллере. Имеет одну запись. Представлена здесь таблицей для общности с DB приложения. В реальности является просто набором переменных, хранящихся в прошивке.</p>
 <ul>
-<li><strong>NAME</strong> (char[20]) — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
-<li><strong>PASSWORD</strong> (char[4]) — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
-<li><strong>IS_SCHEDULE</strong> (char[1]) — включена ли в контроллере работа по расписанию (0/1);</li>
-<li><strong>IS_AUTO</strong> (char[1]) — главный выключатель автоматического режима для всего контроллера (0/1);</li>
-<li><strong>ICO_NUM</strong> (uint8_t) — номер иконки, которую будет иметь контроллер в приложении; 0 — дефолтная.</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
-<li><strong>SCENE_NUM</strong> (uint8_t) — световая сцена, включённая для всего объекта (0,1,2,3,4)</li>
-<li><strong>TIMESTAMP</strong> (uint32_t) — текущие дата и время в формате Unix timestamp (количество секунд с 01.01.1970 00:00:00 UTC); обновляется при каждом подключении телефона.</li>
+<li><strong>NAME</strong> (char[20] / "") — название контроллера, показываемое в приложении и списке устройств Bluetooth;</li>
+<li><strong>PASSWORD</strong> (char[4] / "") — пароль заводской или изменённый пользователем; 4 цифры; заводской на коробке (или наклейке на корпусе);</li>
+<li><strong>IS_SCHEDULE</strong> (uint8_t / 0) — включена ли в контроллере работа по расписанию (1/0);</li>
+<li><strong>IS_AUTO</strong> (uint8_t / 0) — главный выключатель автоматического режима для всего контроллера (1/0);</li>
+<li><strong>ICO_NUM</strong> (uint8_t / 100) — номер иконки, которую будет иметь контроллер в приложении; 100 — дефолтная.</li>
+<li><strong>STATUS</strong> (char[1] / 'A') — текущее состояние контроллера: A (ACTIVE) — штатная работа, I (INIT) — инициализация линии DALI, F (FAILURE) — неполадка.</li>
+<li><strong>SCENE_NUM</strong> (uint8_t / 255) — световая сцена, включённая для всего объекта (0,1,2,3,4); 255 = нет активной сцены</li>
+<li><strong>TIMESTAMP</strong> (uint32_t / 0) — текущие дата и время в формате Unix timestamp (количество секунд с 01.01.1970 00:00:00 UTC); обновляется при каждом подключении телефона.</li>
 <li><strong>IDATA</strong> (BLOB(50000)) — интерфейсные данные; просто обозначим это здесь, чтобы где-то было; понятно, что это некая отдельная область памяти в контроллере. В версии USM приложения этого поля нет, оно там разложено по дополнительным полям в этих же таблицах. Всё по честному: тут нет этих доп. полей, там нет этого BLOB поля. Конвертация происходит в JSON/USML-конверторе приложения.</li>
 </ul>
 <h3 id="42-locations">4.2. LOCATIONS</h3>
 <p>Локации.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>IS_AUTO</strong> (char[1]) — работает ли локация в автоматическом режиме по датчикам (T/F).</li>
-<li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена, включенная в этой локации (0,1,2,3,4)</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>IS_AUTO</strong> (uint8_t / 0) — работает ли локация в автоматическом режиме по датчикам (1/0).</li>
+<li><strong>SCENE_NUM</strong> (uint8_t / 255) - световая сцена, включенная в этой локации (0,1,2,3,4); 255 = нет активной сцены</li>
 </ul>
 <h3 id="43-groups">4.3. GROUPS</h3>
 <p>Группы светильников. Номер группы в DALI совпадает с ID (индексу в массиве) записи.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>LOCATION_ID</strong> (short) — локация, к которой привязана группа; -1 — группа без локации (в корне);</li>
-<li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена, включенная в этой группе (0,1,2,3,4)</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>LOCATION_ID</strong> (short / -1) — локация, к которой привязана группа; -1 — группа без локации (в корне);</li>
+<li><strong>SCENE_NUM</strong> (uint8_t / 255) - световая сцена, включенная в этой группе (0,1,2,3,4); 255 = нет активной сцены</li>
 </ul>
 <h3 id="44-luminaires">4.4. LUMINAIRES</h3>
 <p>Светильники.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI;</li>
-<li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан светильник; -1 — светильник без локации (в корне);</li>
-<li><strong>GROUP_ID</strong> (short) — группа, к которой привязан светильник; если светильник не в группе: -1;</li>
-<li><strong>VAL_BRIGHT</strong> (uint8_t) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (uint8_t) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (uint8_t) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (uint8_t) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
-<li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена, включенная у этого светильника (0,1,2,3,4)</li>
-<li><strong>MIN_LEVEL</strong> (uint8_t) — минимальный уровень яркости светильника;</li>
-<li><strong>MAX_LEVEL</strong> (uint8_t) — максимальный уровень яркости светильника;</li>
-<li><strong>FADE_TIME</strong> (uint8_t) — время плавного перехода между уровнями яркости.</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t / 255) — короткий адрес DALI; 255 = адрес не назначен</li>
+<li><strong>LOCATION_ID</strong> (short / -1) — локация, к которой привязан светильник; -1 — светильник без локации (в корне);</li>
+<li><strong>GROUP_ID</strong> (short / -1) — группа, к которой привязан светильник; если светильник не в группе: -1;</li>
+<li><strong>VAL_BRIGHT</strong> (uint8_t / 0) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (uint8_t / 127) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (uint8_t / 255) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (uint8_t / 0) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (uint8_t / 0) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (uint8_t / 0) — значение белого канала (для RGBW).</li>
+<li><strong>SCENE_NUM</strong> (uint8_t / 255) - световая сцена, включенная у этого светильника (0,1,2,3,4); 255 = нет активной сцены</li>
+<li><strong>MIN_LEVEL</strong> (uint8_t / 0) — минимальный уровень яркости светильника;</li>
+<li><strong>MAX_LEVEL</strong> (uint8_t / 254) — максимальный уровень яркости светильника;</li>
+<li><strong>FADE_TIME</strong> (uint8_t / 0) — время плавного перехода между уровнями яркости.</li>
+<li><strong>STATUS</strong> (char[1] / 'A') — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="45-scene-luminaires">4.5. SCENE_LUMINAIRES</h3>
 <p>Параметры светильников в сценах.</p>
 <ul>
-<li><strong>SCENE_NUM</strong> (uint8_t) - световая сцена (0,1,2,3,4)</li>
-<li><strong>LUMINAIRE_ID</strong> (uint8_t) — светильник;</li>
-<li><strong>VAL_BRIGHT</strong> (uint8_t) — значение яркости;</li>
-<li><strong>VAL_TW</strong> (uint8_t) — значение температуры белого света;</li>
-<li><strong>VAL_R</strong> (uint8_t) — значение красного канала (для RGB);</li>
-<li><strong>VAL_G</strong> (uint8_t) — значение зелёного канала (для RGB);</li>
-<li><strong>VAL_B</strong> (uint8_t) — значение синего канала (для RGB);</li>
-<li><strong>VAL_W</strong> (uint8_t) — значение белого канала (для RGBW).</li>
+<li><strong>SCENE_NUM</strong> (uint8_t / 0) - световая сцена (0,1,2,3,4)</li>
+<li><strong>LUMINAIRE_ID</strong> (uint8_t / 0) — светильник;</li>
+<li><strong>VAL_BRIGHT</strong> (uint8_t / 0) — значение яркости;</li>
+<li><strong>VAL_TW</strong> (uint8_t / 127) — значение температуры белого света;</li>
+<li><strong>VAL_R</strong> (uint8_t / 255) — значение красного канала (для RGB);</li>
+<li><strong>VAL_G</strong> (uint8_t / 0) — значение зелёного канала (для RGB);</li>
+<li><strong>VAL_B</strong> (uint8_t / 0) — значение синего канала (для RGB);</li>
+<li><strong>VAL_W</strong> (uint8_t / 0) — значение белого канала (для RGBW).</li>
 </ul>
 <h3 id="46-pres-sensors">4.6. PRES_SENSORS</h3>
 <p>Датчики присутствия.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI датчика;</li>
-<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
-<li><strong>ACTION_OCCUPANCY_ID</strong> (short) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
-<li><strong>ACTION_VACANCY_ID</strong> (short) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
-<li><strong>HOLD_TIME</strong> (uint8_t) — задержка перед срабатыванием действия на отсутствие.</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t / 255) — короткий адрес DALI датчика; 255 = адрес не назначен</li>
+<li><strong>DALI_INST</strong> (uint8_t / 0) — номер инстанса датчика движения в DALI;</li>
+<li><strong>LOCATION_ID</strong> (short / -1) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
+<li><strong>ACTION_OCCUPANCY_ID</strong> (short / -1) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
+<li><strong>ACTION_VACANCY_ID</strong> (short / -1) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
+<li><strong>HOLD_TIME</strong> (uint8_t / 0) — задержка перед срабатыванием действия на отсутствие.</li>
+<li><strong>STATUS</strong> (char[1] / 'A') — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="47-bright-sensors">4.7. BRIGHT_SENSORS</h3>
 <p>Датчики освещённости.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес DALI датчика;</li>
-<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса датчика движения в DALI;</li>
-<li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
-<li><strong>GROUP_ID</strong> (short) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
-<li><strong>SCENE_BRIGHTNESS_0</strong> (uint8_t) — целевая освещённость для сцены 0;</li>
-<li><strong>SCENE_BRIGHTNESS_1</strong> (uint8_t) — целевая освещённость для сцены 1;</li>
-<li><strong>SCENE_BRIGHTNESS_2</strong> (uint8_t) — целевая освещённость для сцены 2;</li>
-<li><strong>SCENE_BRIGHTNESS_3</strong> (uint8_t) — целевая освещённость для сцены 3;</li>
-<li><strong>SCENE_BRIGHTNESS_4</strong> (uint8_t) — целевая освещённость для сцены 4;</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t / 255) — короткий адрес DALI датчика; 255 = адрес не назначен</li>
+<li><strong>DALI_INST</strong> (uint8_t / 0) — номер инстанса датчика движения в DALI;</li>
+<li><strong>LOCATION_ID</strong> (short / -1) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
+<li><strong>GROUP_ID</strong> (short / -1) — группа, к которой привязан датчик; -1 — группа не назначена.</li>
+<li><strong>SCENE_BRIGHTNESS_0</strong> (uint8_t / 0) — целевая освещённость для сцены 0;</li>
+<li><strong>SCENE_BRIGHTNESS_1</strong> (uint8_t / 0) — целевая освещённость для сцены 1;</li>
+<li><strong>SCENE_BRIGHTNESS_2</strong> (uint8_t / 0) — целевая освещённость для сцены 2;</li>
+<li><strong>SCENE_BRIGHTNESS_3</strong> (uint8_t / 0) — целевая освещённость для сцены 3;</li>
+<li><strong>SCENE_BRIGHTNESS_4</strong> (uint8_t / 0) — целевая освещённость для сцены 4;</li>
+<li><strong>STATUS</strong> (char[1] / 'A') — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="48-button-panels">4.8. BUTTON_PANELS</h3>
 <p>Кнопочные панели.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>DALI_ADDR</strong> (uint8_t) — короткий адрес панели в DALI;</li>
-<li><strong>LOCATION_ID</strong> (short) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
-<li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>DALI_ADDR</strong> (uint8_t / 255) — короткий адрес панели в DALI; 255 = адрес не назначен</li>
+<li><strong>LOCATION_ID</strong> (short / -1) — локация, к которой привязана панель; -1 — панель без локации (в корне);</li>
+<li><strong>STATUS</strong> (char[1] / 'A') — текущее состройние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="49-buttons">4.9. BUTTONS</h3>
 <p>Кнопки.</p>
 <ul>
-<li><strong>BUTTON_PANEL_ID</strong> (short) — кнопочная панель, в которой кнопка расположена;</li>
-<li><strong>DALI_INST</strong> (uint8_t) — номер инстанса кнопки в DALI;</li>
-<li><strong>ACTION_LONG_ID</strong> (short) — действие по долгому нажатию; -1 — не повешено действие.</li>
+<li><strong>BUTTON_PANEL_ID</strong> (short / -1) — кнопочная панель, в которой кнопка расположена;</li>
+<li><strong>DALI_INST</strong> (uint8_t / 0) — номер инстанса кнопки в DALI;</li>
+<li><strong>ACTION_LONG_ID</strong> (short / -1) — действие по долгому нажатию; -1 — не повешено действие.</li>
 </ul>
 <h3 id="410-actions">4.10. ACTIONS</h3>
 <p>Действия с устройствами.</p>
 <ul>
-<li><strong>BUTTON_SHORT_ID</strong> (short) — кнопка, на короткое нажатие которой навешено действие; -1 — действие не привязано к короткому нажатию кнопки (может быть привязано к датчику или событию расписания);</li>
-<li><strong>POS</strong> (uint8_t) — позиция действия в наборе (начиная с 1); для перебора нескольких действий одной кнопкой.</li>
+<li><strong>BUTTON_SHORT_ID</strong> (short / -1) — кнопка, на короткое нажатие которой навешено действие; -1 — действие не привязано к короткому нажатию кнопки (может быть привязано к датчику или событию расписания);</li>
+<li><strong>POS</strong> (uint8_t / 0) — позиция действия в наборе (начиная с 1); для перебора нескольких действий одной кнопкой.</li>
 </ul>
 <h3 id="411-subactions">4.11. SUBACTIONS</h3>
 <p>Поддействия действий.</p>
 <ul>
-<li><strong>ACTION_ID</strong> (short) — действие;</li>
-<li><strong>OBJECT_TYPE</strong> (uint8_t) — тип объекта изменений:<ul>
+<li><strong>ACTION_ID</strong> (short / -1) — действие;</li>
+<li><strong>OBJECT_TYPE</strong> (uint8_t / 0) — тип объекта изменений:<ul>
 <li>1 — весь объект;</li>
 <li>2 — локация;</li>
 <li>3 — группа;</li>
 <li>4 — светильник;</li>
 </ul>
 </li>
-<li><strong>OBJECT_NUM</strong> (uint8_t) — номер объекта изменений:<ul>
+<li><strong>OBJECT_NUM</strong> (uint8_t / 0) — номер объекта изменений:<ul>
 <li>1 — сцена;</li>
 <li>2 — температура TW;</li>
 <li>3 — флаг АВТО.</li>
 </ul>
 </li>
-<li><strong>VALUE</strong> (uint8_t) — значение в зависимости от объекта:<ul>
+<li><strong>VALUE</strong> (uint8_t / 0) — значение в зависимости от объекта:<ul>
 <li>сцена - 0..4;</li>
 <li>температура TW - 0..254;</li>
 <li>флаг АВТО - 0 / 1.</li>
@@ -327,11 +327,11 @@
 <h3 id="412-events">4.12. EVENTS</h3>
 <p>События расписания.</p>
 <ul>
-<li><strong>EXIST</strong> (char[1]) — задействована ли запись в работе или это пустое место, где может храниться запись (T/F).</li>
-<li><strong>DAYS</strong> (char[7]) — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
-<li><strong>TIME</strong> (char[4]) — время события с точностью до минуты в формате HHMM 24H;</li>
-<li><strong>SMOOTH</strong> (char[1]) — плавное изменение параметров от предыдущих значений (яркость, температура света) (T/F);</li>
-<li><strong>ACTION_ID</strong> (short) — действие.</li>
+<li><strong>EXIST</strong> (uint8_t / 0) — задействована ли запись в работе или это пустое место, где может храниться запись (1/0).</li>
+<li><strong>DAYS</strong> (char[7] / "FFFFFFF") — 'FFTFFFF' — событие по дням недели; если все F — ежедневное;</li>
+<li><strong>TIME</strong> (char[4] / "0000") — время события с точностью до минуты в формате HHMM 24H;</li>
+<li><strong>SMOOTH</strong> (uint8_t / 0) — плавное изменение параметров от предыдущих значений (яркость, температура света) (1/0);</li>
+<li><strong>ACTION_ID</strong> (short / -1) — действие.</li>
 </ul>
 <h2 id="5-структура-бд-прошивки-usm-прошивки">5. Структура БД прошивки (USM прошивки)</h2>
 <p><strong>CONTROLLERS</strong> (1)</p>
@@ -517,7 +517,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 11,
+  &quot;VERSION&quot;: 12,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
