@@ -423,6 +423,7 @@ class MarkdownConverter:
             'SynapsePDS_FW_Logic_Control': 'PDS/SynapsePDS_FW_Logic_Control.html',
             'SynapsePDS_FW_Logic_Sensors': 'PDS/SynapsePDS_FW_Logic_Sensors.html',
             'SynapsePDS_FW_Logic_Schedule': 'PDS/SynapsePDS_FW_Logic_Schedule.html',
+            'SynapsePDS_FW_Logic_Case': 'PDS/SynapsePDS_FW_Logic_Case.html',
             'SynapsePDS_FW': 'PDS/SynapsePDS_FW.html',
             'SynapsePDS_FW_DB': 'PDS/SynapsePDS_FW_DB.html',
             'SynapsePDS_FW_Bluetooth': 'PDS/SynapsePDS_FW_Bluetooth.html',
