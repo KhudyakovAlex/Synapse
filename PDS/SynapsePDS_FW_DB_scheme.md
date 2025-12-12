@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 12.12.2025, 18:38 МСК
+**Последнее изменение:** 12.12.2025, 18:53 МСК
 
 ```mermaid
 erDiagram
@@ -82,7 +82,7 @@ erDiagram
         SHORT LOCATION_ID
         SHORT ACTION_OCCUPANCY_ID
         SHORT ACTION_VACANCY_ID
-        UINT8 DELAY
+        UINT8 HOLD_TIME
         CHAR1 STATUS
     }
 

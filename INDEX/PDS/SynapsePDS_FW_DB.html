@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 12.12.2025, 15:15 МСК</p>
+<p><strong>Последнее изменение:</strong> 12.12.2025, 18:38 МСК</p>
 <div class="mermaid" data-diagram-url="SynapsePDS_FW_DB_diagram_0.html">erDiagram
     LOCATIONS ||--o| LUMINAIRES : "LOCATION_ID nullable"
     LOCATIONS ||--o| GROUPS : "LOCATION_ID nullable"
@@ -134,7 +134,7 @@
         SHORT LOCATION_ID
         SHORT ACTION_OCCUPANCY_ID
         SHORT ACTION_VACANCY_ID
-        UINT8 DELAY
+        UINT8 HOLD_TIME
         CHAR1 STATUS
     }
 
@@ -261,7 +261,7 @@
 <li><strong>LOCATION_ID</strong> (short) — локация, к которой привязан датчик; -1 — датчик без локации (в корне);</li>
 <li><strong>ACTION_OCCUPANCY_ID</strong> (short) — действие, повешенное на присутствие; -1 — не повешено действие;</li>
 <li><strong>ACTION_VACANCY_ID</strong> (short) — действие, повешенное на отсутствие; -1 — не повешено действие;</li>
-<li><strong>DELAY</strong> (uint8_t) — задержка HOLD_TIME.</li>
+<li><strong>HOLD_TIME</strong> (uint8_t) — задержка перед срабатыванием действия на отсутствие.</li>
 <li><strong>STATUS</strong> (char[1]) — текущее состояние устройства: A (ACTIVE) — штатная работа, C (CHANGE) — замена устройства, F (FAILURE) — неполадка.</li>
 </ul>
 <h3 id="47-bright-sensors">4.7. BRIGHT_SENSORS</h3>
@@ -433,7 +433,7 @@
   </li>
   <li><strong>ACTION_VACANCY_ID</strong> (2)
   </li>
-  <li><strong>DELAY</strong> (1)
+  <li><strong>HOLD_TIME</strong> (1)
   </li>
   <li><strong>STATUS</strong> (1)
   </li>
@@ -517,7 +517,7 @@
 <h2 id="6-структура-бд-прошивки-в-виде-json-usm-прошивки">6. Структура БД прошивки в виде JSON (USM прошивки)</h2>
 <p><strong>ВАЖНО</strong>: При любом изменении структуры БД (добавление/удаление полей, изменение размеров, изменение количества записей, изменение порядка таблиц или полей) <strong>ОБЯЗАТЕЛЬНО</strong> увеличивать <code>VERSION</code>.</p>
 <pre><code class="language-json">{
-  &quot;VERSION&quot;: 10,
+  &quot;VERSION&quot;: 11,
   &quot;CONTROLLERS&quot;: {
     &quot;RECORDS&quot;: 1,
     &quot;FIELDS&quot;: {
@@ -590,7 +590,7 @@
       &quot;LOCATION_ID&quot;: 2,
       &quot;ACTION_OCCUPANCY_ID&quot;: 2,
       &quot;ACTION_VACANCY_ID&quot;: 2,
-      &quot;DELAY&quot;: 1,
+      &quot;HOLD_TIME&quot;: 1,
       &quot;STATUS&quot;: 1
     }
   },
