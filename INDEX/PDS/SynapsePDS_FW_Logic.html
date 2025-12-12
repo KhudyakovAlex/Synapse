@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 12.12.2025, 12:31 МСК</p>
+<p><strong>Последнее изменение:</strong> 12.12.2025, 12:34 МСК</p>
 <h2 id="1-назначение-документа">1. Назначение документа</h2>
 <p>Дать разработчику исчерпывающее понимание логики работы прошивки контроллера АПК Синапс.</p>
 <h2 id="2-базовые-документы">2. Базовые документы</h2>
@@ -133,9 +133,7 @@
 <ul>
   <li>Считывает заводской пароль из области хранения констант;
   </li>
-  <li>Записывает его в <strong>CONTROLLERS.PASSWORD</strong>;
-  </li>
-  <li>Сохраняет в энергонезависимую память.
+  <li>Записывает его в <strong>CONTROLLERS.PASSWORD</strong>.
   </li>
 </ul>
 <p>5.1.1.3. Остальные данные FW-USM не изменяются.</p>
@@ -151,9 +149,7 @@
   </li>
   <li>Восстанавливает заводской пароль;
   </li>
-  <li>Восстанавливает дефолтную иконку (0);
-  </li>
-  <li>Сохраняет в энергонезависимую память.
+  <li>Восстанавливает дефолтную иконку (0).
   </li>
 </ul>
 <p>5.1.2.3. После сброса контроллер требует инициализации линии DALI.</p>
@@ -176,12 +172,12 @@
 <h2 id="6-детализация-логики">6. Детализация логики</h2>
 <p>Подробное описание логики работы прошивки разделено на следующие документы:</p>
 <ul>
-<li><strong>SynapsePDS_FW_Logic_Phone</strong> — Взаимодействие с телефоном</li>
-<li><strong>SynapsePDS_FW_Logic_PNR</strong> — Пуско-наладочные работы</li>
-<li><strong>SynapsePDS_FW_Logic_Settings</strong> — Настройка</li>
-<li><strong>SynapsePDS_FW_Logic_Control</strong> — Оперативное управление</li>
-<li><strong>SynapsePDS_FW_Logic_Sensors</strong> — Автоматическая работа по датчикам</li>
-<li><strong>SynapsePDS_FW_Logic_Schedule</strong> — Работа по расписанию</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Phone.html">SynapsePDS_FW_Logic_Phone</a></strong> — Взаимодействие с телефоном</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_PNR.html">SynapsePDS_FW_Logic_PNR</a></strong> — Пуско-наладочные работы</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Settings.html">SynapsePDS_FW_Logic_Settings</a></strong> — Настройка</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Control.html">SynapsePDS_FW_Logic_Control</a></strong> — Оперативное управление</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Sensors.html">SynapsePDS_FW_Logic_Sensors</a></strong> — Автоматическая работа по датчикам</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Schedule.html">SynapsePDS_FW_Logic_Schedule</a></strong> — Работа по расписанию</li>
 </ul>
         </main>
     </div>
