@@ -272,14 +272,38 @@
   </li>
 </ul>
 <h2 id="12-назначение-действий-на-настенные-кнопки">12. Назначение действий на настенные кнопки</h2>
-<p>12.1. Приложение отправляет телеграмму с изменением:</p>
+<h3 id="121-короткое-нажатие-набор-действий">12.1. Короткое нажатие (набор действий)</h3>
+<p>12.1.1. Добавление первого действия в набор:</p>
 <ul>
-  <li><strong>BUTTONS[i].ACTION_SET_SHORT_NUM</strong> = <code>set</code> (набор действий на короткое нажатие);
+  <li><strong>BUTTONS[i].ACTION_SET_SHORT_NUM</strong> = <code>set_num</code>;
   </li>
-  <li><strong>BUTTONS[i].ACTION_LONG_ID</strong> = <code>j</code> (действие на долгое нажатие).
+  <li><strong>ACTIONS[j].ACTION_SET_NUM</strong> = <code>set_num</code>, <strong>ACTIONS[j].POS</strong> = 1.
   </li>
 </ul>
-<p>12.2. Кнопка начинает отрабатывать действия при нажатиях.</p>
+<p>12.1.2. Добавление второго и последующих действий:</p>
+<ul>
+  <li><strong>ACTIONS[k].ACTION_SET_NUM</strong> = <code>set_num</code>, <strong>ACTIONS[k].POS</strong> = <code>pos</code>.
+  </li>
+</ul>
+<p>12.1.3. После добавления действия пользователь добавляет в действие поддействия (см. раздел 9), но это уже отдельные телеги.</p>
+<p>12.1.4. Удаление действия из набора:</p>
+<ul>
+  <li><strong>ACTIONS[j].ACTION_SET_NUM</strong> = -1;
+  </li>
+  <li>Прошивка проверяет, остались ли ещё в наборе действия, и если нет, делает: <strong>BUTTONS[i].ACTION_SET_SHORT_NUM</strong> = -1.
+  </li>
+</ul>
+<h3 id="122-долгое-нажатие-одно-действие">12.2. Долгое нажатие (одно действие)</h3>
+<p>12.2.1. Добавление действия на долгое нажатие:</p>
+<ul>
+  <li><strong>BUTTONS[i].ACTION_LONG_ID</strong> = <code>j</code>.
+  </li>
+</ul>
+<p>12.2.2. Удаление действия:</p>
+<ul>
+  <li><strong>BUTTONS[i].ACTION_LONG_ID</strong> = -1.
+  </li>
+</ul>
         </main>
     </div>
 
