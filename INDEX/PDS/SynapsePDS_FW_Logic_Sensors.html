@@ -67,7 +67,7 @@
   </li>
   <li>Если датчик в локации — проверяет <strong>LOCATIONS[loc].IS_AUTO</strong>. Если <code>F</code> — игнорирует событие.
   </li>
-  <li>Если датчик в корне — событие обрабатывается при <strong>CONTROLLERS.IS_AUTO</strong> = <code>T</code>.
+  <li>Если датчик в корне — событие обрабатывается при <strong>CONTROLLERS.IS_AUTO</strong> = <code>1</code>.
   </li>
   <li>Прошивка выполняет действие <strong>PRES_SENSORS[i].ACTION_OCCUPANCY_ID</strong>.
   </li>
@@ -114,12 +114,12 @@
 </ul>
 <p>3.3. <strong>Устройства в корне</strong> (без локации):</p>
 <ul>
-  <li>Работают при <strong>CONTROLLERS.IS_AUTO</strong> = <code>T</code>.
+  <li>Работают при <strong>CONTROLLERS.IS_AUTO</strong> = <code>1</code>.
   </li>
 </ul>
 <p>3.4. <strong>Временное отключение АВТО при оперативном управлении</strong>:</p>
 <ul>
-  <li>Оперативное управление хотя бы одним светильником в локации переводит <strong>LOCATIONS[i].IS_AUTO</strong> = <code>F</code>;
+  <li>Оперативное управление хотя бы одним светильником в локации переводит <strong>LOCATIONS[i].IS_AUTO</strong> = <code>0</code>;
   </li>
   <li>Возврат в АВТО при срабатывании датчика присутствия в этой локации (событие присутствия);
   </li>

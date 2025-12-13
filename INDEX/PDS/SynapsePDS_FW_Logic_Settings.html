@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 12.12.2025, 13:19 МСК</p>
+<p><strong>Последнее изменение:</strong> 13.12.2025, 14:04 МСК</p>
 <h2 id="1-сохранение-световых-сцен">1. Сохранение световых сцен</h2>
 <p>1.1. Каждый светильник в таблице <strong>SCENE_LUMINAIRES</strong> имеет пять световых сцен. Эти же сцены записываются в физические светильники DALI.</p>
 <p>1.2. Изменения световых сцен присылаются в прошивку в виде одной или нескольких записей таблицы <strong>SCENE_LUMINAIRES</strong>.</p>
@@ -65,22 +65,30 @@
 <p>2.2. Значение освещённости, которое должно поддерживаться у конкретной сцены конкретной группы, присылается в прошивку изменением поля <strong>BRIGHT_SENSORS.SCENE_BRIGHTNESS_n</strong>, где n — сцена 0..4.</p>
 <p>2.3. Если значение <strong>BRIGHT_SENSORS.SCENE_BRIGHTNESS_n</strong> = -1, значит при этой сцене эта группа не нуждается в подстройке уровня освещённости.</p>
 <h2 id="3-формирование-и-активация-расписания">3. Формирование и активация расписания</h2>
-<p>3.1. <strong>Добавление события в расписание</strong>: приложение отправляет телеграмму с заполнением записи <strong>EVENTS[i]</strong>:</p>
+<p>3.1. расписание работы освещения формируется с помощью добавления, удаления и изменения списка событий (таблица <strong>EVENTS</strong>) и привязанных к ним <strong>ACTIONS</strong> и <strong>SUBACTUIONS</strong></p>
+<p>3.1. <strong>Добавление и изменение события</strong>: приложение отправляет телеграмму с:</p>
 <ul>
-  <li><strong>EXIST</strong> = <code>T</code>;
+  <li>записью <strong>EVENTS[i]</strong>:
+<ul>
+  <li><strong>EXIST</strong> = <code>1</code>;
   </li>
   <li><strong>DAYS</strong> = маска дней недели (например, 'FFTFFFF' — только вторник);
   </li>
   <li><strong>TIME</strong> = время в формате HHMM;
   </li>
-  <li><strong>SMOOTH</strong> = <code>T</code> (плавное изменение) или <code>F</code> (одномоментное);
+  <li><strong>SMOOTH</strong> = <code>1</code> (плавное изменение) или <code>0</code> (одномоментное);
   </li>
   <li><strong>ACTION_ID</strong> = <code>j</code> (действие для выполнения).
   </li>
 </ul>
-<p>3.2. <strong>Активация расписания</strong>: приложение отправляет телеграмму с изменением <strong>CONTROLLERS.IS_SCHEDULE</strong> = <code>T</code>.</p>
-<p>3.3. Прошивка начинает проверку событий расписания каждую минуту.</p>
-<p>3.4. <strong>Деактивация расписания</strong>: приложение отправляет <strong>CONTROLLERS.IS_SCHEDULE</strong> = <code>F</code>.</p>
+  </li>
+  <li>записью <strong>ACTIONS[j]</strong>
+  </li>
+  <li>записью (или нескоькими записями) в таблице <strong>SUBACTIONS</strong> у которых <strong>ACTION_ID</strong> = <code>j</code>
+  </li>
+</ul>
+<p>3.3. <strong>Удаление события</strong>: телега с <strong>EVENTS[i].EXIST</strong> = <code>0</code>**</p>
+<p>3.2. <strong>Активация/деактивация расписания</strong>: приложение отправляет телеграмму с изменением <strong>CONTROLLERS.IS_SCHEDULE</strong> = <code>1</code> или = <code>0</code></p>
         </main>
     </div>
 
