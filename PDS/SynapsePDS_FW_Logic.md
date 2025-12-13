@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 13.12.2025, 08:41 МСК
+**Последнее изменение:** 13.12.2025, 16:48 МСК
 
 ## 1. Назначение документа
 
@@ -172,6 +172,7 @@ graph LR
 - **SynapsePDS_FW_Logic_PNR** — Пуско-наладочные работы
 - **SynapsePDS_FW_Logic_Settings** — Настройка
 - **SynapsePDS_FW_Logic_Control** — Оперативное управление
+- **SynapsePDS_FW_Logic_Buttons** — Управление настенными кнопками
 - **SynapsePDS_FW_Logic_Sensors** — Автоматическая работа по датчикам
 - **SynapsePDS_FW_Logic_Schedule** — Работа по расписанию
 - **SynapsePDS_FW_Logic_Case** — Корпус контроллера
