@@ -178,41 +178,53 @@
 <body>
     <div class="diagram-container">
         <div class="mermaid">
-graph LR
-    subgraph "Кнопка"
-        BTN[BUTTONS i]
+graph TB
+    subgraph SUBACTIONS["ПОДДЕЙСТВИЯ (SUBACTIONS)"]
+        SUB1[Включить сцену 2<br/>в локации 1]
+        SUB2[Установить TW=200<br/>в группе 3]
+        SUB3[АВТО=1<br/>в локации 1]
     end
 
-    subgraph "Набор действий на короткое нажатие"
-        ACT1[ACTIONS j<br/>BUTTON_SHORT_ID=i<br/>POS=1]
-        ACT2[ACTIONS k<br/>BUTTON_SHORT_ID=i<br/>POS=2]
-        ACT3[ACTIONS m<br/>BUTTON_SHORT_ID=i<br/>POS=3]
+    subgraph ACTIONS["ДЕЙСТВИЯ (ACTIONS)"]
+        ACT1[ACTION j<br/>"Вечерний свет"]
+        ACT2[ACTION k<br/>"Утренний свет"]
+        ACT3[ACTION m<br/>"Выключить всё"]
+        ACT4[ACTION n<br/>"Ночник"]
     end
 
-    subgraph "Действие на долгое нажатие"
-        ACT_LONG[ACTIONS n<br/>BUTTON_LONG_ID=i]
+    subgraph TRIGGERS["НАЗНАЧАЮТСЯ НА"]
+        BTN_SHORT[Кнопка i<br/>короткое нажатие<br/>набор действий]
+        BTN_LONG[Кнопка i<br/>долгое нажатие]
+        SENS_OCC[Датчик s<br/>присутствие]
+        SENS_VAC[Датчик s<br/>отсутствие]
+        EVENT[Событие e<br/>расписание]
     end
 
-    subgraph "Поддействия действия j"
-        SUB1[SUBACTIONS x<br/>ACTION_ID=j<br/>OBJECT_TYPE=4<br/>OBJECT_NUM=5<br/>VALUE=2]
-        SUB2[SUBACTIONS y<br/>ACTION_ID=j<br/>OBJECT_TYPE=2<br/>OBJECT_NUM=3<br/>VALUE=1]
-    end
+    SUB1 --> ACT1
+    SUB2 --> ACT1
+    SUB3 --> ACT1
 
-    BTN -.короткое.-> ACT1
-    BTN -.короткое.-> ACT2
-    BTN -.короткое.-> ACT3
-    BTN -.долгое.-> ACT_LONG
+    ACT1 -.POS=1.-> BTN_SHORT
+    ACT2 -.POS=2.-> BTN_SHORT
+    ACT3 -.POS=3.-> BTN_SHORT
 
-    ACT1 --> SUB1
-    ACT1 --> SUB2
+    ACT4 --> BTN_LONG
+    ACT1 --> SENS_OCC
+    ACT3 --> SENS_VAC
+    ACT2 --> EVENT
 
-    style BTN fill:#cce5ff,stroke:#0066cc
+    style SUB1 fill:#ccffcc,stroke:#00cc00
+    style SUB2 fill:#ccffcc,stroke:#00cc00
+    style SUB3 fill:#ccffcc,stroke:#00cc00
     style ACT1 fill:#ffffcc,stroke:#cccc00
     style ACT2 fill:#ffffcc,stroke:#cccc00
     style ACT3 fill:#ffffcc,stroke:#cccc00
-    style ACT_LONG fill:#ffffcc,stroke:#cccc00
-    style SUB1 fill:#ccffcc,stroke:#00cc00
-    style SUB2 fill:#ccffcc,stroke:#00cc00
+    style ACT4 fill:#ffffcc,stroke:#cccc00
+    style BTN_SHORT fill:#cce5ff,stroke:#0066cc
+    style BTN_LONG fill:#cce5ff,stroke:#0066cc
+    style SENS_OCC fill:#ffccff,stroke:#cc00cc
+    style SENS_VAC fill:#ffccff,stroke:#cc00cc
+    style EVENT fill:#ffcc99,stroke:#ff8800
 
         </div>
     </div>
