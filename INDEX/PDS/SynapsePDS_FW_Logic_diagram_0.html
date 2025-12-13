@@ -178,26 +178,31 @@
 <body>
     <div class="diagram-container">
         <div class="mermaid">
-graph TB
-    subgraph SUBACTIONS[ПОДДЕЙСТВИЯ SUBACTIONS]
-        SUB1[Включить сцену 2 в локации 1]
-        SUB2[Установить TW=200 в группе 3]
+graph LR
+    subgraph SUBACTIONS[ПОДДЕЙСТВИЯ]
+        SUB1[Вкл сцену 2 в локации 1]
+        SUB2[Уст TW=200 в группе 3]
         SUB3[АВТО=1 в локации 1]
     end
 
-    subgraph ACTIONS[ДЕЙСТВИЯ ACTIONS]
-        ACT1[ACTION j Вечерний свет]
-        ACT2[ACTION k Утренний свет]
-        ACT3[ACTION m Выключить всё]
-        ACT4[ACTION n Ночник]
+    subgraph ACTIONS[ДЕЙСТВИЯ]
+        ACT1[Вечерний свет]
+        ACT2[Утренний свет]
+        ACT3[Выключить всё]
+        ACT4[Ночной режим]
     end
 
     subgraph TRIGGERS[НАЗНАЧАЮТСЯ НА]
-        BTN_SHORT[Кнопка i короткое нажатие набор действий]
-        BTN_LONG[Кнопка i долгое нажатие]
-        SENS_OCC[Датчик s присутствие]
-        SENS_VAC[Датчик s отсутствие]
-        EVENT[Событие e расписание]
+        subgraph BTN[Кнопка]
+            BTN_SHORT[Короткое нажатие<br>ПЕРЕБОР ДЕЙСТВИЙ]
+            BTN_LONG[Долгое нажатие]
+        end
+        subgraph SENS[Датчик присутствия]
+            SENS_OCC[Присутствие]
+            SENS_VAC[Отсутствие]
+        end
+
+        EVENT[Событие расписания]
     end
 
     ACT1 --> SUB1

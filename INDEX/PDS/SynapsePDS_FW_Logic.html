@@ -56,7 +56,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 13.12.2025, 08:19 МСК</p>
+<p><strong>Последнее изменение:</strong> 13.12.2025, 08:21 МСК</p>
 <h2 id="1-назначение-документа">1. Назначение документа</h2>
 <p>Дать разработчику исчерпывающее понимание логики работы прошивки контроллера АПК Синапс.</p>
 <h2 id="2-базовые-документы">2. Базовые документы</h2>
@@ -150,26 +150,31 @@
   </li>
 </ul>
 <p>Навешиваются ТОЛЬКО на короткие нажатия кнопок. Специальной таблицы в БД с этими наборами нет. В поле <strong>ACTIONS.BUTTON_SHORT_ID</strong> нескольких действий записывается ссылка на одну и ту же кнопку. Все действия с одинаковым BUTTON_SHORT_ID образуют набор для этой кнопки. Порядок действий в этом наборе определяется полем <strong>ACTIONS.POS</strong>.</p>
-<div class="mermaid" data-diagram-url="SynapsePDS_FW_Logic_diagram_0.html">graph TB
-    subgraph SUBACTIONS[ПОДДЕЙСТВИЯ SUBACTIONS]
-        SUB1[Включить сцену 2 в локации 1]
-        SUB2[Установить TW=200 в группе 3]
+<div class="mermaid" data-diagram-url="SynapsePDS_FW_Logic_diagram_0.html">graph LR
+    subgraph SUBACTIONS[ПОДДЕЙСТВИЯ]
+        SUB1[Вкл сцену 2 в локации 1]
+        SUB2[Уст TW=200 в группе 3]
         SUB3[АВТО=1 в локации 1]
     end
 
-    subgraph ACTIONS[ДЕЙСТВИЯ ACTIONS]
-        ACT1[ACTION j Вечерний свет]
-        ACT2[ACTION k Утренний свет]
-        ACT3[ACTION m Выключить всё]
-        ACT4[ACTION n Ночник]
+    subgraph ACTIONS[ДЕЙСТВИЯ]
+        ACT1[Вечерний свет]
+        ACT2[Утренний свет]
+        ACT3[Выключить всё]
+        ACT4[Ночной режим]
     end
 
     subgraph TRIGGERS[НАЗНАЧАЮТСЯ НА]
-        BTN_SHORT[Кнопка i короткое нажатие набор действий]
-        BTN_LONG[Кнопка i долгое нажатие]
-        SENS_OCC[Датчик s присутствие]
-        SENS_VAC[Датчик s отсутствие]
-        EVENT[Событие e расписание]
+        subgraph BTN[Кнопка]
+            BTN_SHORT[Короткое нажатие<br>ПЕРЕБОР ДЕЙСТВИЙ]
+            BTN_LONG[Долгое нажатие]
+        end
+        subgraph SENS[Датчик присутствия]
+            SENS_OCC[Присутствие]
+            SENS_VAC[Отсутствие]
+        end
+
+        EVENT[Событие расписания]
     end
 
     ACT1 --> SUB1
