@@ -178,27 +178,41 @@
 <body>
     <div class="diagram-container">
         <div class="mermaid">
-flowchart TB
-    SAW(Автономная<br>работа<br>контроллера<br>по датчикам<br> и расписанию)
-    BC(Блютус-подключение<br>телефона<br>к контроллеру)
-    WC(Работа<br>контроллера<br>по датчикам<br> и расписанию)
-    DD(Загрузка USM<br>контроллера в телефон)
-    P{Ввод пароля<br>пользователем}
-    W(Управление<br>контроллером<br>с телефона)
-    BDC(Блютус-отключение)
-    EAW(Автономная<br>работа<br>контроллера<br>по датчикам<br> и расписанию)
+graph LR
+    subgraph "Кнопка"
+        BTN[BUTTONS i]
+    end
 
-    SAW-->BC
-    BC-->DD
-    BC-->WC
-    DD-->P
+    subgraph "Набор действий на короткое нажатие"
+        ACT1[ACTIONS j<br/>BUTTON_SHORT_ID=i<br/>POS=1]
+        ACT2[ACTIONS k<br/>BUTTON_SHORT_ID=i<br/>POS=2]
+        ACT3[ACTIONS m<br/>BUTTON_SHORT_ID=i<br/>POS=3]
+    end
 
-    P -->|Угадал| W
-    W-->BDC
-    WC-->BDC
-    P -->|Не угадал| BDC
+    subgraph "Действие на долгое нажатие"
+        ACT_LONG[ACTIONS n<br/>BUTTON_LONG_ID=i]
+    end
 
-    BDC-->EAW
+    subgraph "Поддействия действия j"
+        SUB1[SUBACTIONS x<br/>ACTION_ID=j<br/>OBJECT_TYPE=4<br/>OBJECT_NUM=5<br/>VALUE=2]
+        SUB2[SUBACTIONS y<br/>ACTION_ID=j<br/>OBJECT_TYPE=2<br/>OBJECT_NUM=3<br/>VALUE=1]
+    end
+
+    BTN -.короткое.-> ACT1
+    BTN -.короткое.-> ACT2
+    BTN -.короткое.-> ACT3
+    BTN -.долгое.-> ACT_LONG
+
+    ACT1 --> SUB1
+    ACT1 --> SUB2
+
+    style BTN fill:#cce5ff,stroke:#0066cc
+    style ACT1 fill:#ffffcc,stroke:#cccc00
+    style ACT2 fill:#ffffcc,stroke:#cccc00
+    style ACT3 fill:#ffffcc,stroke:#cccc00
+    style ACT_LONG fill:#ffffcc,stroke:#cccc00
+    style SUB1 fill:#ccffcc,stroke:#00cc00
+    style SUB2 fill:#ccffcc,stroke:#00cc00
 
         </div>
     </div>
