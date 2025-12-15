@@ -436,6 +436,16 @@
         
         // Инициализация
         updateBackButton('home');
+        
+        // Проверка параметра screen в URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialScreen = urlParams.get('screen');
+        if (initialScreen) {
+            // Небольшая задержка для полной загрузки DOM
+            setTimeout(() => {
+                showScreen(initialScreen);
+            }, 100);
+        }
     </script>
 </body>
 </html>
