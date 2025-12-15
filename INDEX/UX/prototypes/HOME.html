@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOME Screen Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100%;
+            height: 100vh;
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+        
+        .screen-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .screen.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .screen.prev {
+            transform: translateX(-100%);
+        }
+        
+        .header {
+            background: #006a8e;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            opacity: 0.8;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+        }
+        
+        .back-button.hidden {
+            display: none;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .nav-button {
+            background: #006a8e;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .nav-button:hover {
+            background: #004d6b;
+        }
+        
+        .ai-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #006a8e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .placeholder {
+            background: #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+        
+        .list-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .list-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 99;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 15px;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+        
+        .bottom-nav-item.active {
+            color: #006a8e;
+        }
+        
+        .bottom-nav-item-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <!-- Главный экран -->
+        <div class="screen active" id="home">
+            <div class="header">
+                <button class="back-button hidden">←</button>
+                <span>Главный экран</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="nav-buttons">
+                    <button class="nav-button" onclick="showScreen('locations')">Локации</button>
+                    <button class="nav-button" onclick="showScreen('settings')">Настройки</button>
+                    <button class="nav-button" onclick="showScreen('controllers')">Контроллеры</button>
+                </div>
+                <div class="placeholder">
+                    Прототип главного экрана HOME
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="bottom-nav-item active" onclick="showScreen('home')">
+                    <div class="bottom-nav-item-icon">🏠</div>
+                    <div>Главная</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('locations')">
+                    <div class="bottom-nav-item-icon">📍</div>
+                    <div>Локации</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('controllers')">
+                    <div class="bottom-nav-item-icon">🎛️</div>
+                    <div>Контроллеры</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('settings')">
+                    <div class="bottom-nav-item-icon">⚙️</div>
+                    <div>Настройки</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран локаций -->
+        <div class="screen" id="locations">
+            <div class="header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <span>Локации</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="list-item" onclick="showScreen('location-detail')">
+                    <strong>Корпус</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Корневая локация</div>
+                </div>
+                <div class="list-item" onclick="showScreen('location-detail')">
+                    <strong>Первый этаж</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Подлокация корпуса</div>
+                </div>
+                <div class="list-item" onclick="showScreen('location-detail')">
+                    <strong>Второй этаж</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Подлокация корпуса</div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="bottom-nav-item" onclick="showScreen('home')">
+                    <div class="bottom-nav-item-icon">🏠</div>
+                    <div>Главная</div>
+                </div>
+                <div class="bottom-nav-item active" onclick="showScreen('locations')">
+                    <div class="bottom-nav-item-icon">📍</div>
+                    <div>Локации</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('controllers')">
+                    <div class="bottom-nav-item-icon">🎛️</div>
+                    <div>Контроллеры</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('settings')">
+                    <div class="bottom-nav-item-icon">⚙️</div>
+                    <div>Настройки</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран деталей локации -->
+        <div class="screen" id="location-detail">
+            <div class="header">
+                <button class="back-button" onclick="showScreen('locations')">←</button>
+                <span>Детали локации</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="placeholder">
+                    Детальная информация о локации
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран контроллеров -->
+        <div class="screen" id="controllers">
+            <div class="header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <span>Контроллеры</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="list-item" onclick="showScreen('controller-detail')">
+                    <strong>Контроллер 1</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Статус: подключен</div>
+                </div>
+                <div class="list-item" onclick="showScreen('controller-detail')">
+                    <strong>Контроллер 2</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Статус: подключен</div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="bottom-nav-item" onclick="showScreen('home')">
+                    <div class="bottom-nav-item-icon">🏠</div>
+                    <div>Главная</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('locations')">
+                    <div class="bottom-nav-item-icon">📍</div>
+                    <div>Локации</div>
+                </div>
+                <div class="bottom-nav-item active" onclick="showScreen('controllers')">
+                    <div class="bottom-nav-item-icon">🎛️</div>
+                    <div>Контроллеры</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('settings')">
+                    <div class="bottom-nav-item-icon">⚙️</div>
+                    <div>Настройки</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран деталей контроллера -->
+        <div class="screen" id="controller-detail">
+            <div class="header">
+                <button class="back-button" onclick="showScreen('controllers')">←</button>
+                <span>Детали контроллера</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="placeholder">
+                    Детальная информация о контроллере
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран настроек -->
+        <div class="screen" id="settings">
+            <div class="header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <span>Настройки</span>
+                <span></span>
+            </div>
+            <div class="content">
+                <div class="list-item">
+                    <strong>Язык</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Русский</div>
+                </div>
+                <div class="list-item">
+                    <strong>Тема</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Светлая</div>
+                </div>
+                <div class="list-item">
+                    <strong>Уведомления</strong>
+                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Включены</div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="bottom-nav-item" onclick="showScreen('home')">
+                    <div class="bottom-nav-item-icon">🏠</div>
+                    <div>Главная</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('locations')">
+                    <div class="bottom-nav-item-icon">📍</div>
+                    <div>Локации</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('controllers')">
+                    <div class="bottom-nav-item-icon">🎛️</div>
+                    <div>Контроллеры</div>
+                </div>
+                <div class="bottom-nav-item active" onclick="showScreen('settings')">
+                    <div class="bottom-nav-item-icon">⚙️</div>
+                    <div>Настройки</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ai-button">🎤</div>
+    </div>
+    
+    <script>
+        let currentScreen = 'home';
+        let screenHistory = ['home'];
+        
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            const currentScreenEl = document.getElementById(currentScreen);
+            const newScreenEl = document.getElementById(screenId);
+            
+            if (!newScreenEl) return;
+            
+            // Определяем направление анимации
+            const currentIndex = Array.from(screens).indexOf(currentScreenEl);
+            const newIndex = Array.from(screens).indexOf(newScreenEl);
+            const isForward = newIndex > currentIndex;
+            
+            // Убираем классы
+            screens.forEach(screen => {
+                screen.classList.remove('active', 'prev');
+            });
+            
+            // Добавляем классы для анимации
+            if (isForward) {
+                newScreenEl.classList.add('active');
+                currentScreenEl.classList.add('prev');
+            } else {
+                newScreenEl.classList.add('active');
+            }
+            
+            // Обновляем историю
+            if (screenId !== currentScreen) {
+                screenHistory.push(screenId);
+            }
+            
+            currentScreen = screenId;
+            
+            // Обновляем активные элементы навигации
+            updateBottomNav(screenId);
+            updateBackButton(screenId);
+        }
+        
+        function updateBottomNav(activeScreen) {
+            const navItems = document.querySelectorAll('.bottom-nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                const screenId = item.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (screenId === activeScreen) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        function updateBackButton(screenId) {
+            const backButtons = document.querySelectorAll('.back-button');
+            backButtons.forEach(btn => {
+                if (screenId === 'home') {
+                    btn.classList.add('hidden');
+                } else {
+                    btn.classList.remove('hidden');
+                }
+            });
+        }
+        
+        // Инициализация
+        updateBackButton('home');
+    </script>
+</body>
+</html>
