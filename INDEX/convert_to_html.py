@@ -421,6 +421,7 @@ class MarkdownConverter:
             'SynapsePDS_FW_Logic_PNR': 'PDS/SynapsePDS_FW_Logic_PNR.html',
             'SynapsePDS_FW_Logic_Settings': 'PDS/SynapsePDS_FW_Logic_Settings.html',
             'SynapsePDS_FW_Logic_Control': 'PDS/SynapsePDS_FW_Logic_Control.html',
+            'SynapsePDS_FW_Logic_Buttons': 'PDS/SynapsePDS_FW_Logic_Buttons.html',
             'SynapsePDS_FW_Logic_Sensors': 'PDS/SynapsePDS_FW_Logic_Sensors.html',
             'SynapsePDS_FW_Logic_Schedule': 'PDS/SynapsePDS_FW_Logic_Schedule.html',
             'SynapsePDS_FW_Logic_Case': 'PDS/SynapsePDS_FW_Logic_Case.html',
