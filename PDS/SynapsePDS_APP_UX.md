@@ -18,17 +18,26 @@
 
 ### 3.1. Главный экран (HOME)
 
-<iframe src="../UX/prototypes/HOME.html" width="300" height="600" frameborder="0" class="prototype-frame"></iframe>
 
-Пример прототипа:
-- Можно просто посмотреть
-- А можно кнопочки понажимать
+```UXL
+300x600
 
-### 3.2. Экран локаций
+# ID\CAPTION\SIZE\ALIGN\ACTION\HINT
 
-<iframe src="../UX/prototypes/HOME.html?screen=locations" width="300" height="600" frameborder="0" class="prototype-frame"></iframe>
+P1\Главная
+  F\\x100\T
 
-Пример прототипа экрана локаций:
-- Показывает список локаций
-- Можно перейти к деталям локации
-- Навигация между экранами работает
+    T\Пиво\\LRT
+      TC\20%R\80%L
+      TH\Цена\Название
+      TD\100\Романовское
+      TD\200\Жигулевское
+        
+
+P2\
+  F\
+    B\
+
+```
+
+
