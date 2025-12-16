@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 13.12.2025, 16:48 МСК
+**Последнее изменение:** 16.12.2025, 07:49 МСК
 
 ## 1. Назначение документа
 
@@ -15,6 +15,19 @@
 - **SynapsePDS_FW** — описание прошивки контроллера
 - **SynapsePDS_FW_DB** — структура базы данных прошивки
 - **SynapsePDS_USML** — протокол обмена данными
+
+## 3. Дочерние документы
+
+Подробное описание логики работы прошивки разделено на следующие документы:
+
+- **SynapsePDS_FW_Logic_Phone** — Взаимодействие с телефоном
+- **SynapsePDS_FW_Logic_PNR** — Пуско-наладочные работы
+- **SynapsePDS_FW_Logic_Settings** — Настройка
+- **SynapsePDS_FW_Logic_Control** — Оперативное управление
+- **SynapsePDS_FW_Logic_Buttons** — Управление настенными кнопками
+- **SynapsePDS_FW_Logic_Sensors** — Автоматическая работа по датчикам
+- **SynapsePDS_FW_Logic_Schedule** — Работа по расписанию
+- **SynapsePDS_FW_Logic_Case** — Корпус контроллера
 
 ## 3. Термины и определения
 
@@ -163,16 +176,3 @@ graph LR
     style SENS_VAC fill:#ffccff,stroke:#cc00cc
     style EVENT fill:#ffcc99,stroke:#ff8800
 ```
-
-## 5. Детализация логики
-
-Подробное описание логики работы прошивки разделено на следующие документы:
-
-- **SynapsePDS_FW_Logic_Phone** — Взаимодействие с телефоном
-- **SynapsePDS_FW_Logic_PNR** — Пуско-наладочные работы
-- **SynapsePDS_FW_Logic_Settings** — Настройка
-- **SynapsePDS_FW_Logic_Control** — Оперативное управление
-- **SynapsePDS_FW_Logic_Buttons** — Управление настенными кнопками
-- **SynapsePDS_FW_Logic_Sensors** — Автоматическая работа по датчикам
-- **SynapsePDS_FW_Logic_Schedule** — Работа по расписанию
-- **SynapsePDS_FW_Logic_Case** — Корпус контроллера

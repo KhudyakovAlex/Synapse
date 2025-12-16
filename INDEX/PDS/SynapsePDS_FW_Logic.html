@@ -66,6 +66,18 @@
 <li><strong><a href="../PDS/SynapsePDS_FW_DB.html">SynapsePDS_FW_DB</a></strong> — структура базы данных прошивки</li>
 <li><strong><a href="../PDS/SynapsePDS_USML.html">SynapsePDS_USML</a></strong> — протокол обмена данными</li>
 </ul>
+<h2 id="3-дочерние-документы">3. Дочерние документы</h2>
+<p>Подробное описание логики работы прошивки разделено на следующие документы:</p>
+<ul>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Phone.html">SynapsePDS_FW_Logic_Phone</a></strong> — Взаимодействие с телефоном</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_PNR.html">SynapsePDS_FW_Logic_PNR</a></strong> — Пуско-наладочные работы</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Settings.html">SynapsePDS_FW_Logic_Settings</a></strong> — Настройка</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Control.html">SynapsePDS_FW_Logic_Control</a></strong> — Оперативное управление</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Buttons.html">SynapsePDS_FW_Logic_Buttons</a></strong> — Управление настенными кнопками</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Sensors.html">SynapsePDS_FW_Logic_Sensors</a></strong> — Автоматическая работа по датчикам</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Schedule.html">SynapsePDS_FW_Logic_Schedule</a></strong> — Работа по расписанию</li>
+<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Case.html">SynapsePDS_FW_Logic_Case</a></strong> — Корпус контроллера</li>
+</ul>
 <h2 id="3-термины-и-определения">3. Термины и определения</h2>
 <p>3.1. <strong>FW-USM</strong> (Unit System Model прошивки) — виртуальная модель системы освещения в прошивке. Представляет собой набор массивов структур языка С, хранящих состояние всех устройств DALI-линии, настройки локаций, групп, действия, расписание и другие данные. Структура описана в <strong><a href="../PDS/SynapsePDS_FW_DB.html">SynapsePDS_FW_DB</a></strong>.</p>
 <p>3.2. <strong>APP-USM</strong> — виртуальная модель системы освещения в приложении (SQLite). Является кэшем FW-USM для оперативного доступа UI и LLM к данным контроллера.</p>
@@ -203,18 +215,6 @@
     style SENS_VAC fill:#ffccff,stroke:#cc00cc
     style EVENT fill:#ffcc99,stroke:#ff8800
 </div>
-<h2 id="5-детализация-логики">5. Детализация логики</h2>
-<p>Подробное описание логики работы прошивки разделено на следующие документы:</p>
-<ul>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Phone.html">SynapsePDS_FW_Logic_Phone</a></strong> — Взаимодействие с телефоном</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_PNR.html">SynapsePDS_FW_Logic_PNR</a></strong> — Пуско-наладочные работы</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Settings.html">SynapsePDS_FW_Logic_Settings</a></strong> — Настройка</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Control.html">SynapsePDS_FW_Logic_Control</a></strong> — Оперативное управление</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Buttons.html">SynapsePDS_FW_Logic_Buttons</a></strong> — Управление настенными кнопками</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Sensors.html">SynapsePDS_FW_Logic_Sensors</a></strong> — Автоматическая работа по датчикам</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Schedule.html">SynapsePDS_FW_Logic_Schedule</a></strong> — Работа по расписанию</li>
-<li><strong><a href="../PDS/SynapsePDS_FW_Logic_Case.html">SynapsePDS_FW_Logic_Case</a></strong> — Корпус контроллера</li>
-</ul>
         </main>
     </div>
 
