@@ -9,6 +9,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="./uxl.css" />
+<style>
+  /* Match https://khudyakovalex.github.io/UXL/ and override project-wide `border-radius: 0 !important` */
+  .content pre.uxl-md-block {
+    border: 1px solid #d0d7de !important;
+    border-left: 1px solid #d0d7de !important;
+    border-radius: 10px !important;
+    background: #f6f8fa !important;
+    padding: 12px !important;
+    overflow: auto !important;
+    white-space: pre !important;
+  }
+
+  /* Restore UXL component rounding (project CSS forces border-radius: 0 !important globally) */
+  .uxl-root .uxl-map__page { border-radius: 8px !important; }
+  .uxl-root:not(.uxl-proto-root--fullscreen) .uxl-canvas { border-radius: 8px !important; }
+  .uxl-proto-root--fullscreen .uxl-canvas { border-radius: 0 !important; }
+  .uxl-root .uxl-hint-dot { border-radius: 50% !important; }
+  .uxl-root .uxl-hint-badge { border-radius: 999px !important; }
+</style>
     <script>
         window.mermaid = {
             startOnLoad: true,
@@ -56,7 +76,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 15.12.2025, 19:12 МСК</p>
+<p><strong>Последнее изменение:</strong> 22.12.2025, 08:29 МСК</p>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
 <p>1.1. <strong>Graphene</strong> — дизайн-система для разработки пользовательских интерфейсов приложений AWADA.</p>
 <h2 id="2-основные-принципы">2. Основные принципы</h2>
@@ -64,28 +84,22 @@
 <p>2.2. Чем важнее контрол, тем ближе он должен быть к нижнему краю экрана.</p>
 <h2 id="3-идеи">3. <a href="../PRD/Идеи.html">Идеи</a></h2>
 <h3 id="31-главный-экран-home">3.1. Главный экран (HOME)</h3>
-<pre><code class="language-UXL">300x600
+<pre class="uxl-md-block">```UXL
+400x700
 
-# ID\CAPTION\SIZE\ALIGN\ACTION\HINT
+P\Главная
+  B\Hello UXL!
 
-P1\Главная
-  F\\x100\T
-
-    T\Пиво\\LRT
-      TC\20%R\80%L
-      TH\Цена\Название
-      TD\100\Романовское
-      TD\200\Жигулевское
-
-
-P2\
-  F\
-    B\
-
-</code></pre>
+```</pre>
         </main>
     </div>
 
     <script src="../assets/js/main.js"></script>
+<script src="./uxl.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    window.UXL.renderAll({ selector: "pre.uxl-md-block", mode: "permissive" });
+  });
+</script>
 </body>
 </html>
