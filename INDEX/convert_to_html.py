@@ -347,6 +347,29 @@ class MarkdownConverter:
 
         self._uxl_assets_ready = True
 
+    def ensure_uxl_assets_next_to_doc(self, target_dir: Path):
+        """
+        Ensure `uxl.js` and `uxl.css` exist next to a generated HTML document.
+
+        Why: the upstream UXL engine (openPrototypeForText) opens a new tab and loads `./uxl.js` and `./uxl.css`
+        relative to the current document directory (via <base href="...">).
+
+        Source of truth remains GitHub -> downloaded into INDEX/assets/... on each convert run.
+        """
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+            self.ensure_uxl_local_assets()
+
+            src_css: Path = self._uxl_assets["css_path"]
+            src_js: Path = self._uxl_assets["js_path"]
+
+            if src_css.exists():
+                shutil.copyfile(src_css, target_dir / "uxl.css")
+            if src_js.exists():
+                shutil.copyfile(src_js, target_dir / "uxl.js")
+        except Exception as e:
+            print(f"  [WARN] Failed to copy uxl assets into {target_dir}: {e}")
+
     def rewrite_uxl_asset_paths_in_html(self, html: str, assets_prefix: str) -> str:
         """
         Rewrite UXL image links inside <pre class="uxl-md-block">...</pre> blocks.
@@ -1180,6 +1203,7 @@ class MarkdownConverter:
         # Inject UXL assets only for pages that contain UXL blocks (rules: Project/uxl_md_to_html.md).
         if has_uxl:
             self.ensure_uxl_local_assets()
+            self.ensure_uxl_assets_next_to_doc(output_file.parent)
 
             # Fix UXL links to project assets (SRC:assets/...) based on the output directory depth.
             html_content = self.rewrite_uxl_asset_paths_in_html(html_content, css_path)
