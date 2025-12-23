@@ -281,12 +281,13 @@ class MarkdownConverter:
     def __init__(self, repo_root: str):
         self.repo_root = Path(repo_root)
         self.index_root = Path(repo_root) / "INDEX"
-        self._uxl_assets_synced = False
+        # UXL integration: follow Project/uxl_md_to_html.md (Variant A: local assets in INDEX/assets)
+        self._uxl_assets_ready = False
         self._uxl_assets = {
-            "css_url": "https://khudyakovalex.github.io/UXL/uxl.css",
-            "js_url": "https://khudyakovalex.github.io/UXL/uxl.js",
-            "css_name": "uxl.css",
-            "js_name": "uxl.js",
+            "css_url": "https://cdn.jsdelivr.net/gh/KhudyakovAlex/UXL@main/uxl.css",
+            "js_url": "https://cdn.jsdelivr.net/gh/KhudyakovAlex/UXL@main/uxl.js",
+            "css_path": self.index_root / "assets" / "css" / "uxl.css",
+            "js_path": self.index_root / "assets" / "js" / "uxl.js",
         }
 
     def _download_if_changed(self, url: str, dst: Path) -> bool:
@@ -322,28 +323,28 @@ class MarkdownConverter:
         except Exception:
             return False
 
-    def ensure_uxl_source_assets(self):
+    def ensure_uxl_local_assets(self):
         """
-        Ensure `INDEX/uxl.js` and `INDEX/uxl.css` are present and up-to-date.
-        Source of truth: https://khudyakovalex.github.io/UXL/
+        Ensure local UXL assets exist in INDEX/assets (Variant A).
+        Rules are defined in Project/uxl_md_to_html.md.
         """
-        if self._uxl_assets_synced:
+        if self._uxl_assets_ready:
             return
 
-        css_path = self.index_root / self._uxl_assets["css_name"]
-        js_path = self.index_root / self._uxl_assets["js_name"]
+        css_path: Path = self._uxl_assets["css_path"]
+        js_path: Path = self._uxl_assets["js_path"]
 
         updated_css = self._download_if_changed(self._uxl_assets["css_url"], css_path)
         updated_js = self._download_if_changed(self._uxl_assets["js_url"], js_path)
 
         if updated_css or updated_js:
-            print("  [OK] Updated UXL assets in INDEX/ (uxl.css / uxl.js)")
+            print("  [OK] Updated local UXL assets in INDEX/assets (uxl.css / uxl.js)")
         elif css_path.exists() and js_path.exists():
-            print("  [-] UXL assets already up to date")
+            print("  [-] Local UXL assets already present")
         else:
-            print("  [WARN] Failed to download UXL assets (will use existing files if present)")
+            print("  [WARN] Failed to download UXL assets (UXL rendering may not work)")
 
-        self._uxl_assets_synced = True
+        self._uxl_assets_ready = True
         
     def convert_heading(self, text: str) -> str:
         """Convert markdown headings to HTML"""
@@ -739,17 +740,15 @@ class MarkdownConverter:
         # UXL blocks - must be processed BEFORE regular code blocks
         def replace_uxl(match):
             code = match.group(1)
-            # Escape HTML entities but keep the markdown syntax
+            # Escape HTML entities; the browser will decode them back via textContent
             escaped_code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-            if escaped_code and not escaped_code.endswith('\n'):
-                escaped_code += '\n'
-            return f'<pre class="uxl-md-block">```UXL\n{escaped_code}```</pre>'
+            return f'<pre class="uxl-md-block">{escaped_code}</pre>'
         
         text = re.sub(
-            r'```UXL\n(.*?)```',
+            r'```uxl\s*\n(.*?)```',
             replace_uxl,
             text,
-            flags=re.DOTALL
+            flags=re.DOTALL | re.IGNORECASE
         )
         
         # Mermaid blocks
@@ -873,28 +872,7 @@ class MarkdownConverter:
         
         return prefix, prefix, prefix
 
-    def ensure_uxl_assets(self, target_dir: Path):
-        """
-        Ensure `uxl.js` and `uxl.css` exist next to HTML files that use UXL.
-
-        This is required because UXL opens prototypes in a new tab and loads `./uxl.js` + `./uxl.css`
-        relative to the current document directory (see https://khudyakovalex.github.io/UXL/).
-        """
-        try:
-            target_dir.mkdir(parents=True, exist_ok=True)
-
-            self.ensure_uxl_source_assets()
-
-            src_js = self.index_root / "uxl.js"
-            src_css = self.index_root / "uxl.css"
-
-            if src_js.exists():
-                shutil.copyfile(src_js, target_dir / "uxl.js")
-            if src_css.exists():
-                shutil.copyfile(src_css, target_dir / "uxl.css")
-        except Exception as e:
-            # Don't crash conversion if we can't copy assets (e.g., permissions)
-            print(f"  [WARN] Failed to copy UXL assets into {target_dir}: {e}")
+    # NOTE: Old UXL per-directory asset copying is intentionally removed.
     
     def create_diagram_page(self, diagram_code: str, diagram_index: int, output_file: Path, title: str) -> str:
         """Create a separate HTML page for a diagram and return its URL"""
@@ -1077,13 +1055,11 @@ class MarkdownConverter:
             # Convert telegram codes to links to USML
             html_content = self.convert_telegram_links(html_content, output_file)
             
-            # Post-process: Convert UXL code blocks to pre.uxl-md-block (as in https://khudyakovalex.github.io/UXL/)
+            # Post-process: Convert UXL code blocks to pre.uxl-md-block (rules: Project/uxl_md_to_html.md)
             def replace_uxl_html(match):
                 code = match.group(1)
-                # Keep code HTML-escaped (safe inside <pre>), but wrap in Markdown markers for UXL renderer.
-                if code and not code.endswith('\n'):
-                    code += '\n'
-                return f'<pre class="uxl-md-block">```UXL\n{code}```</pre>'
+                # Keep code HTML-escaped (safe inside <pre>). UXL engine reads textContent.
+                return f'<pre class="uxl-md-block">{code}</pre>'
 
             html_content, uxl_repl_count = re.subn(
                 r'<pre><code class="language-uxl">(.*?)</code></pre>',
@@ -1151,35 +1127,12 @@ class MarkdownConverter:
         else:
             page_title = ''
 
-        # Inject UXL assets only for pages that contain UXL blocks.
-        # Structure matches https://khudyakovalex.github.io/UXL/
+        # Inject UXL assets only for pages that contain UXL blocks (rules: Project/uxl_md_to_html.md).
         if has_uxl:
-            # Make sure local `./uxl.js` + `./uxl.css` exist next to the document (required for "1:1" / "Full Screen").
-            self.ensure_uxl_assets(output_file.parent)
+            self.ensure_uxl_local_assets()
 
-            uxl_css = (
-                '\n<link rel="stylesheet" href="./uxl.css" />\n'
-                '<style>\n'
-                '  /* Match https://khudyakovalex.github.io/UXL/ and override project-wide `border-radius: 0 !important` */\n'
-                '  .content pre.uxl-md-block {\n'
-                '    border: 1px solid #d0d7de !important;\n'
-                '    border-left: 1px solid #d0d7de !important;\n'
-                '    border-radius: 10px !important;\n'
-                '    background: #f6f8fa !important;\n'
-                '    padding: 12px !important;\n'
-                '    overflow: auto !important;\n'
-                '    white-space: pre !important;\n'
-                '  }\n'
-                '\n'
-                '  /* Restore UXL component rounding (project CSS forces border-radius: 0 !important globally) */\n'
-                '  .uxl-root .uxl-map__page { border-radius: 8px !important; }\n'
-                '  .uxl-root:not(.uxl-proto-root--fullscreen) .uxl-canvas { border-radius: 8px !important; }\n'
-                '  .uxl-proto-root--fullscreen .uxl-canvas { border-radius: 0 !important; }\n'
-                '  .uxl-root .uxl-hint-dot { border-radius: 50% !important; }\n'
-                '  .uxl-root .uxl-hint-badge { border-radius: 999px !important; }\n'
-                '</style>'
-            )
-            uxl_js = '\n<script src="./uxl.js"></script>'
+            uxl_css = f'\n<link rel="stylesheet" href="{css_path}assets/css/uxl.css">'
+            uxl_js = f'\n<script src="{js_path}assets/js/uxl.js"></script>'
             uxl_init = (
                 '\n<script>\n'
                 '  window.addEventListener("DOMContentLoaded", () => {\n'

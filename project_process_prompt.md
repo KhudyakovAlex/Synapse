@@ -120,7 +120,7 @@
 - Поддерживает все текущие возможности
 - При изменении MD-файлов — **ВСЕГДА запускать**
 - Автоматически вызывает `update_diagrams.py` для обновления диаграмм
-- При наличии блоков ```UXL — перед генерацией страниц конвертер должен обновлять локальные `INDEX/uxl.js` и `INDEX/uxl.css` из источника `https://khudyakovalex.github.io/UXL/` и использовать **локальные** `./uxl.js` / `./uxl.css` рядом со страницей документа (нужно для кнопок `1:1` / `Full Screen`).
+- При наличии блоков ```UXL — правила конвертации/рендера берутся из `Project/uxl_md_to_html.md` (вариант A: локальные ассеты).
 
 **Запуск:**
 ```bash
@@ -137,7 +137,7 @@ python convert_to_html.py
   - Списки → `<ul>`, `<ol>`
   - Код → `<pre><code>`
   - Mermaid диаграммы → `<div class="mermaid">`
-  - UXL блоки (```UXL ... ```) → рендер в HTML по образцу `https://khudyakovalex.github.io/UXL/`: `<pre class="uxl-md-block">```UXL ... ```</pre>` + подключение `uxl.css/uxl.js` + `window.UXL.renderAll({ selector: "pre.uxl-md-block", mode: "permissive" })`
+  - UXL блоки (```UXL ... ```) → рендер в HTML по правилам `Project/uxl_md_to_html.md`: `<pre class="uxl-md-block">...</pre>` + подключение локальных `assets/css/uxl.css` и `assets/js/uxl.js` + `window.UXL.renderAll({ selector: "pre.uxl-md-block", mode: "permissive" })`
   - Два пробела в конце строки → `<br>`
   - Bold → `<strong>`, Italic → `<em>`
   - URL-ссылки (http://, https://) → `<a href="..." target="_blank">`
@@ -170,7 +170,7 @@ python Project/update_dates.py
 - Все Markdown-файлы (*.md) должны иметь HTML-вариант
 - Сохранять форматирование: заголовки, списки, таблицы, блоки кода
 - Конвертировать Mermaid диаграммы в интерактивный вид
-- Если в MD встречается блок ```UXL, то это не “просто код”: конвертер обязан перенести его в HTML и обеспечить рендеринг по образцу `https://khudyakovalex.github.io/UXL/` (класс `uxl-md-block`, подключение CSS/JS, автозапуск renderAll).
+- Если в MD встречается блок ```UXL, то это не “просто код”: конвертер обязан перенести его в HTML и обеспечить рендеринг по правилам `Project/uxl_md_to_html.md`.
 - Для каждой Mermaid диаграммы создавать отдельную страницу (например, `db_schema_mermaid_diagram_0.html`)
 - **Исключение**: диаграммы типа `sequenceDiagram` **НЕ ТРЕБУЮТ** отдельных страниц для полноэкранного просмотра — они достаточно компактны и читаемы на странице документа
 - Сохранять относительные ссылки между документами
