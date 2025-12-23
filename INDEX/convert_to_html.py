@@ -284,8 +284,9 @@ class MarkdownConverter:
         # UXL integration: follow Project/uxl_md_to_html.md (Variant A: local assets in INDEX/assets)
         self._uxl_assets_ready = False
         self._uxl_assets = {
-            "css_url": "https://cdn.jsdelivr.net/gh/KhudyakovAlex/UXL@main/uxl.css",
-            "js_url": "https://cdn.jsdelivr.net/gh/KhudyakovAlex/UXL@main/uxl.js",
+            # IMPORTANT: download from GitHub repository, then serve locally from INDEX/assets/...
+            "css_url": "https://raw.githubusercontent.com/KhudyakovAlex/UXL/main/uxl.css",
+            "js_url": "https://raw.githubusercontent.com/KhudyakovAlex/UXL/main/uxl.js",
             "css_path": self.index_root / "assets" / "css" / "uxl.css",
             "js_path": self.index_root / "assets" / "js" / "uxl.js",
         }
@@ -345,6 +346,55 @@ class MarkdownConverter:
             print("  [WARN] Failed to download UXL assets (UXL rendering may not work)")
 
         self._uxl_assets_ready = True
+
+    def rewrite_uxl_asset_paths_in_html(self, html: str, assets_prefix: str) -> str:
+        """
+        Rewrite UXL image links inside <pre class="uxl-md-block">...</pre> blocks.
+
+        Authoring rule: in Markdown UXL blocks use SRC:assets/... (relative to INDEX/ root).
+        Rendering rule: generated HTML may live in subfolders (e.g. INDEX/PDS/), so we rewrite
+        SRC:assets/... → SRC:{assets_prefix}assets/... where assets_prefix is like "../" or "../../".
+        """
+        if not assets_prefix:
+            return html
+
+        def repl(match):
+            inner = match.group(1)
+            inner = inner.replace("SRC:assets/", f"SRC:{assets_prefix}assets/")
+            inner = inner.replace("SRC:./assets/", f"SRC:{assets_prefix}assets/")
+
+            # Also normalize Windows absolute paths pointing into this repo's INDEX/assets.
+            # Example (HTML-escaped quotes): SRC:&quot;D:\Git\Synapse\INDEX\assets\img\splash_logo.png&quot;
+            def _win_abs_to_rel(m):
+                rel = m.group(1).replace("\\", "/")
+                return f'SRC:&quot;{assets_prefix}assets/{rel}&quot;'
+
+            inner = re.sub(
+                r'SRC:&quot;[A-Za-z]:\\.*?\\INDEX\\assets\\([^&]+?)&quot;',
+                _win_abs_to_rel,
+                inner,
+                flags=re.IGNORECASE
+            )
+
+            # Unquoted variant: SRC:D:\...\INDEX\assets\...
+            def _win_abs_to_rel_unquoted(m):
+                rel = m.group(1).replace("\\", "/")
+                return f"SRC:{assets_prefix}assets/{rel}"
+
+            inner = re.sub(
+                r'SRC:[A-Za-z]:\\.*?\\INDEX\\assets\\([^\s\\]+(?:\\[^\s\\]+)*)',
+                _win_abs_to_rel_unquoted,
+                inner,
+                flags=re.IGNORECASE
+            )
+            return f'<pre class="uxl-md-block">{inner}</pre>'
+
+        return re.sub(
+            r'<pre class="uxl-md-block">(.*?)</pre>',
+            repl,
+            html,
+            flags=re.DOTALL
+        )
         
     def convert_heading(self, text: str) -> str:
         """Convert markdown headings to HTML"""
@@ -1130,6 +1180,9 @@ class MarkdownConverter:
         # Inject UXL assets only for pages that contain UXL blocks (rules: Project/uxl_md_to_html.md).
         if has_uxl:
             self.ensure_uxl_local_assets()
+
+            # Fix UXL links to project assets (SRC:assets/...) based on the output directory depth.
+            html_content = self.rewrite_uxl_asset_paths_in_html(html_content, css_path)
 
             uxl_css = f'\n<link rel="stylesheet" href="{css_path}assets/css/uxl.css">'
             uxl_js = f'\n<script src="{js_path}assets/js/uxl.js"></script>'
