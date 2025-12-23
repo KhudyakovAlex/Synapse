@@ -22,7 +22,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    /* No rounded corners across the site. */
     border-radius: 0 !important;
+}
+
+/* UXL renderer manages rounding itself (uxl.css + inline styles from uxl.js).
+   Exclude UXL subtree from the global border-radius reset so embedded UXL matches 1:1/Full Screen. */
+.uxl-root, .uxl-root * {
+    border-radius: revert;
 }
 
 body {
