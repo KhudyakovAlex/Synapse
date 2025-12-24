@@ -2,7 +2,7 @@
 
 АПК Синапс v1.0. ПО. Спецификации на разработку
 
-**Последнее изменение:** 24.12.2025, 21:31 МСК
+**Последнее изменение:** 24.12.2025, 21:38 МСК
 
 ## 1. Термины и определения
 
@@ -105,6 +105,44 @@ P\settings\Настройки\Настройки приложения
     S\1\ICON:volume-2:24\ICON:volume-x:24\80x28\OUT:R:M10\Включение/отключение озвучки ИИ
 
 P\controller_pass\Контроллер\Страница конкретного контроллера
+  F\OUT:LT\IN:H
+    I\ICON:back:36\48x48\OUT:L:M10\#111111\GOTO:controllers\Назад к списку
+    C\Этаж2\FONT:24\x48\OUT:L\#333333
+
+  # Ввод пароля
+  F\100%x100%\IN:V
+    C\Введите пароль\OUT:M10
+    F\IN:H\OUT:M20
+      F\30x30\#FFFFFF\OUT:M5
+      F\30x30\#FFFFFF\OUT:M5
+      F\30x30\#FFFFFF\OUT:M5
+      F\30x30\#FFFFFF\OUT:M5
+    
+    # Клава
+    F\IN:V
+      F\IN:H
+        B\1\60x40\OUT:M2\GOTO:controller
+        B\2\60x40\OUT:M2\GOTO:controller
+        B\3\60x40\OUT:M2\GOTO:controller
+      F\IN:H
+        B\4\60x40\OUT:M2\GOTO:controller
+        B\5\60x40\OUT:M2\GOTO:controller
+        B\6\60x40\OUT:M2\GOTO:controller
+      F\IN:H
+        B\7\60x40\OUT:M2\GOTO:controller
+        B\8\60x40\OUT:M2\GOTO:controller
+        B\9\60x40\OUT:M2\GOTO:controller
+      F\IN:H
+        B\0\60x40\OUT:M2\GOTO:controller
+        B\ICON:delete\60x40\OUT:M2
+
+  # Панель ИИ
+  F\OUT:B\100%x48\#333333
+    I\ICON:ai:36\48x48\OUT:M10\GOTO:llm\#FFFFFF\Кнопка вызова ИИ-джина
+    S\1\\\80x28\OUT:L:M10\Включение ИИ
+    S\1\ICON:volume-2:24\ICON:volume-x:24\80x28\OUT:R:M10\Включение/отключение озвучки ИИ
+
+P\controller\Контроллер\Разблокированный контроллер
   F\OUT:LT\IN:H
     I\ICON:back:36\48x48\OUT:L:M10\#111111\GOTO:controllers\Назад к списку
     C\Этаж2\FONT:24\x48\OUT:L\#333333
