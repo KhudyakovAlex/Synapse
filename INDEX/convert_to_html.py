@@ -287,8 +287,10 @@ class MarkdownConverter:
             # IMPORTANT: download from GitHub repository, then serve locally from INDEX/assets/...
             "css_url": "https://raw.githubusercontent.com/KhudyakovAlex/UXL/main/uxl.css",
             "js_url": "https://raw.githubusercontent.com/KhudyakovAlex/UXL/main/uxl.js",
+            "md_url": "https://raw.githubusercontent.com/KhudyakovAlex/UXL/main/UXL.md",
             "css_path": self.index_root / "assets" / "css" / "uxl.css",
             "js_path": self.index_root / "assets" / "js" / "uxl.js",
+            "md_path": self.repo_root / "Project" / "UXL.md",
         }
 
     def _download_if_changed(self, url: str, dst: Path) -> bool:
@@ -334,12 +336,19 @@ class MarkdownConverter:
 
         css_path: Path = self._uxl_assets["css_path"]
         js_path: Path = self._uxl_assets["js_path"]
+        md_path: Path = self._uxl_assets["md_path"]
 
         updated_css = self._download_if_changed(self._uxl_assets["css_url"], css_path)
         updated_js = self._download_if_changed(self._uxl_assets["js_url"], js_path)
+        updated_md = self._download_if_changed(self._uxl_assets["md_url"], md_path)
 
-        if updated_css or updated_js:
-            print("  [OK] Updated local UXL assets in INDEX/assets (uxl.css / uxl.js)")
+        if updated_css or updated_js or updated_md:
+            msgs = []
+            if updated_css or updated_js:
+                msgs.append("uxl.css / uxl.js")
+            if updated_md:
+                msgs.append("Project/UXL.md")
+            print(f"  [OK] Updated local UXL assets: {', '.join(msgs)}")
         elif css_path.exists() and js_path.exists():
             print("  [-] Local UXL assets already present")
         else:
