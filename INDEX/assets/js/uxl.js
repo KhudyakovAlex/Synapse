@@ -3311,8 +3311,19 @@
   function addNewBadgeAbs(parentEl, { sizePx = 36, z = 10 } = {}) {
     const badge = svgIcon("new", { className: "uxl-new-badge" });
     if (!badge) return;
-    // parentEl is already positioned (most UXL nodes are position:absolute), but be safe:
-    if (!parentEl.style.position) parentEl.style.position = "relative";
+    // Don't ever override explicit inline positioning.
+    if (!parentEl.style.position) {
+      // If element isn't connected yet, computed styles may be "static" even when CSS will later set absolute.
+      // In that case, do NOT touch positioning (prevents map tiles from breaking when NEW is present).
+      if (parentEl.isConnected) {
+        try {
+          const pos = window.getComputedStyle(parentEl).position;
+          if (!pos || pos === "static") parentEl.style.position = "relative";
+        } catch {
+          // If we can't compute, leave it alone.
+        }
+      }
+    }
     badge.style.position = "absolute";
     badge.style.right = "0";
     badge.style.bottom = "0";
@@ -3357,6 +3368,7 @@
 
   function renderMap(ast) {
     const map = el("div", { class: "uxl-map" });
+    map.id = "uxl-map";
     const mapWrap = el("div", { class: "uxl-map-wrap" });
     const mapScale = el("div", { class: "uxl-map-scale" });
     const grid = el("div", { class: "uxl-map__grid" });
@@ -3479,6 +3491,14 @@
       const colGap = 80;
       const rowGap = 26;
 
+      // Reserve a dedicated right column for TYPE:G pages (always visible near the tree).
+      let gColW = 0;
+      for (const uid of pagesGlobal) {
+        const s = sizes.get(uid) || { w: 160, h: 48 };
+        gColW = Math.max(gColW, s.w);
+      }
+      const normalX0 = 0;
+
       const colWidths = new Map();
       for (const lvl of levels) {
         let maxW = 0;
@@ -3491,7 +3511,7 @@
 
       // X offsets
       const xOffset = new Map();
-      let x = 0;
+      let x = normalX0;
       for (const lvl of levels) {
         xOffset.set(lvl, x);
         x += (colWidths.get(lvl) || 160) + colGap;
@@ -3514,26 +3534,25 @@
         totalH = Math.max(totalH, y);
       }
 
-      // Place TYPE:G pages as a separate "bottom list" with no edges.
-      let bottomY = Math.max(0, totalH - rowGap);
-      if (pagesGlobal.length) bottomY += rowGap * 2;
-      let gMaxW = 0;
-      let yG = bottomY;
+      // Place TYPE:G pages as a separate right column with no edges.
+      const normalW = Math.max(0, x - colGap);
+      const gX = pagesGlobal.length ? normalW + colGap : 0;
+      let yG = 0;
       for (const uid of pagesGlobal) {
         const elp = pageEls.get(uid);
         if (!elp) continue;
         const s = sizes.get(uid) || { w: 160, h: 48 };
-        gMaxW = Math.max(gMaxW, s.w);
-        elp.style.left = `0px`;
+        elp.style.left = `${gX}px`;
         elp.style.top = `${yG}px`;
         elp.style.width = `${s.w}px`;
         elp.style.height = `${s.h}px`;
         yG += s.h + rowGap;
       }
 
-      const normalW = Math.max(0, x - colGap);
-      const finalW = Math.max(normalW, gMaxW);
-      const finalH = pagesGlobal.length ? Math.max(0, yG - rowGap) : Math.max(0, totalH - rowGap);
+      const finalW = pagesGlobal.length ? Math.max(normalW, gX + gColW) : normalW;
+      const normalH = Math.max(0, totalH - rowGap);
+      const globalH = pagesGlobal.length ? Math.max(0, yG - rowGap) : 0;
+      const finalH = Math.max(normalH, globalH);
       grid.style.width = `${finalW}px`;
       grid.style.height = `${finalH}px`;
     }
@@ -3668,28 +3687,23 @@
     function applyMapScaleToFitWidth() {
       const vv = window.visualViewport;
       const vw = vv ? vv.width : window.innerWidth;
-      const mobile = vw <= 900;
+      const vh = vv ? vv.height : window.innerHeight;
 
-      if (!mobile) {
-        mapScale.style.transform = "";
-        mapScale.style.transformOrigin = "";
-        mapScale.style.width = "";
-        mapScale.style.height = "";
-        return;
-      }
-
-      // Scale down only (never upscale) so the map fits the available width.
+      // Scale down only (never upscale) so the map fits available width/height (no scrollbars).
       const availW = mapWrap.clientWidth || map.getBoundingClientRect().width || vw;
       const baseW = grid.offsetWidth || 1; // offsetWidth ignores transform; good for baseline
       const baseH = grid.offsetHeight || 1;
       const pad = 8;
-      const scale = Math.max(0.1, Math.min(1, (availW - pad * 2) / baseW));
+      const top = mapWrap.getBoundingClientRect().top;
+      const availH = Math.max(0, vh - top - pad);
+      const scale = Math.max(0.1, Math.min(1, (availW - pad * 2) / baseW, (availH - pad * 2) / baseH));
 
       mapScale.style.transformOrigin = "top left";
       mapScale.style.transform = `scale(${scale})`;
       // Make the wrapper's layout size match the transformed size to avoid extra overflow/blank space.
       mapScale.style.width = `${Math.round(baseW * scale)}px`;
       mapScale.style.height = `${Math.round(baseH * scale)}px`;
+      mapWrap.style.height = `${Math.round(baseH * scale)}px`;
     }
 
     relayoutAndRedraw();
@@ -3702,7 +3716,9 @@
   function renderPageSection(ast, pageNode, { windowOverride = null } = {}) {
     const page = el("div", { class: "uxl-page", "data-page-uid": pageNode.uid });
     const headText = pageLabel(pageNode);
-    const head = el("div", { class: "uxl-page__head", text: headText });
+    const head = el("div", { class: "uxl-page__head" });
+    const headTitle = el("span", { class: "uxl-page__head-title", text: headText });
+    head.append(headTitle);
     const body = el("div", { class: "uxl-page__body" });
     const canvasWrap = el("div", { class: "uxl-canvas-wrap" });
     const canvasScale = el("div", { class: "uxl-canvas-scale" });
@@ -3724,6 +3740,70 @@
     overlay.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     body.append(canvasWrap, hints, overlay);
     page.append(head, body);
+
+    function scrollToThisPage() {
+      const headEl = page.querySelector(".uxl-page__head") || page;
+      const targetTop = headEl.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({ top: targetTop, behavior: "smooth" });
+      page.classList.remove("uxl-page--goto");
+      void page.offsetWidth;
+      page.classList.add("uxl-page--goto");
+      window.setTimeout(() => page.classList.remove("uxl-page--goto"), 2400);
+    }
+
+    function scrollToMap() {
+      const root = page.closest(".uxl-root") || document;
+      const mapEl = root.querySelector("#uxl-map") || root.querySelector(".uxl-map");
+      if (!mapEl) return;
+      const titleEl = root.querySelector(".uxl-map__title") || mapEl;
+      const targetTop = titleEl.getBoundingClientRect().top + window.pageYOffset - 20;
+      window.scrollTo({ top: targetTop, behavior: "smooth" });
+      mapEl.classList.remove("uxl-map--goto");
+      void mapEl.offsetWidth;
+      mapEl.classList.add("uxl-map--goto");
+      window.setTimeout(() => mapEl.classList.remove("uxl-map--goto"), 2200);
+    }
+
+    // P link icon: copy full URL with #P:<id> and scroll to this page (like map click).
+    const pageId = String(pageNode.id || "").trim();
+    if (pageId) {
+      const linkBtn = el("button", {
+        class: "uxl-page__link",
+        type: "button",
+        title: "Копировать ссылку на страницу",
+        "aria-label": "Копировать ссылку на страницу",
+      });
+      const ico = svgIcon("link", { className: "uxl-page__link-ico" });
+      if (ico) linkBtn.append(ico);
+      linkBtn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const url = new URL(window.location.href);
+        url.hash = `P:${pageId}`;
+        const text = url.toString();
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          // Fallback for insecure contexts / permissions.
+          window.prompt("Copy link:", text);
+        }
+        scrollToThisPage();
+      });
+      const menuBtn = el("button", {
+        class: "uxl-page__link",
+        type: "button",
+        title: "Перейти к карте интерфейса",
+        "aria-label": "Перейти к карте интерфейса",
+      });
+      const menuIco = svgIcon("menu", { className: "uxl-page__link-ico" });
+      if (menuIco) menuBtn.append(menuIco);
+      menuBtn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        scrollToMap();
+      });
+      head.append(linkBtn, menuBtn);
+    }
 
     // Render nodes; layout will run on next animation frame (after DOM insertion).
     const domByUid = layoutTree(canvas, pageNode, win);
@@ -4278,6 +4358,60 @@
     };
   }
 
+  function parsePHash() {
+    const raw = String(window.location.hash || "").replace(/^#/, "");
+    const m = /^P:(.+)$/i.exec(raw.trim());
+    const id = String(m?.[1] || "").trim();
+    return id ? id : null;
+  }
+
+  function scrollToPageUidInRoot(root, pageUid) {
+    const pageEl = root?.querySelector?.(`.uxl-page[data-page-uid="${CSS.escape(pageUid)}"]`);
+    const headEl = pageEl?.querySelector?.(".uxl-page__head") || pageEl;
+    if (!headEl) return false;
+    const targetTop = headEl.getBoundingClientRect().top + window.pageYOffset - 100;
+    window.scrollTo({ top: targetTop, behavior: "smooth" });
+    if (pageEl) {
+      pageEl.classList.remove("uxl-page--goto");
+      void pageEl.offsetWidth;
+      pageEl.classList.add("uxl-page--goto");
+      window.setTimeout(() => pageEl.classList.remove("uxl-page--goto"), 2400);
+    }
+    return true;
+  }
+
+  function tryHandlePHashForRoot(root, ast) {
+    const id = parsePHash();
+    if (!id) return false;
+    const key = normalizeId(id);
+    const uid = ast?.pageIdToUid?.[key];
+    if (!uid) return false;
+    return scrollToPageUidInRoot(root, uid);
+  }
+
+  function registerHashNavigation(root, ast) {
+    if (!root || !ast) return;
+    if (!window.__uxlHashNav) window.__uxlHashNav = { items: [], installed: false, onChange: null };
+    const hub = window.__uxlHashNav;
+    hub.items.push({ root, ast });
+
+    if (!hub.installed) {
+      hub.installed = true;
+      hub.onChange = () => {
+        // Try the most recently rendered roots first.
+        for (let i = hub.items.length - 1; i >= 0; i--) {
+          const it = hub.items[i];
+          if (!document.contains(it.root)) continue;
+          if (tryHandlePHashForRoot(it.root, it.ast)) break;
+        }
+      };
+      window.addEventListener("hashchange", hub.onChange);
+    }
+
+    // Initial attempt (after DOM insertion + layout).
+    requestAnimationFrame(() => requestAnimationFrame(() => tryHandlePHashForRoot(root, ast)));
+  }
+
   function renderAst(ast, { uxlText = "", mode = "permissive", pageInterleaves = null } = {}) {
     const root = el("div", { class: "uxl-root" });
     const proto = el("div", { class: "uxl-proto-preview" });
@@ -4315,6 +4449,7 @@
     const ver = el("div", { class: "uxl-footer__ver", text: `UXL ${ast.uxlVersion || SUPPORTED_UXL_VERSION} / renderer ${RENDERER_VERSION}` });
     footer.append(ver);
     root.append(footer);
+    registerHashNavigation(root, ast);
     return root;
   }
 
