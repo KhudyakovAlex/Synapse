@@ -284,6 +284,47 @@ function initSearch() {
     }
 }
 
+// Scroll-to-top button
+function initScrollToTopButton() {
+    // Avoid duplicates if script is loaded twice
+    if (document.getElementById('scroll-to-top')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'scroll-to-top';
+    btn.className = 'scroll-to-top';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Наверх');
+    btn.title = 'Наверх';
+    btn.textContent = '↑';
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    btn.addEventListener('click', () => {
+        try {
+            window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        } catch (_) {
+            // Fallback for older browsers
+            window.scrollTo(0, 0);
+        }
+    });
+
+    document.body.appendChild(btn);
+
+    const SHOW_AFTER_PX = 400;
+    const updateVisibility = () => {
+        const y = window.scrollY || window.pageYOffset || 0;
+        if (y >= SHOW_AFTER_PX) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    };
+
+    updateVisibility();
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('resize', updateVisibility);
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     generateTOC();
@@ -291,5 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeCopy();
     initMermaidLinks();
     initSearch();
+    initScrollToTopButton();
 });
 

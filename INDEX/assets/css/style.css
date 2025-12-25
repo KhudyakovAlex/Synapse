@@ -240,6 +240,49 @@ body {
     border-bottom: 1px solid var(--link-hover);
 }
 
+/* Scroll-to-top button */
+.scroll-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.scroll-to-top:hover {
+    background: var(--accent-secondary);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+    .scroll-to-top {
+        right: 14px;
+        bottom: 14px;
+        width: 42px;
+        height: 42px;
+    }
+}
+
 /* Code Blocks */
 .content code {
     background: var(--bg-code);
