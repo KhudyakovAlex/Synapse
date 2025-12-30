@@ -57,7 +57,7 @@
         <main class="content">
             
 <p>АПК Синапс v1.0. ПО. Спецификации на разработку</p>
-<p><strong>Последнее изменение:</strong> 30.12.2025, 14:04 МСК</p>
+<p><strong>Последнее изменение:</strong> 30.12.2025, 16:12 МСК</p>
 <h2 id="1-термины-и-определения">1. Термины и определения</h2>
 <p>1.1. <strong>Graphene</strong> — дизайн-система для разработки пользовательских интерфейсов приложений AWADA.</p>
 <h2 id="2-основные-принципы">2. Основные принципы</h2>
@@ -65,7 +65,6 @@
 <p>2.2. Чем важнее контроль, тем ближе он должен быть к нижнему краю экрана.</p>
 <h2 id="3-прототип-интерфейса">3. Прототип интерфейса</h2>
 <pre class="uxl-md-block">400x700
-STROKE:F
 
 P\splash\Splash-окно\GOTOAFTER:2\Ну куда же без него... Пока грузится приложуха
   I\SRC:../assets/img/splash_logo.png\300x300\FIT
@@ -143,9 +142,9 @@ P\settings\Настройки\Настройки приложения
     S\0\ICON:grid3x3:24\ICON:grid4x4:24\140x40\OUT:L\Варианты сетки контроллеров (ниже которая)
     S\0\Светлая\Темная\OUT:R\140x40
 
-  F\OUT:TL\IN:H
-    I\ICON:search:36\48x48\OUT:M10\#111111\Кнопка поиска новых контроллеров на связи
-    I\ICON:trash:36\48x48\OUT:M10\#111111\GOTO:delete_controller\Удаление контроллера (перетаскиваем на неё)
+  F\OUT:T\IN:H\100%x48
+    C\Локации\FONT:24\x48\OUT:LT:M10\IN:NW\#333333
+    I\ICON:plus:36\48x48\OUT:M10:RT\#111111<br>
 
   F\100%x100%
     F\IN:H
@@ -180,6 +179,51 @@ P\settings\Настройки\Настройки приложения
     I\ICON:microphone:36\48x48\OUT:M10\GOTO:llm\#FFFFFF\Кнопка вызова ИИ-джина
     S\1\\AI\80x28\OUT:L:M10\Включение ИИ
     S\1\ICON:volume-2:24\ICON:volume-x:24\80x28\OUT:R:M10\Включение/отключение озвучки ИИ
+
+P\delete_controller\Удаление локации\TYPE:G\По долгому нажатию на иконку локации
+
+  F\OUT:T\IN:H\100%x48
+    I\ICON:back:36\48x48\OUT:L:M10\#111111
+    C\Настройки\FONT:24\x48\OUT:L\IN:NW\#333333
+
+  # Основной контент
+  F\OUT:T\100%x
+    S\0\ICON:grid3x3:24\ICON:grid4x4:24\140x40\OUT:L
+    S\0\Светлая\Темная\OUT:R\140x40
+
+  F\OUT:T\IN:H\100%x48
+    C\Локации\FONT:24\x48\OUT:LT:M10\IN:NW\#333333
+    I\ICON:plus:36\48x48\OUT:M10:RT\#111111<br>
+
+  F\100%x100%
+    F\IN:H\OUT:M20\#FFFFFF\100%x
+
+      C\Этаж4\FONT:24\x48\OUT:LT:M10\IN:NW\#333333
+      C\Удалить\FONT:24\x48\OUT:RT:M10\IN:NW\#333333
+
+    F\IN:H
+      F\100x130\
+        I\ICON:box:100\100x100\#AAAAAA\OUT:T
+        C\Этаж3\OUT:T:M0\IN:M0\#AAAAAA
+      F\100x130\
+        I\ICON:box:100\100x100\#AAAAAA\OUT:T
+        C\Этаж4\OUT:T:M0\IN:M0\#AAAAAA
+      F\100x130\
+        I\ICON:grid1x1:100\\100x100\OUT:T\#AAAAAA
+
+    F\IN:H
+      F\100x130\
+        I\ICON:grid1x1:100\\100x100\OUT:T\#AAAAAA
+      F\100x130\
+        I\ICON:grid1x1:100\\100x100\OUT:T\#AAAAAA
+      F\100x130\
+        I\ICON:grid1x1:100\\100x100\OUT:T\#AAAAAA
+
+  # Панель ИИ
+  F\OUT:B\100%x48\#333333
+    I\ICON:microphone:36\48x48\OUT:M10\GOTO:llm\#FFFFFF
+    S\1\\AI\80x28\OUT:L:M10
+    S\1\ICON:volume-2:24\ICON:volume-x:24\80x28\OUT:R:M10
 
 P\controller_pass\Пароль локации\Страница ввода пароля контроллера
   F\OUT:LT\IN:H
@@ -259,13 +303,6 @@ P\llm\Чат с LLM\TYPE:G\Страница общения с ИИ-джином.
     I\ICON:microphone:36\48x48\OUT:M10\#FFFFFF
     S\1\\AI\80x28\OUT:L:M10
     S\1\ICON:volume-2:24\ICON:volume-x:24\80x28\OUT:R:M10
-
-P\delete_controller\Удаление локации\TYPE:G
-  F\100%x100%
-    C\Для удаления локации перетащите ее на эту иконку\80%x\OUT:M20
-    F\IN:H
-      I\ICON:check:48\64x64\OUT:M10\GOTO:settings
-      I\ICON:close:48\64x64\OUT:M10\GOTO:settings
 
 </pre>
         </main>
