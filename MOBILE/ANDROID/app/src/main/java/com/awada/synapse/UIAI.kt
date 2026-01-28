@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
@@ -63,13 +64,19 @@ fun UIAI(modifier: Modifier = Modifier) {
             collapsedOffsetPx
         }
         
-        UIAIChat(
-            modifier = Modifier.fillMaxSize(),
-            currentOffsetPx = currentOffsetPx,
-            screenHeightPx = screenHeightPx,
-            dragHandleHeightPx = with(density) { DRAG_HANDLE_HEIGHT.toPx() },
-            anchoredDraggableState = anchoredDraggableState
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds()
+        ) {
+            UIAIChat(
+                modifier = Modifier.fillMaxSize(),
+                currentOffsetPx = currentOffsetPx,
+                screenHeightPx = screenHeightPx,
+                expandedTopOffsetPx = expandedOffsetPx,
+                anchoredDraggableState = anchoredDraggableState
+            )
+        }
         
         UIAIMain(
             modifier = Modifier
