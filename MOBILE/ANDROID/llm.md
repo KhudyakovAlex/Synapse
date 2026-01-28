@@ -110,7 +110,11 @@ UIFabButton(
 #### UIAIMain.kt
 Нижняя панель с тумблерами и FAB кнопкой.
 ```kotlin
-UIAIMain(modifier: Modifier = Modifier)
+UIAIMain(
+    modifier: Modifier = Modifier,
+    onVerticalDrag: (Float) -> Unit = {},
+    onDragEnd: () -> Unit = {}
+)
 ```
 **Токены:**
 - Background: `Color_Bg_bg_elevated`
@@ -126,22 +130,52 @@ UIAIMain(modifier: Modifier = Modifier)
 
 **Логика:** Когда AI выключен → FAB disabled, правый тумблер disabled
 
-#### UIAIChat.kt
-Чат (bottom sheet). **В РАЗРАБОТКЕ — пока пустая заглушка.**
+**Gesture:** Vertical drag на панели открывает чат, tap на элементах работает нормально (touchSlop=18px)
 
-Планируется:
-- Drag handle (зелёная черточка): `Color_Bg_bg_elevated`, 48dp высота
-- Серая плашка: `Color_Bg_bg_canvas`, скругление как у UIAIMain
-- Bottom sheet с drag gesture
-- Отступ от верха экрана: 100dp
-- Z-order: UIAIMain поверх чата
+#### UIAIChat.kt
+Чат (bottom sheet) с drag gesture.
+```kotlin
+UIAIChat(
+    modifier: Modifier = Modifier,
+    currentOffsetPx: Float,
+    screenHeightPx: Float,
+    dragHandleHeightPx: Float,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit
+)
+```
+
+**Структура:**
+- **Drag handle область**: 48dp высота, прозрачный фон
+- **Drag handle черточка**: 40×4dp, pill (`Radius_Full`), `Color_Bg_bg_elevated`, padding bottom 10dp
+- **Серая плашка**: `Color_Bg_bg_canvas`, скругление top=`Radius_L`, bottom=`Radius_None`
+
+**Поведение:**
+- Свёрнуто: видна только черточка над UIAIMain
+- Развёрнуто: чат выезжает вверх, отступ 100dp от верха экрана
+- Drag gesture с анимацией (300ms)
+- Порог переключения: 50dp
 
 #### UIAI.kt
-Контейнер для UIAIChat и UIAIMain.
+Контейнер для UIAIChat и UIAIMain. Управляет состоянием чата.
 ```kotlin
 UIAI(modifier: Modifier = Modifier)
 ```
-UIAIMain внизу с `navigationBarsPadding()`.
+**Состояние (lifted up):**
+- `isExpanded` — развёрнут ли чат
+- `dragOffsetPx` — текущее смещение при drag
+
+**Константы:**
+- `DRAG_HANDLE_HEIGHT` = 48dp
+- `MAIN_PANEL_HEIGHT` = 100dp
+- `EXPANDED_TOP_OFFSET` = 100dp
+- `DRAG_THRESHOLD` = 50dp
+
+**Координация:**
+- `navigationBarsPadding()` применяется к общему контейнеру
+- UIAIChat под UIAIMain (z-order)
+- Drag может начинаться с UIAIChat или UIAIMain
+- Tap на элементах UIAIMain работает нормально
 
 ---
 

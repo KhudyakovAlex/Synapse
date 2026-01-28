@@ -1,6 +1,10 @@
-﻿package com.awada.synapse
+package com.awada.synapse
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -20,8 +24,12 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UIAIMain(modifier: Modifier = Modifier) {
+fun UIAIMain(
+    modifier: Modifier = Modifier,
+    anchoredDraggableState: AnchoredDraggableState<ChatState>
+) {
     var isAIEnabled by remember { mutableStateOf(true) }
     var isVolumeEnabled by remember { mutableStateOf(true) }
 
@@ -38,6 +46,10 @@ fun UIAIMain(modifier: Modifier = Modifier) {
                 )
             )
             .background(PixsoColors.Color_Bg_bg_elevated)
+            .anchoredDraggable(
+                state = anchoredDraggableState,
+                orientation = Orientation.Vertical
+            )
             .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 0.dp)
     ) {
         Row(
