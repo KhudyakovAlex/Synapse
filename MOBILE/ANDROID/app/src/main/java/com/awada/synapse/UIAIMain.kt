@@ -13,16 +13,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -30,7 +34,11 @@ fun UIAIMain(
     modifier: Modifier = Modifier,
     anchoredDraggableState: AnchoredDraggableState<ChatState>
 ) {
-    var isAIEnabled by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val settingsRepository = remember { SettingsRepository(context) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    val isAIEnabled by settingsRepository.isAIEnabled.collectAsState(initial = true)
     var isVolumeEnabled by remember { mutableStateOf(true) }
 
     Box(
@@ -46,9 +54,15 @@ fun UIAIMain(
                 )
             )
             .background(PixsoColors.Color_Bg_bg_elevated)
-            .anchoredDraggable(
-                state = anchoredDraggableState,
-                orientation = Orientation.Vertical
+            .then(
+                if (isAIEnabled) {
+                    Modifier.anchoredDraggable(
+                        state = anchoredDraggableState,
+                        orientation = Orientation.Vertical
+                    )
+                } else {
+                    Modifier
+                }
             )
             .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 0.dp)
     ) {
@@ -62,7 +76,11 @@ fun UIAIMain(
             // Left toggle - AI on/off
             UIToggle(
                 isChecked = isAIEnabled,
-                onCheckedChange = { isAIEnabled = it },
+                onCheckedChange = { enabled ->
+                    coroutineScope.launch {
+                        settingsRepository.setAIEnabled(enabled)
+                    }
+                },
                 iconOn = R.drawable.ic_ai,
                 iconOff = R.drawable.ic_ai_off
             )
