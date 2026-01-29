@@ -7,7 +7,9 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -80,11 +82,17 @@ fun UIAIChat(
 
     var inputText by remember { mutableStateOf("") }
     
+    // Calculate keyboard offset: lift chat content when keyboard appears
+    val imeBottomPx = WindowInsets.ime.getBottom(density)
+    val mainHeightPx = with(density) { INPUT_BAR_BOTTOM_PADDING.toPx() }
+    val dragHandleHeightPx = with(density) { DRAG_HANDLE_HEIGHT.toPx() }
+    val keyboardLiftPx = (imeBottomPx - mainHeightPx * 2 - dragHandleHeightPx).coerceAtLeast(0f)
+    
     Box(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset { IntOffset(0, currentOffsetPx.roundToInt()) }
+                .offset { IntOffset(0, (currentOffsetPx - keyboardLiftPx).roundToInt()) }
         ) {
             // Drag handle area - only this part can drag down to collapse
             Box(
