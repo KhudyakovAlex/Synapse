@@ -1,4 +1,4 @@
-﻿package com.awada.synapse.ui.theme
+package com.awada.synapse.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -109,7 +109,7 @@ val BodyLarge = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = PixsoDimens.Body_Body_L_Size,
     lineHeight = PixsoDimens.Body_Body_L_Line_Height,
-    letterSpacing = 0.sp
+    letterSpacing = 0.5.sp
 )
 
 val BodyMedium = TextStyle(
@@ -125,7 +125,7 @@ val BodySmall = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = PixsoDimens.Body_Body_S_Size,
     lineHeight = PixsoDimens.Body_Body_S_Line_Height,
-    letterSpacing = 0.sp
+    letterSpacing = 0.4.sp
 )
 
 // Label styles
@@ -151,6 +151,31 @@ val LabelSmall = TextStyle(
     fontSize = PixsoDimens.Label_Label_S_Size,
     lineHeight = PixsoDimens.Label_Label_S_Line_Height,
     letterSpacing = 0.sp
+)
+
+// Button styles
+val ButtonLarge = TextStyle(
+    fontFamily = IBMPlexSansFamily,
+    fontWeight = FontWeight.Medium,
+    fontSize = PixsoDimens.Button_Button_L_Size,
+    lineHeight = PixsoDimens.Button_Button_L_Line_Height,
+    letterSpacing = 0.5.sp
+)
+
+val ButtonMedium = TextStyle(
+    fontFamily = IBMPlexSansFamily,
+    fontWeight = FontWeight.Medium,
+    fontSize = PixsoDimens.Button_Button_M_Size,
+    lineHeight = PixsoDimens.Button_Button_M_Line_Height,
+    letterSpacing = 0.5.sp
+)
+
+val ButtonSmall = TextStyle(
+    fontFamily = IBMPlexSansFamily,
+    fontWeight = FontWeight.Medium,
+    fontSize = PixsoDimens.Button_Button_S_Size,
+    lineHeight = PixsoDimens.Button_Button_S_Line_Height,
+    letterSpacing = 0.5.sp
 )
 
 // Material3 Typography with Pixso tokens

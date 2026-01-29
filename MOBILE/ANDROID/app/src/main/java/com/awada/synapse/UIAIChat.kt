@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +34,34 @@ import kotlin.math.roundToInt
 private val DRAG_HANDLE_HEIGHT = 48.dp
 private val DRAG_HANDLE_BAR_WIDTH = 40.dp
 private val DRAG_HANDLE_BAR_HEIGHT = 4.dp
+private val CHAT_HORIZONTAL_PADDING = 16.dp
+private val INPUT_BAR_BOTTOM_PADDING = 116.dp
+
+// Chat message types
+sealed class ChatItem {
+    data class AIMessage(val text: String, val time: String) : ChatItem()
+    data class UserMessage(val text: String, val time: String) : ChatItem()
+    data class QuickReply(val text: String) : ChatItem()
+}
+
+// Mock data for demo
+private val mockChatItems = listOf(
+    ChatItem.AIMessage(
+        text = "Привет! Я Synapse — твой AI-ассистент. Чем могу помочь?",
+        time = "10:30"
+    ),
+    ChatItem.UserMessage(
+        text = "Привет! Расскажи о своих возможностях",
+        time = "10:31"
+    ),
+    ChatItem.AIMessage(
+        text = "Я могу помочь с ответами на вопросы, написанием текстов, анализом данных и многим другим. Просто напиши, что тебя интересует!",
+        time = "10:31"
+    ),
+    ChatItem.QuickReply(text = "Расскажи подробнее о своих возможностях и как ты можешь мне помочь"),
+    ChatItem.QuickReply(text = "Покажи пример"),
+    ChatItem.QuickReply(text = "Понятно, спасибо!")
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -92,14 +122,45 @@ fun UIAIChat(
                     )
                     .background(PixsoColors.Color_Bg_bg_canvas)
             ) {
-                // Chat content will go here
+                // Chat messages list
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = CHAT_HORIZONTAL_PADDING,
+                            end = CHAT_HORIZONTAL_PADDING,
+                            bottom = INPUT_BAR_BOTTOM_PADDING + 56.dp + 16.dp // input bar height + padding
+                        )
+                ) {
+                    items(mockChatItems) { item: ChatItem ->
+                        when (item) {
+                            is ChatItem.AIMessage -> UIMessageAI(
+                                text = item.text,
+                                time = item.time
+                            )
+                            is ChatItem.UserMessage -> UIMessageUser(
+                                text = item.text,
+                                time = item.time
+                            )
+                            is ChatItem.QuickReply -> UIQuickReply(
+                                text = item.text,
+                                onClick = { /* TODO: Handle quick reply */ }
+                            )
+                        }
+                    }
+                }
                 
-                // Input bar at fixed position from bottom (116dp from bottom)
+                // Input bar at fixed position from bottom
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 116.dp)
+                        .padding(
+                            start = CHAT_HORIZONTAL_PADDING,
+                            end = CHAT_HORIZONTAL_PADDING,
+                            top = 16.dp,
+                            bottom = INPUT_BAR_BOTTOM_PADDING
+                        )
                 ) {
                     UIInputBar(
                         value = inputText,
