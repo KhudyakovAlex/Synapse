@@ -1,4 +1,4 @@
-﻿package com.awada.synapse.ui.theme
+package com.awada.synapse.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -114,7 +114,9 @@ object PixsoColors {
     val Color_State_pressed_shade_32 = Color_Transparent_Tint_neutral_32
     val Color_State_pressed_shade_4 = Color_Transparent_Tint_neutral_4
     val Color_State_primary = Color_Primary_Primary_40
+    val Color_State_primary_pressed = Color_Primary_Primary_30
     val Color_State_secondary = Color_Secondary_Secondary_98
+    val Color_State_secondary_pressed = Color_Secondary_Secondary_95
     val Color_State_tertiary = Color_Secondary_Secondary_30
     val Color_Text_text_1_level = Color_Primary_Primary_5
     val Color_Text_text_2_level = Color_Secondary_Secondary_20
