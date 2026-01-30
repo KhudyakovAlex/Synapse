@@ -5,7 +5,7 @@
 
 ## Токены Pixso
 
-**⚠️ ЗАФИКСИРОВАНО: изменения только с подтверждения пользователя!**
+**⚠️ ЗАФИКСИРОВАНО: изменения кода по работе с токенами только с подтверждения пользователя!**
 
 ### Синхронизация
 Команда: **"обнови токены из Pixso"**
@@ -212,6 +212,48 @@ Workflow:
 Navigation bar настроен:
 - Цвет: `Color_Bg_bg_elevated`
 - Иконки: белые (`isAppearanceLightNavigationBars = false`)
+
+#### UIAppBar.kt
+Типовая шапка страницы.
+```kotlin
+UIAppBar(
+    title: String,
+    onBackClick: (() -> Unit)? = null,
+    onSettingsClick: (() -> Unit)? = null
+)
+```
+**Особенности:**
+- Заголовок выровнен по левому краю (`TextAlign.Start`).
+- Если кнопки "Назад" нет, текст прижат влево (отступ 24dp).
+- Если кнопка есть, текст идет сразу за ней (отступ 60dp).
+- **Токены:** Фон `bg_subtle`, текст `text_1_level`, стиль `Headline S`, обводка снизу `border_shade_8` (1dp).
+
+#### PageContainer.kt
+Базовая обертка для страниц.
+```kotlin
+PageContainer(
+    title: String,
+    onBackClick: (() -> Unit)? = null,
+    onSettingsClick: (() -> Unit)? = null,
+    isScrollable: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit
+)
+```
+**Логика:** Фиксированный `UIAppBar` сверху, под ним область контента (опционально скроллируемая).
+
+---
+
+## Навигация и Экраны
+
+### Экраны
+- `PageLocation.kt` — начальный экран "Локации" (без кнопки "Назад").
+- `PageSettings.kt` — экран "Настройки" (с кнопкой "Назад").
+
+### Навигация (MainActivity)
+Реализована через `AnimatedContent` с горизонтальной анимацией (slide):
+- Переход в настройки: слайд справа налево.
+- Возврат: слайд слева направо.
+- Все страницы лежат в `MainActivity` слоем **ниже** `UIAI` (чат всегда поверх).
 
 ---
 
