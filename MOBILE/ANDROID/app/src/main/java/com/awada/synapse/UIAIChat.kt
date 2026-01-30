@@ -77,9 +77,13 @@ fun UIAIChat(
 ) {
     val density = LocalDensity.current
     // Fixed height: from expanded top offset to bottom of screen, minus drag handle
+    // Note: this extends under main panel to fill corner gaps (no clip on container)
     val fixedChatContentHeight = with(density) { 
         (screenHeightPx - expandedTopOffsetPx - DRAG_HANDLE_HEIGHT.toPx()).toDp()
     }
+    
+    // Convert main panel height to dp for padding calculations
+    val mainPanelHeightDp = with(density) { mainPanelHeightPx.toDp() }
 
     var inputText by remember { mutableStateOf("") }
     
@@ -138,7 +142,7 @@ fun UIAIChat(
                         .padding(
                             start = CHAT_HORIZONTAL_PADDING,
                             end = CHAT_HORIZONTAL_PADDING,
-                            bottom = INPUT_BAR_BOTTOM_PADDING + 56.dp + 16.dp // input bar height + padding
+                            bottom = mainPanelHeightDp + 24.dp + 56.dp + 16.dp // input bar position + input bar height + padding
                         )
                 ) {
                     items(mockChatItems) { item: ChatItem ->
@@ -159,7 +163,7 @@ fun UIAIChat(
                     }
                 }
                 
-                // Input bar at fixed position from bottom
+                // Input bar at fixed position from bottom (above main panel)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -168,7 +172,7 @@ fun UIAIChat(
                             start = CHAT_HORIZONTAL_PADDING,
                             end = CHAT_HORIZONTAL_PADDING,
                             top = 16.dp,
-                            bottom = INPUT_BAR_BOTTOM_PADDING
+                            bottom = mainPanelHeightDp + 20.dp
                         )
                 ) {
                     UIInputBar(
