@@ -37,7 +37,7 @@ private val DRAG_HANDLE_HEIGHT = 48.dp
 private val DRAG_HANDLE_BAR_WIDTH = 40.dp
 private val DRAG_HANDLE_BAR_HEIGHT = 4.dp
 private val CHAT_HORIZONTAL_PADDING = 16.dp
-private val INPUT_BAR_BOTTOM_PADDING = 116.dp
+private val INPUT_BAR_BOTTOM_PADDING = 76.dp
 
 // Chat message types
 sealed class ChatItem {
@@ -72,6 +72,7 @@ fun UIAIChat(
     currentOffsetPx: Float,
     screenHeightPx: Float,
     expandedTopOffsetPx: Float,
+    mainPanelHeightPx: Float,
     anchoredDraggableState: AnchoredDraggableState<ChatState>
 ) {
     val density = LocalDensity.current
@@ -84,9 +85,9 @@ fun UIAIChat(
     
     // Calculate keyboard offset: lift chat content when keyboard appears
     val imeBottomPx = WindowInsets.ime.getBottom(density)
-    val mainHeightPx = with(density) { INPUT_BAR_BOTTOM_PADDING.toPx() }
     val dragHandleHeightPx = with(density) { DRAG_HANDLE_HEIGHT.toPx() }
-    val keyboardLiftPx = (imeBottomPx - mainHeightPx * 2 - dragHandleHeightPx).coerceAtLeast(0f)
+    val extraOffsetPx = with(density) { 30.dp.toPx() }
+    val keyboardLiftPx = (imeBottomPx - mainPanelHeightPx * 2 - dragHandleHeightPx - extraOffsetPx).coerceAtLeast(0f)
     
     Box(modifier = modifier) {
         Column(

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
 private val MAIN_PANEL_HEIGHT = 100.dp
-private val EXPANDED_TOP_OFFSET = 100.dp
+private val EXPANDED_TOP_OFFSET = 60.dp
 
 enum class ChatState { Collapsed, Expanded }
 
@@ -105,6 +105,7 @@ fun UIAI(modifier: Modifier = Modifier) {
                         currentOffsetPx = currentOffsetPx,
                         screenHeightPx = screenHeightPx,
                         expandedTopOffsetPx = expandedOffsetPx,
+                        mainPanelHeightPx = with(density) { MAIN_PANEL_HEIGHT.toPx() },
                         anchoredDraggableState = anchoredDraggableState
                     )
                 }
