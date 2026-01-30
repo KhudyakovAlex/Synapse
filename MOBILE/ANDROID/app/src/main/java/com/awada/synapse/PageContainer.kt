@@ -34,7 +34,7 @@ fun PageContainer(
     Column(
         modifier = modifier
             .fillMaxSize()
-            //.background(PixsoColors.Color_Bg_bg_canvas)
+            .background(PixsoColors.Color_Bg_bg_canvas)
     ) {
         // Fixed AppBar at the top
         UIAppBar(
