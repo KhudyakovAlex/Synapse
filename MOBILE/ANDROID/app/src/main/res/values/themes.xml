@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Synapse" parent="android:Theme.Material.Light.NoActionBar" />
+    
+    <style name="Theme.Synapse.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background_layer</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 </resources>

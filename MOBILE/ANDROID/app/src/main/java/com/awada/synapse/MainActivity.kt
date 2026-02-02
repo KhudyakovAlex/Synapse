@@ -16,7 +16,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -31,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
-import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +79,7 @@ private fun MainContent() {
             }
         }
     }
-
+    
     Box(modifier = Modifier.fillMaxSize()) {
         // Navigation between pages with animation
         AnimatedContent(
