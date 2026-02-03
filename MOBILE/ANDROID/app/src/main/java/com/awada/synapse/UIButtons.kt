@@ -120,3 +120,70 @@ fun UIKeyboardButton(
         }
     }
 }
+
+/**
+ * PIN button states
+ */
+enum class PinButtonState {
+    Default,  // Empty, no input
+    Input,    // Character entered
+    Error     // Input error
+}
+
+/**
+ * PIN keyboard button component.
+ * Size: 49×56dp, Corner radius: 8dp
+ *
+ * Tokens:
+ * - Radius: Numeric_8 (8dp)
+ * - Text style: Headline M (28sp/36sp line height)
+ * - State=Default/Input: bg_surface + border_shade_8 + text_1_level
+ * - State=Error: error_bg + border_error + text_error
+ */
+@Composable
+fun UIPinButton(
+    state: PinButtonState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    text: String = ""
+) {
+    val backgroundColor = when (state) {
+        PinButtonState.Error -> PixsoColors.Color_Bg_error_bg
+        else -> PixsoColors.Color_Bg_bg_surface
+    }
+
+    val borderColor = when (state) {
+        PinButtonState.Error -> PixsoColors.Color_Border_border_error
+        else -> PixsoColors.Color_Border_border_shade_8
+    }
+
+    val textColor = when (state) {
+        PinButtonState.Error -> PixsoColors.Color_Text_text_error
+        else -> PixsoColors.Color_Text_text_1_level
+    }
+
+    val showText = state != PinButtonState.Default
+
+    Box(
+        modifier = modifier
+            .size(width = 49.dp, height = 56.dp)
+            .clip(RoundedCornerShape(PixsoDimens.Numeric_8))
+            .background(backgroundColor)
+            .border(
+                width = PixsoDimens.Stroke_S,
+                color = borderColor,
+                shape = RoundedCornerShape(PixsoDimens.Numeric_8)
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (showText) {
+            Text(
+                text = text,
+                style = HeadlineMedium,
+                color = textColor,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
