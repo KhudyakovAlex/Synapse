@@ -69,6 +69,51 @@ val Body_Body_L_Size = Font_Size_Size_16  // ссылка на базовый
 
 ### Созданные компоненты
 
+#### components/Buttons.kt
+Кнопки различных типов для клавиатуры, PIN-кода и интерфейса.
+
+**KeyboardButton** - кнопка клавиатуры:
+- Size: 88×68dp, Radius: 16dp
+- Стили: Default (текст), Icon (иконка), Help (длинный текст)
+- State: Default (bg_surface + border), Pressed (secondary_pressed)
+
+**PinButton** - индикатор PIN-кода:
+- Size: 49×56dp, Radius: 8dp
+- States: Default (пусто), Input (символ), Error (красный)
+
+**PrimaryButton** - основная кнопка:
+- Height: 44dp, адаптивная ширина, Radius: 40dp (pill)
+- States: Default (primary), Pressed (primary_pressed), Disabled
+- Text: Button M style, текст смещён вверх на 2dp
+
+**SecondaryButton** - вторичная кнопка с обводкой:
+- Height: 44dp, min width 80dp, Radius: 24dp
+- Border: border_primary (только enabled)
+- States: Default (secondary), Pressed (secondary_pressed), Disabled
+- Text: Button M style, текст смещён вверх на 2dp
+
+#### components/Tooltips.kt
+Модальное окно с текстом и кнопками.
+```kotlin
+Tooltip(
+    text: String,
+    primaryButtonText: String,
+    onResult: (TooltipResult) -> Unit,
+    secondaryButtonText: String? = null
+)
+```
+**Особенности:**
+- Окно 328dp ширина, Radius_M (24dp)
+- Затемнение фона (scrim)
+- AI слой остаётся сверху (zIndex: Tooltip=999, AI=1000)
+- Клик вне окна → TooltipResult.Dismissed
+- Клик на кнопку → TooltipResult.Primary / Secondary
+
+**Токены:**
+- Background: `bg_surface`
+- Scrim: `bg_scrim`
+- Text: `text_1_level` + Body L style
+
 #### components/Toggle.kt
 Тумблер с иконкой внутри.
 ```kotlin
@@ -263,6 +308,24 @@ PageContainer(
 - `pages/PageLocation.kt` — начальный экран "Локации" (без кнопки "Назад").
 - `pages/PageSettings.kt` — экран "Настройки" (с кнопкой "Назад").
 - `pages/PagePassword.kt` — экран ввода PIN-кода (4 цифры, клавиатура, с кнопкой "Назад").
+
+#### pages/PagePassword.kt логика
+```kotlin
+PagePassword(
+    correctPassword: String,
+    onPasswordCorrect: () -> Unit,
+    onBackClick: () -> Unit
+)
+```
+**Поведение:**
+- Пользователь вводит 4 цифры через клавиатуру
+- При вводе 4-й цифры автоматически проверяется пароль
+- **Правильный пароль**: вызывается `onPasswordCorrect()` → закрывает страницу
+- **Неправильный пароль**: 
+  - PIN индикаторы становятся красными (Error state)
+  - Через 1 секунду очищается и сбрасывается для повторного ввода
+- Клавиатура: цифры 0-9, backspace (удаление), "Не могу войти" (help)
+- Контент центрирован вертикально с учётом AppBar вверху и AIMain внизу (100dp)
 
 ### Навигация (activities/MainActivity)
 Реализована через `AnimatedContent` с горизонтальной анимацией (slide):
