@@ -24,6 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.R
+import com.awada.synapse.components.FabButton
+import com.awada.synapse.components.FabState
+import com.awada.synapse.components.Toggle
+import com.awada.synapse.data.SettingsRepository
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.launch
