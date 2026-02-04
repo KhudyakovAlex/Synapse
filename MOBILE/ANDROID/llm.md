@@ -1,5 +1,5 @@
 
-** НЕ ТРОГАЕМ СЛОЙ UIAI БЕЗ ЗАПРОСА У ПОЛЬЗОВАТЕЛЯ!!! ЗАПРОС В ЧАТЕ ДОЛЖЕН БЫТЬ КАПСЛОКОМ!!! **
+** НЕ ТРОГАЕМ СЛОЙ AI БЕЗ ЗАПРОСА У ПОЛЬЗОВАТЕЛЯ!!! ЗАПРОС В ЧАТЕ ДОЛЖЕН БЫТЬ КАПСЛОКОМ!!! **
 
 Правило для LLM:
 - Растровые изображения брать из IMG.
@@ -69,10 +69,10 @@ val Body_Body_L_Size = Font_Size_Size_16  // ссылка на базовый
 
 ### Созданные компоненты
 
-#### UIToggle.kt
+#### components/Toggle.kt
 Тумблер с иконкой внутри.
 ```kotlin
-UIToggle(
+Toggle(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     iconOn: Int,    // @DrawableRes
@@ -92,10 +92,10 @@ UIToggle(
 - Icon Disabled: `Color_State_on_disabled`
 - Radius: `Radius_Radius_Full` (200dp, pill shape)
 
-#### UIFabButton.kt
+#### components/FabButton.kt
 Круглая FAB кнопка.
 ```kotlin
-UIFabButton(
+FabButton(
     state: FabState,  // Default, ActiveStroke1, ActiveStroke12, Disabled
     onClick: () -> Unit,
     icon: Int,         // @DrawableRes
@@ -110,10 +110,10 @@ UIFabButton(
 - Icon Default/Active: `Color_State_primary`
 - Icon Disabled: `Color_State_on_disabled`
 
-#### UIAIMain.kt
+#### ai/AIMain.kt
 Нижняя панель с тумблерами и FAB кнопкой.
 ```kotlin
-UIAIMain(
+AIMain(
     modifier: Modifier = Modifier,
     onVerticalDrag: (Float) -> Unit = {},
     onDragEnd: () -> Unit = {}
@@ -135,10 +135,10 @@ UIAIMain(
 
 **Gesture:** Vertical drag на панели открывает чат, tap на элементах работает нормально (touchSlop=18px)
 
-#### UIAIChat.kt
+#### ai/AIChat.kt
 Чат (bottom sheet) с drag gesture.
 ```kotlin
-UIAIChat(
+AIChat(
     modifier: Modifier = Modifier,
     currentOffsetPx: Float,
     screenHeightPx: Float,
@@ -154,15 +154,15 @@ UIAIChat(
 - **Серая плашка**: `Color_Bg_bg_canvas`, скругление top=`Radius_L`, bottom=`Radius_None`
 
 **Поведение:**
-- Свёрнуто: видна только черточка над UIAIMain
+- Свёрнуто: видна только черточка над AIMain
 - Развёрнуто: чат выезжает вверх, отступ 100dp от верха экрана
 - Drag gesture с анимацией (300ms)
 - Порог переключения: 50dp
 
-#### UIAI.kt
-Контейнер для UIAIChat и UIAIMain. Управляет состоянием чата.
+#### ai/AI.kt
+Контейнер для AIChat и AIMain. Управляет состоянием чата.
 ```kotlin
-UIAI(modifier: Modifier = Modifier)
+AI(modifier: Modifier = Modifier)
 ```
 **Состояние (lifted up):**
 - `isExpanded` — развёрнут ли чат
@@ -176,9 +176,9 @@ UIAI(modifier: Modifier = Modifier)
 
 **Координация:**
 - `navigationBarsPadding()` применяется к общему контейнеру
-- UIAIChat под UIAIMain (z-order)
-- Drag может начинаться с UIAIChat или UIAIMain
-- Tap на элементах UIAIMain работает нормально
+- AIChat под AIMain (z-order)
+- Drag может начинаться с AIChat или AIMain
+- Tap на элементах AIMain работает нормально
 
 ---
 
@@ -216,10 +216,10 @@ Navigation bar настроен:
 - Цвет: `Color_Bg_bg_elevated`
 - Иконки: белые (`isAppearanceLightNavigationBars = false`)
 
-#### UIAppBar.kt
+#### components/AppBar.kt
 Типовая шапка страницы.
 ```kotlin
-UIAppBar(
+AppBar(
     title: String,
     onBackClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null
@@ -231,7 +231,7 @@ UIAppBar(
 - Если кнопка есть, текст идет сразу за ней (отступ 60dp).
 - **Токены:** Фон `bg_subtle`, текст `text_1_level`, стиль `Headline S`, обводка снизу `border_shade_8` (1dp).
 
-#### PageContainer.kt
+#### pages/PageContainer.kt
 Базовая обертка для страниц.
 ```kotlin
 PageContainer(
@@ -242,21 +242,21 @@ PageContainer(
     content: @Composable ColumnScope.() -> Unit
 )
 ```
-**Логика:** Фиксированный `UIAppBar` сверху, под ним область контента (опционально скроллируемая).
+**Логика:** Фиксированный `AppBar` сверху, под ним область контента (опционально скроллируемая).
 
 ---
 
 ## Навигация и Экраны
 
 ### Экраны
-- `PageLocation.kt` — начальный экран "Локации" (без кнопки "Назад").
-- `PageSettings.kt` — экран "Настройки" (с кнопкой "Назад").
+- `pages/PageLocation.kt` — начальный экран "Локации" (без кнопки "Назад").
+- `pages/PageSettings.kt` — экран "Настройки" (с кнопкой "Назад").
 
-### Навигация (MainActivity)
+### Навигация (activities/MainActivity)
 Реализована через `AnimatedContent` с горизонтальной анимацией (slide):
 - Переход в настройки: слайд справа налево.
 - Возврат: слайд слева направо.
-- Все страницы лежат в `MainActivity` слоем **ниже** `UIAI` (чат всегда поверх).
+- Все страницы лежат в `MainActivity` слоем **ниже** `AI` (чат всегда поверх).
 
 ---
 
