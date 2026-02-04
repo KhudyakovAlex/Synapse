@@ -34,7 +34,9 @@ fun PagePassword(
         modifier = modifier
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 100.dp), // AIMain panel height
             contentAlignment = Alignment.Center
         ) {
             Column(
