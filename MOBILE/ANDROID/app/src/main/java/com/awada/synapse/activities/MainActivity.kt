@@ -120,6 +120,11 @@ private fun MainContent() {
                 }
                 AppScreen.Password -> {
                     PagePassword(
+                        correctPassword = "1234", // TODO: Get from settings
+                        onPasswordCorrect = {
+                            currentScreen = AppScreen.Location
+                            Toast.makeText(context, "Пароль верный!", Toast.LENGTH_SHORT).show()
+                        },
                         onBackClick = { currentScreen = AppScreen.Location },
                         modifier = Modifier.fillMaxSize()
                     )

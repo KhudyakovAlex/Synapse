@@ -14,18 +14,43 @@ import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
 import com.awada.synapse.ui.theme.HeadlineMedium
 import com.awada.synapse.ui.theme.PixsoColors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Password entry page with PIN code input.
  * 4-digit PIN code with numeric keyboard.
+ * 
+ * @param correctPassword The correct 4-digit password to verify against
+ * @param onPasswordCorrect Callback when password is entered correctly
+ * @param onBackClick Callback for back button
  */
 @Composable
 fun PagePassword(
+    correctPassword: String,
+    onPasswordCorrect: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var pinCode by remember { mutableStateOf("") }
     var pinError by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Check password when 4 digits entered
+    LaunchedEffect(pinCode) {
+        if (pinCode.length == 4) {
+            if (pinCode == correctPassword) {
+                // Correct password
+                onPasswordCorrect()
+            } else {
+                // Wrong password - show error and clear after 1 second
+                pinError = true
+                delay(1000)
+                pinError = false
+                pinCode = ""
+            }
+        }
+    }
 
     PageContainer(
         title = "Пароль",
