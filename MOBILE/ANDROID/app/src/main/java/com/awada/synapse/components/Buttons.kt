@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.ButtonMedium
 import com.awada.synapse.ui.theme.HeadlineLarge
@@ -178,7 +179,8 @@ fun PrimaryButton(
             text = text,
             style = ButtonMedium,
             color = textColor,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.offset { IntOffset(0, -2) } // Shift up 2dp
         )
     }
 }
@@ -252,7 +254,8 @@ fun SecondaryButton(
             text = text,
             style = ButtonMedium,
             color = textColor,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.offset { IntOffset(0, -2) } // Shift up 2dp
         )
     }
 }
