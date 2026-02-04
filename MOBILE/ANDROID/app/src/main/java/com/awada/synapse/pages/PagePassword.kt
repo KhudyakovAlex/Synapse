@@ -33,15 +33,15 @@ fun PagePassword(
         isScrollable = false,
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 44.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Headline
+            Column(
+                modifier = Modifier.padding(horizontal = 44.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Headline
             Text(
                 text = "Введите пароль",
                 style = HeadlineMedium,
@@ -49,7 +49,7 @@ fun PagePassword(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // PIN indicators (4 buttons)
             Row(
@@ -178,16 +178,13 @@ fun PagePassword(
                     )
                 }
 
-                // Row 4: Backspace, 0, Help
+                // Row 4: Help, 0, Backspace
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     KeyboardButton(
-                        style = KeyboardButtonStyle.Icon,
-                        icon = R.drawable.ic_backspace,
+                        style = KeyboardButtonStyle.Help,
+                        text = "Не могу войти",
                         onClick = {
-                            if (pinCode.isNotEmpty()) {
-                                pinCode = pinCode.dropLast(1)
-                                pinError = false
-                            }
+                            // TODO: Handle help action
                         }
                     )
                     KeyboardButton(
@@ -201,13 +198,17 @@ fun PagePassword(
                         }
                     )
                     KeyboardButton(
-                        style = KeyboardButtonStyle.Help,
-                        text = "Не могу войти",
+                        style = KeyboardButtonStyle.Icon,
+                        icon = R.drawable.ic_backspace,
                         onClick = {
-                            // TODO: Handle help action
+                            if (pinCode.isNotEmpty()) {
+                                pinCode = pinCode.dropLast(1)
+                                pinError = false
+                            }
                         }
                     )
                 }
+            }
             }
         }
     }
