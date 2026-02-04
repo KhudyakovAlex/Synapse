@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore

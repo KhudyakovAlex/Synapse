@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.ai
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

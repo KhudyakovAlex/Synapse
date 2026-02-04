@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.activities
 
 import android.os.Bundle
 import android.widget.Toast

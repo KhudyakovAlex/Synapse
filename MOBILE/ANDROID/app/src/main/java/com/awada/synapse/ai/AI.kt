@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.ai
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState

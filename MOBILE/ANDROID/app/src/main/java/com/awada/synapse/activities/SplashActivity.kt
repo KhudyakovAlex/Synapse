@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent

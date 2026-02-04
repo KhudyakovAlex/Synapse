@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke

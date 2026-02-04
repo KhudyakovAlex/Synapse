@@ -1,4 +1,4 @@
-package com.awada.synapse
+package com.awada.synapse.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
