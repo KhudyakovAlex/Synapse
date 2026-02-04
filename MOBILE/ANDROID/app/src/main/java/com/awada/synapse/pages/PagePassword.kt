@@ -53,11 +53,12 @@ fun PagePassword(
         }
     }
 
-    PageContainer(
+    Box(modifier = modifier.fillMaxSize()) {
+        PageContainer(
         title = "Пароль",
         onBackClick = onBackClick,
         isScrollable = false,
-        modifier = modifier
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
@@ -239,16 +240,17 @@ fun PagePassword(
             }
             }
         }
+    }
         
-        // Help tooltip
-        if (showHelpTooltip) {
-            Tooltip(
-                text = "Если пароль не менялся, он указан на корпусе устройства",
-                primaryButtonText = "Понятно",
-                onResult = {
-                    showHelpTooltip = false
-                }
-            )
-        }
+    // Help tooltip
+    if (showHelpTooltip) {
+        Tooltip(
+            text = "Если пароль не менялся, он указан на корпусе устройства",
+            primaryButtonText = "Понятно",
+            onResult = {
+                showHelpTooltip = false
+            }
+        )
+    }
     }
 }
