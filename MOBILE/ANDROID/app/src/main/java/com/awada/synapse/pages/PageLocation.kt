@@ -91,7 +91,7 @@ fun PageLocation(
         if (showTooltipTwoButtons) {
             Tooltip(
                 text = "Это пример с двумя кнопками. Вы можете подтвердить или отменить действие.",
-                primaryButtonText = "Подтвердить",
+                primaryButtonText = "Хорошо",
                 secondaryButtonText = "Отмена",
                 onResult = { result ->
                     lastTooltipResult = result
