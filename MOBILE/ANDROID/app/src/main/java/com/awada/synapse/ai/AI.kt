@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.data.SettingsRepository
 import com.awada.synapse.ui.theme.PixsoColors
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
@@ -47,7 +48,7 @@ private const val SCRIM_MAX_ALPHA = 0.5f
 @Composable
 fun AI(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val settingsRepository = remember { SettingsRepository(context) }
+    val settingsRepository: SettingsRepository = remember { SettingsRepository(context) }
     val isAIEnabled by settingsRepository.isAIEnabled.collectAsState(initial = true)
     
     // Drag progress: 0 = collapsed, 1 = expanded
