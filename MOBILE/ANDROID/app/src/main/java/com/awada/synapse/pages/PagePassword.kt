@@ -78,7 +78,7 @@ fun PagePassword(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // PIN indicators (4 buttons)
             Row(
@@ -98,7 +98,7 @@ fun PagePassword(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(38.dp))
 
             // Numeric keyboard (3x4 grid)
             Column(
