@@ -12,12 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+
+/**
+ * Result of tooltip interaction
+ */
+enum class TooltipResult {
+    Primary,    // Primary button clicked
+    Secondary,  // Secondary button clicked
+    Dismissed   // Dismissed by tapping outside
+}
 
 /**
  * Modal tooltip dialog with text and optional buttons.
@@ -25,7 +32,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
  * Features:
  * - Centered on screen
  * - Dimmed background (scrim)
- * - AI layer stays on top (not blocked)
+ * - AI layer stays on top and remains interactive (not blocked)
  * 
  * Tokens:
  * - Background: bg_surface (white)
@@ -36,21 +43,17 @@ import com.awada.synapse.ui.theme.PixsoDimens
  * - Buttons spacing: 12dp (vertical), 16dp (horizontal)
  * 
  * @param text Main text content
- * @param onDismiss Callback when dialog is dismissed (tap outside)
- * @param primaryButtonText Optional primary button text (right button)
- * @param onPrimaryClick Callback for primary button
+ * @param onResult Callback with result (Primary/Secondary/Dismissed)
+ * @param primaryButtonText Primary button text (right button, required)
  * @param secondaryButtonText Optional secondary button text (left button)
- * @param onSecondaryClick Callback for secondary button
  */
 @Composable
 fun Tooltip(
     text: String,
-    onDismiss: () -> Unit,
+    primaryButtonText: String,
+    onResult: (TooltipResult) -> Unit,
     modifier: Modifier = Modifier,
-    primaryButtonText: String? = null,
-    onPrimaryClick: (() -> Unit)? = null,
-    secondaryButtonText: String? = null,
-    onSecondaryClick: (() -> Unit)? = null
+    secondaryButtonText: String? = null
 ) {
     Box(
         modifier = modifier
@@ -59,7 +62,7 @@ fun Tooltip(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = onDismiss
+                onClick = { onResult(TooltipResult.Dismissed) }
             )
             .zIndex(999f), // Below AI layer (AI is 1000+)
         contentAlignment = Alignment.Center
@@ -86,36 +89,26 @@ fun Tooltip(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Buttons row (if any button is provided)
-            if (primaryButtonText != null || secondaryButtonText != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp), // Additional 4dp for total 16dp spacing
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
-                ) {
-                    // Secondary button (left)
-                    secondaryButtonText?.let {
-                        SecondaryButton(
-                            text = it,
-                            onClick = {
-                                onSecondaryClick?.invoke()
-                                onDismiss()
-                            }
-                        )
-                    }
-
-                    // Primary button (right)
-                    primaryButtonText?.let {
-                        PrimaryButton(
-                            text = it,
-                            onClick = {
-                                onPrimaryClick?.invoke()
-                                onDismiss()
-                            }
-                        )
-                    }
+            // Buttons row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp), // Additional 4dp for total 16dp spacing
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
+            ) {
+                // Secondary button (left) - optional
+                secondaryButtonText?.let {
+                    SecondaryButton(
+                        text = it,
+                        onClick = { onResult(TooltipResult.Secondary) }
+                    )
                 }
+
+                // Primary button (right) - required
+                PrimaryButton(
+                    text = primaryButtonText,
+                    onClick = { onResult(TooltipResult.Primary) }
+                )
             }
         }
     }

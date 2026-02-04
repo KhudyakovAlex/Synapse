@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.awada.synapse.data.SettingsRepository
 import com.awada.synapse.ui.theme.PixsoColors
 
@@ -72,6 +73,7 @@ fun AI(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
+            .zIndex(1000f) // Above tooltips (999f) to keep AI interactive
             .drawBehind {
                 if (scrimAlpha > 0.001f) {
                     drawRect(Color.Black.copy(alpha = scrimAlpha))
