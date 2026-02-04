@@ -171,7 +171,7 @@ fun PrimaryButton(
                 enabled = enabled,
                 onClick = onClick
             )
-            .padding(vertical = 12.dp, horizontal = 20.dp),
+            .padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -245,7 +245,7 @@ fun SecondaryButton(
                 enabled = enabled,
                 onClick = onClick
             )
-            .padding(vertical = 12.dp, horizontal = 20.dp),
+            .padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
