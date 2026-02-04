@@ -115,7 +115,7 @@ private fun MainContent() {
             }
         }
         
-        UIAI(modifier = Modifier.fillMaxSize())
+        AI(modifier = Modifier.fillMaxSize())
     }
 }
 

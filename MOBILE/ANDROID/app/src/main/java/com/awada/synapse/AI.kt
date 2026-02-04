@@ -45,7 +45,7 @@ private const val SCRIM_MAX_ALPHA = 0.5f
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UIAI(modifier: Modifier = Modifier) {
+fun AI(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
     val isAIEnabled by settingsRepository.isAIEnabled.collectAsState(initial = true)
@@ -143,7 +143,7 @@ fun UIAI(modifier: Modifier = Modifier) {
                             .fillMaxSize()
                             .clipToBounds()
                     ) {
-                        UIAIChat(
+                        AIChat(
                             modifier = Modifier.fillMaxSize(),
                             currentOffsetPx = currentOffsetPx,
                             screenHeightPx = screenHeightPx,
@@ -155,7 +155,7 @@ fun UIAI(modifier: Modifier = Modifier) {
                 }
             }
             
-            UIAIMain(
+            AIMain(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),

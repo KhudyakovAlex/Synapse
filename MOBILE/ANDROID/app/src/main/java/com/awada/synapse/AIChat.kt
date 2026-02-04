@@ -67,7 +67,7 @@ private val mockChatItems = listOf(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UIAIChat(
+fun AIChat(
     modifier: Modifier = Modifier,
     currentOffsetPx: Float,
     screenHeightPx: Float,
@@ -175,7 +175,7 @@ fun UIAIChat(
                             bottom = mainPanelHeightDp + 20.dp
                         )
                 ) {
-                    UIInputBar(
+                    InputBar(
                         value = inputText,
                         onValueChange = { inputText = it },
                         onSendClick = {

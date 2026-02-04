@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UIAIMain(
+fun AIMain(
     modifier: Modifier = Modifier,
     anchoredDraggableState: AnchoredDraggableState<ChatState>
 ) {
@@ -74,7 +74,7 @@ fun UIAIMain(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Left toggle - AI on/off
-            UIToggle(
+            Toggle(
                 isChecked = isAIEnabled,
                 onCheckedChange = { enabled ->
                     coroutineScope.launch {
@@ -86,7 +86,7 @@ fun UIAIMain(
             )
 
             // Center FAB button
-            UIFabButton(
+            FabButton(
                 state = if (isAIEnabled) FabState.Default else FabState.Disabled,
                 onClick = { /* TODO: Handle mic action */ },
                 icon = R.drawable.ic_microphone,
@@ -94,7 +94,7 @@ fun UIAIMain(
             )
 
             // Right toggle - Volume on/off
-            UIToggle(
+            Toggle(
                 isChecked = isVolumeEnabled,
                 onCheckedChange = { isVolumeEnabled = it },
                 iconOn = R.drawable.ic_volume,

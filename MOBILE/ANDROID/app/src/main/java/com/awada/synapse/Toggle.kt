@@ -1,4 +1,4 @@
-﻿package com.awada.synapse
+package com.awada.synapse
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
 
 @Composable
-fun UIToggle(
+fun Toggle(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     @DrawableRes iconOn: Int,

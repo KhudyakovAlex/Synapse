@@ -45,7 +45,7 @@ enum class KeyboardButtonStyle {
  * - Text/Icon color: text_1_level
  */
 @Composable
-fun UIKeyboardButton(
+fun KeyboardButton(
     style: KeyboardButtonStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -141,7 +141,7 @@ enum class PinButtonState {
  * - State=Error: error_bg + border_error + text_error
  */
 @Composable
-fun UIPinButton(
+fun PinButton(
     state: PinButtonState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

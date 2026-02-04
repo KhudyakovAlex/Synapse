@@ -40,7 +40,7 @@ private val BORDER_WIDTH_MAX = PixsoDimens.Border_width_border_width_12
 private val BORDER_WIDTH_MIN = PixsoDimens.Border_width_border_width_12 / 3
 
 @Composable
-fun UIFabButton(
+fun FabButton(
     state: FabState,
     onClick: () -> Unit,
     @DrawableRes icon: Int,

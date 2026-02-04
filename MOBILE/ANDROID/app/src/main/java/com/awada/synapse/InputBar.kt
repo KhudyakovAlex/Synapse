@@ -34,7 +34,7 @@ private val SEND_BUTTON_SIZE = 48.dp
 private val SEND_ICON_SIZE = 32.dp
 
 @Composable
-fun UIInputBar(
+fun InputBar(
     modifier: Modifier = Modifier,
     value: String = "",
     onValueChange: (String) -> Unit = {},

@@ -34,7 +34,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
  * @param onSettingsClick If not null, shows a settings button that triggers this callback.
  */
 @Composable
-fun UIAppBar(
+fun AppBar(
     title: String,
     onBackClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,

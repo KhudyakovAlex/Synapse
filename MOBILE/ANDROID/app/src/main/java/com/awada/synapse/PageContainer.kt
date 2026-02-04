@@ -37,7 +37,7 @@ fun PageContainer(
             .background(PixsoColors.Color_Bg_bg_canvas)
     ) {
         // Fixed AppBar at the top
-        UIAppBar(
+        AppBar(
             title = title,
             onBackClick = onBackClick,
             onSettingsClick = onSettingsClick,
