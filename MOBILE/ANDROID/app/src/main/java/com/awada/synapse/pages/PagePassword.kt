@@ -12,6 +12,7 @@ import com.awada.synapse.components.KeyboardButton
 import com.awada.synapse.components.KeyboardButtonStyle
 import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
+import com.awada.synapse.components.Tooltip
 import com.awada.synapse.ui.theme.HeadlineMedium
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.delay
@@ -34,7 +35,7 @@ fun PagePassword(
 ) {
     var pinCode by remember { mutableStateOf("") }
     var pinError by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+    var showHelpTooltip by remember { mutableStateOf(false) }
     
     // Check password when 4 digits entered
     LaunchedEffect(pinCode) {
@@ -211,7 +212,7 @@ fun PagePassword(
                         style = KeyboardButtonStyle.Help,
                         text = "Не могу войти",
                         onClick = {
-                            // TODO: Handle help action
+                            showHelpTooltip = true
                         }
                     )
                     KeyboardButton(
@@ -237,6 +238,17 @@ fun PagePassword(
                 }
             }
             }
+        }
+        
+        // Help tooltip
+        if (showHelpTooltip) {
+            Tooltip(
+                text = "Если пароль не менялся, он указан на корпусе устройства",
+                primaryButtonText = "Понятно",
+                onResult = {
+                    showHelpTooltip = false
+                }
+            )
         }
     }
 }
