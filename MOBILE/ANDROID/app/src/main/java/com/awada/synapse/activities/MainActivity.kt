@@ -28,6 +28,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
+import com.awada.synapse.ai.AI
+import com.awada.synapse.pages.PageLocation
+import com.awada.synapse.pages.PageSettings
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
 
