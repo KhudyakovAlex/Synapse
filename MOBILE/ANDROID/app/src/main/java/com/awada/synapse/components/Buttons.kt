@@ -21,7 +21,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.awada.synapse.ui.theme.*
+import com.awada.synapse.ui.theme.ButtonMedium
+import com.awada.synapse.ui.theme.HeadlineLarge
+import com.awada.synapse.ui.theme.HeadlineMedium
+import com.awada.synapse.ui.theme.LabelLarge
+import com.awada.synapse.ui.theme.PixsoColors
+import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
  * Keyboard button styles matching Pixso design
@@ -118,6 +123,137 @@ fun KeyboardButton(
                 )
             }
         }
+    }
+}
+
+/**
+ * Primary button component.
+ * Filled button with rounded corners (pill shape).
+ * Size: height 44dp, width adaptive to content.
+ *
+ * Tokens:
+ * - Radius: Radius_L (40dp)
+ * - Text style: Button M (16sp/20sp, Medium weight)
+ * - State=Default: primary background + on_primary text
+ * - State=Pressed: primary_pressed background + on_primary text
+ * - State=Disabled: disabled background + on_disabled text
+ */
+@Composable
+fun PrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val backgroundColor = when {
+        !enabled -> PixsoColors.Color_State_disabled
+        isPressed -> PixsoColors.Color_State_primary_pressed
+        else -> PixsoColors.Color_State_primary
+    }
+
+    val textColor = if (enabled) {
+        PixsoColors.Color_State_on_primary
+    } else {
+        PixsoColors.Color_State_on_disabled
+    }
+
+    Box(
+        modifier = modifier
+            .height(44.dp)
+            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_L))
+            .background(backgroundColor)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(vertical = 12.dp, horizontal = 20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = ButtonMedium,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+/**
+ * Secondary button component.
+ * Outlined button with rounded corners.
+ * Size: height 44dp, width adaptive to content (min 80dp).
+ *
+ * Tokens:
+ * - Radius: Radius_M (24dp)
+ * - Text style: Button M (16sp/20sp, Medium weight)
+ * - State=Default: secondary background + border_primary + on_secondary text
+ * - State=Pressed: secondary_pressed background + border_primary + on_secondary text
+ * - State=Disabled: disabled background + on_disabled text (no border)
+ */
+@Composable
+fun SecondaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val backgroundColor = when {
+        !enabled -> PixsoColors.Color_State_disabled
+        isPressed -> PixsoColors.Color_State_secondary_pressed
+        else -> PixsoColors.Color_State_secondary
+    }
+
+    val textColor = if (enabled) {
+        PixsoColors.Color_State_on_secondary
+    } else {
+        PixsoColors.Color_State_on_disabled
+    }
+
+    val borderStroke = if (enabled) {
+        BorderStroke(PixsoDimens.Stroke_S, PixsoColors.Color_Border_border_primary)
+    } else {
+        null
+    }
+
+    Box(
+        modifier = modifier
+            .height(44.dp)
+            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_M))
+            .background(backgroundColor)
+            .then(
+                if (borderStroke != null) {
+                    Modifier.border(
+                        borderStroke.width,
+                        borderStroke.brush,
+                        RoundedCornerShape(PixsoDimens.Radius_Radius_M)
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(vertical = 12.dp, horizontal = 20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = ButtonMedium,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
