@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.awada.synapse.R
 import com.awada.synapse.ui.theme.SynapseTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
