@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ai.AI
 import com.awada.synapse.pages.PageLocation
+import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSettings
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
@@ -54,7 +55,8 @@ class MainActivity : ComponentActivity() {
 
 enum class AppScreen {
     Location,
-    Settings
+    Settings,
+    Password
 }
 
 @Composable
@@ -66,8 +68,8 @@ private fun MainContent() {
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.Settings -> {
-                // If on Settings, go back to Location
+            AppScreen.Settings, AppScreen.Password -> {
+                // If on Settings or Password, go back to Location
                 currentScreen = AppScreen.Location
             }
             AppScreen.Location -> {
@@ -88,8 +90,8 @@ private fun MainContent() {
         AnimatedContent(
             targetState = currentScreen,
             transitionSpec = {
-                if (targetState == AppScreen.Settings) {
-                    // Slide in from right when going to settings
+                if (targetState == AppScreen.Settings || targetState == AppScreen.Password) {
+                    // Slide in from right when going to settings or password
                     (slideInHorizontally { it } + fadeIn()).togetherWith(
                         slideOutHorizontally { -it / 3 } + fadeOut()
                     )
@@ -106,11 +108,18 @@ private fun MainContent() {
                 AppScreen.Location -> {
                     PageLocation(
                         onSettingsClick = { currentScreen = AppScreen.Settings },
+                        onPasswordClick = { currentScreen = AppScreen.Password },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
                 AppScreen.Settings -> {
                     PageSettings(
+                        onBackClick = { currentScreen = AppScreen.Location },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                AppScreen.Password -> {
+                    PagePassword(
                         onBackClick = { currentScreen = AppScreen.Location },
                         modifier = Modifier.fillMaxSize()
                     )
