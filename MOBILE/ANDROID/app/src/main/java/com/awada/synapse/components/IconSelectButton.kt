@@ -2,11 +2,11 @@ package com.awada.synapse.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -17,7 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
@@ -71,22 +74,41 @@ fun IconSelectButton(
         PixsoColors.Color_State_on_disabled
     }
 
+    val cornerRadius = PixsoDimens.Radius_Radius_S
+    
+    // Тонкая обводка (1dp) снаружи: +1px с каждой стороны
+    // Толстая обводка (4dp): центр по краю 72x72, +2px с каждой стороны
+    val extraPadding = if (isActive) 2.dp else 0.5.dp
+    val contentSize = 72.dp
+
     Box(
         modifier = modifier
-            .size(72.dp)
-            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
-            .background(backgroundColor)
-            .then(
+            .size(contentSize + extraPadding * 2)
+            .padding(extraPadding)
+            .background(backgroundColor, RoundedCornerShape(cornerRadius))
+            .drawWithContent {
+                drawContent()
+                
+                // Рисуем обводку с центром на краю 72x72
                 if (showBorder) {
-                    Modifier.border(
-                        width = borderWidth,
+                    val strokeWidthPx = borderWidth.toPx()
+                    val cornerRadiusPx = cornerRadius.toPx()
+                    val paddingPx = extraPadding.toPx()
+                    
+                    // Обводка рисуется относительно текущего размера (72x72 после padding)
+                    // Центр обводки на краю, поэтому смещаем на -padding чтобы выйти за границы
+                    drawRoundRect(
                         color = borderColor,
-                        shape = RoundedCornerShape(PixsoDimens.Radius_Radius_S)
+                        topLeft = androidx.compose.ui.geometry.Offset(-paddingPx, -paddingPx),
+                        size = androidx.compose.ui.geometry.Size(
+                            size.width + paddingPx * 2,
+                            size.height + paddingPx * 2
+                        ),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx, cornerRadiusPx),
+                        style = Stroke(width = strokeWidthPx)
                     )
-                } else {
-                    Modifier
                 }
-            )
+            }
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
