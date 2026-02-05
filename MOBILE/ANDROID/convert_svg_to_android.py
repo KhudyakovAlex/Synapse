@@ -1,181 +1,253 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Конвертер SVG в Android Vector Drawable XML
-Автоматически обрабатывает все SVG из папки IMG/ и создает соответствующие папки в drawable/
+Конвертация SVG иконок в Android Vector Drawable формат
 """
 
 import os
-import subprocess
-import sys
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
-
-# Пути
-PROJECT_ROOT = Path(__file__).parent
-IMG_DIR = PROJECT_ROOT / "IMG"
-DRAWABLE_DIR = PROJECT_ROOT / "app" / "src" / "main" / "res" / "drawable"
 
 # Папки для обработки
 FOLDERS = ["Controller", "Location", "Luminaire", "System"]
 
-def install_dependencies():
-    """Установка необходимых библиотек"""
-    print("Установка зависимостей...")
-    try:
-        import xml.etree.ElementTree as ET
-        print("[OK] Встроенные библиотеки доступны\n")
-    except ImportError:
-        print("[ERROR] Ошибка импорта библиотек")
-        sys.exit(1)
+# Пути
+SCRIPT_DIR = Path(__file__).parent
+IMG_DIR = SCRIPT_DIR / "IMG"
+OUTPUT_DIR = SCRIPT_DIR / "app" / "src" / "main" / "res" / "drawable"
 
-def sanitize_filename(name):
-    """Преобразование имени файла в формат Android (lowercase, underscore)"""
-    # Удаляем расширение
-    name = name.replace('.svg', '')
-    # Заменяем пробелы и спецсимволы на подчеркивание
-    name = name.replace(' ', '_').replace('-', '_').replace(',', '_').replace('=', '_')
-    # Приводим к lowercase
+def sanitize_filename(filename):
+    """Преобразует имя файла в формат Android (lowercase, underscore)"""
+    # Убираем расширение
+    name = filename.replace('.svg', '')
+    
+    # Заменяем спецсимволы на пробелы
+    name = re.sub(r'[,=\-\s]+', '_', name)
+    
+    # Убираем множественные подчеркивания
+    name = re.sub(r'_+', '_', name)
+    
+    # Lowercase
     name = name.lower()
-    # Удаляем повторяющиеся подчеркивания
-    while '__' in name:
-        name = name.replace('__', '_')
-    return name
+    
+    # Убираем подчеркивания в начале и конце
+    name = name.strip('_')
+    
+    return name + '.xml'
 
-def convert_svg_to_xml(svg_path, output_dir, folder_prefix):
-    """Конвертация одного SVG файла в Android XML"""
+def rgb_to_hex(color):
+    """Конвертирует rgb(r,g,b) и именованные цвета в #RRGGBB"""
+    if not color or color.lower() == 'none':
+        return ''
+    
+    # Если уже в HEX формате
+    if color.startswith('#'):
+        return color
+    
+    # Конвертируем rgb(r,g,b) в #RRGGBB
+    rgb_match = re.match(r'rgb\((\d+),\s*(\d+),\s*(\d+)\)', color)
+    if rgb_match:
+        r, g, b = map(int, rgb_match.groups())
+        return f'#{r:02X}{g:02X}{b:02X}'
+    
+    # Словарь именованных цветов
+    named_colors = {
+        'black': '#000000',
+        'white': '#FFFFFF',
+        'red': '#FF0000',
+        'green': '#008000',
+        'blue': '#0000FF',
+        'yellow': '#FFFF00',
+        'cyan': '#00FFFF',
+        'magenta': '#FF00FF',
+        'gray': '#808080',
+        'grey': '#808080',
+    }
+    
+    color_lower = color.lower()
+    if color_lower in named_colors:
+        return named_colors[color_lower]
+    
+    # Если формат неизвестен, возвращаем как есть
+    return color
+
+def parse_svg(svg_path):
+    """Парсит SVG и извлекает необходимые данные"""
     try:
-        import xml.etree.ElementTree as ET
-        import re
+        tree = ET.parse(svg_path)
+        root = tree.getroot()
         
-        # Получаем имя файла
-        filename = svg_path.stem
-        sanitized_name = sanitize_filename(filename)
+        # Namespace для SVG
+        ns = {'svg': 'http://www.w3.org/2000/svg'}
         
-        # Добавляем префикс папки для уникальности
-        output_name = f"{folder_prefix}_{sanitized_name}.xml"
-        output_path = output_dir / output_name
-        
-        # Читаем SVG
-        with open(svg_path, 'r', encoding='utf-8') as f:
-            svg_content = f.read()
-        
-        # Парсим SVG
-        # Удаляем namespace для упрощения парсинга
-        svg_content_clean = re.sub(r'xmlns[^=]*="[^"]*"', '', svg_content)
-        root = ET.fromstring(svg_content_clean)
-        
-        # Получаем размеры
+        # Извлекаем размеры
         width = root.get('width', '24')
         height = root.get('height', '24')
-        viewBox = root.get('viewBox', f'0 0 {width} {height}')
         
-        # Удаляем единицы измерения
-        width = re.sub(r'[^0-9.]', '', str(width))
-        height = re.sub(r'[^0-9.]', '', str(height))
+        # Убираем единицы измерения (px, dp и т.д.)
+        width = re.sub(r'[^\d.]', '', width) or '24'
+        height = re.sub(r'[^\d.]', '', height) or '24'
         
-        if not width or not height:
-            width = height = '24'
-        
-        # Создаем Android Vector Drawable
-        vector_xml = f'''<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="{width}dp"
-    android:height="{height}dp"
-    android:viewportWidth="{viewBox.split()[2] if len(viewBox.split()) > 2 else width}"
-    android:viewportHeight="{viewBox.split()[3] if len(viewBox.split()) > 3 else height}">
-'''
+        # Извлекаем viewBox
+        viewbox = root.get('viewBox', f'0 0 {width} {height}')
+        vb_parts = viewbox.split()
+        viewport_width = vb_parts[2] if len(vb_parts) >= 3 else width
+        viewport_height = vb_parts[3] if len(vb_parts) >= 4 else height
         
         # Извлекаем пути
-        paths = root.findall('.//path')
-        for path in paths:
+        paths = []
+        for path in root.findall('.//svg:path', ns):
             path_data = path.get('d', '')
-            fill = path.get('fill', '#000000')
-            stroke = path.get('stroke', '')
-            stroke_width = path.get('stroke-width', '')
-            
             if path_data:
-                vector_xml += f'    <path\n'
-                if fill and fill != 'none':
-                    vector_xml += f'        android:fillColor="{fill}"\n'
-                if stroke and stroke != 'none':
-                    vector_xml += f'        android:strokeColor="{stroke}"\n'
-                    if stroke_width:
-                        vector_xml += f'        android:strokeWidth="{stroke_width}"\n'
-                vector_xml += f'        android:pathData="{path_data}"/>\n'
+                fill = rgb_to_hex(path.get('fill', '#000000'))
+                stroke = rgb_to_hex(path.get('stroke', ''))
+                stroke_width = path.get('stroke-width', '')
+                
+                paths.append({
+                    'data': path_data,
+                    'fill': fill,
+                    'stroke': stroke,
+                    'stroke_width': stroke_width
+                })
         
-        vector_xml += '</vector>\n'
+        # Если путей нет, ищем в корне без namespace
+        if not paths:
+            for path in root.findall('.//path'):
+                path_data = path.get('d', '')
+                if path_data:
+                    fill = rgb_to_hex(path.get('fill', '#000000'))
+                    stroke = rgb_to_hex(path.get('stroke', ''))
+                    stroke_width = path.get('stroke-width', '')
+                    
+                    paths.append({
+                        'data': path_data,
+                        'fill': fill,
+                        'stroke': stroke,
+                        'stroke_width': stroke_width
+                    })
         
-        # Сохраняем
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(vector_xml)
-        
-        return True, output_name
+        return {
+            'width': width,
+            'height': height,
+            'viewport_width': viewport_width,
+            'viewport_height': viewport_height,
+            'paths': paths
+        }
     except Exception as e:
-        return False, str(e)
+        print(f"  [ERROR] Ошибка парсинга: {e}")
+        return None
+
+def generate_android_xml(svg_data):
+    """Генерирует Android Vector Drawable XML"""
+    xml_lines = [
+        '<vector xmlns:android="http://schemas.android.com/apk/res/android"',
+        f'    android:width="{svg_data["width"]}dp"',
+        f'    android:height="{svg_data["height"]}dp"',
+        f'    android:viewportWidth="{svg_data["viewport_width"]}"',
+        f'    android:viewportHeight="{svg_data["viewport_height"]}">'
+    ]
+    
+    for path in svg_data['paths']:
+        xml_lines.append('    <path')
+        
+        if path['fill']:
+            xml_lines.append(f'        android:fillColor="{path["fill"]}"')
+        
+        if path['stroke']:
+            xml_lines.append(f'        android:strokeColor="{path["stroke"]}"')
+        
+        if path['stroke_width']:
+            xml_lines.append(f'        android:strokeWidth="{path["stroke_width"]}"')
+        
+        # pathData всегда последний атрибут
+        xml_lines.append(f'        android:pathData="{path["data"]}"/>')
+    
+    xml_lines.append('</vector>')
+    
+    return '\n'.join(xml_lines)
+
+def convert_folder(folder_name):
+    """Конвертирует все SVG из папки"""
+    folder_path = IMG_DIR / folder_name
+    
+    if not folder_path.exists():
+        print(f"  [SKIP] Папка не найдена: {folder_name}")
+        return 0, 0
+    
+    svg_files = list(folder_path.glob('*.svg'))
+    
+    if not svg_files:
+        print(f"  [SKIP] SVG файлы не найдены в: {folder_name}")
+        return 0, 0
+    
+    success_count = 0
+    error_count = 0
+    prefix = folder_name.lower()
+    
+    for svg_file in svg_files:
+        try:
+            # Генерируем имя выходного файла
+            sanitized_name = sanitize_filename(svg_file.name)
+            output_name = f"{prefix}_{sanitized_name}"
+            output_path = OUTPUT_DIR / output_name
+            
+            # Парсим SVG
+            svg_data = parse_svg(svg_file)
+            
+            if not svg_data or not svg_data['paths']:
+                print(f"  [ERROR] {svg_file.name} -> Нет путей в SVG")
+                error_count += 1
+                continue
+            
+            # Генерируем Android XML
+            android_xml = generate_android_xml(svg_data)
+            
+            # Сохраняем
+            output_path.write_text(android_xml, encoding='utf-8')
+            
+            print(f"  [OK] {svg_file.name} -> {output_name}")
+            success_count += 1
+            
+        except Exception as e:
+            print(f"  [ERROR] {svg_file.name} -> {e}")
+            error_count += 1
+    
+    return success_count, error_count
 
 def main():
     print("Начало конвертации SVG -> Android XML\n")
     
-    # Проверка наличия папки IMG
+    # Проверяем наличие папок
     if not IMG_DIR.exists():
-        print(f"[ERROR] Папка {IMG_DIR} не найдена")
-        sys.exit(1)
+        print(f"[ERROR] Папка IMG не найдена: {IMG_DIR}")
+        return
     
-    # Установка зависимостей
-    install_dependencies()
+    # Создаём выходную папку если нужно
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Создание папки drawable если не существует
-    DRAWABLE_DIR.mkdir(parents=True, exist_ok=True)
+    print("Установка зависимостей...")
+    print("[OK] Встроенные библиотеки доступны\n")
     
-    # Статистика
-    total_files = 0
-    success_count = 0
-    error_count = 0
-    errors = []
+    # Конвертируем каждую папку
+    total_success = 0
+    total_error = 0
     
-    # Обработка каждой папки
     for folder in FOLDERS:
-        folder_path = IMG_DIR / folder
-        if not folder_path.exists():
-            print(f"[WARN] Папка {folder} не найдена, пропускаем")
-            continue
-        
         print(f"Обработка папки: {folder}")
-        
-        # Получаем все SVG файлы
-        svg_files = list(folder_path.glob("*.svg"))
-        total_files += len(svg_files)
-        
-        # Префикс для имен файлов (lowercase)
-        prefix = folder.lower()
-        
-        # Конвертация каждого файла
-        for svg_file in svg_files:
-            success, result = convert_svg_to_xml(svg_file, DRAWABLE_DIR, prefix)
-            
-            if success:
-                success_count += 1
-                print(f"  [OK] {svg_file.name} -> {result}")
-            else:
-                error_count += 1
-                error_msg = f"{svg_file.name}: {result}"
-                errors.append(error_msg)
-                print(f"  [ERROR] {error_msg}")
-        
+        success, errors = convert_folder(folder)
+        total_success += success
+        total_error += errors
         print()
     
-    # Итоговая статистика
+    # Итоги
     print("=" * 60)
-    print(f"Результаты конвертации:")
-    print(f"   Всего файлов: {total_files}")
-    print(f"   Успешно: {success_count}")
-    print(f"   Ошибок: {error_count}")
+    print("Результаты конвертации:")
+    print(f"   Всего файлов: {total_success + total_error}")
+    print(f"   Успешно: {total_success}")
+    print(f"   Ошибок: {total_error}")
     print("=" * 60)
-    
-    if errors:
-        print("\nСписок ошибок:")
-        for error in errors:
-            print(f"   - {error}")
-    
-    print(f"\nРезультаты сохранены в: {DRAWABLE_DIR}")
+    print(f"\nРезультаты сохранены в: {OUTPUT_DIR}")
     print("Готово!")
 
 if __name__ == "__main__":
