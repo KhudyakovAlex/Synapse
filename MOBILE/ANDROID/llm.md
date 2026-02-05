@@ -27,4 +27,4 @@
 Package структура, список иконок в `res/drawable/`.
 
 ### [Конвертация иконок](llm_ico_convert.md)
-Экспорт SVG из Pixso и конвертация в Android Vector Drawable.
+Экспорт SVG из Pixso, конвертация в Android Vector Drawable, JSON каталог иконок, использование в коде (фильтрация, поиск, Compose компоненты).

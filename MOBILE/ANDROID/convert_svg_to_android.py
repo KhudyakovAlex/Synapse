@@ -6,6 +6,7 @@
 
 import os
 import re
+import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -16,6 +17,13 @@ FOLDERS = ["Controller", "Location", "Luminaire", "System"]
 SCRIPT_DIR = Path(__file__).parent
 IMG_DIR = SCRIPT_DIR / "IMG"
 OUTPUT_DIR = SCRIPT_DIR / "app" / "src" / "main" / "res" / "drawable"
+CATALOG_DIR = SCRIPT_DIR / "app" / "src" / "main" / "res" / "raw"
+CATALOG_FILE = CATALOG_DIR / "icons_catalog.json"
+
+def extract_icon_id(filename):
+    """Извлекает ID иконки (первые 3 цифры) из имени файла"""
+    match = re.match(r'(\d{3})', filename)
+    return int(match.group(1)) if match else None
 
 def sanitize_filename(filename):
     """Преобразует имя файла в формат Android (lowercase, underscore)"""
@@ -167,8 +175,8 @@ def generate_android_xml(svg_data):
     
     return '\n'.join(xml_lines)
 
-def convert_folder(folder_name):
-    """Конвертирует все SVG из папки"""
+def convert_folder(folder_name, catalog_entries):
+    """Конвертирует все SVG из папки и добавляет записи в каталог"""
     folder_path = IMG_DIR / folder_name
     
     if not folder_path.exists():
@@ -206,6 +214,17 @@ def convert_folder(folder_name):
             # Сохраняем
             output_path.write_text(android_xml, encoding='utf-8')
             
+            # Добавляем в каталог
+            icon_id = extract_icon_id(svg_file.name)
+            if icon_id is not None:
+                resource_name = output_name.replace('.xml', '')
+                catalog_entries.append({
+                    "category": prefix,
+                    "id": icon_id,
+                    "description": "",
+                    "resourceName": resource_name
+                })
+            
             print(f"  [OK] {svg_file.name} -> {output_name}")
             success_count += 1
             
@@ -223,11 +242,15 @@ def main():
         print(f"[ERROR] Папка IMG не найдена: {IMG_DIR}")
         return
     
-    # Создаём выходную папку если нужно
+    # Создаём выходные папки если нужно
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    CATALOG_DIR.mkdir(parents=True, exist_ok=True)
     
     print("Установка зависимостей...")
     print("[OK] Встроенные библиотеки доступны\n")
+    
+    # Каталог иконок
+    catalog_entries = []
     
     # Конвертируем каждую папку
     total_success = 0
@@ -235,10 +258,14 @@ def main():
     
     for folder in FOLDERS:
         print(f"Обработка папки: {folder}")
-        success, errors = convert_folder(folder)
+        success, errors = convert_folder(folder, catalog_entries)
         total_success += success
         total_error += errors
         print()
+    
+    # Сохраняем каталог
+    catalog_data = {"icons": sorted(catalog_entries, key=lambda x: (x["category"], x["id"]))}
+    CATALOG_FILE.write_text(json.dumps(catalog_data, indent=2, ensure_ascii=False), encoding='utf-8')
     
     # Итоги
     print("=" * 60)
@@ -246,8 +273,11 @@ def main():
     print(f"   Всего файлов: {total_success + total_error}")
     print(f"   Успешно: {total_success}")
     print(f"   Ошибок: {total_error}")
+    print(f"   Записей в каталоге: {len(catalog_entries)}")
     print("=" * 60)
     print(f"\nРезультаты сохранены в: {OUTPUT_DIR}")
+    print(f"Каталог сохранён в: {CATALOG_FILE}")
+    print("\n⚠️  НАПОМИНАНИЕ: Обновите описания иконок в icons_catalog.json!")
     print("Готово!")
 
 if __name__ == "__main__":

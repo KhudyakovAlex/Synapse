@@ -4,7 +4,7 @@
 
 ### Скрипт: `convert_svg_to_android.py`
 
-Автоматически конвертирует все SVG файлы из папки `IMG/` в Android XML Vector Drawable формат.
+Автоматически конвертирует все SVG файлы из папки `IMG/` в Android XML Vector Drawable формат и генерирует JSON каталог для использования в коде.
 
 ### Структура исходных файлов
 
@@ -18,11 +18,25 @@ IMG/
 
 ### Результат конвертации
 
-Все файлы сохраняются в `app/src/main/res/drawable/` с префиксами:
+**XML файлы** сохраняются в `app/src/main/res/drawable/` с префиксами:
 - `controller_*.xml` — из папки Controller
 - `location_*.xml` — из папки Location
 - `luminaire_*.xml` — из папки Luminaire
 - `system_*.xml` — из папки System
+
+**JSON каталог** сохраняется в `app/src/main/res/raw/icons_catalog.json`:
+```json
+{
+  "icons": [
+    {
+      "category": "controller",
+      "id": 100,
+      "description": "",
+      "resourceName": "controller_100_default"
+    }
+  ]
+}
+```
 
 ### Запуск конвертации
 
@@ -47,9 +61,13 @@ python convert_svg_to_android.py
    Всего файлов: 127
    Успешно: 127
    Ошибок: 0
+   Записей в каталоге: 127
 ============================================================
 
 Результаты сохранены в: D:\Git\Synapse\MOBILE\ANDROID\app\src\main\res\drawable
+Каталог сохранён в: D:\Git\Synapse\MOBILE\ANDROID\app\src\main\res\raw\icons_catalog.json
+
+⚠️  НАПОМИНАНИЕ: Обновите описания иконок в icons_catalog.json!
 Готово!
 ```
 
@@ -110,14 +128,22 @@ python convert_svg_to_android.py
 - Сконвертирует только новые (существующие перезапишет)
 - Покажет статистику
 
-### Шаг 3: Использовать в коде
+### Шаг 3: Обновить описания
+
+После конвертации обновите поле `description` в `icons_catalog.json` для новых иконок.
+
+### Шаг 4: Использовать в коде
 
 ```kotlin
+// Прямое использование
 Icon(
     painter = painterResource(id = R.drawable.controller_100_default),
     contentDescription = "Default controller",
     tint = Color_State_primary
 )
+
+// Через каталог (см. раздел "Использование каталога")
+val icon = iconCatalog.findById(100)
 ```
 
 ---
@@ -221,6 +247,332 @@ Icon(
     contentDescription = "Back",
     tint = Color_State_primary  // переопределяет цвет из XML
 )
+```
+
+---
+
+## Использование каталога в коде
+
+### 1. Подключение зависимости
+
+Добавить в `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+}
+```
+
+В `build.gradle.kts` (модуль app) добавить плагин:
+
+```kotlin
+plugins {
+    kotlin("plugin.serialization") version "1.9.0"
+}
+```
+
+---
+
+### 2. Модели данных
+
+Создать файл `IconCatalog.kt`:
+
+```kotlin
+package com.synapse.android.data
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class IconInfo(
+    val category: String,
+    val id: Int,
+    val description: String,
+    val resourceName: String
+)
+
+@Serializable
+data class IconCatalog(
+    val icons: List<IconInfo>
+) {
+    // Фильтрация по категории
+    fun getByCategory(category: String): List<IconInfo> =
+        icons.filter { it.category == category }
+    
+    // Поиск по ID
+    fun findById(id: Int): IconInfo? =
+        icons.find { it.id == id }
+    
+    // Все категории
+    val categories: List<String>
+        get() = icons.map { it.category }.distinct()
+}
+```
+
+---
+
+### 3. Загрузка каталога
+
+Создать `IconCatalogManager.kt`:
+
+```kotlin
+package com.synapse.android.data
+
+import android.content.Context
+import kotlinx.serialization.json.Json
+import com.synapse.android.R
+
+object IconCatalogManager {
+    private var catalog: IconCatalog? = null
+    
+    fun load(context: Context): IconCatalog {
+        if (catalog == null) {
+            val json = context.resources
+                .openRawResource(R.raw.icons_catalog)
+                .bufferedReader()
+                .use { it.readText() }
+            catalog = Json.decodeFromString<IconCatalog>(json)
+        }
+        return catalog!!
+    }
+    
+    fun getCatalog(): IconCatalog? = catalog
+}
+```
+
+---
+
+### 4. Использование в Compose
+
+#### Простой компонент с иконкой по ID
+
+```kotlin
+@Composable
+fun CatalogIcon(
+    iconId: Int,
+    modifier: Modifier = Modifier,
+    tint: Color = Color_State_primary
+) {
+    val context = LocalContext.current
+    val catalog = remember { IconCatalogManager.load(context) }
+    val iconInfo = remember(iconId) { catalog.findById(iconId) }
+    
+    iconInfo?.let {
+        val resourceId = remember(it.resourceName) {
+            context.resources.getIdentifier(
+                it.resourceName,
+                "drawable",
+                context.packageName
+            )
+        }
+        
+        if (resourceId != 0) {
+            Icon(
+                painter = painterResource(id = resourceId),
+                contentDescription = it.description,
+                modifier = modifier,
+                tint = tint
+            )
+        }
+    }
+}
+
+// Использование
+CatalogIcon(
+    iconId = 100,
+    modifier = Modifier.size(24.dp),
+    tint = Color_State_primary
+)
+```
+
+#### Список иконок по категории
+
+```kotlin
+@Composable
+fun IconCategoryGrid(category: String) {
+    val context = LocalContext.current
+    val catalog = remember { IconCatalogManager.load(context) }
+    val icons = remember(category) { catalog.getByCategory(category) }
+    
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(4),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(icons) { iconInfo ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { /* обработка клика */ }
+            ) {
+                CatalogIcon(
+                    iconId = iconInfo.id,
+                    modifier = Modifier.size(48.dp)
+                )
+                Text(
+                    text = iconInfo.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2
+                )
+            }
+        }
+    }
+}
+
+// Использование
+IconCategoryGrid(category = "controller")
+```
+
+#### Селектор иконок с категориями
+
+```kotlin
+@Composable
+fun IconSelector(
+    selectedIconId: Int?,
+    onIconSelected: (Int) -> Unit
+) {
+    val context = LocalContext.current
+    val catalog = remember { IconCatalogManager.load(context) }
+    var selectedCategory by remember { mutableStateOf("controller") }
+    
+    Column {
+        // Табы категорий
+        TabRow(selectedTabIndex = catalog.categories.indexOf(selectedCategory)) {
+            catalog.categories.forEach { category ->
+                Tab(
+                    selected = category == selectedCategory,
+                    onClick = { selectedCategory = category },
+                    text = { Text(category.capitalize()) }
+                )
+            }
+        }
+        
+        // Сетка иконок
+        val icons = remember(selectedCategory) {
+            catalog.getByCategory(selectedCategory)
+        }
+        
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(icons) { iconInfo ->
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .border(
+                            width = 2.dp,
+                            color = if (selectedIconId == iconInfo.id) 
+                                Color_State_primary else Color.Transparent,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable { onIconSelected(iconInfo.id) }
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CatalogIcon(iconId = iconInfo.id)
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+### 5. Примеры использования
+
+#### Отображение контроллера с иконкой
+
+```kotlin
+@Composable
+fun ControllerCard(controller: Controller) {
+    Card {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CatalogIcon(
+                iconId = controller.iconId,
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = controller.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = controller.location,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+```
+
+#### Выбор иконки для локации
+
+```kotlin
+@Composable
+fun LocationIconPicker(
+    currentIconId: Int,
+    onIconChanged: (Int) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    
+    OutlinedButton(onClick = { showDialog = true }) {
+        CatalogIcon(
+            iconId = currentIconId,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Выбрать иконку")
+    }
+    
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                IconSelector(
+                    selectedIconId = currentIconId,
+                    onIconSelected = {
+                        onIconChanged(it)
+                        showDialog = false
+                    }
+                )
+            }
+        }
+    }
+}
+```
+
+#### Получение описания иконки
+
+```kotlin
+fun getIconDescription(context: Context, iconId: Int): String {
+    val catalog = IconCatalogManager.load(context)
+    return catalog.findById(iconId)?.description ?: "Неизвестная иконка"
+}
+```
+
+---
+
+### 6. Инициализация в Application
+
+```kotlin
+class SynapseApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        // Предзагрузка каталога
+        IconCatalogManager.load(this)
+    }
+}
 ```
 
 ---
