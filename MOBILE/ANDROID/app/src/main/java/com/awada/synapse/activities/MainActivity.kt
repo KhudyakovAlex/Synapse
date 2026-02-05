@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ai.AI
+import com.awada.synapse.pages.PageIconSelect
 import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSettings
@@ -56,7 +57,8 @@ class MainActivity : ComponentActivity() {
 enum class AppScreen {
     Location,
     Settings,
-    Password
+    Password,
+    IconSelect
 }
 
 @Composable
@@ -64,12 +66,22 @@ private fun MainContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.Location) }
     val context = LocalContext.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
+    
+    // Icon selection state
+    var iconSelectCategory by remember { mutableStateOf("") }
+    var iconSelectCurrentId by remember { mutableStateOf(0) }
+    var iconSelectCallback by remember { mutableStateOf<((Int) -> Unit)?>(null) }
+    
+    // Icon IDs - lifted from PageLocation to preserve across navigation
+    var controllerIconId by remember { mutableStateOf(100) }
+    var locationIconId by remember { mutableStateOf(200) }
+    var luminaireIconId by remember { mutableStateOf(300) }
 
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.Settings, AppScreen.Password -> {
-                // If on Settings or Password, go back to Location
+            AppScreen.Settings, AppScreen.Password, AppScreen.IconSelect -> {
+                // If on Settings, Password or IconSelect, go back to Location
                 currentScreen = AppScreen.Location
             }
             AppScreen.Location -> {
@@ -90,8 +102,8 @@ private fun MainContent() {
         AnimatedContent(
             targetState = currentScreen,
             transitionSpec = {
-                if (targetState == AppScreen.Settings || targetState == AppScreen.Password) {
-                    // Slide in from right when going to settings or password
+                if (targetState == AppScreen.Settings || targetState == AppScreen.Password || targetState == AppScreen.IconSelect) {
+                    // Slide in from right when going to settings, password or icon select
                     (slideInHorizontally { it } + fadeIn()).togetherWith(
                         slideOutHorizontally { -it / 3 } + fadeOut()
                     )
@@ -109,6 +121,18 @@ private fun MainContent() {
                     PageLocation(
                         onSettingsClick = { currentScreen = AppScreen.Settings },
                         onPasswordClick = { currentScreen = AppScreen.Password },
+                        controllerIconId = controllerIconId,
+                        locationIconId = locationIconId,
+                        luminaireIconId = luminaireIconId,
+                        onControllerIconChange = { controllerIconId = it },
+                        onLocationIconChange = { locationIconId = it },
+                        onLuminaireIconChange = { luminaireIconId = it },
+                        onIconSelectClick = { category, currentIconId, onIconSelected ->
+                            iconSelectCategory = category
+                            iconSelectCurrentId = currentIconId
+                            iconSelectCallback = onIconSelected
+                            currentScreen = AppScreen.IconSelect
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -124,6 +148,18 @@ private fun MainContent() {
                         onPasswordCorrect = {
                             currentScreen = AppScreen.Location
                             Toast.makeText(context, "Пароль верный!", Toast.LENGTH_SHORT).show()
+                        },
+                        onBackClick = { currentScreen = AppScreen.Location },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                AppScreen.IconSelect -> {
+                    PageIconSelect(
+                        category = iconSelectCategory,
+                        currentIconId = iconSelectCurrentId,
+                        onIconSelected = { selectedIconId ->
+                            iconSelectCallback?.invoke(selectedIconId)
+                            currentScreen = AppScreen.Location
                         },
                         onBackClick = { currentScreen = AppScreen.Location },
                         modifier = Modifier.fillMaxSize()

@@ -3,589 +3,589 @@
     {
       "category": "controller",
       "id": 100,
-      "description": "Иконка по умолчанию, некое здание",
+      "description": "",
       "resourceName": "controller_100_default"
     },
     {
       "category": "controller",
       "id": 101,
-      "description": "Здание офиса",
+      "description": "",
       "resourceName": "controller_101_ofis"
     },
     {
       "category": "controller",
       "id": 102,
-      "description": "Частный дом",
+      "description": "",
       "resourceName": "controller_102_dom"
     },
     {
       "category": "controller",
       "id": 103,
-      "description": "Здание бани",
+      "description": "",
       "resourceName": "controller_103_banya"
     },
     {
       "category": "controller",
       "id": 104,
-      "description": "Этаж. Просто этаж, какой именно будет в текстовом названии контроллера",
+      "description": "",
       "resourceName": "controller_104_etazh"
     },
     {
       "category": "controller",
       "id": 105,
-      "description": "Этаж 1",
+      "description": "",
       "resourceName": "controller_105_etazh1"
     },
     {
       "category": "controller",
       "id": 106,
-      "description": "Этаж 2",
+      "description": "",
       "resourceName": "controller_106_etazh2"
     },
     {
       "category": "controller",
       "id": 107,
-      "description": "Этаж 3",
+      "description": "",
       "resourceName": "controller_107_etazh3"
     },
     {
       "category": "controller",
       "id": 108,
-      "description": "Квартира. Какая-то условная планировка символически",
+      "description": "",
       "resourceName": "controller_108_kvartira"
     },
     {
       "category": "controller",
       "id": 109,
-      "description": "Кабинеты. Три двери?",
+      "description": "",
       "resourceName": "controller_109_kabinety"
     },
     {
       "category": "controller",
       "id": 110,
-      "description": "Гараж отдельно стоящий",
+      "description": "",
       "resourceName": "controller_110_garazh"
     },
     {
       "category": "controller",
       "id": 111,
-      "description": "Хозпомещения: санузел, кладовая, котельная, прачечная и т.п. одним блоком на одном контроллере",
+      "description": "",
       "resourceName": "controller_111_hoz"
     },
     {
       "category": "controller",
       "id": 112,
-      "description": "Территория. Можно забор и домик внутри",
+      "description": "",
       "resourceName": "controller_112_terr"
     },
     {
       "category": "controller",
       "id": 113,
-      "description": "Опенспейс. Можно несколько рабочих мест",
+      "description": "",
       "resourceName": "controller_113_open"
     },
     {
       "category": "controller",
       "id": 114,
-      "description": "Склад. Стеллажи",
+      "description": "",
       "resourceName": "controller_114_sklad"
     },
     {
       "category": "controller",
       "id": 115,
-      "description": "Магазин",
+      "description": "",
       "resourceName": "controller_115_magazin"
     },
     {
       "category": "controller",
       "id": 116,
-      "description": "Кафе",
+      "description": "",
       "resourceName": "controller_116_kafe"
     },
     {
       "category": "controller",
       "id": 117,
-      "description": "Больница",
+      "description": "",
       "resourceName": "controller_117_bolnica"
     },
     {
       "category": "controller",
       "id": 118,
-      "description": "Производство",
+      "description": "",
       "resourceName": "controller_118_proizvodstvo"
     },
     {
       "category": "controller",
       "id": 119,
-      "description": "Подвал",
+      "description": "",
       "resourceName": "controller_119_podval"
     },
     {
       "category": "controller",
       "id": 120,
-      "description": "Чердак",
+      "description": "",
       "resourceName": "controller_120_cherdak"
     },
     {
       "category": "controller",
       "id": 121,
-      "description": "Парковка",
+      "description": "",
       "resourceName": "controller_121_parkovka"
     },
     {
       "category": "controller",
       "id": 122,
-      "description": "Конференц-зал",
+      "description": "",
       "resourceName": "controller_122_konf_zal"
     },
     {
       "category": "controller",
       "id": 123,
-      "description": "Ресепшн",
+      "description": "",
       "resourceName": "controller_123_resepshn"
     },
     {
       "category": "controller",
       "id": 124,
-      "description": "Холл",
+      "description": "",
       "resourceName": "controller_124_holl"
     },
     {
       "category": "location",
       "id": 200,
-      "description": "Иконка по умолчанию, некая дверь",
+      "description": "",
       "resourceName": "location_200_default"
     },
     {
       "category": "location",
       "id": 201,
-      "description": "Кабинет",
+      "description": "",
       "resourceName": "location_201_kabinet"
     },
     {
       "category": "location",
       "id": 202,
-      "description": "Холл",
+      "description": "",
       "resourceName": "location_202_hol"
     },
     {
       "category": "location",
       "id": 203,
-      "description": "Переговорная",
+      "description": "",
       "resourceName": "location_203_peregovornaya"
     },
     {
       "category": "location",
       "id": 204,
-      "description": "Столовая",
+      "description": "",
       "resourceName": "location_204_stolovaya"
     },
     {
       "category": "location",
       "id": 205,
-      "description": "Коридор",
+      "description": "",
       "resourceName": "location_205_koridor"
     },
     {
       "category": "location",
       "id": 206,
-      "description": "Тубзик",
+      "description": "",
       "resourceName": "location_206_wc"
     },
     {
       "category": "location",
       "id": 207,
-      "description": "Гостиная",
+      "description": "",
       "resourceName": "location_207_gostinaya"
     },
     {
       "category": "location",
       "id": 208,
-      "description": "Кухня",
+      "description": "",
       "resourceName": "location_208_kuhnya"
     },
     {
       "category": "location",
       "id": 209,
-      "description": "Спальня",
+      "description": "",
       "resourceName": "location_209_spalnya"
     },
     {
       "category": "location",
       "id": 210,
-      "description": "Детская",
+      "description": "",
       "resourceName": "location_210_detskaya"
     },
     {
       "category": "location",
       "id": 211,
-      "description": "Ванная комната",
+      "description": "",
       "resourceName": "location_211_vannaya"
     },
     {
       "category": "location",
       "id": 212,
-      "description": "Гардеробная",
+      "description": "",
       "resourceName": "location_212_garderob"
     },
     {
       "category": "location",
       "id": 213,
-      "description": "Прихожая",
+      "description": "",
       "resourceName": "location_213_prihozhaya"
     },
     {
       "category": "location",
       "id": 214,
-      "description": "Балкон / лоджия",
+      "description": "",
       "resourceName": "location_214_balkon"
     },
     {
       "category": "location",
       "id": 215,
-      "description": "Терраса",
+      "description": "",
       "resourceName": "location_215_terrasa"
     },
     {
       "category": "location",
       "id": 216,
-      "description": "Кладовая",
+      "description": "",
       "resourceName": "location_216_kladovaya"
     },
     {
       "category": "location",
       "id": 217,
-      "description": "Серверная",
+      "description": "",
       "resourceName": "location_217_servernaya"
     },
     {
       "category": "location",
       "id": 218,
-      "description": "Приёмная",
+      "description": "",
       "resourceName": "location_218_priemnaya"
     },
     {
       "category": "location",
       "id": 219,
-      "description": "Архив",
+      "description": "",
       "resourceName": "location_219_arhiv"
     },
     {
       "category": "location",
       "id": 220,
-      "description": "Комната отдыха",
+      "description": "",
       "resourceName": "location_220_otdyh"
     },
     {
       "category": "location",
       "id": 221,
-      "description": "Раздевалка",
+      "description": "",
       "resourceName": "location_221_razdevalka"
     },
     {
       "category": "location",
       "id": 222,
-      "description": "Душевая",
+      "description": "",
       "resourceName": "location_222_dushevaya"
     },
     {
       "category": "location",
       "id": 223,
-      "description": "Котельная",
+      "description": "",
       "resourceName": "location_223_kotelnaya"
     },
     {
       "category": "location",
       "id": 224,
-      "description": "Электрощитовая",
+      "description": "",
       "resourceName": "location_224_elektro"
     },
     {
       "category": "location",
       "id": 225,
-      "description": "Мастерская",
+      "description": "",
       "resourceName": "location_225_masterskaya"
     },
     {
       "category": "location",
       "id": 226,
-      "description": "Торговый зал",
+      "description": "",
       "resourceName": "location_226_torg_zal"
     },
     {
       "category": "location",
       "id": 227,
-      "description": "Примерочная",
+      "description": "",
       "resourceName": "location_227_primerochnaya"
     },
     {
       "category": "location",
       "id": 228,
-      "description": "Зал ресторана",
+      "description": "",
       "resourceName": "location_228_zal_restorana"
     },
     {
       "category": "location",
       "id": 229,
-      "description": "Класс / аудитория",
+      "description": "",
       "resourceName": "location_229_klass"
     },
     {
       "category": "location",
       "id": 230,
-      "description": "Палата",
+      "description": "",
       "resourceName": "location_230_palata"
     },
     {
       "category": "location",
       "id": 231,
-      "description": "Лестница",
+      "description": "",
       "resourceName": "location_231_lestnica"
     },
     {
       "category": "location",
       "id": 232,
-      "description": "Лифт",
+      "description": "",
       "resourceName": "location_232_lift"
     },
     {
       "category": "location",
       "id": 233,
-      "description": "Бассейн",
+      "description": "",
       "resourceName": "location_233_bassein"
     },
     {
       "category": "location",
       "id": 234,
-      "description": "Сауна / парная",
+      "description": "",
       "resourceName": "location_234_sauna"
     },
     {
       "category": "location",
       "id": 235,
-      "description": "Спортзал / тренажёрка",
+      "description": "",
       "resourceName": "location_235_sportzal"
     },
     {
       "category": "luminaire",
       "id": 300,
-      "description": "Иконка по умолчанию",
+      "description": "",
       "resourceName": "luminaire_300_default"
     },
     {
       "category": "luminaire",
       "id": 301,
-      "description": "Потолочный подвесной линейный",
+      "description": "",
       "resourceName": "luminaire_301_pot_podv_lin"
     },
     {
       "category": "luminaire",
       "id": 302,
-      "description": "Потолочный подвесной круглый",
+      "description": "",
       "resourceName": "luminaire_302_pot_podv_krugl"
     },
     {
       "category": "luminaire",
       "id": 303,
-      "description": "Потолочный подвесной абажур",
+      "description": "",
       "resourceName": "luminaire_303_pot_podv_abazh"
     },
     {
       "category": "luminaire",
       "id": 304,
-      "description": "Потолочный подвесной люстра",
+      "description": "",
       "resourceName": "luminaire_304_pot_podv_lustra"
     },
     {
       "category": "luminaire",
       "id": 305,
-      "description": "Потолочный подвесной квадратный",
+      "description": "",
       "resourceName": "luminaire_305_pot_podv_kvadr"
     },
     {
       "category": "luminaire",
       "id": 306,
-      "description": "Потолочный подвесной точечный",
+      "description": "",
       "resourceName": "luminaire_306_pot_podv_toch"
     },
     {
       "category": "luminaire",
       "id": 307,
-      "description": "Потолочный встроенный линейный",
+      "description": "",
       "resourceName": "luminaire_307_pot_vstr_lin"
     },
     {
       "category": "luminaire",
       "id": 308,
-      "description": "Потолочный встроенный круглый",
+      "description": "",
       "resourceName": "luminaire_308_pot_vstr_krugl"
     },
     {
       "category": "luminaire",
       "id": 309,
-      "description": "Потолочный встроенный квадратный",
+      "description": "",
       "resourceName": "luminaire_309_pot_vstr_kvadr"
     },
     {
       "category": "luminaire",
       "id": 310,
-      "description": "Потолочный встроенный точечный",
+      "description": "",
       "resourceName": "luminaire_310_pot_vstr_toch"
     },
     {
       "category": "luminaire",
       "id": 311,
-      "description": "Потолочный встроенный точечный двойной",
+      "description": "",
       "resourceName": "luminaire_311_pot_vstr_toch_dvoynoy"
     },
     {
       "category": "luminaire",
       "id": 312,
-      "description": "Потолочный встроенный точечный тройной",
+      "description": "",
       "resourceName": "luminaire_312_pot_vstr_toch_troynoy"
     },
     {
       "category": "luminaire",
       "id": 313,
-      "description": "Потолочный встроенный точечный поворотный",
+      "description": "",
       "resourceName": "luminaire_313_pot_vstr_toch_pov"
     },
     {
       "category": "luminaire",
       "id": 314,
-      "description": "Потолочный встроенный точечный поворотный двойной",
+      "description": "",
       "resourceName": "luminaire_314_pot_vstr_toch_pov_dvoynoy"
     },
     {
       "category": "luminaire",
       "id": 315,
-      "description": "Потолочный встроенный точечный поворотный тройной",
+      "description": "",
       "resourceName": "luminaire_315_pot_vstr_toch_pov_troynoy"
     },
     {
       "category": "luminaire",
       "id": 316,
-      "description": "Потолочный накладной линейный",
+      "description": "",
       "resourceName": "luminaire_316_pot_nakl_lin"
     },
     {
       "category": "luminaire",
       "id": 317,
-      "description": "Потолочный накладной круглый",
+      "description": "",
       "resourceName": "luminaire_317_pot_nakl_krugl"
     },
     {
       "category": "luminaire",
       "id": 318,
-      "description": "Потолочный накладной квадратный",
+      "description": "",
       "resourceName": "luminaire_318_pot_nakl_kvadr"
     },
     {
       "category": "luminaire",
       "id": 319,
-      "description": "Потолочный накладной точечный",
+      "description": "",
       "resourceName": "luminaire_319_pot_nakl_toch"
     },
     {
       "category": "luminaire",
       "id": 320,
-      "description": "Потолочный накладной точечный поворотный",
+      "description": "",
       "resourceName": "luminaire_320_pot_nakl_toch_pov"
     },
     {
       "category": "luminaire",
       "id": 321,
-      "description": "Настенный бра",
+      "description": "",
       "resourceName": "luminaire_321_nas_bra"
     },
     {
       "category": "luminaire",
       "id": 322,
-      "description": "Настенный накладной линейный",
+      "description": "",
       "resourceName": "luminaire_322_nas_nakl_lin"
     },
     {
       "category": "luminaire",
       "id": 323,
-      "description": "Настенный накладной квадратный",
+      "description": "",
       "resourceName": "luminaire_323_nas_nakl_kvadr"
     },
     {
       "category": "luminaire",
       "id": 324,
-      "description": "Настенный накладной круглый",
+      "description": "",
       "resourceName": "luminaire_324_nas_nakl_krugl"
     },
     {
       "category": "luminaire",
       "id": 325,
-      "description": "Настенный накладной точечный поворотный",
+      "description": "",
       "resourceName": "luminaire_325_nas_nakl_toch_pov"
     },
     {
       "category": "luminaire",
       "id": 326,
-      "description": "Трековый линейный",
+      "description": "",
       "resourceName": "luminaire_326_trek_lin"
     },
     {
       "category": "luminaire",
       "id": 327,
-      "description": "Трековый точечный поворотный",
+      "description": "",
       "resourceName": "luminaire_327_trek_toch_pov"
     },
     {
       "category": "luminaire",
       "id": 328,
-      "description": "Подсветка картины, зеркала",
+      "description": "",
       "resourceName": "luminaire_328_podsv"
     },
     {
       "category": "luminaire",
       "id": 329,
-      "description": "Лента узкая (LED, RGB)",
+      "description": "",
       "resourceName": "luminaire_329_lenta"
     },
     {
       "category": "luminaire",
       "id": 330,
-      "description": "Торшер",
+      "description": "",
       "resourceName": "luminaire_330_torsher"
     },
     {
       "category": "luminaire",
       "id": 331,
-      "description": "Фасадный светильник",
+      "description": "",
       "resourceName": "luminaire_331_fasad"
     },
     {
       "category": "luminaire",
       "id": 332,
-      "description": "Уличный прожектор",
+      "description": "",
       "resourceName": "luminaire_332_prozh"
     },
     {
       "category": "luminaire",
       "id": 333,
-      "description": "Уличный фонарь на столбе",
+      "description": "",
       "resourceName": "luminaire_333_stolb_fonar"
     },
     {
       "category": "luminaire",
       "id": 334,
-      "description": "Грунтовый встроенный",
+      "description": "",
       "resourceName": "luminaire_334_grunt_vstr"
     },
     {
       "category": "luminaire",
       "id": 335,
-      "description": "Грунтовый столбик",
+      "description": "",
       "resourceName": "luminaire_335_grunt_stolb"
     },
     {
       "category": "system",
       "id": 900,
-      "description": "Иконка AI (искусственный интеллект)",
+      "description": "",
       "resourceName": "system_900_ai"
     }
   ]
