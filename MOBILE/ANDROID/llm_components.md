@@ -1,5 +1,72 @@
 # UI Компоненты
 
+## Привязка токенов Pixso к компонентам
+
+### Процесс привязки токенов
+При создании компонента нужно использовать токены из Pixso вместо хардкода значений:
+
+**1. Получить токены из дизайна:**
+- Попросить пользователя указать токены для каждого элемента
+- Формат: `Color/Text/text_3_level`, `Synapse/Label/Label L`, `Radius/Radius_S`
+
+**2. Заменить хардкод на токены:**
+```kotlin
+// ❌ Плохо - хардкод значений
+fontSize = 16.sp
+lineHeight = 24.sp
+color = Color(0xFF5F5E5E)
+cornerRadius = 16.dp
+
+// ✅ Хорошо - использование токенов
+style = LabelLarge  // уже содержит fontSize + lineHeight
+color = PixsoColors.Color_Text_text_3_level
+cornerRadius = PixsoDimens.Radius_Radius_S
+```
+
+**3. Использовать готовые стили типографики:**
+- `BodyLarge`, `BodyMedium`, `BodySmall` - для основного текста
+- `LabelLarge`, `LabelMedium`, `LabelSmall` - для меток
+- `ButtonLarge`, `ButtonMedium`, `ButtonSmall` - для кнопок
+- `HeadlineSmall`, `HeadlineMedium`, `HeadlineLarge` - для заголовков
+
+**4. Токены для разных состояний:**
+```kotlin
+// Default состояние
+color = if (enabled) PixsoColors.Color_Text_text_1_level 
+       else PixsoColors.Color_State_on_disabled
+
+// Фон
+background = if (enabled) PixsoColors.Color_Bg_bg_surface 
+            else PixsoColors.Color_State_disabled
+```
+
+**Важно:** Если токен существует в Pixso - использовать его, а не хардкодить. При изменении дизайна всё обновится автоматически.
+
+## components/TextField.kt
+Текстовое поле ввода.
+```kotlin
+TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "",
+    placeholder: String = "",
+    enabled: Boolean = true
+)
+```
+**Токены Default:**
+- Label: `LabelLarge` + `Color_Text_text_3_level`
+- Текст: `BodyLarge` + `Color_Text_text_1_level`
+- Placeholder: `BodyLarge` + `Color_Text_text_4_level`
+- Фон: `Color_Bg_bg_surface`
+- Обводка: `Color_Border_border_shade_4` (1dp)
+- Скругление: `Radius_Radius_S` (16dp)
+
+**Токены Disabled:**
+- Label: `LabelLarge` + `Color_State_on_disabled`
+- Текст: `BodyLarge` + `Color_State_on_disabled`
+- Фон: `Color_State_disabled`
+- Обводка/скругление: те же
+
 ## components/Buttons.kt
 Кнопки различных типов для клавиатуры, PIN-кода и интерфейса.
 

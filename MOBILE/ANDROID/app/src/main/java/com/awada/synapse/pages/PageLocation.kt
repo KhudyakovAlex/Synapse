@@ -27,6 +27,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
+import com.awada.synapse.components.TextField
+import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.data.IconCatalogManager
@@ -51,6 +53,11 @@ fun PageLocation(
     var showTooltipOneButton by remember { mutableStateOf(false) }
     var showTooltipTwoButtons by remember { mutableStateOf(false) }
     var lastTooltipResult by remember { mutableStateOf<TooltipResult?>(null) }
+    
+    var textField1 by remember { mutableStateOf("") }
+    var textField2 by remember { mutableStateOf("") }
+    var textField3 by remember { mutableStateOf("") }
+    var textField4 by remember { mutableStateOf("") }
     
     val context = LocalContext.current
     val catalog = remember { IconCatalogManager.load(context) }
@@ -112,6 +119,57 @@ fun PageLocation(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // TextField examples
+                Text("TextField - Default")
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = textField1,
+                    onValueChange = { textField1 = it },
+                    label = "Label",
+                    placeholder = "Input",
+                    enabled = true
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text("TextField - Disabled")
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = textField2,
+                    onValueChange = { textField2 = it },
+                    label = "Label",
+                    placeholder = "Input",
+                    enabled = false
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text("TextFieldForList - Default")
+                Spacer(modifier = Modifier.height(8.dp))
+                TextFieldForList(
+                    value = textField3,
+                    onValueChange = { textField3 = it },
+                    icon = R.drawable.ic_chevron_down,
+                    label = "Label",
+                    placeholder = "Input",
+                    enabled = true
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text("TextFieldForList - Disabled")
+                Spacer(modifier = Modifier.height(8.dp))
+                TextFieldForList(
+                    value = textField4,
+                    onValueChange = { textField4 = it },
+                    icon = R.drawable.ic_chevron_down,
+                    label = "Label",
+                    placeholder = "Input",
+                    enabled = false
+                )
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(onClick = onPasswordClick) {
