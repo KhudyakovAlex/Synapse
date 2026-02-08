@@ -12,17 +12,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -36,13 +33,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.BodyMedium
 import com.awada.synapse.ui.theme.LabelLarge
@@ -70,13 +71,11 @@ fun TextFieldForList(
     dropdownItems: List<DropdownItem> = emptyList()
 ) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
-    var fieldPositionY by remember { mutableStateOf(0f) }
-    var fieldPositionX by remember { mutableStateOf(0f) }
     var fieldWidth by remember { mutableStateOf(0) }
-    var fieldHeight by remember { mutableStateOf(0) }
+    var fieldCenterY by remember { mutableStateOf(0) }
     val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenHeight = with(density) { configuration.screenHeightDp.dp.toPx() }
+    val view = LocalView.current
+    val screenHeight = view.rootView.height
     
     // Find text for current value
     val displayText = remember(value, dropdownItems) {
@@ -106,10 +105,11 @@ fun TextFieldForList(
                     .fillMaxWidth()
                     .height(PixsoDimens.Numeric_56)
                     .onGloballyPositioned { coordinates ->
-                        fieldPositionY = coordinates.positionInRoot().y
-                        fieldPositionX = coordinates.positionInRoot().x
                         fieldWidth = coordinates.size.width
-                        fieldHeight = coordinates.size.height
+                        val windowPos = IntArray(2)
+                        view.getLocationOnScreen(windowPos)
+                        fieldCenterY = coordinates.positionInRoot().y.toInt() + 
+                            windowPos[1] + coordinates.size.height / 2
                     }
                     .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
                     .background(
@@ -161,88 +161,64 @@ fun TextFieldForList(
                         )
                     }
                 }
-            }
-        }
-        
-        // Dropdown popup
+            
+            // Dropdown popup — anchored to the text field Box
         if (isDropdownExpanded && dropdownItems.isNotEmpty()) {
-            Popup(
-                onDismissRequest = { isDropdownExpanded = false }
-            ) {
-                // Background scrim to catch clicks outside
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(1001f)
-                        .clickable(
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            isDropdownExpanded = false
+            val gapPx = with(density) { PixsoDimens.Numeric_4.roundToPx() }
+            val showBelow = fieldCenterY < screenHeight / 2
+            
+            val positionProvider = remember(showBelow, gapPx) {
+                object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize
+                    ): IntOffset {
+                        val x = anchorBounds.left
+                        val y = if (showBelow) {
+                            anchorBounds.bottom + gapPx
+                        } else {
+                            anchorBounds.top - popupContentSize.height - gapPx
                         }
-                ) {
-                    val offsetPx = with(density) { PixsoDimens.Numeric_4.toPx() }
-                    
-                    // Determine if field is above or below middle of screen
-                    val fieldCenterY = fieldPositionY + (fieldHeight / 2)
-                    val showBelow = fieldCenterY < screenHeight / 2
-                    
-                    // Calculate available space and position
-                    val (dropdownY, maxHeight) = if (showBelow) {
-                        // Show below field
-                        val availableSpace = screenHeight - fieldPositionY - fieldHeight - offsetPx
-                        val yPos = fieldPositionY + fieldHeight + offsetPx
-                        Pair(yPos, with(density) { availableSpace.toDp() })
-                    } else {
-                        // Show above field
-                        val availableSpace = fieldPositionY - offsetPx
-                        val yPos = fieldPositionY - offsetPx - availableSpace
-                        Pair(yPos, with(density) { availableSpace.toDp() })
-                    }
-                    
-                    Box(
-                        modifier = Modifier
-                            .width(with(density) { fieldWidth.toDp() })
-                            .offset {
-                                IntOffset(
-                                    x = fieldPositionX.toInt(),
-                                    y = dropdownY.toInt()
-                                )
-                            }
-                            .heightIn(max = maxHeight)
-                            .clickable(
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                indication = null
-                            ) { /* Prevent click propagation */ }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
-                                .background(PixsoColors.Color_Bg_bg_surface)
-                                .border(
-                                    width = PixsoDimens.Stroke_S,
-                                    color = PixsoColors.Color_Border_border_shade_8,
-                                    shape = RoundedCornerShape(PixsoDimens.Radius_Radius_S)
-                                )
-                                .padding(vertical = PixsoDimens.Numeric_8)
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            dropdownItems.forEach { item ->
-                                DropdownMenuItem(
-                                    text = item.text,
-                                    onClick = {
-                                        onValueChange(item.id)
-                                        isDropdownExpanded = false
-                                    }
-                                )
-                            }
-                        }
+                        return IntOffset(x, y)
                     }
                 }
             }
-        }
-    }
+            
+            Popup(
+                popupPositionProvider = positionProvider,
+                onDismissRequest = { isDropdownExpanded = false },
+                properties = PopupProperties(focusable = true)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(with(density) { fieldWidth.toDp() })
+                        .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
+                        .background(PixsoColors.Color_Bg_bg_surface)
+                        .border(
+                            width = PixsoDimens.Stroke_S,
+                            color = PixsoColors.Color_Border_border_shade_8,
+                            shape = RoundedCornerShape(PixsoDimens.Radius_Radius_S)
+                        )
+                        .padding(vertical = PixsoDimens.Numeric_8)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    dropdownItems.forEach { item ->
+                        DropdownMenuItem(
+                            text = item.text,
+                            onClick = {
+                                onValueChange(item.id)
+                                isDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        } // end if dropdown
+            } // end text field Box
+        } // end Column
+    } // end outer Box
 }
 
 @Composable
