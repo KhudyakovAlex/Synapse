@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
+import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
@@ -56,8 +57,19 @@ fun PageLocation(
     
     var textField1 by remember { mutableStateOf("") }
     var textField2 by remember { mutableStateOf("") }
-    var textField3 by remember { mutableStateOf("") }
-    var textField4 by remember { mutableStateOf("") }
+    var dropdownField1 by remember { mutableStateOf<Int?>(null) }
+    var dropdownField2 by remember { mutableStateOf<Int?>(null) }
+    
+    // Example dropdown items
+    val dropdownItems = remember {
+        listOf(
+            DropdownItem(1, "Вариант 1"),
+            DropdownItem(2, "Вариант 2"),
+            DropdownItem(3, "Вариант 3"),
+            DropdownItem(4, "Вариант 4"),
+            DropdownItem(5, "Вариант 5")
+        )
+    }
     
     val context = LocalContext.current
     val catalog = remember { IconCatalogManager.load(context) }
@@ -128,7 +140,6 @@ fun PageLocation(
                     value = textField1,
                     onValueChange = { textField1 = it },
                     label = "Label",
-                    placeholder = "Input",
                     enabled = true
                 )
                 
@@ -140,7 +151,6 @@ fun PageLocation(
                     value = textField2,
                     onValueChange = { textField2 = it },
                     label = "Label",
-                    placeholder = "Input",
                     enabled = false
                 )
                 
@@ -149,12 +159,13 @@ fun PageLocation(
                 Text("TextFieldForList - Default")
                 Spacer(modifier = Modifier.height(8.dp))
                 TextFieldForList(
-                    value = textField3,
-                    onValueChange = { textField3 = it },
+                    value = dropdownField1,
+                    onValueChange = { dropdownField1 = it },
                     icon = R.drawable.ic_chevron_down,
-                    label = "Label",
-                    placeholder = "Input",
-                    enabled = true
+                    label = "Выберите вариант",
+                    placeholder = "Не выбрано",
+                    enabled = true,
+                    dropdownItems = dropdownItems
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -162,12 +173,13 @@ fun PageLocation(
                 Text("TextFieldForList - Disabled")
                 Spacer(modifier = Modifier.height(8.dp))
                 TextFieldForList(
-                    value = textField4,
-                    onValueChange = { textField4 = it },
+                    value = dropdownField2,
+                    onValueChange = { dropdownField2 = it },
                     icon = R.drawable.ic_chevron_down,
-                    label = "Label",
-                    placeholder = "Input",
-                    enabled = false
+                    label = "Выберите вариант",
+                    placeholder = "Не выбрано",
+                    enabled = false,
+                    dropdownItems = dropdownItems
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
