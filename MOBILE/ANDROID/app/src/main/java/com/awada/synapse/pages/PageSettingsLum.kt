@@ -58,10 +58,8 @@ fun PageSettingsLum(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = PixsoDimens.Numeric_16)
         ) {
-            
             // 1. Название светильника
             TextField(
                 value = "", // TODO: Bind to state
@@ -70,6 +68,8 @@ fun PageSettingsLum(
                 placeholder = "",
                 enabled = true
             )
+            
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
             // 2. Иконка
             Column(
@@ -87,6 +87,8 @@ fun PageSettingsLum(
                 )
             }
             
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            
             // 3. Помещение
             TextFieldForList(
                 value = null, // TODO: Bind to state
@@ -97,6 +99,8 @@ fun PageSettingsLum(
                 enabled = true,
                 dropdownItems = roomItems
             )
+            
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
             // 4. Группа
             TextFieldForList(
@@ -109,6 +113,8 @@ fun PageSettingsLum(
                 dropdownItems = groupItems
             )
             
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            
             // 5. Минимальная яркость
             TextField(
                 value = "", // TODO: Bind to state
@@ -117,6 +123,8 @@ fun PageSettingsLum(
                 placeholder = "",
                 enabled = true
             )
+            
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
             // 6. Максимальная яркость
             TextField(
@@ -127,6 +135,8 @@ fun PageSettingsLum(
                 enabled = true
             )
             
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            
             // 7. Время затухания
             TextField(
                 value = "", // TODO: Bind to state
@@ -136,10 +146,12 @@ fun PageSettingsLum(
                 enabled = true
             )
             
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+            
             // Bottom buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
             ) {
                 SecondaryButton(
                     text = "Отменить",
