@@ -56,9 +56,10 @@ fun PageContainer(
             .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)
 
         Column(modifier = contentModifier) {
+            Spacer(modifier = Modifier.height(16.dp))
             content()
             // Spacer to prevent AI panel from covering content
-            Spacer(modifier = Modifier.height(140.dp))
+            Spacer(modifier = Modifier.height(180.dp))
         }
     }
 }
