@@ -83,9 +83,12 @@ fun BaseSlider(
     minValue: Float = 0f,
     maxValue: Float = 100f,
     showValue: Boolean = true,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    valueFormatter: ((Float) -> String)? = null
 ) {
-    val valueText = if (showValue) "${value.toInt()} %" else ""
+    val valueText = if (showValue) {
+        valueFormatter?.invoke(value) ?: "${value.toInt()} %"
+    } else ""
     val trackHeight = 16.dp
     val thumbRadius = 16.dp
     val sliderHeight = 44.dp
@@ -252,4 +255,162 @@ fun BaseSlider(
             )
         }
     }
+}
+
+/**
+ * Color slider with spectrum gradient (0-100%)
+ */
+@Composable
+fun ColorSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val spectrumGradient = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFFFF0000),  // красный
+            Color(0xFFFF7F00),  // оранжевый
+            Color(0xFFFFFF00),  // жёлтый
+            Color(0xFF00FF00),  // зелёный
+            Color(0xFF00FFFF),  // голубой
+            Color(0xFF0000FF),  // синий
+            Color(0xFF8B00FF),  // фиолетовый
+            Color(0xFFFF0000)   // красный
+        )
+    )
+    
+    val spectrumColors = listOf(
+        Color(0xFFFF0000),
+        Color(0xFFFF7F00),
+        Color(0xFFFFFF00),
+        Color(0xFF00FF00),
+        Color(0xFF00FFFF),
+        Color(0xFF0000FF),
+        Color(0xFF8B00FF),
+        Color(0xFFFF0000)
+    )
+    
+    BaseSlider(
+        value = value,
+        onValueChange = onValueChange,
+        thumbColor = Color(0xFF6BBECF),
+        activeTrackColor = Color(0xFFF2FCFF),
+        trackMode = TrackMode.Gradient(
+            brush = spectrumGradient,
+            colors = spectrumColors
+        ),
+        icon = com.awada.synapse.R.drawable.system_color,
+        label = "Цвет",
+        minValue = 0f,
+        maxValue = 100f,
+        showValue = true,
+        enabled = enabled,
+        valueFormatter = { "${it.toInt()}" },
+        modifier = modifier
+    )
+}
+
+/**
+ * Saturation slider with dynamic gradient (0-100%)
+ * Gradient changes from gray to the provided color
+ */
+@Composable
+fun SaturationSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    dynamicColor: Color,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    BaseSlider(
+        value = value,
+        onValueChange = onValueChange,
+        thumbColor = Color(0xFF6BBECF),
+        activeTrackColor = Color(0xFFF2FCFF),
+        trackMode = TrackMode.DynamicGradient(
+            staticColor = Color(0xFF9F9F9F),
+            dynamicColor = dynamicColor
+        ),
+        icon = com.awada.synapse.R.drawable.system_hue,
+        label = "Насыщенность",
+        minValue = 0f,
+        maxValue = 100f,
+        showValue = true,
+        enabled = enabled,
+        modifier = modifier
+    )
+}
+
+/**
+ * Temperature slider with warm-cool gradient (3000K-5000K)
+ */
+@Composable
+fun TemperatureSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val temperatureGradient = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFFFFC47B),  // warm
+            Color(0xFFFFFFFF),  // white
+            Color(0xFF92E4FF)   // cool
+        )
+    )
+    
+    val temperatureColors = listOf(
+        Color(0xFFFFC47B),
+        Color(0xFFFFFFFF),
+        Color(0xFF92E4FF)
+    )
+    
+    BaseSlider(
+        value = value,
+        onValueChange = onValueChange,
+        thumbColor = Color(0xFF6BBECF),
+        activeTrackColor = Color(0xFFF2FCFF),
+        trackMode = TrackMode.Gradient(
+            brush = temperatureGradient,
+            colors = temperatureColors
+        ),
+        icon = com.awada.synapse.R.drawable.system_thermometer,
+        label = "Температура",
+        minValue = 3000f,
+        maxValue = 5000f,
+        showValue = true,
+        enabled = enabled,
+        valueFormatter = { "${it.toInt()} K" },
+        modifier = modifier
+    )
+}
+
+/**
+ * Brightness slider with dual color track (0-100%)
+ */
+@Composable
+fun BrightnessSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    BaseSlider(
+        value = value,
+        onValueChange = onValueChange,
+        thumbColor = Color(0xFF6BBECF),
+        activeTrackColor = Color(0xFFF2FCFF),
+        trackMode = TrackMode.DualColor(
+            leftColor = Color(0xFFF2FDFF),
+            rightColor = Color(0xFF414C4F)
+        ),
+        icon = com.awada.synapse.R.drawable.system_brightness,
+        label = "Яркость",
+        minValue = 0f,
+        maxValue = 100f,
+        showValue = true,
+        enabled = enabled,
+        modifier = modifier
+    )
 }
