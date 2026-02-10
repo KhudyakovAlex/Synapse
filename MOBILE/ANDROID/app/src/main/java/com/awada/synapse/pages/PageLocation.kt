@@ -24,6 +24,7 @@ import com.awada.synapse.components.ColorSlider
 import com.awada.synapse.components.SaturationSlider
 import com.awada.synapse.components.TemperatureSlider
 import com.awada.synapse.components.BrightnessSlider
+import com.awada.synapse.components.QuickButtonsRow
 
 /**
  * Predefined gradients for slider tracks
@@ -126,9 +127,14 @@ fun PageLocation(
                         value = brightnessValue,
                         onValueChange = setBrightnessValue
                     )
+                    
+                    QuickButtonsRow(
+                        onButtonSelected = { button ->
+                            // Handle button selection
+                        }
+                    )
                 }
             }
-            
             Button(
                 onClick = onSettingsLumClick,
                 modifier = Modifier.fillMaxWidth()
