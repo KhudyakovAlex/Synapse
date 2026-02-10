@@ -41,6 +41,7 @@ import com.awada.synapse.ui.theme.LabelLarge
 sealed class TrackMode {
     data class Gradient(val brush: Brush, val colors: List<Color>) : TrackMode()
     data class DualColor(val leftColor: Color, val rightColor: Color) : TrackMode()
+    data class DynamicGradient(val staticColor: Color, val dynamicColor: Color) : TrackMode()
 }
 
 /**
@@ -207,6 +208,20 @@ fun BaseSlider(
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(trackHeightPx / 2)
                     )
                 }
+                is TrackMode.DynamicGradient -> {
+                    // Draw gradient from static to dynamic color
+                    val dynamicGradientBrush = Brush.linearGradient(
+                        colors = listOf(trackMode.staticColor, trackMode.dynamicColor),
+                        start = Offset(0f, trackCenterY),
+                        end = Offset(canvasWidth, trackCenterY)
+                    )
+                    drawRoundRect(
+                        brush = dynamicGradientBrush,
+                        topLeft = Offset(0f, trackCenterY - trackHeightPx / 2),
+                        size = Size(canvasWidth, trackHeightPx),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(trackHeightPx / 2)
+                    )
+                }
             }
 
             // Calculate thumb color based on track mode
@@ -214,6 +229,10 @@ fun BaseSlider(
                 !enabled -> Color(0xFFACAAAA)
                 trackMode is TrackMode.Gradient -> interpolateColor(trackMode.colors, normalizedValue)
                 trackMode is TrackMode.DualColor -> trackMode.leftColor
+                trackMode is TrackMode.DynamicGradient -> interpolateColor(
+                    listOf(trackMode.staticColor, trackMode.dynamicColor),
+                    normalizedValue
+                )
                 else -> thumbColor
             }
 

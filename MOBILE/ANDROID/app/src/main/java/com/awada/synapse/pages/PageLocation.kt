@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import com.awada.synapse.R
 import com.awada.synapse.components.TrackMode
+import com.awada.synapse.components.interpolateColor
 
 /**
  * Predefined gradients for slider tracks
@@ -29,6 +30,19 @@ object SliderGradients {
             Color(0xFFFFC47B),  // warm
             Color(0xFFFFFFFF),  // white
             Color(0xFF92E4FF)   // cool
+        )
+    )
+    
+    val spectrumGradient = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFFFF0000),  // красный
+            Color(0xFFFF7F00),  // оранжевый
+            Color(0xFFFFFF00),  // жёлтый
+            Color(0xFF00FF00),  // зелёный
+            Color(0xFF00FFFF),  // голубой
+            Color(0xFF0000FF),  // синий
+            Color(0xFF8B00FF),  // фиолетовый
+            Color(0xFFFF0000)   // красный
         )
     )
 }
@@ -108,10 +122,112 @@ fun PageLocation(
                     activeTrackColor = Color(0xFFF2FCFF),
                     trackMode = TrackMode.DualColor(
                         leftColor = Color(0xFFF2FDFF),  // Color_State_on_tertiary
-                        rightColor = Color(0xFF9F9F9F)
+                        rightColor = Color(0xFF414C4F)
                     ),
                     icon = R.drawable.ic_settings,
                     label = "Двухцветный",
+                    showValue = true
+                )
+            }
+            
+            // Test BaseSlider with Spectrum Gradient
+            val (sliderValue3, setSliderValue3) = remember { mutableStateOf(70f) }
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFF1B1C1C),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                BaseSlider(
+                    value = sliderValue3,
+                    onValueChange = setSliderValue3,
+                    thumbColor = Color(0xFF6BBECF),
+                    activeTrackColor = Color(0xFFF2FCFF),
+                    trackMode = TrackMode.Gradient(
+                        brush = SliderGradients.spectrumGradient,
+                        colors = listOf(
+                            Color(0xFFFF0000),
+                            Color(0xFFFF7F00),
+                            Color(0xFFFFFF00),
+                            Color(0xFF00FF00),
+                            Color(0xFF00FFFF),
+                            Color(0xFF0000FF),
+                            Color(0xFF8B00FF),
+                            Color(0xFFFF0000)
+                        )
+                    ),
+                    icon = R.drawable.ic_settings,
+                    label = "Спектр",
+                    showValue = true
+                )
+            }
+            
+            // Dynamic Gradient Sliders - linked
+            val (hueValue, setHueValue) = remember { mutableStateOf(50f) }
+            val spectrumColors = listOf(
+                Color(0xFFFF0000),
+                Color(0xFFFF7F00),
+                Color(0xFFFFFF00),
+                Color(0xFF00FF00),
+                Color(0xFF00FFFF),
+                Color(0xFF0000FF),
+                Color(0xFF8B00FF),
+                Color(0xFFFF0000)
+            )
+            val currentHueColor = interpolateColor(spectrumColors, hueValue / 100f)
+            
+            val (saturationValue, setSaturationValue) = remember { mutableStateOf(50f) }
+            
+            // Hue slider (spectrum)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFF1B1C1C),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                BaseSlider(
+                    value = hueValue,
+                    onValueChange = setHueValue,
+                    thumbColor = Color(0xFF6BBECF),
+                    activeTrackColor = Color(0xFFF2FCFF),
+                    trackMode = TrackMode.Gradient(
+                        brush = SliderGradients.spectrumGradient,
+                        colors = spectrumColors
+                    ),
+                    icon = R.drawable.ic_settings,
+                    label = "Оттенок",
+                    showValue = true
+                )
+            }
+            
+            // Saturation slider (dynamic gradient based on hue)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFF1B1C1C),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                BaseSlider(
+                    value = saturationValue,
+                    onValueChange = setSaturationValue,
+                    thumbColor = Color(0xFF6BBECF),
+                    activeTrackColor = Color(0xFFF2FCFF),
+                    trackMode = TrackMode.DynamicGradient(
+                        staticColor = Color(0xFF9F9F9F),
+                        dynamicColor = currentHueColor
+                    ),
+                    icon = R.drawable.ic_settings,
+                    label = "Насыщенность",
                     showValue = true
                 )
             }
