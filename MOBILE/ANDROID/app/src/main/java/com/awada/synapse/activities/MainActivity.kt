@@ -166,17 +166,13 @@ private fun MainContent() {
         
         // Lighting control layer - between pages and AI
         // Positioned above AI component with proper padding
-        Box(
+        LumControlLayer(
+            isVisible = isLumControlVisible,
+            sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
             modifier = Modifier
-                .fillMaxSize()
-                .align(androidx.compose.ui.Alignment.BottomCenter),
-            contentAlignment = androidx.compose.ui.Alignment.BottomCenter
-        ) {
-            LumControlLayer(
-                isVisible = isLumControlVisible,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+                .align(androidx.compose.ui.Alignment.BottomCenter)
+                .fillMaxWidth()
+        )
         
         AI(modifier = Modifier.fillMaxSize())
     }

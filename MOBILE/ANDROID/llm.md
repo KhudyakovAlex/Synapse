@@ -20,6 +20,9 @@
 ### [Навигация и Экраны](llm_navigation.md)
 Экраны приложения (PageLocation, PageSettings, PagePassword), навигация через AnimatedContent, MainActivity setup.
 
+### [LumControl Layer](llm_lumcontrol.md)
+Компонент управления освещением между слоем страниц и AI. Раздвигаемый контейнер с ручкой, слайдеры и кнопки сцен.
+
 ### [Pixso Workflow](llm_pixso_workflow.md)
 Работа с дизайном: получение структуры (getNodeDSL), семантические токены, экспорт иконок.
 
