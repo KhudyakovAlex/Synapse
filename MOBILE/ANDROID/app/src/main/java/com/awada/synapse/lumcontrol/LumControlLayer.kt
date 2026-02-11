@@ -1,13 +1,20 @@
 package com.awada.synapse.lumcontrol
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +32,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+
+private const val LUM_PANEL_ANIM_MS = 550
+private val LUM_PANEL_EASING = CubicBezierEasing(0.2f, 0f, 0f, 1f) // match AI snap easing
 
 /**
  * LumControl Layer - lighting control component
@@ -48,8 +58,14 @@ fun LumControlLayer(
     
     AnimatedVisibility(
         visible = isVisible,
-        enter = slideInVertically(initialOffsetY = { it }),
-        exit = slideOutVertically(targetOffsetY = { it }),
+        enter = slideInVertically(
+            initialOffsetY = { it },
+            animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)
+        ) + fadeIn(animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)),
+        exit = slideOutVertically(
+            targetOffsetY = { it },
+            animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)
+        ) + fadeOut(animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)),
         modifier = modifier
     ) {
         Box(
@@ -73,42 +89,54 @@ fun LumControlLayer(
                         color = PixsoColors.Color_State_tertiary_variant
                     )
                     .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.Top
             ) {
-                // Sliders section (visible only when expanded)
-                if (isExpanded && sliders.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        sliders.forEach { sliderType ->
-                            when (sliderType) {
-                                "Color" -> ColorSlider(
-                                    value = 0f,
-                                    onValueChange = { /* TODO */ }
-                                )
-                                "Saturation" -> SaturationSlider(
-                                    value = 50f,
-                                    onValueChange = { /* TODO */ },
-                                    dynamicColor = androidx.compose.ui.graphics.Color(0xFFFF1A1A) // TODO: Get from current color
-                                )
-                                "Temperature" -> TemperatureSlider(
-                                    value = 4000f,
-                                    onValueChange = { /* TODO */ }
-                                )
-                                "Brightness" -> BrightnessSlider(
-                                    value = 50f,
-                                    onValueChange = { /* TODO */ }
-                                )
+                // Sliders section (animated expand/collapse)
+                AnimatedVisibility(
+                    visible = isExpanded && sliders.isNotEmpty(),
+                    enter = expandVertically(
+                        animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 200)),
+                    exit = shrinkVertically(
+                        animationSpec = tween(durationMillis = LUM_PANEL_ANIM_MS, easing = LUM_PANEL_EASING)
+                    ) + fadeOut(animationSpec = tween(durationMillis = 150))
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            sliders.forEach { sliderType ->
+                                when (sliderType) {
+                                    "Color" -> ColorSlider(
+                                        value = 0f,
+                                        onValueChange = { /* TODO */ }
+                                    )
+                                    "Saturation" -> SaturationSlider(
+                                        value = 50f,
+                                        onValueChange = { /* TODO */ },
+                                        dynamicColor = androidx.compose.ui.graphics.Color(0xFFFF1A1A) // TODO: Get from current color
+                                    )
+                                    "Temperature" -> TemperatureSlider(
+                                        value = 4000f,
+                                        onValueChange = { /* TODO */ }
+                                    )
+                                    "Brightness" -> BrightnessSlider(
+                                        value = 50f,
+                                        onValueChange = { /* TODO */ }
+                                    )
+                                }
                             }
                         }
+                        // Gap to quick buttons should animate too (prevents 12dp "jump")
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
                 
                 // Quick buttons (always visible)
                 QuickButtonsRow(
                     buttons = defaultQuickButtons,
-                    onButtonSelected = { button ->
+                    onButtonSelected = { _ ->
                         // TODO: Handle button selection
                     }
                 )
