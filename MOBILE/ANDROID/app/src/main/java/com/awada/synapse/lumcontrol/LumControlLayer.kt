@@ -70,10 +70,9 @@ fun LumControlLayer(
                     .padding(horizontal = 13.dp)
                     .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_L))
                     .background(
-                        color = PixsoColors.Color_State_tertiary_variant,
-                        shape = RoundedCornerShape(PixsoDimens.Radius_Radius_L)
+                        color = PixsoColors.Color_State_tertiary_variant
                     )
-                    .padding(12.dp)
+                    .padding(18.dp)
             ) {
                 // Sliders section (visible only when expanded)
                 if (isExpanded && sliders.isNotEmpty()) {
@@ -165,7 +164,7 @@ private fun DragHandle(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 12.dp)
+                .padding(top = 10.dp)
                 .width(40.dp)
                 .height(4.dp)
                 .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_Full))
