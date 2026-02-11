@@ -14,17 +14,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.awada.synapse.components.BaseSlider
+import com.awada.synapse.lumcontrol.BaseSlider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import com.awada.synapse.R
-import com.awada.synapse.components.TrackMode
-import com.awada.synapse.components.interpolateColor
-import com.awada.synapse.components.ColorSlider
-import com.awada.synapse.components.SaturationSlider
-import com.awada.synapse.components.TemperatureSlider
-import com.awada.synapse.components.BrightnessSlider
-import com.awada.synapse.components.QuickButtonsRow
+import com.awada.synapse.lumcontrol.TrackMode
+import com.awada.synapse.lumcontrol.interpolateColor
+import com.awada.synapse.lumcontrol.ColorSlider
+import com.awada.synapse.lumcontrol.SaturationSlider
+import com.awada.synapse.lumcontrol.TemperatureSlider
+import com.awada.synapse.lumcontrol.BrightnessSlider
+import com.awada.synapse.lumcontrol.QuickButtonsRow
 import com.awada.synapse.ui.theme.PixsoColors
 
 /**
@@ -130,7 +130,7 @@ fun PageLocation(
                     )
                     
                     QuickButtonsRow(
-                        onButtonSelected = { button ->
+                        onButtonSelected = { _ ->
                             // Handle button selection
                         }
                     )

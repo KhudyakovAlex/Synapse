@@ -1,4 +1,4 @@
-package com.awada.synapse.components
+package com.awada.synapse.lumcontrol
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
