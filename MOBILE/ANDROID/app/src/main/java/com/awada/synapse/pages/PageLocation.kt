@@ -25,33 +25,8 @@ import com.awada.synapse.lumcontrol.SaturationSlider
 import com.awada.synapse.lumcontrol.TemperatureSlider
 import com.awada.synapse.lumcontrol.BrightnessSlider
 import com.awada.synapse.lumcontrol.QuickButtonsRow
+import com.awada.synapse.lumcontrol.colorSpectrumColors
 import com.awada.synapse.ui.theme.PixsoColors
-
-/**
- * Predefined gradients for slider tracks
- */
-object SliderGradients {
-    val temperatureGradient = Brush.linearGradient(
-        colors = listOf(
-            Color(0xFFFFC47B),  // warm
-            Color(0xFFFFFFFF),  // white
-            Color(0xFF92E4FF)   // cool
-        )
-    )
-    
-    val spectrumGradient = Brush.linearGradient(
-        colors = listOf(
-            Color(0xFFFF0000),  // красный
-            Color(0xFFFF7F00),  // оранжевый
-            Color(0xFFFFFF00),  // жёлтый
-            Color(0xFF00FF00),  // зелёный
-            Color(0xFF00FFFF),  // голубой
-            Color(0xFF0000FF),  // синий
-            Color(0xFF8B00FF),  // фиолетовый
-            Color(0xFFFF0000)   // красный
-        )
-    )
-}
 
 /**
  * Initial page for Locations.
@@ -84,16 +59,6 @@ fun PageLocation(
             val (temperatureValue, setTemperatureValue) = remember { mutableStateOf(4000f) }
             val (brightnessValue, setBrightnessValue) = remember { mutableStateOf(50f) }
             
-            val colorSpectrumColors = listOf(
-                Color(0xFFFF1A1A),
-                Color(0xFFFFA719),
-                Color(0xFFFFFF4D),
-                Color(0xFF4DFF4D),
-                Color(0xFF4DFFFF),
-                Color(0xFF4D4DFF),
-                Color(0xFFC04DFF),
-                Color(0xFFFF1A1A)
-            )
             val currentColor = interpolateColor(colorSpectrumColors, colorValue / 100f)
             
             Box(

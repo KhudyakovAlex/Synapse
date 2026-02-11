@@ -410,3 +410,16 @@ fun BrightnessSlider(
         modifier = modifier
     )
 }
+
+// ===== COLOR SPECTRUM CONSTANTS =====
+
+val colorSpectrumColors = listOf(
+    Color(0xFFFF1A1A),
+    Color(0xFFFFA719),
+    Color(0xFFFFFF4D),
+    Color(0xFF4DFF4D),
+    Color(0xFF4DFFFF),
+    Color(0xFF4D4DFF),
+    Color(0xFFC04DFF),
+    Color(0xFFFF1A1A)
+)
