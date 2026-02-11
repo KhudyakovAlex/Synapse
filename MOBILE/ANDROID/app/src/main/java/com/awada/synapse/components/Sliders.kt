@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.min
 import com.awada.synapse.ui.theme.LabelLarge
+import com.awada.synapse.ui.theme.PixsoColors
 
 /**
  * Track rendering mode for sliders
@@ -75,7 +76,6 @@ fun BaseSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     thumbColor: Color,
-    activeTrackColor: Color,
     trackMode: TrackMode,
     modifier: Modifier = Modifier,
     label: String = "",
@@ -246,9 +246,9 @@ fun BaseSlider(
                 center = Offset(thumbX, thumbY)
             )
 
-            // Draw thumb stroke (black border)
+            // Draw thumb stroke
             drawCircle(
-                color = Color.Black,
+                color = PixsoColors.Color_State_tertiary_variant,
                 radius = thumbRadiusPx,
                 center = Offset(thumbX, thumbY),
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4.dp.toPx())
@@ -269,33 +269,32 @@ fun ColorSlider(
 ) {
     val spectrumGradient = Brush.linearGradient(
         colors = listOf(
-            Color(0xFFFF0000),  // красный
-            Color(0xFFFF7F00),  // оранжевый
-            Color(0xFFFFFF00),  // жёлтый
-            Color(0xFF00FF00),  // зелёный
-            Color(0xFF00FFFF),  // голубой
-            Color(0xFF0000FF),  // синий
-            Color(0xFF8B00FF),  // фиолетовый
-            Color(0xFFFF0000)   // красный
+            Color(0xFFFF1A1A),  // красный светлее
+            Color(0xFFFFA719),  // оранжевый светлее
+            Color(0xFFFFFF4D),  // жёлтый светлее
+            Color(0xFF4DFF4D),  // зелёный светлее
+            Color(0xFF4DFFFF),  // голубой светлее
+            Color(0xFF4D4DFF),  // синий светлее
+            Color(0xFFC04DFF),  // фиолетовый светлее
+            Color(0xFFFF1A1A)   // красный светлее
         )
     )
     
     val spectrumColors = listOf(
-        Color(0xFFFF0000),
-        Color(0xFFFF7F00),
-        Color(0xFFFFFF00),
-        Color(0xFF00FF00),
-        Color(0xFF00FFFF),
-        Color(0xFF0000FF),
-        Color(0xFF8B00FF),
-        Color(0xFFFF0000)
+        Color(0xFFFF1A1A),
+        Color(0xFFFFA719),
+        Color(0xFFFFFF4D),
+        Color(0xFF4DFF4D),
+        Color(0xFF4DFFFF),
+        Color(0xFF4D4DFF),
+        Color(0xFFC04DFF),
+        Color(0xFFFF1A1A)
     )
     
     BaseSlider(
         value = value,
         onValueChange = onValueChange,
         thumbColor = Color(0xFF6BBECF),
-        activeTrackColor = Color(0xFFF2FCFF),
         trackMode = TrackMode.Gradient(
             brush = spectrumGradient,
             colors = spectrumColors
@@ -327,9 +326,8 @@ fun SaturationSlider(
         value = value,
         onValueChange = onValueChange,
         thumbColor = Color(0xFF6BBECF),
-        activeTrackColor = Color(0xFFF2FCFF),
         trackMode = TrackMode.DynamicGradient(
-            staticColor = Color(0xFF9F9F9F),
+            staticColor = Color(0xFFB9B9B9),
             dynamicColor = dynamicColor
         ),
         icon = com.awada.synapse.R.drawable.system_hue,
@@ -370,7 +368,6 @@ fun TemperatureSlider(
         value = value,
         onValueChange = onValueChange,
         thumbColor = Color(0xFF6BBECF),
-        activeTrackColor = Color(0xFFF2FCFF),
         trackMode = TrackMode.Gradient(
             brush = temperatureGradient,
             colors = temperatureColors
@@ -400,7 +397,6 @@ fun BrightnessSlider(
         value = value,
         onValueChange = onValueChange,
         thumbColor = Color(0xFF6BBECF),
-        activeTrackColor = Color(0xFFF2FCFF),
         trackMode = TrackMode.DualColor(
             leftColor = Color(0xFFF2FDFF),
             rightColor = Color(0xFF414C4F)

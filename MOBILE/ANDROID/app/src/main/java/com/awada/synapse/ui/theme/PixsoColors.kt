@@ -98,12 +98,14 @@ object PixsoColors {
     val Color_Bg_bg_subtle = Color_Neutral_Neutral_98
     val Color_Bg_bg_surface = Color_Neutral_Neutral_100
     val Color_Bg_error_bg = Color_Error_Error_95
-    val Color_Bg_scrim = Color_Transparent_Tint_neutral_64
+    val Color_Bg_bg_shade = Color_Transparent_Tint_neutral_16
+    val Color_Bg_scrim = Color_Transparent_Tint_neutral_40
     val Color_Border_border_error = Color_Error_Error_40
     val Color_Border_border_focus = Color_Primary_Primary_70
     val Color_Border_border_primary = Color_Transparent_Tint_color_24
     val Color_Border_border_shade_16 = Color_Transparent_Tint_neutral_16
     val Color_Border_border_shade_4 = Color_Transparent_Tint_neutral_4
+    val Color_Border_border_Light = Color_Primary_Primary_100
     val Color_Border_border_shade_8 = Color_Transparent_Tint_neutral_8
     val Color_State_disabled = Color_Neutral_Neutral_90
     val Color_State_on_disabled = Color_Neutral_Neutral_70
@@ -118,6 +120,7 @@ object PixsoColors {
     val Color_State_secondary = Color_Secondary_Secondary_98
     val Color_State_secondary_pressed = Color_Secondary_Secondary_95
     val Color_State_tertiary = Color_Secondary_Secondary_30
+    val Color_State_tertiary_variant = Color_Secondary_Secondary_40
     val Color_Text_text_1_level = Color_Primary_Primary_5
     val Color_Text_text_2_level = Color_Secondary_Secondary_20
     val Color_Text_text_3_level = Color_Neutral_Neutral_40

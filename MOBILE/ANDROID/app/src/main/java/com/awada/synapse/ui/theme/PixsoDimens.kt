@@ -1,4 +1,4 @@
-﻿package com.awada.synapse.ui.theme
+package com.awada.synapse.ui.theme
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,5 +95,6 @@ object PixsoDimens {
     val Radius_Radius_None = Numeric_0
     val Radius_Radius_S = Numeric_16
     val Stroke_L = Numeric_12
+    val Stroke_M = Numeric_4
     val Stroke_S = Numeric_1
 }

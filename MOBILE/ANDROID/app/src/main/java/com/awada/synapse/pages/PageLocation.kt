@@ -25,6 +25,7 @@ import com.awada.synapse.components.SaturationSlider
 import com.awada.synapse.components.TemperatureSlider
 import com.awada.synapse.components.BrightnessSlider
 import com.awada.synapse.components.QuickButtonsRow
+import com.awada.synapse.ui.theme.PixsoColors
 
 /**
  * Predefined gradients for slider tracks
@@ -84,14 +85,14 @@ fun PageLocation(
             val (brightnessValue, setBrightnessValue) = remember { mutableStateOf(50f) }
             
             val colorSpectrumColors = listOf(
-                Color(0xFFFF0000),
-                Color(0xFFFF7F00),
-                Color(0xFFFFFF00),
-                Color(0xFF00FF00),
-                Color(0xFF00FFFF),
-                Color(0xFF0000FF),
-                Color(0xFF8B00FF),
-                Color(0xFFFF0000)
+                Color(0xFFFF1A1A),
+                Color(0xFFFFA719),
+                Color(0xFFFFFF4D),
+                Color(0xFF4DFF4D),
+                Color(0xFF4DFFFF),
+                Color(0xFF4D4DFF),
+                Color(0xFFC04DFF),
+                Color(0xFFFF1A1A)
             )
             val currentColor = interpolateColor(colorSpectrumColors, colorValue / 100f)
             
@@ -99,7 +100,7 @@ fun PageLocation(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = Color(0xFF1B1C1C),
+                        color = PixsoColors.Color_State_tertiary_variant,
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(16.dp)

@@ -114,10 +114,10 @@
     "11:1":  {
                  "pixsoName":  "Color/Bg/scrim",
                  "kotlinName":  "Color_Bg_scrim",
-                 "refId":  "2:192",
+                 "refId":  "2:188",
                  "type":  "color",
                  "isAlias":  true,
-                 "refName":  "Color/Transparent/Tint_neutral_64"
+                 "refName":  "Color/Transparent/Tint_neutral_40"
              },
     "2:115":  {
                   "pixsoName":  "Numeric/48",
@@ -1614,5 +1614,37 @@
                 "type":  "number",
                 "isAlias":  false,
                 "kotlinName":  "Border_width_border_width_1"
+            },
+    "123:1627":  {
+                "pixsoName":  "Color/State/tertiary_variant",
+                "kotlinName":  "Color_State_tertiary_variant",
+                "refId":  "2:32",
+                "type":  "color",
+                "isAlias":  true,
+                "refName":  "Color/Secondary/Secondary_40"
+            },
+    "126:1676":  {
+                "pixsoName":  "Color/Bg/bg_shade",
+                "kotlinName":  "Color_Bg_bg_shade",
+                "refId":  "2:190",
+                "type":  "color",
+                "isAlias":  true,
+                "refName":  "Color/Transparent/Tint_neutral_16"
+            },
+    "88:80":  {
+                "pixsoName":  "Stroke/M",
+                "kotlinName":  "Stroke_M",
+                "refId":  "2:105",
+                "type":  "number",
+                "isAlias":  true,
+                "refName":  "Numeric/4"
+            },
+    "125:1134":  {
+                "pixsoName":  "Color/Border/border_Light",
+                "kotlinName":  "Color_Border_border_Light",
+                "refId":  "2:5",
+                "type":  "color",
+                "isAlias":  true,
+                "refName":  "Color/Primary/Primary_100"
             }
 }
