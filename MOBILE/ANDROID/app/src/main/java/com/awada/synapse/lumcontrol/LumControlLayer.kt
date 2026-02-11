@@ -72,7 +72,8 @@ fun LumControlLayer(
                     .background(
                         color = PixsoColors.Color_State_tertiary_variant
                     )
-                    .padding(18.dp)
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Sliders section (visible only when expanded)
                 if (isExpanded && sliders.isNotEmpty()) {
