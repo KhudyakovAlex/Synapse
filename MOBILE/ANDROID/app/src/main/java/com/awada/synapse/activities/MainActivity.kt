@@ -15,6 +15,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ai.AI
+import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSettings
@@ -70,6 +72,7 @@ private fun MainContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.Location) }
     val context = LocalContext.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
+    var isLumControlVisible by remember { mutableStateOf(true) }
 
     // Handle system back button
     BackHandler {
@@ -159,6 +162,20 @@ private fun MainContent() {
                     )
                 }
             }
+        }
+        
+        // Lighting control layer - between pages and AI
+        // Positioned above AI component with proper padding
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .align(androidx.compose.ui.Alignment.BottomCenter),
+            contentAlignment = androidx.compose.ui.Alignment.BottomCenter
+        ) {
+            LumControlLayer(
+                isVisible = isLumControlVisible,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         
         AI(modifier = Modifier.fillMaxSize())
