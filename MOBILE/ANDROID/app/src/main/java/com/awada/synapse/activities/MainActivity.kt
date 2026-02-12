@@ -33,6 +33,7 @@ import com.awada.synapse.ai.AI
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
+import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSettings
 import com.awada.synapse.pages.PageSettingsLum
 import com.awada.synapse.pages.PageSettingsSensorPress
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
 
 enum class AppScreen {
     Location,
+    Search,
     Settings,
     SettingsLum,
     SettingsSensorPress,
@@ -77,7 +79,7 @@ private fun MainContent() {
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress, 
+            AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
             AppScreen.SettingsSensorBright, AppScreen.Password -> {
                 // If on any settings page or Password, go back to Location
                 currentScreen = AppScreen.Location
@@ -100,10 +102,8 @@ private fun MainContent() {
         AnimatedContent(
             targetState = currentScreen,
             transitionSpec = {
-                if (targetState == AppScreen.Settings || targetState == AppScreen.SettingsLum || 
-                    targetState == AppScreen.SettingsSensorPress || targetState == AppScreen.SettingsSensorBright ||
-                    targetState == AppScreen.Password) {
-                    // Slide in from right when going to settings or password
+                if (targetState != AppScreen.Location) {
+                    // Slide in from right when going away from locations
                     (slideInHorizontally { it } + fadeIn()).togetherWith(
                         slideOutHorizontally { -it / 3 } + fadeOut()
                     )
@@ -120,9 +120,13 @@ private fun MainContent() {
                 AppScreen.Location -> {
                     PageLocation(
                         onSettingsClick = { currentScreen = AppScreen.Settings },
-                        onSettingsLumClick = { currentScreen = AppScreen.SettingsLum },
-                        onSettingsSensorPressClick = { currentScreen = AppScreen.SettingsSensorPress },
-                        onSettingsSensorBrightClick = { currentScreen = AppScreen.SettingsSensorBright },
+                        onSearchClick = { currentScreen = AppScreen.Search },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                AppScreen.Search -> {
+                    PageSearch(
+                        onBackClick = { currentScreen = AppScreen.Location },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

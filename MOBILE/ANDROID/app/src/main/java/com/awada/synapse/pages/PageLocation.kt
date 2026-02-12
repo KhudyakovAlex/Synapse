@@ -17,9 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PageLocation(
     onSettingsClick: () -> Unit,
-    onSettingsLumClick: () -> Unit,
-    onSettingsSensorPressClick: () -> Unit,
-    onSettingsSensorBrightClick: () -> Unit,
+    onSearchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -36,24 +34,10 @@ fun PageLocation(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
-                onClick = onSettingsLumClick,
+                onClick = onSearchClick,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Настройки светильника")
-            }
-
-            Button(
-                onClick = onSettingsSensorPressClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Настройки датчика нажатия")
-            }
-
-            Button(
-                onClick = onSettingsSensorBrightClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Настройки датчика яркости")
+                Text("Поиск")
             }
         }
     }

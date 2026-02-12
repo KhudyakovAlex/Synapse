@@ -107,7 +107,6 @@ fun AI(modifier: Modifier = Modifier) {
             val anchoredDraggableState = remember {
                 AnchoredDraggableState(
                     initialValue = ChatState.Collapsed,
-                    anchors = anchors,
                     positionalThreshold = { distance: Float -> distance * 0.3f },
                     velocityThreshold = { with(density) { 125.dp.toPx() } },
                     snapAnimationSpec = tween(
@@ -115,7 +114,9 @@ fun AI(modifier: Modifier = Modifier) {
                         easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)  // Slow end
                     ),
                     decayAnimationSpec = exponentialDecay(frictionMultiplier = 2f)
-                )
+                ).apply {
+                    updateAnchors(anchors)
+                }
             }
             
             val currentOffsetPx = try {
