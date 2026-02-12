@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
@@ -31,12 +32,18 @@ fun SearchSwampIndicator(
 ) {
     val scales = remember { List(9) { Animatable(1f) } }
     val rnd = remember { Random(System.currentTimeMillis().toInt()) }
+    val baseColor = PixsoColors.Color_Bg_bg_elevated
+    val activeColor = PixsoColors.Color_State_primary
 
     // Bigger x2 (defaults), faster x1.5, and controlled overlap:
     // at most 2 dots animate simultaneously (one shrinking, one expanding).
     LaunchedEffect(Unit) {
-        val expandMs = 227
-        val shrinkMs = 453
+        // Slower by 20%
+        val expandMs = 272
+        val shrinkBaseMs = 544
+        val shrinkDownMs = (shrinkBaseMs * 0.78f).toInt().coerceAtLeast(1)
+        val shrinkBackMs = ((shrinkBaseMs - shrinkDownMs).coerceAtLeast(1)) * 4 // slower bounce-back x4
+        val shrinkTotalMs = shrinkDownMs + shrinkBackMs
         var last = -1
 
         fun pickNextIndex(): Int {
@@ -52,16 +59,16 @@ fun SearchSwampIndicator(
 
         // Start first pulse immediately.
         last = pickNextIndex()
-        launch { pulse(scales[last], expandMs = expandMs, shrinkMs = shrinkMs) }
+        launch { pulse(scales[last], expandMs = expandMs, shrinkDownMs = shrinkDownMs, shrinkBackMs = shrinkBackMs) }
 
         while (true) {
             // Start next pulse so that previous finishes exactly when next ends EXPAND:
             // delay == shrink duration of previous pulse.
-            delay(shrinkMs.toLong())
+            delay(shrinkTotalMs.toLong())
 
             val idx = pickNextIndex()
             last = idx
-            launch { pulse(scales[idx], expandMs = expandMs, shrinkMs = shrinkMs) }
+            launch { pulse(scales[idx], expandMs = expandMs, shrinkDownMs = shrinkDownMs, shrinkBackMs = shrinkBackMs) }
         }
     }
 
@@ -74,6 +81,9 @@ fun SearchSwampIndicator(
                 repeat(3) { c ->
                     val i = r * 3 + c
                     val s = scales[i].value
+                    // Color animates with scale: small -> base, big -> active
+                    val t = ((s - 1f) / 0.65f).coerceIn(0f, 1f) // 1f..1.65f
+                    val dotColor = lerp(baseColor, activeColor, t)
                     Box(
                         modifier = Modifier
                             .size(dotSize)
@@ -82,7 +92,7 @@ fun SearchSwampIndicator(
                                 scaleY = s
                             }
                             .background(
-                                color = PixsoColors.Color_State_primary,
+                                color = dotColor,
                                 shape = CircleShape
                             )
                     )
@@ -95,7 +105,8 @@ fun SearchSwampIndicator(
 private suspend fun pulse(
     a: Animatable<Float, AnimationVector1D>,
     expandMs: Int,
-    shrinkMs: Int
+    shrinkDownMs: Int,
+    shrinkBackMs: Int
 ) {
     if (a.isRunning) return
     a.animateTo(
@@ -105,11 +116,20 @@ private suspend fun pulse(
             easing = CubicBezierEasing(0.15f, 0f, 0f, 1f)
         )
     )
+    // "Inertia" on shrink: undershoot a bit, then return to 1f.
+    val undershoot = 0.78f
+    a.animateTo(
+        targetValue = undershoot,
+        animationSpec = tween(
+            durationMillis = shrinkDownMs,
+            easing = CubicBezierEasing(0.35f, 0f, 0.2f, 1f)
+        )
+    )
     a.animateTo(
         targetValue = 1f,
         animationSpec = tween(
-            durationMillis = shrinkMs,
-            easing = CubicBezierEasing(0.35f, 0f, 0.2f, 1f)
+            durationMillis = shrinkBackMs,
+            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
         )
     )
 }
