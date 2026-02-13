@@ -1,12 +1,14 @@
 package com.awada.synapse.pages
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.components.LumIndicatorsBlock
 
 /**
  * Page for individual luminaire control.
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 fun PageLum(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    indicatorsOffsetY: Dp = 0.dp,
     modifier: Modifier = Modifier
 ) {
     PageContainer(
@@ -25,12 +28,17 @@ fun PageLum(
         isScrollable = true,
         modifier = modifier
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .weight(1f),
+            contentAlignment = Alignment.Center
         ) {
-            Text("PageLum (пока пусто)")
+            // Single unified block to position as a whole.
+            LumIndicatorsBlock(
+                brightnessPercent = 35, // TODO: bind to real device state
+                modifier = Modifier.offset(y = indicatorsOffsetY)
+            )
         }
     }
 }
