@@ -1,18 +1,30 @@
 package com.awada.synapse.pages
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Canvas
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.Lum
 import com.awada.synapse.ui.theme.PixsoColors
+import androidx.compose.runtime.mutableStateListOf
 import kotlin.random.Random
 
 /**
@@ -89,21 +101,69 @@ fun PageLocation(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                repeat(4) { row ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                val iconSize = 72.dp
+                val density = LocalDensity.current
+                val iconSizePx = with(density) { iconSize.toPx() }
+                val centers = remember { mutableStateListOf<Offset?>().apply { repeat(16) { add(null) } } }
+                var canvasOriginInRoot by remember { mutableStateOf(Offset.Zero) }
+
+                // Demo grouping: connect centers (under circles)
+                val groups = remember {
+                    listOf(
+                        listOf(0, 1, 2, 3),
+                        // left-top -> one diagonal neighbour
+                        listOf(0, 5)
+                    )
+                }
+
+                Box {
+                    Canvas(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .onGloballyPositioned { coords ->
+                                canvasOriginInRoot = coords.positionInRoot()
+                            }
                     ) {
-                        repeat(4) { col ->
-                            val s = samples[row * 4 + col]
-                            Lum(
-                                title = s.title,
-                                iconSize = 72.dp,
-                                brightnessPercent = s.brightnessPercent,
-                                iconResId = s.iconResId,
-                                statusDotColor = s.statusDotColor,
-                                onClick = null
-                            )
+                        for (g in groups) {
+                            for (i in 0 until g.size - 1) {
+                                val a = centers[g[i]] ?: continue
+                                val b = centers[g[i + 1]] ?: continue
+                                drawLine(
+                                    color = PixsoColors.Color_Bg_bg_surface,
+                                    start = a,
+                                    end = b,
+                                    strokeWidth = 15.dp.toPx(),
+                                    cap = StrokeCap.Round
+                                )
+                            }
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        repeat(4) { row ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                repeat(4) { col ->
+                                    val idx = row * 4 + col
+                                    val s = samples[idx]
+                                    Lum(
+                                        modifier = Modifier.onGloballyPositioned { coords ->
+                                            val posInRoot = coords.positionInRoot()
+                                            val centerX = (posInRoot.x - canvasOriginInRoot.x) + coords.size.width / 2f
+                                            val centerY = (posInRoot.y - canvasOriginInRoot.y) + iconSizePx / 2f
+                                            centers[idx] = Offset(centerX, centerY)
+                                        },
+                                        title = s.title,
+                                        iconSize = iconSize,
+                                        brightnessPercent = s.brightnessPercent,
+                                        iconResId = s.iconResId,
+                                        statusDotColor = s.statusDotColor,
+                                        onClick = null
+                                    )
+                                }
+                            }
                         }
                     }
                 }
