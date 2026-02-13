@@ -39,8 +39,9 @@ import com.awada.synapse.ui.theme.PixsoDimens
 import kotlin.math.roundToInt
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
-private val SLIDER_ITEM_HEIGHT = 72.dp
-private val SLIDER_SPACING = 12.dp
+private val SLIDER_ITEM_HEIGHT = 60.dp
+private val SLIDER_SPACING = 4.dp
+private val SLIDER_TO_BUTTONS_GAP = 12.dp
 
 enum class LumControlState { Collapsed, Expanded }
 
@@ -62,7 +63,7 @@ fun LumControlLayer(
     val sliderCount = sliders.size
     val sliderSectionPx = with(density) {
         if (sliderCount > 0) {
-            (SLIDER_ITEM_HEIGHT * sliderCount + SLIDER_SPACING * (sliderCount - 1) + SLIDER_SPACING).toPx()
+            (SLIDER_ITEM_HEIGHT * sliderCount + SLIDER_SPACING * (sliderCount - 1) + SLIDER_TO_BUTTONS_GAP).toPx()
         } else 0f
     }
 
@@ -188,7 +189,7 @@ private fun RevealSlidersAboveButtons(
             }
     ) { constraints ->
         val loose = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
-        val gapPx = SLIDER_SPACING.roundToPx()
+        val gapPx = SLIDER_TO_BUTTONS_GAP.roundToPx()
 
         val dynamicSaturationColor = run {
             val maxIdx = (colorSpectrumColors.size - 1).coerceAtLeast(0)

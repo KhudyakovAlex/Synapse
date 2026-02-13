@@ -89,13 +89,13 @@ fun BaseSlider(
     val valueText = if (showValue) {
         valueFormatter?.invoke(value) ?: "${value.toInt()} %"
     } else ""
-    val trackHeight = 16.dp
+    val trackHeight = 8.dp
     val thumbRadius = 16.dp
-    val sliderHeight = 44.dp
+    val sliderHeight = 36.dp
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         // Header with label and value
         if (label.isNotEmpty() || showValue) {
@@ -119,14 +119,13 @@ fun BaseSlider(
                                 painter = painterResource(id = icon),
                                 contentDescription = null,
                                 tint = Color(0xFFF2FCFF),
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                         Text(
                             text = label,
-                            style = LabelLarge.copy(
-                                color = Color(0xFFF2FCFF)
-                            )
+                            style = LabelLarge,
+                            color = Color(0xFFF2FCFF)
                         )
                     }
                 }
@@ -135,9 +134,8 @@ fun BaseSlider(
                 if (showValue) {
                     Text(
                         text = valueText,
-                        style = LabelLarge.copy(
-                            color = Color(0xFFF2FCFF)
-                        )
+                        style = LabelLarge,
+                        color = Color(0xFFF2FCFF)
                     )
                 }
             }
