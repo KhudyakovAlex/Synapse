@@ -3,6 +3,7 @@ package com.awada.synapse.pages
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,13 +26,17 @@ fun PageLum(
         title = "Светильник",
         onBackClick = onBackClick,
         onSettingsClick = onSettingsClick,
-        isScrollable = true,
+        isScrollable = false,
+        bottomSpacerHeightOverride = 0.dp,
         modifier = modifier
     ) {
+        val bottomInset = LocalBottomOverlayInset.current
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                // Shrink available height so center is between AppBar and panel top
+                .padding(bottom = bottomInset),
             contentAlignment = Alignment.Center
         ) {
             // Single unified block to position as a whole.

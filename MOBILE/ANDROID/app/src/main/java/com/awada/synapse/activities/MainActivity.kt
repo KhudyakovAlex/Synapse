@@ -17,20 +17,28 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ai.AI
 import com.awada.synapse.lumcontrol.LumControlLayer
+import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
@@ -75,9 +83,20 @@ enum class AppScreen {
 private fun MainContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.Location) }
     val context = LocalContext.current
+    val density = LocalDensity.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
     var isLumControlVisible by remember { mutableStateOf(true) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
+
+    // For vertical centering between AppBar (top) and LumControlLayer (bottom)
+    var rootHeightPx by remember { mutableFloatStateOf(0f) }
+    var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
+    val lumBottomInsetDp by remember {
+        derivedStateOf {
+            if (!lumPanelTopPx.isFinite() || rootHeightPx <= 0f) return@derivedStateOf 0.dp
+            with(density) { (rootHeightPx - lumPanelTopPx).coerceAtLeast(0f).toDp() }
+        }
+    }
 
     // Handle system back button
     BackHandler {
@@ -100,84 +119,94 @@ private fun MainContent() {
         }
     }
     
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Navigation between pages with animation
-        AnimatedContent(
-            targetState = currentScreen,
-            transitionSpec = {
-                if (targetState != AppScreen.Location) {
-                    // Slide in from right when going away from locations
-                    (slideInHorizontally { it } + fadeIn()).togetherWith(
-                        slideOutHorizontally { -it / 3 } + fadeOut()
-                    )
-                } else {
-                    // Slide in from left when going back to locations
-                    (slideInHorizontally { -it / 3 } + fadeIn()).togetherWith(
-                        slideOutHorizontally { it } + fadeOut()
-                    )
-                }.using(SizeTransform(clip = false))
-            },
-            label = "ScreenNavigation"
-        ) { screen ->
-            when (screen) {
-                AppScreen.Location -> {
-                    PageLocation(
-                        onSettingsClick = { currentScreen = AppScreen.Settings },
-                        onSearchClick = { currentScreen = AppScreen.Search },
-                        onLumClick = { currentScreen = AppScreen.Lum },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.Lum -> {
-                    PageLum(
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        onSettingsClick = {
-                            settingsLumBackTarget = AppScreen.Lum
-                            currentScreen = AppScreen.SettingsLum
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.Search -> {
-                    PageSearch(
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.Settings -> {
-                    PageSettings(
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.SettingsLum -> {
-                    PageSettingsLum(
-                        onBackClick = { currentScreen = settingsLumBackTarget },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.SettingsSensorPress -> {
-                    PageSettingsSensorPress(
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.SettingsSensorBright -> {
-                    PageSettingsSensorBright(
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                AppScreen.Password -> {
-                    PagePassword(
-                        correctPassword = "1234", // TODO: Get from settings
-                        onPasswordCorrect = {
-                            currentScreen = AppScreen.Location
-                            Toast.makeText(context, "Пароль верный!", Toast.LENGTH_SHORT).show()
-                        },
-                        onBackClick = { currentScreen = AppScreen.Location },
-                        modifier = Modifier.fillMaxSize()
-                    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { coords ->
+                rootHeightPx = coords.size.height.toFloat()
+            }
+    ) {
+        CompositionLocalProvider(
+            LocalBottomOverlayInset provides (if (isLumControlVisible) lumBottomInsetDp else 0.dp)
+        ) {
+            // Navigation between pages with animation
+            AnimatedContent(
+                targetState = currentScreen,
+                transitionSpec = {
+                    if (targetState != AppScreen.Location) {
+                        // Slide in from right when going away from locations
+                        (slideInHorizontally { it } + fadeIn()).togetherWith(
+                            slideOutHorizontally { -it / 3 } + fadeOut()
+                        )
+                    } else {
+                        // Slide in from left when going back to locations
+                        (slideInHorizontally { -it / 3 } + fadeIn()).togetherWith(
+                            slideOutHorizontally { it } + fadeOut()
+                        )
+                    }.using(SizeTransform(clip = false))
+                },
+                label = "ScreenNavigation"
+            ) { screen ->
+                when (screen) {
+                    AppScreen.Location -> {
+                        PageLocation(
+                            onSettingsClick = { currentScreen = AppScreen.Settings },
+                            onSearchClick = { currentScreen = AppScreen.Search },
+                            onLumClick = { currentScreen = AppScreen.Lum },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Lum -> {
+                        PageLum(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            onSettingsClick = {
+                                settingsLumBackTarget = AppScreen.Lum
+                                currentScreen = AppScreen.SettingsLum
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Search -> {
+                        PageSearch(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Settings -> {
+                        PageSettings(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.SettingsLum -> {
+                        PageSettingsLum(
+                            onBackClick = { currentScreen = settingsLumBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.SettingsSensorPress -> {
+                        PageSettingsSensorPress(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.SettingsSensorBright -> {
+                        PageSettingsSensorBright(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Password -> {
+                        PagePassword(
+                            correctPassword = "1234", // TODO: Get from settings
+                            onPasswordCorrect = {
+                                currentScreen = AppScreen.Location
+                                Toast.makeText(context, "Пароль верный!", Toast.LENGTH_SHORT).show()
+                            },
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
@@ -190,6 +219,9 @@ private fun MainContent() {
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.BottomCenter)
                 .fillMaxWidth()
+                .onGloballyPositioned { coords ->
+                    lumPanelTopPx = coords.boundsInRoot().top
+                }
         )
         
         AI(modifier = Modifier.fillMaxSize())

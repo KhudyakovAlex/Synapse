@@ -32,6 +32,7 @@ fun PageContainer(
     onBackClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
     isScrollable: Boolean = true,
+    bottomSpacerHeightOverride: androidx.compose.ui.unit.Dp? = null,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -59,7 +60,9 @@ fun PageContainer(
             Spacer(modifier = Modifier.height(16.dp))
             content()
             // Spacer to prevent AI panel from covering content
-            Spacer(modifier = Modifier.height(180.dp))
+            val bottomOverlayInset = LocalBottomOverlayInset.current
+            val bottomSpacerHeight = bottomSpacerHeightOverride ?: maxOf(180.dp, bottomOverlayInset)
+            Spacer(modifier = Modifier.height(bottomSpacerHeight))
         }
     }
 }
