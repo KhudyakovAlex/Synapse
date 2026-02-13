@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.awada.synapse.ai.AI
 import com.awada.synapse.lumcontrol.LumControlLayer
+import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSearch
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
 enum class AppScreen {
     Location,
+    Lum,
     Search,
     Settings,
     SettingsLum,
@@ -75,11 +77,12 @@ private fun MainContent() {
     val context = LocalContext.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
     var isLumControlVisible by remember { mutableStateOf(true) }
+    var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
 
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
+            AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
             AppScreen.SettingsSensorBright, AppScreen.Password -> {
                 // If on any settings page or Password, go back to Location
                 currentScreen = AppScreen.Location
@@ -121,6 +124,17 @@ private fun MainContent() {
                     PageLocation(
                         onSettingsClick = { currentScreen = AppScreen.Settings },
                         onSearchClick = { currentScreen = AppScreen.Search },
+                        onLumClick = { currentScreen = AppScreen.Lum },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                AppScreen.Lum -> {
+                    PageLum(
+                        onBackClick = { currentScreen = AppScreen.Location },
+                        onSettingsClick = {
+                            settingsLumBackTarget = AppScreen.Lum
+                            currentScreen = AppScreen.SettingsLum
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -138,7 +152,7 @@ private fun MainContent() {
                 }
                 AppScreen.SettingsLum -> {
                     PageSettingsLum(
-                        onBackClick = { currentScreen = AppScreen.Location },
+                        onBackClick = { currentScreen = settingsLumBackTarget },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

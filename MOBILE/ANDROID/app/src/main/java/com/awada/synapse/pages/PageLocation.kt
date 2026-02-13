@@ -35,6 +35,7 @@ import kotlin.random.Random
 fun PageLocation(
     onSettingsClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onLumClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -160,7 +161,7 @@ fun PageLocation(
                                         brightnessPercent = s.brightnessPercent,
                                         iconResId = s.iconResId,
                                         statusDotColor = s.statusDotColor,
-                                        onClick = null
+                                        onClick = onLumClick
                                     )
                                 }
                             }
