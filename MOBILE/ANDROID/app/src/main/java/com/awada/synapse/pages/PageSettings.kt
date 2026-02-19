@@ -1,13 +1,10 @@
 package com.awada.synapse.pages
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.awada.synapse.ui.theme.PixsoColors
+import com.awada.synapse.components.LocationItem
+import com.awada.synapse.components.LocationsContainer
 
 /**
  * Settings page.
@@ -16,14 +13,20 @@ import com.awada.synapse.ui.theme.PixsoColors
 @Composable
 fun PageSettings(
     onBackClick: () -> Unit,
+    locations: List<LocationItem>,
     modifier: Modifier = Modifier
 ) {
     PageContainer(
         title = "Настройки",
         onBackClick = onBackClick,
-        isScrollable = true,
+        isScrollable = false,
         modifier = modifier
     ) {
-        // Future settings content goes here
+        LocationsContainer(
+            locations = locations,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
     }
 }

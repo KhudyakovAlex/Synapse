@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
@@ -183,6 +184,12 @@ private fun MainContent() {
                     AppScreen.Settings -> {
                         PageSettings(
                             onBackClick = { currentScreen = AppScreen.Location },
+                            locations = listOf(
+                                com.awada.synapse.components.LocationItem(
+                                    title = "Новое здание",
+                                    iconResId = R.drawable.controller_102_dom
+                                )
+                            ),
                             modifier = Modifier.fillMaxSize()
                         )
                     }
