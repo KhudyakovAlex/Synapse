@@ -22,7 +22,10 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.components.BrightSensor
+import com.awada.synapse.components.ButtonPanel
 import com.awada.synapse.components.Lum
+import com.awada.synapse.components.PresSensor
 import com.awada.synapse.ui.theme.PixsoColors
 import androidx.compose.runtime.mutableStateListOf
 import kotlin.random.Random
@@ -149,20 +152,36 @@ fun PageLocation(
                                 repeat(4) { col ->
                                     val idx = row * 4 + col
                                     val s = samples[idx]
-                                    Lum(
-                                        modifier = Modifier.onGloballyPositioned { coords ->
-                                            val posInRoot = coords.positionInRoot()
-                                            val centerX = (posInRoot.x - canvasOriginInRoot.x) + coords.size.width / 2f
-                                            val centerY = (posInRoot.y - canvasOriginInRoot.y) + iconSizePx / 2f
-                                            centers[idx] = Offset(centerX, centerY)
-                                        },
-                                        title = s.title,
-                                        iconSize = iconSize,
-                                        brightnessPercent = s.brightnessPercent,
-                                        iconResId = s.iconResId,
-                                        statusDotColor = s.statusDotColor,
-                                        onClick = onLumClick
-                                    )
+                                    val posModifier = Modifier.onGloballyPositioned { coords ->
+                                        val posInRoot = coords.positionInRoot()
+                                        val centerX = (posInRoot.x - canvasOriginInRoot.x) + coords.size.width / 2f
+                                        val centerY = (posInRoot.y - canvasOriginInRoot.y) + iconSizePx / 2f
+                                        centers[idx] = Offset(centerX, centerY)
+                                    }
+
+                                    when (idx) {
+                                        12 -> PresSensor(
+                                            modifier = posModifier,
+                                            iconSize = iconSize
+                                        )
+                                        13 -> BrightSensor(
+                                            modifier = posModifier,
+                                            iconSize = iconSize
+                                        )
+                                        14 -> ButtonPanel(
+                                            modifier = posModifier,
+                                            iconSize = iconSize
+                                        )
+                                        else -> Lum(
+                                            modifier = posModifier,
+                                            title = s.title,
+                                            iconSize = iconSize,
+                                            brightnessPercent = s.brightnessPercent,
+                                            iconResId = s.iconResId,
+                                            statusDotColor = s.statusDotColor,
+                                            onClick = onLumClick
+                                        )
+                                    }
                                 }
                             }
                         }
