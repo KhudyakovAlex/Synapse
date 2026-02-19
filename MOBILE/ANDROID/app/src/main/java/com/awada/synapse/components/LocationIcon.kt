@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +43,7 @@ fun LocationIcon(
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val shadowElevation = if (enabled) 8.dp else 0.dp
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -59,24 +61,29 @@ fun LocationIcon(
             .size(cardSize)
             .then(clickableModifier),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
                 .size(cardSize)
+                .shadow(
+                    elevation = shadowElevation,
+                    shape = CircleShape,
+                    clip = false
+                )
                 .clip(CircleShape)
                 .background(PixsoColors.Color_Bg_bg_surface),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .offset(y = contentOffsetY)
             ) {
                 Image(
-                    painter = androidx.compose.ui.res.painterResource(iconResId),
+                    painter = painterResource(iconResId),
                     contentDescription = null,
                     modifier = Modifier.size(iconSize)
                 )

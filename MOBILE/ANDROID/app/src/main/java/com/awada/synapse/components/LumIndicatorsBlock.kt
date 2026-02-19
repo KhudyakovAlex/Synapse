@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -66,6 +67,11 @@ fun LumInfoIndicator(
     Box(
         modifier = modifier
             .size(size)
+            .shadow(
+                elevation = 8.dp,
+                shape = CircleShape,
+                clip = false
+            )
             .clip(CircleShape)
             .background(PixsoColors.Color_Bg_bg_surface)
     ) {

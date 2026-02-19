@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -129,6 +130,11 @@ private fun SystemIconTile(
         Box(
             modifier = Modifier
                 .size(iconSize)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = CircleShape,
+                    clip = false
+                )
                 .clip(CircleShape)
                 .background(PixsoColors.Color_Bg_bg_surface),
             contentAlignment = Alignment.Center

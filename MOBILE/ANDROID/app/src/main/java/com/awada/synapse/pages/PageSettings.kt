@@ -222,10 +222,12 @@ private fun ReorderableControllersLayout(
         val contentOffsetY: Dp = 8.dp * scale
         val spacing: Dp = 24.dp
         val topPadding: Dp = if (n == 1) 24.dp else 0.dp
+        val shadowBottomPadding: Dp = if (n == 0) 0.dp else 12.dp
 
         val cardPx = with(density) { cardSize.toPx() }
         val spacingPx = with(density) { spacing.toPx() }
         val topPaddingPx = with(density) { topPadding.toPx() }
+        val shadowBottomPaddingPx = with(density) { shadowBottomPadding.toPx() }
         val widthPx = with(density) { maxWidth.toPx() }
 
         fun slotTopLeft(index: Int): Offset {
@@ -266,7 +268,11 @@ private fun ReorderableControllersLayout(
             n == 2 -> 2
             else -> ceil(n / 2f).toInt()
         }
-        val totalHeightPx = topPaddingPx + totalRows * cardPx + (totalRows - 1).coerceAtLeast(0) * spacingPx
+        val totalHeightPx =
+            topPaddingPx +
+                totalRows * cardPx +
+                (totalRows - 1).coerceAtLeast(0) * spacingPx +
+                shadowBottomPaddingPx
         val totalHeightDp = with(density) { totalHeightPx.toDp() }
 
         val slotRects = slotPositions.map { topLeft ->
@@ -285,9 +291,14 @@ private fun ReorderableControllersLayout(
                 .pointerInput(n, maxWidth, modalVisible) {
                     if (modalVisible || n == 0) return@pointerInput
 
+                    fun toContent(pos: Offset): Offset {
+                        // verticalScroll shifts content by -scroll; pointer coords are in viewport
+                        return pos + Offset(0f, scrollState.value.toFloat())
+                    }
+
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
-                        val startIndex = slotRects.indexOfFirst { it.contains(down.position) }
+                        val startIndex = slotRects.indexOfFirst { it.contains(toContent(down.position)) }
                         if (startIndex == -1) return@awaitEachGesture
 
                         awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
@@ -301,7 +312,7 @@ private fun ReorderableControllersLayout(
 
                         var moved = false
                         var hoverIndex = startIndex
-                        var lastPos = down.position
+                        var lastPos = toContent(down.position)
                         dragDelta = Offset.Zero
 
                         while (true) {
@@ -310,7 +321,7 @@ private fun ReorderableControllersLayout(
                             if (!change.pressed) break
 
                             val delta = change.position - change.previousPosition
-                            lastPos = change.position
+                            lastPos = toContent(change.position)
                             if (delta != Offset.Zero) {
                                 dragDelta += delta
                                 if (!moved && dragDelta.getDistance() > viewConfig.touchSlop) moved = true
@@ -391,9 +402,38 @@ private fun ReorderableControllersLayout(
                                 }
                             }
                             .zIndex(if (isDragging) 10f else 0f)
-                            .alpha(if (isDragging) 0.85f else 1f)
+                            .alpha(if (isDragging) 0f else 1f)
                     )
                 }
+            }
+        }
+
+        // Draw dragged item outside scroll container to avoid shadow clipping
+        if (anyDragging) {
+            val draggedIndex = controllers.indexOfFirst { it.id == draggingId }
+            val draggedController = controllers.getOrNull(draggedIndex)
+            if (draggedIndex != -1 && draggedController != null) {
+                val topLeft = slotPositions[draggedIndex]
+                val title = draggedController.name.ifBlank { "Контроллер ${draggedController.id}" }
+                val icon = iconResId(context, draggedController.icoNum)
+                LocationIcon(
+                    title = title,
+                    iconResId = icon,
+                    cardSize = cardSize,
+                    iconSize = iconSize,
+                    contentOffsetY = contentOffsetY,
+                    showTitle = true,
+                    enabled = true,
+                    onClick = null,
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                (topLeft.x + dragDelta.x).roundToInt(),
+                                (topLeft.y + dragDelta.y - scrollState.value).roundToInt()
+                            )
+                        }
+                        .zIndex(20f)
+                )
             }
         }
     }
