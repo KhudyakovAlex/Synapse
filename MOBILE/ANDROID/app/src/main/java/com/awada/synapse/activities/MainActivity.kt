@@ -85,8 +85,11 @@ private fun MainContent() {
     val context = LocalContext.current
     val density = LocalDensity.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
-    var isLumControlVisible by remember { mutableStateOf(true) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    // Hardcoded: show LumControlLayer only on Lum page
+    val isLumControlVisible by remember {
+        derivedStateOf { currentScreen == AppScreen.Lum }
+    }
 
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
