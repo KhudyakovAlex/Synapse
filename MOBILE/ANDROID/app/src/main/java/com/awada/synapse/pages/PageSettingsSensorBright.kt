@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
@@ -26,9 +31,9 @@ fun PageSettingsSensorBright(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Add state management for all fields
-    // TODO: Load actual data for dropdowns (rooms, groups)
-    // TODO: Implement save logic
+    var name by remember { mutableStateOf("") }
+    var roomId by remember { mutableIntStateOf(-1) }
+    var groupId by remember { mutableIntStateOf(-1) }
     
     // Mock data for dropdowns
     val roomItems = listOf(
@@ -57,8 +62,8 @@ fun PageSettingsSensorBright(
         ) {
             // 1. Название
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = name,
+                onValueChange = { name = it },
                 label = "Название",
                 placeholder = "",
                 enabled = true
@@ -68,8 +73,8 @@ fun PageSettingsSensorBright(
             
             // 2. Помещение
             TextFieldForList(
-                value = null, // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = roomId.takeIf { it >= 0 },
+                onValueChange = { roomId = it },
                 icon = R.drawable.ic_chevron_down,
                 label = "Помещение",
                 placeholder = "Не выбрано",
@@ -81,8 +86,8 @@ fun PageSettingsSensorBright(
             
             // 3. Группа
             TextFieldForList(
-                value = null, // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = groupId.takeIf { it >= 0 },
+                onValueChange = { groupId = it },
                 icon = R.drawable.ic_chevron_down,
                 label = "Группа",
                 placeholder = "Не выбрано",
@@ -105,7 +110,7 @@ fun PageSettingsSensorBright(
                 
                 PrimaryButton(
                     text = "Сохранить",
-                    onClick = { /* TODO: Save logic */ },
+                    onClick = onBackClick,
                     modifier = Modifier.weight(1f)
                 )
             }

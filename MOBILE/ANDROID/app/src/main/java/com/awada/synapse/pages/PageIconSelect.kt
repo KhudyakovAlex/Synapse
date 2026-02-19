@@ -43,7 +43,15 @@ fun PageIconSelect(
 ) {
     val context = LocalContext.current
     val catalog = remember { IconCatalogManager.load(context) }
-    val icons = remember(category) { catalog.getByCategory(category) }
+    val icons = remember(category) {
+        val direct = catalog.getByCategory(category)
+        if (direct.isNotEmpty()) return@remember direct
+        // Fallbacks for future reuse (e.g. rooms) until dedicated icons are added
+        when (category) {
+            "room", "premise" -> catalog.getByCategory("location")
+            else -> emptyList()
+        }
+    }
     
     val density = LocalDensity.current
     val navigationBarHeightDp = with(density) {

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.components.LocationsContainer
 import com.awada.synapse.components.LocationItem
-import com.awada.synapse.components.controllerIconResId
+import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import kotlinx.coroutines.flow.map
 
@@ -53,8 +53,9 @@ fun PageLocations(
 
     val boundLocations = controllers.map { c ->
         val item = LocationItem(
+            controllerId = c.id,
             title = c.name.ifBlank { "Контроллер ${c.id}" },
-            iconResId = controllerIconResId(c.icoNum)
+            iconResId = iconResId(context, c.icoNum)
         )
         item.copy(onClick = { onLocationClick(item) })
     }

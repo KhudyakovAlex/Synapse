@@ -45,7 +45,7 @@ import androidx.compose.ui.zIndex
 import com.awada.synapse.components.LocationIcon
 import com.awada.synapse.components.LocationsContainer
 import com.awada.synapse.components.PrimaryIconLButton
-import com.awada.synapse.components.controllerIconResId
+import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ControllerEntity
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -54,6 +54,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
+import com.awada.synapse.components.vibrateStrongClick
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -145,7 +146,10 @@ fun PageSettings(
                             }
                         },
                         onRequestDelete = { pendingDeleteId = it },
-                        onLongPressActivated = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
+                        onLongPressActivated = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            vibrateStrongClick(context)
+                        }
                     )
                 }
             }
@@ -195,6 +199,7 @@ private fun ReorderableControllersLayout(
     onLongPressActivated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val controllersState = rememberUpdatedState(controllers)
     var dragDelta by remember { mutableStateOf(Offset.Zero) }
     var draggedId by remember { mutableIntStateOf(-1) }
@@ -363,7 +368,7 @@ private fun ReorderableControllersLayout(
                     val animOffset by animateIntOffsetAsState(targetValue = target, label = "iconOffset")
 
                     val title = c.name.ifBlank { "Контроллер ${c.id}" }
-                    val icon = controllerIconResId(c.icoNum)
+                    val icon = iconResId(context, c.icoNum)
 
                     LocationIcon(
                         title = title,

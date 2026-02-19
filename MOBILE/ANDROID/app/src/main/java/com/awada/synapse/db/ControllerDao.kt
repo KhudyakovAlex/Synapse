@@ -16,6 +16,9 @@ interface ControllerDao {
     @Query("SELECT * FROM CONTROLLERS WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Int): ControllerEntity?
 
+    @Query("SELECT * FROM CONTROLLERS WHERE ID = :id LIMIT 1")
+    fun observeById(id: Int): Flow<ControllerEntity?>
+
     @Query("SELECT * FROM CONTROLLERS WHERE NAME = :name LIMIT 1")
     suspend fun getByName(name: String): ControllerEntity?
 
@@ -33,6 +36,9 @@ interface ControllerDao {
 
     @Query("DELETE FROM CONTROLLERS WHERE ID = :id")
     suspend fun deleteById(id: Int)
+
+    @Query("UPDATE CONTROLLERS SET NAME = :name, ICO_NUM = :icoNum WHERE ID = :id")
+    suspend fun updateNameAndIcon(id: Int, name: String, icoNum: Int)
 
     @Update
     suspend fun update(controller: ControllerEntity)

@@ -9,7 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
@@ -18,6 +24,7 @@ import com.awada.synapse.components.PrimaryButton
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
+import com.awada.synapse.components.iconResId
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -31,6 +38,30 @@ fun PageSettingsLum(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    var showIconSelect by remember { mutableStateOf(false) }
+    var iconId by remember { mutableIntStateOf(300) }
+    var name by remember { mutableStateOf("") }
+    var roomId by remember { mutableIntStateOf(-1) }
+    var groupId by remember { mutableIntStateOf(-1) }
+    var minBrightness by remember { mutableStateOf("") }
+    var maxBrightness by remember { mutableStateOf("") }
+    var fadeSec by remember { mutableStateOf("") }
+
+    if (showIconSelect) {
+        PageIconSelect(
+            category = "luminaire",
+            currentIconId = iconId,
+            onIconSelected = { newId ->
+                iconId = newId
+                showIconSelect = false
+            },
+            onBackClick = { showIconSelect = false },
+            modifier = modifier
+        )
+        return
+    }
+
     // TODO: Add state management for all fields
     // TODO: Load actual data for dropdowns (rooms, groups)
     // TODO: Implement save logic
@@ -62,8 +93,8 @@ fun PageSettingsLum(
         ) {
             // 1. Название
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = name,
+                onValueChange = { name = it },
                 label = "Название",
                 placeholder = "",
                 enabled = true
@@ -82,8 +113,8 @@ fun PageSettingsLum(
                     modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)
                 )
                 IconSelectButton(
-                    icon = R.drawable.luminaire_300_default, // TODO: Bind to selected icon
-                    onClick = { /* TODO: Open icon selector */ }
+                    icon = iconResId(context, iconId, fallback = R.drawable.luminaire_300_default),
+                    onClick = { showIconSelect = true }
                 )
             }
             
@@ -91,8 +122,8 @@ fun PageSettingsLum(
             
             // 3. Помещение
             TextFieldForList(
-                value = null, // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = roomId.takeIf { it >= 0 },
+                onValueChange = { roomId = it },
                 icon = R.drawable.ic_chevron_down,
                 label = "Помещение",
                 placeholder = "Не выбрано",
@@ -104,8 +135,8 @@ fun PageSettingsLum(
             
             // 4. Группа
             TextFieldForList(
-                value = null, // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = groupId.takeIf { it >= 0 },
+                onValueChange = { groupId = it },
                 icon = R.drawable.ic_chevron_down,
                 label = "Группа",
                 placeholder = "Не выбрано",
@@ -117,8 +148,8 @@ fun PageSettingsLum(
             
             // 5. Минимальная яркость
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = minBrightness,
+                onValueChange = { minBrightness = it },
                 label = "Минимальная яркость, %",
                 placeholder = "",
                 enabled = true
@@ -128,8 +159,8 @@ fun PageSettingsLum(
             
             // 6. Максимальная яркость
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = maxBrightness,
+                onValueChange = { maxBrightness = it },
                 label = "Максимальная яркость, %",
                 placeholder = "",
                 enabled = true
@@ -139,8 +170,8 @@ fun PageSettingsLum(
             
             // 7. Время затухания
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = fadeSec,
+                onValueChange = { fadeSec = it },
                 label = "Время затухания, сек",
                 placeholder = "",
                 enabled = true
@@ -161,7 +192,7 @@ fun PageSettingsLum(
                 
                 PrimaryButton(
                     text = "Сохранить",
-                    onClick = { /* TODO: Save logic */ },
+                    onClick = onBackClick,
                     modifier = Modifier.weight(1f)
                 )
             }

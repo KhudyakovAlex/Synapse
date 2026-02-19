@@ -43,7 +43,7 @@ import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLocation
-import com.awada.synapse.pages.PageLocationSettings
+import com.awada.synapse.pages.PageLocationSettingsScreen
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSearch
@@ -117,12 +117,17 @@ private fun MainContent() {
         }
     }
 
+    val backToLocationDetails: () -> Unit = {
+        currentScreen = if (selectedLocation != null) AppScreen.LocationDetails else AppScreen.Location
+    }
+
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
-            AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel, AppScreen.Password -> {
-                // If on any settings page or Password, go back to Location
+            AppScreen.SettingsLum, AppScreen.SettingsSensorPress, AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel -> {
+                backToLocationDetails()
+            }
+            AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = AppScreen.Location
             }
             AppScreen.LocationSettings -> {
@@ -202,8 +207,15 @@ private fun MainContent() {
                         )
                     }
                     AppScreen.LocationSettings -> {
-                        PageLocationSettings(
+                        PageLocationSettingsScreen(
+                            controllerId = selectedLocation?.controllerId,
                             onBackClick = { currentScreen = AppScreen.LocationDetails },
+                            onSaved = { newName, newIconId ->
+                                selectedLocation = selectedLocation?.copy(
+                                    title = newName,
+                                    iconResId = com.awada.synapse.components.iconResId(context, newIconId)
+                                )
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -233,25 +245,25 @@ private fun MainContent() {
                     }
                     AppScreen.SettingsLum -> {
                         PageSettingsLum(
-                            onBackClick = { currentScreen = settingsLumBackTarget },
+                            onBackClick = backToLocationDetails,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsSensorPress -> {
                         PageSettingsSensorPress(
-                            onBackClick = { currentScreen = AppScreen.Location },
+                            onBackClick = backToLocationDetails,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsSensorBright -> {
                         PageSettingsSensorBright(
-                            onBackClick = { currentScreen = AppScreen.Location },
+                            onBackClick = backToLocationDetails,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsButtonPanel -> {
                         PageSettingsButtonPanel(
-                            onBackClick = { currentScreen = AppScreen.Location },
+                            onBackClick = backToLocationDetails,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

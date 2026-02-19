@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
@@ -26,9 +31,8 @@ fun PageSettingsButtonPanel(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Add state management for all fields
-    // TODO: Load actual data for dropdowns (rooms)
-    // TODO: Implement save logic
+    var name by remember { mutableStateOf("") }
+    var roomId by remember { mutableIntStateOf(-1) }
 
     // Mock data for dropdown
     val roomItems = listOf(
@@ -51,8 +55,8 @@ fun PageSettingsButtonPanel(
         ) {
             // 1. Название
             TextField(
-                value = "", // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = name,
+                onValueChange = { name = it },
                 label = "Название",
                 placeholder = "",
                 enabled = true
@@ -62,8 +66,8 @@ fun PageSettingsButtonPanel(
 
             // 2. Помещение
             TextFieldForList(
-                value = null, // TODO: Bind to state
-                onValueChange = { /* TODO */ },
+                value = roomId.takeIf { it >= 0 },
+                onValueChange = { roomId = it },
                 icon = R.drawable.ic_chevron_down,
                 label = "Помещение",
                 placeholder = "Не выбрано",
@@ -86,7 +90,7 @@ fun PageSettingsButtonPanel(
 
                 PrimaryButton(
                     text = "Сохранить",
-                    onClick = { /* TODO: Save logic */ },
+                    onClick = onBackClick,
                     modifier = Modifier.weight(1f)
                 )
             }

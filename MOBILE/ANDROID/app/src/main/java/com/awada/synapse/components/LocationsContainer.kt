@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.TitleMedium
 
 data class LocationItem(
+    val controllerId: Int? = null,
     val title: String,
     val iconResId: Int,
     val enabled: Boolean = true,
