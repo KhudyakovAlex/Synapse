@@ -36,6 +36,7 @@ fun LocationsContainer(
     singleScale: Float = 1.5f,
     contentOffsetY: Dp = 8.dp,
     spacing: Dp = 24.dp,
+    showTitles: Boolean = true,
     emptyText: String = "Локации отсутсвуют. Подключитесь к контроллеру локации",
     emptyButtonText: String = "Найти контроллер",
     onEmptyButtonClick: (() -> Unit)? = null
@@ -78,6 +79,7 @@ fun LocationsContainer(
                 LocationIcon(
                     title = items[0].title,
                     iconResId = items[0].iconResId,
+                    showTitle = showTitles,
                     enabled = items[0].enabled,
                     onClick = items[0].onClick,
                     cardSize = scaledCard,
@@ -94,6 +96,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = item.title,
                             iconResId = item.iconResId,
+                            showTitle = showTitles,
                             enabled = item.enabled,
                             onClick = item.onClick,
                             cardSize = cardSize,
@@ -115,6 +118,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[0].title,
                             iconResId = items[0].iconResId,
+                            showTitle = showTitles,
                             enabled = items[0].enabled,
                             onClick = items[0].onClick,
                             cardSize = cardSize,
@@ -124,6 +128,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[1].title,
                             iconResId = items[1].iconResId,
+                            showTitle = showTitles,
                             enabled = items[1].enabled,
                             onClick = items[1].onClick,
                             cardSize = cardSize,
@@ -134,6 +139,7 @@ fun LocationsContainer(
                     LocationIcon(
                         title = items[2].title,
                         iconResId = items[2].iconResId,
+                        showTitle = showTitles,
                         enabled = items[2].enabled,
                         onClick = items[2].onClick,
                         cardSize = cardSize,
@@ -154,6 +160,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[0].title,
                             iconResId = items[0].iconResId,
+                            showTitle = showTitles,
                             enabled = items[0].enabled,
                             onClick = items[0].onClick,
                             cardSize = cardSize,
@@ -163,6 +170,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[1].title,
                             iconResId = items[1].iconResId,
+                            showTitle = showTitles,
                             enabled = items[1].enabled,
                             onClick = items[1].onClick,
                             cardSize = cardSize,
@@ -177,6 +185,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[2].title,
                             iconResId = items[2].iconResId,
+                            showTitle = showTitles,
                             enabled = items[2].enabled,
                             onClick = items[2].onClick,
                             cardSize = cardSize,
@@ -186,6 +195,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[3].title,
                             iconResId = items[3].iconResId,
+                            showTitle = showTitles,
                             enabled = items[3].enabled,
                             onClick = items[3].onClick,
                             cardSize = cardSize,
@@ -208,6 +218,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[0].title,
                             iconResId = items[0].iconResId,
+                            showTitle = showTitles,
                             enabled = items[0].enabled,
                             onClick = items[0].onClick,
                             cardSize = cardSize,
@@ -217,6 +228,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[1].title,
                             iconResId = items[1].iconResId,
+                            showTitle = showTitles,
                             enabled = items[1].enabled,
                             onClick = items[1].onClick,
                             cardSize = cardSize,
@@ -231,6 +243,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[2].title,
                             iconResId = items[2].iconResId,
+                            showTitle = showTitles,
                             enabled = items[2].enabled,
                             onClick = items[2].onClick,
                             cardSize = cardSize,
@@ -240,6 +253,7 @@ fun LocationsContainer(
                         LocationIcon(
                             title = items[3].title,
                             iconResId = items[3].iconResId,
+                            showTitle = showTitles,
                             enabled = items[3].enabled,
                             onClick = items[3].onClick,
                             cardSize = cardSize,
@@ -250,6 +264,7 @@ fun LocationsContainer(
                     LocationIcon(
                         title = items[4].title,
                         iconResId = items[4].iconResId,
+                        showTitle = showTitles,
                         enabled = items[4].enabled,
                         onClick = items[4].onClick,
                         cardSize = cardSize,

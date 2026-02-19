@@ -37,6 +37,7 @@ fun LocationIcon(
     cardSize: Dp = 156.dp,
     iconSize: Dp = 56.dp,
     contentOffsetY: Dp = 0.dp,
+    showTitle: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
@@ -80,20 +81,21 @@ fun LocationIcon(
                     modifier = Modifier.size(iconSize)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = title,
-                    style = LabelMedium.copy(lineHeight = LabelMedium.lineHeight * 0.8f),
-                    color = PixsoColors.Color_State_tertiary,
-                    textAlign = TextAlign.Center,
-                    minLines = 2,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(horizontal = 6.dp)
-                        .widthIn(max = (cardSize - 12.dp))
-                )
+                if (showTitle) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = title,
+                        style = LabelMedium.copy(lineHeight = LabelMedium.lineHeight * 0.8f),
+                        color = PixsoColors.Color_State_tertiary,
+                        textAlign = TextAlign.Center,
+                        minLines = 2,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(horizontal = 6.dp)
+                            .widthIn(max = (cardSize - 12.dp))
+                    )
+                }
             }
         }
     }

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -38,7 +36,6 @@ fun PageLocation(
     location: LocationItem,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onSearchClick: () -> Unit,
     onLumClick: () -> Unit,
     onSensorPressSettingsClick: () -> Unit,
     onSensorBrightSettingsClick: () -> Unit,
@@ -58,13 +55,6 @@ fun PageLocation(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Button(
-                onClick = onSearchClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Поиск")
-            }
-
             val samples = remember {
                 val rnd = Random(42)
                 val icons = listOf(

@@ -43,6 +43,7 @@ import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLocation
+import com.awada.synapse.pages.PageLocationSettings
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSearch
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
 enum class AppScreen {
     Location,
     LocationDetails,
+    LocationSettings,
     Lum,
     Search,
     Settings,
@@ -122,6 +124,9 @@ private fun MainContent() {
             AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel, AppScreen.Password -> {
                 // If on any settings page or Password, go back to Location
                 currentScreen = AppScreen.Location
+            }
+            AppScreen.LocationSettings -> {
+                currentScreen = AppScreen.LocationDetails
             }
             AppScreen.LocationDetails -> {
                 currentScreen = AppScreen.Location
@@ -188,12 +193,17 @@ private fun MainContent() {
                         PageLocation(
                             location = loc,
                             onBackClick = { currentScreen = AppScreen.Location },
-                            onSettingsClick = { currentScreen = AppScreen.Settings },
-                            onSearchClick = { currentScreen = AppScreen.Search },
+                            onSettingsClick = { currentScreen = AppScreen.LocationSettings },
                             onLumClick = { currentScreen = AppScreen.Lum },
                             onSensorPressSettingsClick = { currentScreen = AppScreen.SettingsSensorPress },
                             onSensorBrightSettingsClick = { currentScreen = AppScreen.SettingsSensorBright },
                             onButtonPanelSettingsClick = { currentScreen = AppScreen.SettingsButtonPanel },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.LocationSettings -> {
+                        PageLocationSettings(
+                            onBackClick = { currentScreen = AppScreen.LocationDetails },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -217,12 +227,7 @@ private fun MainContent() {
                     AppScreen.Settings -> {
                         PageSettings(
                             onBackClick = { currentScreen = AppScreen.Location },
-                            locations = listOf(
-                                com.awada.synapse.components.LocationItem(
-                                    title = "Новое здание",
-                                    iconResId = R.drawable.controller_102_dom
-                                )
-                            ),
+                            onFindControllerClick = { currentScreen = AppScreen.Search },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
