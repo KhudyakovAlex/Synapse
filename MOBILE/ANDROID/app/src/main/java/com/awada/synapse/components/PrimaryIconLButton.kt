@@ -23,14 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.awada.synapse.ui.theme.IBMPlexSansFamily
+import com.awada.synapse.ui.theme.ButtonLarge
+import com.awada.synapse.ui.theme.PixsoColors
+import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
  * Pixso component: Buttons_Primary_Icon_L (56dp height, 40dp radius).
@@ -48,26 +46,26 @@ fun PrimaryIconLButton(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val background = when {
-        !enabled -> Color(0xFFE4E2E2)
-        isPressed -> Color(0xFF004E60)
-        else -> Color(0xFF04687E)
+        !enabled -> PixsoColors.Color_State_disabled
+        isPressed -> PixsoColors.Color_State_primary_pressed
+        else -> PixsoColors.Color_State_primary
     }
 
     val textColor = when {
-        !enabled -> Color(0xFFACABAB)
-        else -> Color.White
+        !enabled -> PixsoColors.Color_State_on_disabled
+        else -> PixsoColors.Color_State_on_primary
     }
 
     val iconBg = when {
-        !enabled -> Color(0xFFE4E2E2)
-        else -> Color.White
+        !enabled -> PixsoColors.Color_State_disabled
+        else -> PixsoColors.Color_State_on_primary
     }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .clip(RoundedCornerShape(40.dp))
+            .height(PixsoDimens.Numeric_56)
+            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_L))
             .background(background)
             .clickable(
                 enabled = enabled,
@@ -103,12 +101,7 @@ fun PrimaryIconLButton(
 
             Text(
                 text = text,
-                style = TextStyle(
-                    fontFamily = IBMPlexSansFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 24.sp,
-                    lineHeight = 26.sp
-                ),
+                style = ButtonLarge,
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
