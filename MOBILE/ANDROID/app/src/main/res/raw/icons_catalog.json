@@ -587,6 +587,24 @@
       "id": 900,
       "description": "",
       "resourceName": "system_900_ai"
+    },
+    {
+      "category": "system",
+      "id": 901,
+      "description": "",
+      "resourceName": "system_901_sensorp"
+    },
+    {
+      "category": "system",
+      "id": 902,
+      "description": "",
+      "resourceName": "system_902_sensorb"
+    },
+    {
+      "category": "system",
+      "id": 903,
+      "description": "",
+      "resourceName": "system_903_buttons"
     }
   ]
 }
