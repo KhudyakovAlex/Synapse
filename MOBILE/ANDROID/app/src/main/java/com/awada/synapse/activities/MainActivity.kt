@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -52,6 +53,9 @@ import com.awada.synapse.pages.PageSettingsSensorPress
 import com.awada.synapse.pages.PageSettingsSensorBright
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
+import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.ControllerEntity
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +92,8 @@ enum class AppScreen {
 private fun MainContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.Location) }
     val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
@@ -169,6 +175,7 @@ private fun MainContent() {
                                 selectedLocation = item
                                 currentScreen = AppScreen.LocationDetails
                             },
+                            onFindControllerClick = { currentScreen = AppScreen.Search },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -203,6 +210,7 @@ private fun MainContent() {
                     AppScreen.Search -> {
                         PageSearch(
                             onBackClick = { currentScreen = AppScreen.Location },
+                            onAutoNavigateNext = { currentScreen = AppScreen.Password },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -246,8 +254,21 @@ private fun MainContent() {
                         PagePassword(
                             correctPassword = "1234", // TODO: Get from settings
                             onPasswordCorrect = {
-                                currentScreen = AppScreen.Location
-                                Toast.makeText(context, "Пароль верный!", Toast.LENGTH_SHORT).show()
+                                scope.launch {
+                                    val dao = db.controllerDao()
+                                    val name = "SYNAPSE12345678"
+                                    val existing = dao.getByName(name)
+                                    if (existing == null) {
+                                        dao.insert(
+                                            ControllerEntity(
+                                                name = name,
+                                                password = "1234",
+                                                icoNum = 100
+                                            )
+                                        )
+                                    }
+                                    currentScreen = AppScreen.Location
+                                }
                             },
                             onBackClick = { currentScreen = AppScreen.Location },
                             modifier = Modifier.fillMaxSize()

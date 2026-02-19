@@ -16,6 +16,9 @@ interface ControllerDao {
     @Query("SELECT * FROM CONTROLLERS WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Int): ControllerEntity?
 
+    @Query("SELECT * FROM CONTROLLERS WHERE NAME = :name LIMIT 1")
+    suspend fun getByName(name: String): ControllerEntity?
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(controller: ControllerEntity): Long
 
