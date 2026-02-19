@@ -78,6 +78,14 @@ val HeadlineSmall = TextStyle(
     letterSpacing = 0.sp
 )
 
+val HeadlineExtraSmall = TextStyle(
+    fontFamily = IBMPlexSansFamily,
+    fontWeight = FontWeight.Normal,
+    fontSize = PixsoDimens.Headline_Headline_XS_Size,
+    lineHeight = PixsoDimens.Headline_Headline_XS_Line_Height,
+    letterSpacing = 0.sp
+)
+
 // Title styles (using Headline XS as fallback)
 val TitleLarge = TextStyle(
     fontFamily = IBMPlexSansFamily,

@@ -50,7 +50,7 @@ fun PageSettingsLum(
     )
     
     PageContainer(
-        title = "Настройки",
+        title = "Настройки\nсветильника",
         onBackClick = onBackClick,
         isScrollable = true,
         modifier = modifier
@@ -60,11 +60,11 @@ fun PageSettingsLum(
                 .fillMaxWidth()
                 .padding(horizontal = PixsoDimens.Numeric_16)
         ) {
-            // 1. Название светильника
+            // 1. Название
             TextField(
                 value = "", // TODO: Bind to state
                 onValueChange = { /* TODO */ },
-                label = "Название светильника",
+                label = "Название",
                 placeholder = "",
                 enabled = true
             )

@@ -7,18 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
-import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.PrimaryButton
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
-import com.awada.synapse.ui.theme.LabelLarge
-import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
@@ -43,7 +39,7 @@ fun PageSettingsSensorPress(
     )
     
     PageContainer(
-        title = "Настройки",
+        title = "Настройки\nдатчика присутствия",
         onBackClick = onBackClick,
         isScrollable = true,
         modifier = modifier
@@ -53,36 +49,18 @@ fun PageSettingsSensorPress(
                 .fillMaxWidth()
                 .padding(horizontal = PixsoDimens.Numeric_16)
         ) {
-            // 1. Название датчика присутствия
+            // 1. Название
             TextField(
                 value = "", // TODO: Bind to state
                 onValueChange = { /* TODO */ },
-                label = "Название датчика присутствия",
+                label = "Название",
                 placeholder = "",
                 enabled = true
             )
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
-            // 2. Иконка
-            Column(
-                verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)
-            ) {
-                Text(
-                    text = "Иконка",
-                    style = LabelLarge,
-                    color = PixsoColors.Color_Text_text_3_level,
-                    modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)
-                )
-                IconSelectButton(
-                    icon = R.drawable.controller_100_default, // TODO: Bind to selected icon
-                    onClick = { /* TODO: Open icon selector */ }
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 3. Помещение
+            // 2. Помещение
             TextFieldForList(
                 value = null, // TODO: Bind to state
                 onValueChange = { /* TODO */ },
@@ -95,7 +73,7 @@ fun PageSettingsSensorPress(
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
-            // 4. Задержка
+            // 3. Задержка
             TextField(
                 value = "", // TODO: Bind to state
                 onValueChange = { /* TODO */ },

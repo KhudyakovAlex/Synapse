@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -20,12 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
+import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.HeadlineSmall
 import com.awada.synapse.ui.theme.PixsoColors
-import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
  * Typical App Bar component based on Pixso design.
@@ -70,16 +73,38 @@ fun AppBar(
                 }
             }
 
-            // Center slot: Title (aligned to start)
-            Text(
-                text = title,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = if (onBackClick == null) 12.dp else 0.dp),
-                style = HeadlineSmall,
-                color = PixsoColors.Color_Text_text_1_level,
-                textAlign = TextAlign.Start
-            )
+            // Center slot: Title (supports 2 lines via '\n' separator)
+            run {
+                val parts = title.split('\n', limit = 2)
+                val line1 = parts.firstOrNull().orEmpty()
+                val line2 = parts.getOrNull(1)?.trim().takeIf { !it.isNullOrEmpty() }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = if (onBackClick == null) 12.dp else 0.dp)
+                ) {
+                    Text(
+                        text = line1,
+                        style = HeadlineSmall.copy(fontWeight = FontWeight.Normal),
+                        color = PixsoColors.Color_Text_text_1_level,
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (line2 != null) {
+                        Text(
+                            text = line2,
+                            style = HeadlineExtraSmall,
+                            color = PixsoColors.Color_Text_text_2_level,
+                            textAlign = TextAlign.Start,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.offset(y = (-8).dp)
+                        )
+                    }
+                }
+            }
 
             // Right slot: Settings button
             if (onSettingsClick != null) {
