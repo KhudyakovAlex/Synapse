@@ -261,17 +261,17 @@ private fun MainContent() {
                             onPasswordCorrect = {
                                 scope.launch {
                                     val dao = db.controllerDao()
-                                    val name = "SYNAPSE12345678"
-                                    val existing = dao.getByName(name)
-                                    if (existing == null) {
-                                        dao.insert(
-                                            ControllerEntity(
-                                                name = name,
-                                                password = "1234",
-                                                icoNum = 100
-                                            )
+                                    val suffix = (System.currentTimeMillis() % 100_000_000)
+                                        .toString()
+                                        .padStart(8, '0')
+                                    val name = "SYN_$suffix"
+                                    dao.insert(
+                                        ControllerEntity(
+                                            name = name,
+                                            password = "1234",
+                                            icoNum = 100
                                         )
-                                    }
+                                    )
                                     currentScreen = AppScreen.Location
                                 }
                             },

@@ -43,7 +43,7 @@ fun PageSearch(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 SearchSwampIndicator()
                 Text(
-                    text = "Ищем устройства поблизости...",
+                    text = "Ищем контроллер локации...",
                     modifier = Modifier
                         .padding(top = 80.dp),
                     style = BodyLarge,
