@@ -1,0 +1,594 @@
+[
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_settings.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_settings.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_100_default.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_100_default.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_317_pot_nakl_krugl.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_317_pot_nakl_krugl.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_215_terrasa.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_215_terrasa.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_splash_background_layer.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/splash_background_layer.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_210_detskaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_210_detskaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_214_balkon.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_214_balkon.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_902_sensorb.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_902_sensorb.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_320_pot_nakl_toch_pov.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_320_pot_nakl_toch_pov.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_222_dushevaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_222_dushevaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_310_pot_vstr_toch.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_310_pot_vstr_toch.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_323_nas_nakl_kvadr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_323_nas_nakl_kvadr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_334_grunt_vstr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_334_grunt_vstr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_volume.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_volume.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/xml_backup_rules.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_chevron_down.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_chevron_down.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_314_pot_vstr_toch_pov_dvoynoy.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_314_pot_vstr_toch_pov_dvoynoy.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_309_pot_vstr_kvadr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_309_pot_vstr_kvadr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_226_torg_zal.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_226_torg_zal.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_123_resepshn.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_123_resepshn.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_311_pot_vstr_toch_dvoynoy.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_311_pot_vstr_toch_dvoynoy.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_115_magazin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_115_magazin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_324_nas_nakl_krugl.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_324_nas_nakl_krugl.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/xml_data_extraction_rules.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_330_torsher.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_330_torsher.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_112_terr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_112_terr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_103_banya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_103_banya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_208_kuhnya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_208_kuhnya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_304_pot_podv_lustra.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_304_pot_podv_lustra.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_109_kabinety.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_109_kabinety.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_216_kladovaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_216_kladovaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_201_kabinet.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_201_kabinet.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_220_otdyh.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_220_otdyh.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/raw_icons_catalog.json.flat",
+        "source": "com.awada.synapse.app-main-44:/raw/icons_catalog.json"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_drag_handle_shape.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/drag_handle_shape.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_315_pot_vstr_toch_pov_troynoy.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_315_pot_vstr_toch_pov_troynoy.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_903_buttons.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_903_buttons.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_116_kafe.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_116_kafe.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_327_trek_toch_pov.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_327_trek_toch_pov.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_108_kvartira.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_108_kvartira.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_213_prihozhaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_213_prihozhaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_hue.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_hue.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_318_pot_nakl_kvadr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_318_pot_nakl_kvadr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_110_garazh.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_110_garazh.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_207_gostinaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_207_gostinaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_219_arhiv.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_219_arhiv.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxhdpi_ic_launcher_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxhdpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_color.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_color.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xhdpi_ic_launcher_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xhdpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_303_pot_podv_abazh.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_303_pot_podv_abazh.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_send.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_send.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_microphone.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_microphone.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_106_etazh2.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_106_etazh2.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_300_default.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_300_default.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_223_kotelnaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_223_kotelnaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_235_sportzal.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_235_sportzal.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_232_lift.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_232_lift.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_101_ofis.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_101_ofis.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_221_razdevalka.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_221_razdevalka.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_122_konf_zal.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_122_konf_zal.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_microphone_off.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_microphone_off.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_328_podsv.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_328_podsv.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_105_etazh1.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_105_etazh1.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_224_elektro.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_224_elektro.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_splash_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/splash_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_118_proizvodstvo.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_118_proizvodstvo.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_302_pot_podv_krugl.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_302_pot_podv_krugl.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_218_priemnaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_218_priemnaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-hdpi_ic_launcher_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-hdpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_230_palata.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_230_palata.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_104_etazh.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_104_etazh.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_ai_off.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_ai_off.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_306_pot_podv_toch.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_306_pot_podv_toch.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_313_pot_vstr_toch_pov.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_313_pot_vstr_toch_pov.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_211_vannaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_211_vannaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_325_nas_nakl_toch_pov.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_325_nas_nakl_toch_pov.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_227_primerochnaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_227_primerochnaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_121_parkovka.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_121_parkovka.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_333_stolb_fonar.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_333_stolb_fonar.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_206_wc.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_206_wc.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_305_pot_podv_kvadr.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_305_pot_podv_kvadr.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_122_konf_za.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_122_konf_za.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxxhdpi_ic_launcher_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxxhdpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_120_cherdak.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_120_cherdak.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_119_podval.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_119_podval.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_117_bolnica.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_117_bolnica.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_331_fasad.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_331_fasad.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_212_garderob.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_212_garderob.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_233_bassein.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_233_bassein.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_205_koridor.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_205_koridor.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_326_trek_lin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_326_trek_lin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_307_pot_vstr_lin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_307_pot_vstr_lin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_200_default.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_200_default.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_124_holl.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_124_holl.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_thermometer.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_thermometer.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_329_lenta.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_329_lenta.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_234_sauna.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_234_sauna.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_114_sklad.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_114_sklad.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_335_grunt_stolb.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_335_grunt_stolb.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_319_pot_nakl_toch.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_319_pot_nakl_toch.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_102_dom.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_102_dom.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_back.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_back.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_ai.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_ai.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_322_nas_nakl_lin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_322_nas_nakl_lin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_209_spalnya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_209_spalnya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-mdpi_ic_launcher_background.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-mdpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_204_stolovaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_204_stolovaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_107_etazh3.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_107_etazh3.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_225_masterskaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_225_masterskaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_301_pot_podv_lin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_301_pot_podv_lin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_logo_splash.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_logo_splash.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_111_hoz.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_111_hoz.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_231_lestnica.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_231_lestnica.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_321_nas_bra.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_321_nas_bra.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_217_servernaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_217_servernaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_900_ai.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_900_ai.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_volume_off.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_volume_off.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_308_pot_vstr_krugl.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_308_pot_vstr_krugl.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.awada.synapse.app-main-44:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_backspace.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_backspace.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_332_prozh.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_332_prozh.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_228_zal_restorana.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_228_zal_restorana.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_316_pot_nakl_lin.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_316_pot_nakl_lin.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_203_peregovornaya.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_203_peregovornaya.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_229_klass.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_229_klass.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_location_202_hol.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/location_202_hol.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_901_sensorp.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_901_sensorp.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_luminaire_312_pot_vstr_toch_troynoy.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/luminaire_312_pot_vstr_toch_troynoy.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_controller_113_open.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/controller_113_open.xml"
+    },
+    {
+        "merged": "com.awada.synapse.app-debug-42:/drawable_system_brightness.xml.flat",
+        "source": "com.awada.synapse.app-main-44:/drawable/system_brightness.xml"
+    }
+]

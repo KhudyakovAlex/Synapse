@@ -163,23 +163,8 @@ private fun MainContent() {
             ) { screen ->
                 when (screen) {
                     AppScreen.Location -> {
-                        val locations = listOf(
-                            com.awada.synapse.components.LocationItem(
-                                title = "Новое здание",
-                                iconResId = R.drawable.controller_102_dom
-                            ),
-                            com.awada.synapse.components.LocationItem(
-                                title = "Офис",
-                                iconResId = R.drawable.controller_101_ofis
-                            ),
-                            com.awada.synapse.components.LocationItem(
-                                title = "Дом",
-                                iconResId = R.drawable.controller_102_dom
-                            )
-                        )
                         PageLocations(
                             onSettingsClick = { currentScreen = AppScreen.Settings },
-                            locations = locations,
                             onLocationClick = { item ->
                                 selectedLocation = item
                                 currentScreen = AppScreen.LocationDetails

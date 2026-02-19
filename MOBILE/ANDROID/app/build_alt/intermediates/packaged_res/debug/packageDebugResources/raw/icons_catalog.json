@@ -1,0 +1,610 @@
+{
+  "icons": [
+    {
+      "category": "controller",
+      "id": 100,
+      "description": "",
+      "resourceName": "controller_100_default"
+    },
+    {
+      "category": "controller",
+      "id": 101,
+      "description": "",
+      "resourceName": "controller_101_ofis"
+    },
+    {
+      "category": "controller",
+      "id": 102,
+      "description": "",
+      "resourceName": "controller_102_dom"
+    },
+    {
+      "category": "controller",
+      "id": 103,
+      "description": "",
+      "resourceName": "controller_103_banya"
+    },
+    {
+      "category": "controller",
+      "id": 104,
+      "description": "",
+      "resourceName": "controller_104_etazh"
+    },
+    {
+      "category": "controller",
+      "id": 105,
+      "description": "",
+      "resourceName": "controller_105_etazh1"
+    },
+    {
+      "category": "controller",
+      "id": 106,
+      "description": "",
+      "resourceName": "controller_106_etazh2"
+    },
+    {
+      "category": "controller",
+      "id": 107,
+      "description": "",
+      "resourceName": "controller_107_etazh3"
+    },
+    {
+      "category": "controller",
+      "id": 108,
+      "description": "",
+      "resourceName": "controller_108_kvartira"
+    },
+    {
+      "category": "controller",
+      "id": 109,
+      "description": "",
+      "resourceName": "controller_109_kabinety"
+    },
+    {
+      "category": "controller",
+      "id": 110,
+      "description": "",
+      "resourceName": "controller_110_garazh"
+    },
+    {
+      "category": "controller",
+      "id": 111,
+      "description": "",
+      "resourceName": "controller_111_hoz"
+    },
+    {
+      "category": "controller",
+      "id": 112,
+      "description": "",
+      "resourceName": "controller_112_terr"
+    },
+    {
+      "category": "controller",
+      "id": 113,
+      "description": "",
+      "resourceName": "controller_113_open"
+    },
+    {
+      "category": "controller",
+      "id": 114,
+      "description": "",
+      "resourceName": "controller_114_sklad"
+    },
+    {
+      "category": "controller",
+      "id": 115,
+      "description": "",
+      "resourceName": "controller_115_magazin"
+    },
+    {
+      "category": "controller",
+      "id": 116,
+      "description": "",
+      "resourceName": "controller_116_kafe"
+    },
+    {
+      "category": "controller",
+      "id": 117,
+      "description": "",
+      "resourceName": "controller_117_bolnica"
+    },
+    {
+      "category": "controller",
+      "id": 118,
+      "description": "",
+      "resourceName": "controller_118_proizvodstvo"
+    },
+    {
+      "category": "controller",
+      "id": 119,
+      "description": "",
+      "resourceName": "controller_119_podval"
+    },
+    {
+      "category": "controller",
+      "id": 120,
+      "description": "",
+      "resourceName": "controller_120_cherdak"
+    },
+    {
+      "category": "controller",
+      "id": 121,
+      "description": "",
+      "resourceName": "controller_121_parkovka"
+    },
+    {
+      "category": "controller",
+      "id": 122,
+      "description": "",
+      "resourceName": "controller_122_konf_zal"
+    },
+    {
+      "category": "controller",
+      "id": 123,
+      "description": "",
+      "resourceName": "controller_123_resepshn"
+    },
+    {
+      "category": "controller",
+      "id": 124,
+      "description": "",
+      "resourceName": "controller_124_holl"
+    },
+    {
+      "category": "location",
+      "id": 200,
+      "description": "",
+      "resourceName": "location_200_default"
+    },
+    {
+      "category": "location",
+      "id": 201,
+      "description": "",
+      "resourceName": "location_201_kabinet"
+    },
+    {
+      "category": "location",
+      "id": 202,
+      "description": "",
+      "resourceName": "location_202_hol"
+    },
+    {
+      "category": "location",
+      "id": 203,
+      "description": "",
+      "resourceName": "location_203_peregovornaya"
+    },
+    {
+      "category": "location",
+      "id": 204,
+      "description": "",
+      "resourceName": "location_204_stolovaya"
+    },
+    {
+      "category": "location",
+      "id": 205,
+      "description": "",
+      "resourceName": "location_205_koridor"
+    },
+    {
+      "category": "location",
+      "id": 206,
+      "description": "",
+      "resourceName": "location_206_wc"
+    },
+    {
+      "category": "location",
+      "id": 207,
+      "description": "",
+      "resourceName": "location_207_gostinaya"
+    },
+    {
+      "category": "location",
+      "id": 208,
+      "description": "",
+      "resourceName": "location_208_kuhnya"
+    },
+    {
+      "category": "location",
+      "id": 209,
+      "description": "",
+      "resourceName": "location_209_spalnya"
+    },
+    {
+      "category": "location",
+      "id": 210,
+      "description": "",
+      "resourceName": "location_210_detskaya"
+    },
+    {
+      "category": "location",
+      "id": 211,
+      "description": "",
+      "resourceName": "location_211_vannaya"
+    },
+    {
+      "category": "location",
+      "id": 212,
+      "description": "",
+      "resourceName": "location_212_garderob"
+    },
+    {
+      "category": "location",
+      "id": 213,
+      "description": "",
+      "resourceName": "location_213_prihozhaya"
+    },
+    {
+      "category": "location",
+      "id": 214,
+      "description": "",
+      "resourceName": "location_214_balkon"
+    },
+    {
+      "category": "location",
+      "id": 215,
+      "description": "",
+      "resourceName": "location_215_terrasa"
+    },
+    {
+      "category": "location",
+      "id": 216,
+      "description": "",
+      "resourceName": "location_216_kladovaya"
+    },
+    {
+      "category": "location",
+      "id": 217,
+      "description": "",
+      "resourceName": "location_217_servernaya"
+    },
+    {
+      "category": "location",
+      "id": 218,
+      "description": "",
+      "resourceName": "location_218_priemnaya"
+    },
+    {
+      "category": "location",
+      "id": 219,
+      "description": "",
+      "resourceName": "location_219_arhiv"
+    },
+    {
+      "category": "location",
+      "id": 220,
+      "description": "",
+      "resourceName": "location_220_otdyh"
+    },
+    {
+      "category": "location",
+      "id": 221,
+      "description": "",
+      "resourceName": "location_221_razdevalka"
+    },
+    {
+      "category": "location",
+      "id": 222,
+      "description": "",
+      "resourceName": "location_222_dushevaya"
+    },
+    {
+      "category": "location",
+      "id": 223,
+      "description": "",
+      "resourceName": "location_223_kotelnaya"
+    },
+    {
+      "category": "location",
+      "id": 224,
+      "description": "",
+      "resourceName": "location_224_elektro"
+    },
+    {
+      "category": "location",
+      "id": 225,
+      "description": "",
+      "resourceName": "location_225_masterskaya"
+    },
+    {
+      "category": "location",
+      "id": 226,
+      "description": "",
+      "resourceName": "location_226_torg_zal"
+    },
+    {
+      "category": "location",
+      "id": 227,
+      "description": "",
+      "resourceName": "location_227_primerochnaya"
+    },
+    {
+      "category": "location",
+      "id": 228,
+      "description": "",
+      "resourceName": "location_228_zal_restorana"
+    },
+    {
+      "category": "location",
+      "id": 229,
+      "description": "",
+      "resourceName": "location_229_klass"
+    },
+    {
+      "category": "location",
+      "id": 230,
+      "description": "",
+      "resourceName": "location_230_palata"
+    },
+    {
+      "category": "location",
+      "id": 231,
+      "description": "",
+      "resourceName": "location_231_lestnica"
+    },
+    {
+      "category": "location",
+      "id": 232,
+      "description": "",
+      "resourceName": "location_232_lift"
+    },
+    {
+      "category": "location",
+      "id": 233,
+      "description": "",
+      "resourceName": "location_233_bassein"
+    },
+    {
+      "category": "location",
+      "id": 234,
+      "description": "",
+      "resourceName": "location_234_sauna"
+    },
+    {
+      "category": "location",
+      "id": 235,
+      "description": "",
+      "resourceName": "location_235_sportzal"
+    },
+    {
+      "category": "luminaire",
+      "id": 300,
+      "description": "",
+      "resourceName": "luminaire_300_default"
+    },
+    {
+      "category": "luminaire",
+      "id": 301,
+      "description": "",
+      "resourceName": "luminaire_301_pot_podv_lin"
+    },
+    {
+      "category": "luminaire",
+      "id": 302,
+      "description": "",
+      "resourceName": "luminaire_302_pot_podv_krugl"
+    },
+    {
+      "category": "luminaire",
+      "id": 303,
+      "description": "",
+      "resourceName": "luminaire_303_pot_podv_abazh"
+    },
+    {
+      "category": "luminaire",
+      "id": 304,
+      "description": "",
+      "resourceName": "luminaire_304_pot_podv_lustra"
+    },
+    {
+      "category": "luminaire",
+      "id": 305,
+      "description": "",
+      "resourceName": "luminaire_305_pot_podv_kvadr"
+    },
+    {
+      "category": "luminaire",
+      "id": 306,
+      "description": "",
+      "resourceName": "luminaire_306_pot_podv_toch"
+    },
+    {
+      "category": "luminaire",
+      "id": 307,
+      "description": "",
+      "resourceName": "luminaire_307_pot_vstr_lin"
+    },
+    {
+      "category": "luminaire",
+      "id": 308,
+      "description": "",
+      "resourceName": "luminaire_308_pot_vstr_krugl"
+    },
+    {
+      "category": "luminaire",
+      "id": 309,
+      "description": "",
+      "resourceName": "luminaire_309_pot_vstr_kvadr"
+    },
+    {
+      "category": "luminaire",
+      "id": 310,
+      "description": "",
+      "resourceName": "luminaire_310_pot_vstr_toch"
+    },
+    {
+      "category": "luminaire",
+      "id": 311,
+      "description": "",
+      "resourceName": "luminaire_311_pot_vstr_toch_dvoynoy"
+    },
+    {
+      "category": "luminaire",
+      "id": 312,
+      "description": "",
+      "resourceName": "luminaire_312_pot_vstr_toch_troynoy"
+    },
+    {
+      "category": "luminaire",
+      "id": 313,
+      "description": "",
+      "resourceName": "luminaire_313_pot_vstr_toch_pov"
+    },
+    {
+      "category": "luminaire",
+      "id": 314,
+      "description": "",
+      "resourceName": "luminaire_314_pot_vstr_toch_pov_dvoynoy"
+    },
+    {
+      "category": "luminaire",
+      "id": 315,
+      "description": "",
+      "resourceName": "luminaire_315_pot_vstr_toch_pov_troynoy"
+    },
+    {
+      "category": "luminaire",
+      "id": 316,
+      "description": "",
+      "resourceName": "luminaire_316_pot_nakl_lin"
+    },
+    {
+      "category": "luminaire",
+      "id": 317,
+      "description": "",
+      "resourceName": "luminaire_317_pot_nakl_krugl"
+    },
+    {
+      "category": "luminaire",
+      "id": 318,
+      "description": "",
+      "resourceName": "luminaire_318_pot_nakl_kvadr"
+    },
+    {
+      "category": "luminaire",
+      "id": 319,
+      "description": "",
+      "resourceName": "luminaire_319_pot_nakl_toch"
+    },
+    {
+      "category": "luminaire",
+      "id": 320,
+      "description": "",
+      "resourceName": "luminaire_320_pot_nakl_toch_pov"
+    },
+    {
+      "category": "luminaire",
+      "id": 321,
+      "description": "",
+      "resourceName": "luminaire_321_nas_bra"
+    },
+    {
+      "category": "luminaire",
+      "id": 322,
+      "description": "",
+      "resourceName": "luminaire_322_nas_nakl_lin"
+    },
+    {
+      "category": "luminaire",
+      "id": 323,
+      "description": "",
+      "resourceName": "luminaire_323_nas_nakl_kvadr"
+    },
+    {
+      "category": "luminaire",
+      "id": 324,
+      "description": "",
+      "resourceName": "luminaire_324_nas_nakl_krugl"
+    },
+    {
+      "category": "luminaire",
+      "id": 325,
+      "description": "",
+      "resourceName": "luminaire_325_nas_nakl_toch_pov"
+    },
+    {
+      "category": "luminaire",
+      "id": 326,
+      "description": "",
+      "resourceName": "luminaire_326_trek_lin"
+    },
+    {
+      "category": "luminaire",
+      "id": 327,
+      "description": "",
+      "resourceName": "luminaire_327_trek_toch_pov"
+    },
+    {
+      "category": "luminaire",
+      "id": 328,
+      "description": "",
+      "resourceName": "luminaire_328_podsv"
+    },
+    {
+      "category": "luminaire",
+      "id": 329,
+      "description": "",
+      "resourceName": "luminaire_329_lenta"
+    },
+    {
+      "category": "luminaire",
+      "id": 330,
+      "description": "",
+      "resourceName": "luminaire_330_torsher"
+    },
+    {
+      "category": "luminaire",
+      "id": 331,
+      "description": "",
+      "resourceName": "luminaire_331_fasad"
+    },
+    {
+      "category": "luminaire",
+      "id": 332,
+      "description": "",
+      "resourceName": "luminaire_332_prozh"
+    },
+    {
+      "category": "luminaire",
+      "id": 333,
+      "description": "",
+      "resourceName": "luminaire_333_stolb_fonar"
+    },
+    {
+      "category": "luminaire",
+      "id": 334,
+      "description": "",
+      "resourceName": "luminaire_334_grunt_vstr"
+    },
+    {
+      "category": "luminaire",
+      "id": 335,
+      "description": "",
+      "resourceName": "luminaire_335_grunt_stolb"
+    },
+    {
+      "category": "system",
+      "id": 900,
+      "description": "",
+      "resourceName": "system_900_ai"
+    },
+    {
+      "category": "system",
+      "id": 901,
+      "description": "",
+      "resourceName": "system_901_sensorp"
+    },
+    {
+      "category": "system",
+      "id": 902,
+      "description": "",
+      "resourceName": "system_902_sensorb"
+    },
+    {
+      "category": "system",
+      "id": 903,
+      "description": "",
+      "resourceName": "system_903_buttons"
+    }
+  ]
+}

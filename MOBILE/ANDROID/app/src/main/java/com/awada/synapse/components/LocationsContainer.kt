@@ -4,15 +4,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.ui.theme.TitleMedium
 
 data class LocationItem(
     val title: String,
@@ -29,7 +35,10 @@ fun LocationsContainer(
     iconSize: Dp = 56.dp,
     singleScale: Float = 1.5f,
     contentOffsetY: Dp = 8.dp,
-    spacing: Dp = 24.dp
+    spacing: Dp = 24.dp,
+    emptyText: String = "Локации отсутсвуют. Подключитесь к контроллеру локации",
+    emptyButtonText: String = "Найти контроллер",
+    onEmptyButtonClick: (() -> Unit)? = null
 ) {
     val items = locations.take(5)
 
@@ -40,7 +49,29 @@ fun LocationsContainer(
         contentAlignment = Alignment.Center
     ) {
         when (items.size) {
-            0 -> Unit
+            0 -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = emptyText,
+                        style = TitleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    if (onEmptyButtonClick != null) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        PrimaryIconLButton(
+                            text = emptyButtonText,
+                            onClick = onEmptyButtonClick,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
             1 -> {
                 val scaledCard = cardSize * singleScale
                 val scaledIcon = iconSize * singleScale
