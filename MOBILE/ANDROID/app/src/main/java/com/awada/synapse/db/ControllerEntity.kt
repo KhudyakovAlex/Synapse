@@ -32,6 +32,8 @@ data class ControllerEntity(
     val sceneNum: Int = -1,
 
     @ColumnInfo(name = "TIMESTAMP", defaultValue = "0")
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    @ColumnInfo(name = "GRID_POS", defaultValue = "0")
+    val gridPos: Int = 0
 )
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ControllerDao {
-    @Query("SELECT * FROM CONTROLLERS ORDER BY ID ASC")
+    @Query("SELECT * FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC")
     fun observeAll(): Flow<List<ControllerEntity>>
 
     @Query("SELECT * FROM CONTROLLERS WHERE ID = :id LIMIT 1")
@@ -21,6 +21,18 @@ interface ControllerDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(controller: ControllerEntity): Long
+
+    @Query("SELECT MAX(GRID_POS) FROM CONTROLLERS")
+    suspend fun getMaxGridPos(): Int?
+
+    @Query("UPDATE CONTROLLERS SET GRID_POS = :gridPos WHERE ID = :id")
+    suspend fun setGridPos(id: Int, gridPos: Int)
+
+    @Query("SELECT * FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC")
+    suspend fun getAllOrdered(): List<ControllerEntity>
+
+    @Query("DELETE FROM CONTROLLERS WHERE ID = :id")
+    suspend fun deleteById(id: Int)
 
     @Update
     suspend fun update(controller: ControllerEntity)

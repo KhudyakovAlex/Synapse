@@ -265,11 +265,13 @@ private fun MainContent() {
                                         .toString()
                                         .padStart(8, '0')
                                     val name = "SYN_$suffix"
+                                    val nextPos = (dao.getMaxGridPos() ?: -1) + 1
                                     dao.insert(
                                         ControllerEntity(
                                             name = name,
                                             password = "1234",
-                                            icoNum = 100
+                                            icoNum = 100,
+                                            gridPos = nextPos
                                         )
                                     )
                                     currentScreen = AppScreen.Location
