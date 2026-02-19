@@ -44,6 +44,7 @@ import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSettings
+import com.awada.synapse.pages.PageSettingsButtonPanel
 import com.awada.synapse.pages.PageSettingsLum
 import com.awada.synapse.pages.PageSettingsSensorPress
 import com.awada.synapse.pages.PageSettingsSensorBright
@@ -76,6 +77,7 @@ enum class AppScreen {
     SettingsLum,
     SettingsSensorPress,
     SettingsSensorBright,
+    SettingsButtonPanel,
     Password
 }
 
@@ -105,7 +107,7 @@ private fun MainContent() {
     BackHandler {
         when (currentScreen) {
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
-            AppScreen.SettingsSensorBright, AppScreen.Password -> {
+            AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel, AppScreen.Password -> {
                 // If on any settings page or Password, go back to Location
                 currentScreen = AppScreen.Location
             }
@@ -156,6 +158,9 @@ private fun MainContent() {
                             onSettingsClick = { currentScreen = AppScreen.Settings },
                             onSearchClick = { currentScreen = AppScreen.Search },
                             onLumClick = { currentScreen = AppScreen.Lum },
+                            onSensorPressSettingsClick = { currentScreen = AppScreen.SettingsSensorPress },
+                            onSensorBrightSettingsClick = { currentScreen = AppScreen.SettingsSensorBright },
+                            onButtonPanelSettingsClick = { currentScreen = AppScreen.SettingsButtonPanel },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -195,6 +200,12 @@ private fun MainContent() {
                     }
                     AppScreen.SettingsSensorBright -> {
                         PageSettingsSensorBright(
+                            onBackClick = { currentScreen = AppScreen.Location },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.SettingsButtonPanel -> {
+                        PageSettingsButtonPanel(
                             onBackClick = { currentScreen = AppScreen.Location },
                             modifier = Modifier.fillMaxSize()
                         )

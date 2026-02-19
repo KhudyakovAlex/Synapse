@@ -39,6 +39,9 @@ fun PageLocation(
     onSettingsClick: () -> Unit,
     onSearchClick: () -> Unit,
     onLumClick: () -> Unit,
+    onSensorPressSettingsClick: () -> Unit,
+    onSensorBrightSettingsClick: () -> Unit,
+    onButtonPanelSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -162,15 +165,18 @@ fun PageLocation(
                                     when (idx) {
                                         12 -> PresSensor(
                                             modifier = posModifier,
-                                            iconSize = iconSize
+                                            iconSize = iconSize,
+                                            onClick = onSensorPressSettingsClick
                                         )
                                         13 -> BrightSensor(
                                             modifier = posModifier,
-                                            iconSize = iconSize
+                                            iconSize = iconSize,
+                                            onClick = onSensorBrightSettingsClick
                                         )
                                         14 -> ButtonPanel(
                                             modifier = posModifier,
-                                            iconSize = iconSize
+                                            iconSize = iconSize,
+                                            onClick = onButtonPanelSettingsClick
                                         )
                                         else -> Lum(
                                             modifier = posModifier,
