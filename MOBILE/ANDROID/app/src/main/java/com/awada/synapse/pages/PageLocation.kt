@@ -1,41 +1,42 @@
 package com.awada.synapse.pages
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.Canvas
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
+import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.PresSensor
 import com.awada.synapse.ui.theme.PixsoColors
-import androidx.compose.runtime.mutableStateListOf
 import kotlin.random.Random
 
 /**
- * Initial page for Locations.
- * Always placed below AI layer in MainActivity.
+ * Page for a single location (singular).
  */
 @Composable
 fun PageLocation(
+    location: LocationItem,
+    onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSearchClick: () -> Unit,
     onLumClick: () -> Unit,
@@ -44,9 +45,9 @@ fun PageLocation(
     onButtonPanelSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     PageContainer(
-        title = "Локации",
+        title = location.title,
+        onBackClick = onBackClick,
         onSettingsClick = onSettingsClick,
         isScrollable = true,
         modifier = modifier
@@ -114,11 +115,9 @@ fun PageLocation(
                 val centers = remember { mutableStateListOf<Offset?>().apply { repeat(16) { add(null) } } }
                 var canvasOriginInRoot by remember { mutableStateOf(Offset.Zero) }
 
-                // Demo grouping: connect centers (under circles)
                 val groups = remember {
                     listOf(
                         listOf(0, 1, 2, 3),
-                        // left-top -> one diagonal neighbour
                         listOf(0, 5)
                     )
                 }
@@ -204,3 +203,4 @@ private data class LumSample(
     val iconResId: Int,
     val statusDotColor: androidx.compose.ui.graphics.Color
 )
+

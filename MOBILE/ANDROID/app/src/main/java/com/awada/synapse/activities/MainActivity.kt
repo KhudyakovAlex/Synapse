@@ -42,6 +42,7 @@ import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLocation
+import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSettings
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
 
 enum class AppScreen {
     Location,
+    LocationDetails,
     Lum,
     Search,
     Settings,
@@ -89,6 +91,9 @@ private fun MainContent() {
     val density = LocalDensity.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    var selectedLocation by remember {
+        mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
+    }
     // Hardcoded: show LumControlLayer only on Lum page
     val isLumControlVisible by remember {
         derivedStateOf { currentScreen == AppScreen.Lum }
@@ -110,6 +115,9 @@ private fun MainContent() {
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.SettingsLum, AppScreen.SettingsSensorPress,
             AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel, AppScreen.Password -> {
                 // If on any settings page or Password, go back to Location
+                currentScreen = AppScreen.Location
+            }
+            AppScreen.LocationDetails -> {
                 currentScreen = AppScreen.Location
             }
             AppScreen.Location -> {
@@ -155,7 +163,39 @@ private fun MainContent() {
             ) { screen ->
                 when (screen) {
                     AppScreen.Location -> {
+                        val locations = listOf(
+                            com.awada.synapse.components.LocationItem(
+                                title = "Новое здание",
+                                iconResId = R.drawable.controller_102_dom
+                            ),
+                            com.awada.synapse.components.LocationItem(
+                                title = "Офис",
+                                iconResId = R.drawable.controller_101_ofis
+                            ),
+                            com.awada.synapse.components.LocationItem(
+                                title = "Дом",
+                                iconResId = R.drawable.controller_102_dom
+                            )
+                        )
+                        PageLocations(
+                            onSettingsClick = { currentScreen = AppScreen.Settings },
+                            locations = locations,
+                            onLocationClick = { item ->
+                                selectedLocation = item
+                                currentScreen = AppScreen.LocationDetails
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.LocationDetails -> {
+                        val loc = selectedLocation
+                            ?: com.awada.synapse.components.LocationItem(
+                                title = "Локация",
+                                iconResId = R.drawable.controller_100_default
+                            )
                         PageLocation(
+                            location = loc,
+                            onBackClick = { currentScreen = AppScreen.Location },
                             onSettingsClick = { currentScreen = AppScreen.Settings },
                             onSearchClick = { currentScreen = AppScreen.Search },
                             onLumClick = { currentScreen = AppScreen.Lum },
