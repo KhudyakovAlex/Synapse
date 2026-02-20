@@ -3,6 +3,7 @@ package com.awada.synapse.lumcontrol
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
 private val SLIDER_ITEM_HEIGHT = 60.dp
@@ -52,6 +55,7 @@ fun LumControlLayer(
     sliders: List<String> = emptyList(),
     bottomPadding: Int = 178,
     autoExpandOnShow: Boolean = false,
+    stateKey: Any? = null,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -68,7 +72,7 @@ fun LumControlLayer(
         } else 0f
     }
 
-    val anchoredDraggableState = remember(sliderCount, isVisible, autoExpandOnShow) {
+    val anchoredDraggableState = remember(sliderCount, stateKey, isVisible, autoExpandOnShow) {
         AnchoredDraggableState(
             initialValue = if (autoExpandOnShow && isVisible && sliderCount > 0) {
                 LumControlState.Expanded
@@ -96,6 +100,25 @@ fun LumControlLayer(
     }
 
     val revealPx = (sliderSectionPx - currentOffset).coerceAtLeast(0f)
+
+    val shouldEntryAnimateOpen = autoExpandOnShow && isVisible && sliderCount > 0
+    var entryAnimDone by remember(stateKey, shouldEntryAnimateOpen) { mutableStateOf(false) }
+    val entryRevealPx by animateFloatAsState(
+        targetValue = if (shouldEntryAnimateOpen && !entryAnimDone) sliderSectionPx else 0f,
+        animationSpec = tween(
+            durationMillis = 550,
+            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+        ),
+        label = "LumControlEntryReveal"
+    )
+    androidx.compose.runtime.LaunchedEffect(shouldEntryAnimateOpen, entryAnimDone, stateKey) {
+        if (shouldEntryAnimateOpen && !entryAnimDone) {
+            delay(560L)
+            entryAnimDone = true
+        }
+    }
+
+    val revealForUi = if (shouldEntryAnimateOpen && !entryAnimDone) entryRevealPx else revealPx
 
     AnimatedVisibility(
         visible = isVisible,
@@ -125,7 +148,7 @@ fun LumControlLayer(
                 ) {
                     RevealSlidersAboveButtons(
                         sliders = sliders,
-                        revealPx = revealPx,
+                        revealPx = revealForUi,
                         colorValue = colorValue,
                         onColorValueChange = { colorValue = it },
                         saturationValue = saturationValue,
@@ -145,10 +168,14 @@ fun LumControlLayer(
                     .align(Alignment.TopCenter)
                     .then(
                         if (sliders.isNotEmpty()) {
-                            Modifier.anchoredDraggable(
-                                state = anchoredDraggableState,
-                                orientation = Orientation.Vertical
-                            )
+                            if (!shouldEntryAnimateOpen || entryAnimDone) {
+                                Modifier.anchoredDraggable(
+                                    state = anchoredDraggableState,
+                                    orientation = Orientation.Vertical
+                                )
+                            } else {
+                                Modifier
+                            }
                         } else Modifier
                     )
             ) {

@@ -7,10 +7,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
@@ -94,6 +100,7 @@ fun PageLocation(
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 val iconSize = 72.dp
+                val iconSizePx = with(LocalDensity.current) { iconSize.toPx() }
                 val rooms = remember {
                     listOf(
                         "Кухня" to com.awada.synapse.R.drawable.location_208_kuhnya,
@@ -125,10 +132,45 @@ fun PageLocation(
 
                 if (showDevices) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        val link0 = remember { mutableStateOf<Offset?>(null) }
+                        val link1 = remember { mutableStateOf<Offset?>(null) }
+                        val link2 = remember { mutableStateOf<Offset?>(null) }
+
                         // 2 rows of 4 tiles below (8 slots).
                         repeat(2) { row ->
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(
+                                        if (row == 0) {
+                                            Modifier.drawBehind {
+                                                val p0 = link0.value
+                                                val p1 = link1.value
+                                                val p2 = link2.value
+                                                val stroke = 5.dp.toPx()
+                                                val color = PixsoColors.Color_Border_border_shade_16
+
+                                                if (p0 != null && p1 != null) {
+                                                    drawLine(
+                                                        color = color,
+                                                        start = p0,
+                                                        end = p1,
+                                                        strokeWidth = stroke
+                                                    )
+                                                }
+                                                if (p1 != null && p2 != null) {
+                                                    drawLine(
+                                                        color = color,
+                                                        start = p1,
+                                                        end = p2,
+                                                        strokeWidth = stroke
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            Modifier
+                                        }
+                                    ),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 repeat(4) { col ->
@@ -152,7 +194,25 @@ fun PageLocation(
                                             onClick = onButtonPanelSettingsClick
                                         )
                                         else -> Lum(
-                                            modifier = Modifier,
+                                            modifier = Modifier.then(
+                                                if (idx in 0..2) {
+                                                    Modifier.onGloballyPositioned { coords ->
+                                                        val tl = coords.positionInParent()
+                                                        val center = Offset(
+                                                            x = tl.x + coords.size.width / 2f,
+                                                            // Center of the white circle (icon area), not the full tile.
+                                                            y = tl.y + iconSizePx / 2f
+                                                        )
+                                                        when (idx) {
+                                                            0 -> link0.value = center
+                                                            1 -> link1.value = center
+                                                            2 -> link2.value = center
+                                                        }
+                                                    }
+                                                } else {
+                                                    Modifier
+                                                }
+                                            ),
                                             title = s.title,
                                             iconSize = iconSize,
                                             brightnessPercent = s.brightnessPercent,

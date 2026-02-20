@@ -401,6 +401,7 @@ private fun MainContent() {
             isVisible = isLumControlVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
             autoExpandOnShow = currentScreen == AppScreen.Lum,
+            stateKey = currentScreen,
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.BottomCenter)
                 .fillMaxWidth()
