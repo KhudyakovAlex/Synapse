@@ -1,27 +1,20 @@
 package com.awada.synapse.pages
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
+import com.awada.synapse.components.IconRoom
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.PresSensor
@@ -83,7 +76,7 @@ fun PageLocation(
                     PixsoColors.Color_State_on_disabled
                 )
 
-                List(16) {
+                List(8) {
                     val title = when (rnd.nextInt(3)) {
                         0 -> "Настенный"
                         1 -> "Торшер"
@@ -100,75 +93,64 @@ fun PageLocation(
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 val iconSize = 72.dp
-                val density = LocalDensity.current
-                val iconSizePx = with(density) { iconSize.toPx() }
-                val centers = remember { mutableStateListOf<Offset?>().apply { repeat(16) { add(null) } } }
-                var canvasOriginInRoot by remember { mutableStateOf(Offset.Zero) }
-
-                val groups = remember {
+                val rooms = remember {
                     listOf(
-                        listOf(0, 1, 2, 3),
-                        listOf(0, 5)
+                        "Кухня" to com.awada.synapse.R.drawable.location_208_kuhnya,
+                        "Спальня" to com.awada.synapse.R.drawable.location_209_spalnya
                     )
                 }
+                val showRooms = rooms.isNotEmpty()
+                val showDevices = samples.isNotEmpty()
 
-                Box {
-                    Canvas(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .onGloballyPositioned { coords ->
-                                canvasOriginInRoot = coords.positionInRoot()
-                            }
+                if (showRooms) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        for (g in groups) {
-                            for (i in 0 until g.size - 1) {
-                                val a = centers[g[i]] ?: continue
-                                val b = centers[g[i + 1]] ?: continue
-                                drawLine(
-                                    color = PixsoColors.Color_Border_border_shade_8,
-                                    start = a,
-                                    end = b,
-                                    strokeWidth = 7.5.dp.toPx(),
-                                    cap = StrokeCap.Round
-                                )
-                            }
+                        rooms.take(2).forEach { (title, icon) ->
+                            IconRoom(
+                                text = title,
+                                iconResId = icon,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
+                }
 
+                if (showRooms && showDevices) {
+                    Spacer(modifier = Modifier.height(15.dp))
+                }
+
+                if (showDevices) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        repeat(4) { row ->
+                        // 2 rows of 4 tiles below (8 slots).
+                        repeat(2) { row ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 repeat(4) { col ->
-                                    val idx = row * 4 + col
+                                    val idx = row * 4 + col // 0..7
                                     val s = samples[idx]
-                                    val posModifier = Modifier.onGloballyPositioned { coords ->
-                                        val posInRoot = coords.positionInRoot()
-                                        val centerX = (posInRoot.x - canvasOriginInRoot.x) + coords.size.width / 2f
-                                        val centerY = (posInRoot.y - canvasOriginInRoot.y) + iconSizePx / 2f
-                                        centers[idx] = Offset(centerX, centerY)
-                                    }
 
                                     when (idx) {
-                                        12 -> PresSensor(
-                                            modifier = posModifier,
+                                        5 -> PresSensor(
+                                            modifier = Modifier,
                                             iconSize = iconSize,
                                             onClick = onSensorPressSettingsClick
                                         )
-                                        13 -> BrightSensor(
-                                            modifier = posModifier,
+                                        6 -> BrightSensor(
+                                            modifier = Modifier,
                                             iconSize = iconSize,
                                             onClick = onSensorBrightSettingsClick
                                         )
-                                        14 -> ButtonPanel(
-                                            modifier = posModifier,
+                                        7 -> ButtonPanel(
+                                            modifier = Modifier,
                                             iconSize = iconSize,
                                             onClick = onButtonPanelSettingsClick
                                         )
                                         else -> Lum(
-                                            modifier = posModifier,
+                                            modifier = Modifier,
                                             title = s.title,
                                             iconSize = iconSize,
                                             brightnessPercent = s.brightnessPercent,
