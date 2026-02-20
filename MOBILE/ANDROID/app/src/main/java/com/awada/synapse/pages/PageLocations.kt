@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.LocationsContainer
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.iconResId
@@ -71,6 +72,7 @@ fun PageLocations(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+            iconSize = 56.dp * 1.1f,
             onEmptyButtonClick = { onFindControllerClick?.invoke() }
         )
     }

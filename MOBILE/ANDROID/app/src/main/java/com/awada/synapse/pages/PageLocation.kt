@@ -125,10 +125,10 @@ fun PageLocation(
                                 val a = centers[g[i]] ?: continue
                                 val b = centers[g[i + 1]] ?: continue
                                 drawLine(
-                                    color = PixsoColors.Color_Bg_bg_surface,
+                                    color = PixsoColors.Color_Border_border_shade_8,
                                     start = a,
                                     end = b,
-                                    strokeWidth = 15.dp.toPx(),
+                                    strokeWidth = 7.5.dp.toPx(),
                                     cap = StrokeCap.Round
                                 )
                             }

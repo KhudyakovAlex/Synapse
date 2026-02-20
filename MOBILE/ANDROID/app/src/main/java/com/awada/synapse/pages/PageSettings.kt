@@ -218,7 +218,7 @@ private fun ReorderableControllersLayout(
 
         val scale = if (n == 1) 1.5f else 1f
         val cardSize: Dp = 156.dp * scale
-        val iconSize: Dp = 56.dp * scale
+        val iconSize: Dp = 56.dp * scale * 1.1f
         val contentOffsetY: Dp = 8.dp * scale
         val spacing: Dp = 24.dp
         val topPadding: Dp = if (n == 1) 24.dp else 0.dp

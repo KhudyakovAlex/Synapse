@@ -1,12 +1,13 @@
 package com.awada.synapse.components
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
@@ -42,13 +43,13 @@ fun LocationsContainer(
     emptyButtonText: String = "Найти контроллер",
     onEmptyButtonClick: (() -> Unit)? = null
 ) {
-    val items = locations.take(5)
+    val items = locations
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = if (items.size > 5) Alignment.TopCenter else Alignment.Center
     ) {
         when (items.size) {
             0 -> {
@@ -206,7 +207,7 @@ fun LocationsContainer(
                     }
                 }
             }
-            else -> {
+            5 -> {
                 // 5: 2x2 grid + one centered below
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -272,6 +273,40 @@ fun LocationsContainer(
                         iconSize = iconSize,
                         contentOffsetY = contentOffsetY
                     )
+                }
+            }
+            else -> {
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    items.chunked(2).forEach { rowItems ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = spacing,
+                                alignment = Alignment.CenterHorizontally
+                            )
+                        ) {
+                            rowItems.forEach { item ->
+                                LocationIcon(
+                                    title = item.title,
+                                    iconResId = item.iconResId,
+                                    showTitle = showTitles,
+                                    enabled = item.enabled,
+                                    onClick = item.onClick,
+                                    cardSize = cardSize,
+                                    iconSize = iconSize,
+                                    contentOffsetY = contentOffsetY
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
