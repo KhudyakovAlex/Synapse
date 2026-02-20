@@ -51,6 +51,7 @@ fun LumControlLayer(
     isVisible: Boolean = true,
     sliders: List<String> = emptyList(),
     bottomPadding: Int = 178,
+    autoExpandOnShow: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -67,9 +68,13 @@ fun LumControlLayer(
         } else 0f
     }
 
-    val anchoredDraggableState = remember(sliderCount) {
+    val anchoredDraggableState = remember(sliderCount, isVisible, autoExpandOnShow) {
         AnchoredDraggableState(
-            initialValue = LumControlState.Collapsed,
+            initialValue = if (autoExpandOnShow && isVisible && sliderCount > 0) {
+                LumControlState.Expanded
+            } else {
+                LumControlState.Collapsed
+            },
             anchors = DraggableAnchors {
                 LumControlState.Collapsed at sliderSectionPx
                 LumControlState.Expanded at 0f

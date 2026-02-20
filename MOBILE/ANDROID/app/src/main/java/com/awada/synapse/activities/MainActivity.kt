@@ -1,5 +1,6 @@
 package com.awada.synapse.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -47,12 +48,15 @@ import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PageLocationSettingsScreen
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PagePassword
+import com.awada.synapse.pages.PageRoom
+import com.awada.synapse.pages.PageRoomSettings
 import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSettings
 import com.awada.synapse.pages.PageSettingsButtonPanel
 import com.awada.synapse.pages.PageSettingsLum
 import com.awada.synapse.pages.PageSettingsSensorPress
 import com.awada.synapse.pages.PageSettingsSensorBright
+import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
 import com.awada.synapse.db.AppDatabase
@@ -80,6 +84,8 @@ class MainActivity : ComponentActivity() {
 enum class AppScreen {
     Location,
     LocationDetails,
+    RoomDetails,
+    RoomSettings,
     LocationSettings,
     Lum,
     Search,
@@ -99,9 +105,14 @@ private fun MainContent() {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
+    var lumBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    var systemSettingsBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var selectedLocation by remember {
         mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
+    }
+    var selectedRoom by remember {
+        mutableStateOf<RoomState?>(null)
     }
     // Hardcoded: show LumControlLayer only on Lum page
     val isLumControlVisible by remember {
@@ -120,21 +131,22 @@ private fun MainContent() {
     }
     var aiBottomInsetDp by remember { mutableStateOf(0.dp) }
 
-    val backToLocationDetails: () -> Unit = {
-        currentScreen = if (selectedLocation != null) AppScreen.LocationDetails else AppScreen.Location
-    }
-
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.SettingsLum, AppScreen.SettingsSensorPress, AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel -> {
-                backToLocationDetails()
-            }
+            AppScreen.SettingsLum -> currentScreen = settingsLumBackTarget
+            AppScreen.SettingsSensorPress, AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel -> currentScreen = systemSettingsBackTarget
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
-                currentScreen = AppScreen.Location
+                currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
             }
             AppScreen.LocationSettings -> {
                 currentScreen = AppScreen.LocationDetails
+            }
+            AppScreen.RoomDetails -> {
+                currentScreen = AppScreen.LocationDetails
+            }
+            AppScreen.RoomSettings -> {
+                currentScreen = AppScreen.RoomDetails
             }
             AppScreen.LocationDetails -> {
                 currentScreen = AppScreen.Location
@@ -219,10 +231,72 @@ private fun MainContent() {
                             location = loc,
                             onBackClick = { currentScreen = AppScreen.Location },
                             onSettingsClick = { currentScreen = AppScreen.LocationSettings },
-                            onLumClick = { currentScreen = AppScreen.Lum },
-                            onSensorPressSettingsClick = { currentScreen = AppScreen.SettingsSensorPress },
-                            onSensorBrightSettingsClick = { currentScreen = AppScreen.SettingsSensorBright },
-                            onButtonPanelSettingsClick = { currentScreen = AppScreen.SettingsButtonPanel },
+                            onRoomClick = { roomTitle, roomIconResId ->
+                                val iconId = iconIdFromDrawableResId(context, roomIconResId)
+                                    ?: iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya)
+                                    ?: 208
+                                selectedRoom = RoomState(title = roomTitle, iconId = iconId)
+                                currentScreen = AppScreen.RoomDetails
+                            },
+                            onLumClick = {
+                                lumBackTarget = AppScreen.LocationDetails
+                                currentScreen = AppScreen.Lum
+                            },
+                            onSensorPressSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.LocationDetails
+                                currentScreen = AppScreen.SettingsSensorPress
+                            },
+                            onSensorBrightSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.LocationDetails
+                                currentScreen = AppScreen.SettingsSensorBright
+                            },
+                            onButtonPanelSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.LocationDetails
+                                currentScreen = AppScreen.SettingsButtonPanel
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.RoomDetails -> {
+                        val room = selectedRoom ?: RoomState(
+                            title = "Помещение",
+                            iconId = iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya) ?: 208
+                        )
+                        PageRoom(
+                            roomTitle = room.title,
+                            onBackClick = { currentScreen = AppScreen.LocationDetails },
+                            onSettingsClick = { currentScreen = AppScreen.RoomSettings },
+                            onLumClick = {
+                                lumBackTarget = AppScreen.RoomDetails
+                                currentScreen = AppScreen.Lum
+                            },
+                            onSensorPressSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.RoomDetails
+                                currentScreen = AppScreen.SettingsSensorPress
+                            },
+                            onSensorBrightSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.RoomDetails
+                                currentScreen = AppScreen.SettingsSensorBright
+                            },
+                            onButtonPanelSettingsClick = {
+                                systemSettingsBackTarget = AppScreen.RoomDetails
+                                currentScreen = AppScreen.SettingsButtonPanel
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.RoomSettings -> {
+                        val room = selectedRoom ?: RoomState(
+                            title = "Помещение",
+                            iconId = iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya) ?: 208
+                        )
+                        PageRoomSettings(
+                            initialName = room.title,
+                            initialIconId = room.iconId,
+                            onBackClick = { currentScreen = AppScreen.RoomDetails },
+                            onSaved = { name, iconId ->
+                                selectedRoom = room.copy(title = name, iconId = iconId)
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -241,7 +315,7 @@ private fun MainContent() {
                     }
                     AppScreen.Lum -> {
                         PageLum(
-                            onBackClick = { currentScreen = AppScreen.Location },
+                            onBackClick = { currentScreen = lumBackTarget },
                             onSettingsClick = {
                                 settingsLumBackTarget = AppScreen.Lum
                                 currentScreen = AppScreen.SettingsLum
@@ -265,25 +339,25 @@ private fun MainContent() {
                     }
                     AppScreen.SettingsLum -> {
                         PageSettingsLum(
-                            onBackClick = backToLocationDetails,
+                            onBackClick = { currentScreen = settingsLumBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsSensorPress -> {
                         PageSettingsSensorPress(
-                            onBackClick = backToLocationDetails,
+                            onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsSensorBright -> {
                         PageSettingsSensorBright(
-                            onBackClick = backToLocationDetails,
+                            onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SettingsButtonPanel -> {
                         PageSettingsButtonPanel(
-                            onBackClick = backToLocationDetails,
+                            onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -322,6 +396,7 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
+            autoExpandOnShow = true,
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.BottomCenter)
                 .fillMaxWidth()
@@ -335,6 +410,18 @@ private fun MainContent() {
             onMainPanelTopPxChanged = { aiPanelTopPx = it }
         )
     }
+}
+
+private data class RoomState(
+    val title: String,
+    val iconId: Int
+)
+
+private fun iconIdFromDrawableResId(context: Context, drawableResId: Int): Int? {
+    val entryName = runCatching { context.resources.getResourceEntryName(drawableResId) }.getOrNull()
+        ?: return null
+    val catalog = IconCatalogManager.load(context)
+    return catalog.icons.firstOrNull { it.resourceName == entryName }?.id
 }
 
 @Preview(showBackground = true)

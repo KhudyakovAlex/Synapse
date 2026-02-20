@@ -29,6 +29,7 @@ fun PageLocation(
     location: LocationItem,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onRoomClick: (roomTitle: String, roomIconResId: Int) -> Unit,
     onLumClick: () -> Unit,
     onSensorPressSettingsClick: () -> Unit,
     onSensorBrightSettingsClick: () -> Unit,
@@ -111,6 +112,7 @@ fun PageLocation(
                             IconRoom(
                                 text = title,
                                 iconResId = icon,
+                                onClick = { onRoomClick(title, icon) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
