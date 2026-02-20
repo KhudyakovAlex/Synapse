@@ -114,9 +114,13 @@ private fun MainContent() {
     var selectedRoom by remember {
         mutableStateOf<RoomState?>(null)
     }
-    // Hardcoded: show LumControlLayer only on Lum page
+    // Show LumControlLayer on Lum + LocationDetails + RoomDetails (collapsed by default except Lum).
     val isLumControlVisible by remember {
-        derivedStateOf { currentScreen == AppScreen.Lum }
+        derivedStateOf {
+            currentScreen == AppScreen.Lum ||
+                currentScreen == AppScreen.LocationDetails ||
+                currentScreen == AppScreen.RoomDetails
+        }
     }
 
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
@@ -396,7 +400,7 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
-            autoExpandOnShow = true,
+            autoExpandOnShow = currentScreen == AppScreen.Lum,
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.BottomCenter)
                 .fillMaxWidth()
