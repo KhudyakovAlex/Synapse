@@ -89,15 +89,15 @@ fun PageSettings(
         PageContainer(
             title = "Настройки",
             onBackClick = onBackClick,
-            isScrollable = false,
+            isScrollable = true,
             modifier = Modifier.fillMaxSize()
         ) {
             if (ordered.value.isEmpty()) {
                 LocationsContainer(
                     locations = emptyList(),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                        .fillMaxWidth(),
+                    fillAvailableHeight = false,
                     onEmptyButtonClick = onFindControllerClick
                 )
                 return@PageContainer
@@ -106,7 +106,6 @@ fun PageSettings(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
                     .padding(horizontal = PixsoDimens.Numeric_16)
             ) {
                 Text(
@@ -123,35 +122,26 @@ fun PageSettings(
                     enabled = onFindControllerClick != null
                 )
                 Spacer(modifier = Modifier.height(40.dp))
-
-                val scrollState = rememberScrollState()
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    ReorderableControllersLayout(
-                        controllers = ordered.value,
-                        draggingId = draggingId,
-                        modalVisible = pendingDeleteId != -1,
-                        scrollState = scrollState,
-                        onDraggingIdChange = { draggingId = it },
-                        onControllersChange = { ordered.value = it },
-                        onCommitOrder = { finalOrder ->
-                            scope.launch {
-                                val dao = db.controllerDao()
-                                finalOrder.forEachIndexed { index, c ->
-                                    dao.setGridPos(c.id, index)
-                                }
+                ReorderableControllersLayout(
+                    controllers = ordered.value,
+                    draggingId = draggingId,
+                    modalVisible = pendingDeleteId != -1,
+                    onDraggingIdChange = { draggingId = it },
+                    onControllersChange = { ordered.value = it },
+                    onCommitOrder = { finalOrder ->
+                        scope.launch {
+                            val dao = db.controllerDao()
+                            finalOrder.forEachIndexed { index, c ->
+                                dao.setGridPos(c.id, index)
                             }
-                        },
-                        onRequestDelete = { pendingDeleteId = it },
-                        onLongPressActivated = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            vibrateStrongClick(context)
                         }
-                    )
-                }
+                    },
+                    onRequestDelete = { pendingDeleteId = it },
+                    onLongPressActivated = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        vibrateStrongClick(context)
+                    }
+                )
             }
         }
 
@@ -191,7 +181,6 @@ private fun ReorderableControllersLayout(
     controllers: List<ControllerEntity>,
     draggingId: Int,
     modalVisible: Boolean,
-    scrollState: androidx.compose.foundation.ScrollState,
     onDraggingIdChange: (Int) -> Unit,
     onControllersChange: (List<ControllerEntity>) -> Unit,
     onCommitOrder: (List<ControllerEntity>) -> Unit,
@@ -268,12 +257,12 @@ private fun ReorderableControllersLayout(
             n == 2 -> 2
             else -> ceil(n / 2f).toInt()
         }
-        val totalHeightPx =
+        val gridHeightPx =
             topPaddingPx +
                 totalRows * cardPx +
                 (totalRows - 1).coerceAtLeast(0) * spacingPx +
                 shadowBottomPaddingPx
-        val totalHeightDp = with(density) { totalHeightPx.toDp() }
+        val contentHeightDp = with(density) { gridHeightPx.toDp() }
 
         val slotRects = slotPositions.map { topLeft ->
             androidx.compose.ui.geometry.Rect(
@@ -286,19 +275,14 @@ private fun ReorderableControllersLayout(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = totalHeightDp)
+                .height(contentHeightDp)
                 // Drag should win over scroll: pointerInput first, then verticalScroll
                 .pointerInput(n, maxWidth, modalVisible) {
                     if (modalVisible || n == 0) return@pointerInput
 
-                    fun toContent(pos: Offset): Offset {
-                        // verticalScroll shifts content by -scroll; pointer coords are in viewport
-                        return pos + Offset(0f, scrollState.value.toFloat())
-                    }
-
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
-                        val startIndex = slotRects.indexOfFirst { it.contains(toContent(down.position)) }
+                        val startIndex = slotRects.indexOfFirst { it.contains(down.position) }
                         if (startIndex == -1) return@awaitEachGesture
 
                         awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
@@ -312,7 +296,7 @@ private fun ReorderableControllersLayout(
 
                         var moved = false
                         var hoverIndex = startIndex
-                        var lastPos = toContent(down.position)
+                        var lastPos = down.position
                         dragDelta = Offset.Zero
 
                         while (true) {
@@ -321,7 +305,7 @@ private fun ReorderableControllersLayout(
                             if (!change.pressed) break
 
                             val delta = change.position - change.previousPosition
-                            lastPos = toContent(change.position)
+                            lastPos = change.position
                             if (delta != Offset.Zero) {
                                 dragDelta += delta
                                 if (!moved && dragDelta.getDistance() > viewConfig.touchSlop) moved = true
@@ -369,7 +353,6 @@ private fun ReorderableControllersLayout(
                         onCommitOrder(newList)
                     }
                 }
-                .verticalScroll(scrollState, enabled = !anyDragging && !modalVisible)
         ) {
             controllers.forEachIndexed { index, c ->
                 key(c.id) {
@@ -429,7 +412,7 @@ private fun ReorderableControllersLayout(
                         .offset {
                             IntOffset(
                                 (topLeft.x + dragDelta.x).roundToInt(),
-                                (topLeft.y + dragDelta.y - scrollState.value).roundToInt()
+                                (topLeft.y + dragDelta.y).roundToInt()
                             )
                         }
                         .zIndex(20f)

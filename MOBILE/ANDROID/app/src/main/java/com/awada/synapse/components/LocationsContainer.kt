@@ -1,7 +1,5 @@
 package com.awada.synapse.components
 
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,14 +39,17 @@ fun LocationsContainer(
     showTitles: Boolean = true,
     emptyText: String = "Локации отсутсвуют. Подключитесь к контроллеру локации",
     emptyButtonText: String = "Найти контроллер",
-    onEmptyButtonClick: (() -> Unit)? = null
+    onEmptyButtonClick: (() -> Unit)? = null,
+    fillAvailableHeight: Boolean = true
 ) {
     val items = locations
 
+    val containerModifier = modifier
+        .then(if (fillAvailableHeight) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
+        .padding(horizontal = 16.dp)
+
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
+        modifier = containerModifier,
         contentAlignment = if (items.size > 5) Alignment.TopCenter else Alignment.Center
     ) {
         when (items.size) {
@@ -276,11 +277,9 @@ fun LocationsContainer(
                 }
             }
             else -> {
-                val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(spacing)
                 ) {

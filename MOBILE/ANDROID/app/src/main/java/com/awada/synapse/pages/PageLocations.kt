@@ -2,6 +2,7 @@ package com.awada.synapse.pages
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,13 +39,13 @@ fun PageLocations(
         PageContainer(
             title = "Локации",
             onSettingsClick = onSettingsClick,
-            isScrollable = false,
+            isScrollable = true,
             modifier = modifier
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .height(1.dp)
             )
         }
         return
@@ -60,19 +61,17 @@ fun PageLocations(
         )
         item.copy(onClick = { onLocationClick(item) })
     }
-
     PageContainer(
         title = "Локации",
         onSettingsClick = onSettingsClick,
-        isScrollable = false,
+        isScrollable = true,
         modifier = modifier
     ) {
         LocationsContainer(
             locations = boundLocations,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillMaxWidth(),
             iconSize = 56.dp * 1.1f,
+            fillAvailableHeight = false,
             onEmptyButtonClick = { onFindControllerClick?.invoke() }
         )
     }
