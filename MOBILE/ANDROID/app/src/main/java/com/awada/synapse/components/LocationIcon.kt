@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +42,9 @@ fun LocationIcon(
     contentOffsetY: Dp = 0.dp,
     showTitle: Boolean = true,
     enabled: Boolean = true,
+    backgroundColor: Color = PixsoColors.Color_Bg_bg_surface,
+    titleColor: Color = PixsoColors.Color_State_tertiary,
+    iconTint: Color? = null,
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -72,7 +77,7 @@ fun LocationIcon(
                     clip = false
                 )
                 .clip(CircleShape)
-                .background(PixsoColors.Color_Bg_bg_surface),
+                .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -85,7 +90,8 @@ fun LocationIcon(
                 Image(
                     painter = painterResource(iconResId),
                     contentDescription = null,
-                    modifier = Modifier.size(iconSize)
+                    modifier = Modifier.size(iconSize),
+                    colorFilter = iconTint?.let { ColorFilter.tint(it) }
                 )
 
                 if (showTitle) {
@@ -93,7 +99,7 @@ fun LocationIcon(
                     Text(
                         text = title,
                         style = LabelMedium.copy(lineHeight = LabelMedium.lineHeight * 0.8f),
-                        color = PixsoColors.Color_State_tertiary,
+                        color = titleColor,
                         textAlign = TextAlign.Center,
                         minLines = 2,
                         maxLines = 2,

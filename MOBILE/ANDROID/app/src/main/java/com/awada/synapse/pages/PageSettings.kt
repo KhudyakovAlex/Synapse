@@ -48,6 +48,7 @@ import com.awada.synapse.components.PrimaryIconLButton
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ControllerEntity
+import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import com.awada.synapse.ui.theme.TitleMedium
 import androidx.compose.material3.Text
@@ -76,6 +77,7 @@ fun PageSettings(
     val scope = rememberCoroutineScope()
     val ordered = remember { mutableStateOf<List<ControllerEntity>>(emptyList()) }
     var draggingId by remember { mutableIntStateOf(-1) }
+    var pressedId by remember { mutableIntStateOf(-1) }
     var pendingDeleteId by remember { mutableIntStateOf(-1) }
     val haptic = LocalHapticFeedback.current
 
@@ -125,8 +127,10 @@ fun PageSettings(
                 ReorderableControllersLayout(
                     controllers = ordered.value,
                     draggingId = draggingId,
+                    pressedId = pressedId,
                     modalVisible = pendingDeleteId != -1,
                     onDraggingIdChange = { draggingId = it },
+                    onPressedIdChange = { pressedId = it },
                     onControllersChange = { ordered.value = it },
                     onCommitOrder = { finalOrder ->
                         scope.launch {
@@ -158,6 +162,7 @@ fun PageSettings(
                             val remaining = ordered.value.filter { it.id != id }
                             ordered.value = remaining
                             pendingDeleteId = -1
+                            pressedId = -1
                             scope.launch {
                                 val dao = db.controllerDao()
                                 dao.deleteById(id)
@@ -168,6 +173,7 @@ fun PageSettings(
                         }
                         TooltipResult.Secondary, TooltipResult.Dismissed -> {
                             pendingDeleteId = -1
+                            pressedId = -1
                         }
                     }
                 }
@@ -180,8 +186,10 @@ fun PageSettings(
 private fun ReorderableControllersLayout(
     controllers: List<ControllerEntity>,
     draggingId: Int,
+    pressedId: Int,
     modalVisible: Boolean,
     onDraggingIdChange: (Int) -> Unit,
+    onPressedIdChange: (Int) -> Unit,
     onControllersChange: (List<ControllerEntity>) -> Unit,
     onCommitOrder: (List<ControllerEntity>) -> Unit,
     onRequestDelete: (Int) -> Unit,
@@ -293,6 +301,7 @@ private fun ReorderableControllersLayout(
                         onLongPressActivated()
                         draggedId = id
                         onDraggingIdChange(id)
+                        onPressedIdChange(id)
 
                         var moved = false
                         var hoverIndex = startIndex
@@ -343,9 +352,14 @@ private fun ReorderableControllersLayout(
 
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
                         val toRaw = if (dropOver != -1) dropOver else hoverIndex
-                        if (toRaw == from) return@awaitEachGesture
-
                         val to = if (toRaw > from) toRaw - 1 else toRaw
+                        // If user dragged but ended up without a reorder, interpret as delete intent.
+                        if (to == from) {
+                            onRequestDelete(id)
+                            return@awaitEachGesture
+                        }
+
+                        onPressedIdChange(-1)
                         val newList = finalOrder.toMutableList()
                         val item = newList.removeAt(from)
                         newList.add(to.coerceIn(0, newList.size), item)
@@ -360,6 +374,7 @@ private fun ReorderableControllersLayout(
                     val target = IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt())
                     val isDragging = c.id == draggingId
                     val animOffset by animateIntOffsetAsState(targetValue = target, label = "iconOffset")
+                    val isPressed = c.id == pressedId || isDragging
 
                     val title = c.name.ifBlank { "Контроллер ${c.id}" }
                     val icon = iconResId(context, c.icoNum)
@@ -373,6 +388,9 @@ private fun ReorderableControllersLayout(
                         showTitle = true,
                         enabled = true,
                         onClick = null,
+                        backgroundColor = if (isPressed) PixsoColors.Color_State_primary_pressed else PixsoColors.Color_Bg_bg_surface,
+                        titleColor = if (isPressed) PixsoColors.Color_State_on_primary else PixsoColors.Color_State_tertiary,
+                        iconTint = if (isPressed) PixsoColors.Color_State_on_primary else null,
                         modifier = Modifier
                             .offset {
                                 if (isDragging) {
@@ -408,6 +426,9 @@ private fun ReorderableControllersLayout(
                     showTitle = true,
                     enabled = true,
                     onClick = null,
+                    backgroundColor = PixsoColors.Color_State_primary_pressed,
+                    titleColor = PixsoColors.Color_State_on_primary,
+                    iconTint = PixsoColors.Color_State_on_primary,
                     modifier = Modifier
                         .offset {
                             IntOffset(
