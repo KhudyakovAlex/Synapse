@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -47,7 +49,10 @@ private const val SCRIM_MAX_ALPHA = 0.5f
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AI(modifier: Modifier = Modifier) {
+fun AI(
+    modifier: Modifier = Modifier,
+    onMainPanelTopPxChanged: ((Float) -> Unit)? = null
+) {
     val context = LocalContext.current
     val settingsRepository: SettingsRepository = remember { SettingsRepository(context) }
     val isAIEnabled by settingsRepository.isAIEnabled.collectAsState(initial = true)
@@ -162,7 +167,10 @@ fun AI(modifier: Modifier = Modifier) {
             AIMain(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
+                    .align(Alignment.BottomCenter)
+                    .onGloballyPositioned { coords ->
+                        onMainPanelTopPxChanged?.invoke(coords.boundsInRoot().top)
+                    },
                 anchoredDraggableState = anchoredDraggableState
             )
         }

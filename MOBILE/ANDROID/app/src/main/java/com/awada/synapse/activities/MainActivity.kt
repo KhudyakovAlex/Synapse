@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.derivedStateOf
@@ -110,12 +111,14 @@ private fun MainContent() {
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
     var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
+    var aiPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
     val lumBottomInsetDp by remember {
         derivedStateOf {
             if (!lumPanelTopPx.isFinite() || rootHeightPx <= 0f) return@derivedStateOf 0.dp
             with(density) { (rootHeightPx - lumPanelTopPx).coerceAtLeast(0f).toDp() }
         }
     }
+    var aiBottomInsetDp by remember { mutableStateOf(0.dp) }
 
     val backToLocationDetails: () -> Unit = {
         currentScreen = if (selectedLocation != null) AppScreen.LocationDetails else AppScreen.Location
@@ -156,8 +159,25 @@ private fun MainContent() {
                 rootHeightPx = coords.size.height.toFloat()
             }
     ) {
+        // Cache the smallest observed AI inset (collapsed panel). When AI expands, we
+        // don't want pages to "jump" their layout based on the temporary expanded top.
+        val aiInsetCandidateDp by remember {
+            derivedStateOf {
+                if (!aiPanelTopPx.isFinite() || rootHeightPx <= 0f) return@derivedStateOf 0.dp
+                with(density) { (rootHeightPx - aiPanelTopPx).coerceAtLeast(0f).toDp() }
+            }
+        }
+        LaunchedEffect(aiInsetCandidateDp, aiBottomInsetDp) {
+            if (aiInsetCandidateDp > 0.dp && (aiBottomInsetDp == 0.dp || aiInsetCandidateDp < aiBottomInsetDp)) {
+                aiBottomInsetDp = aiInsetCandidateDp
+            }
+        }
+
         CompositionLocalProvider(
-            LocalBottomOverlayInset provides (if (isLumControlVisible) lumBottomInsetDp else 0.dp)
+            LocalBottomOverlayInset provides maxOf(
+                aiBottomInsetDp,
+                if (isLumControlVisible) lumBottomInsetDp else 0.dp
+            )
         ) {
             // Navigation between pages with animation
             AnimatedContent(
@@ -310,7 +330,10 @@ private fun MainContent() {
                 }
         )
         
-        AI(modifier = Modifier.fillMaxSize())
+        AI(
+            modifier = Modifier.fillMaxSize(),
+            onMainPanelTopPxChanged = { aiPanelTopPx = it }
+        )
     }
 }
 

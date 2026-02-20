@@ -1,12 +1,14 @@
 package com.awada.synapse.pages
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -61,18 +63,49 @@ fun PageLocations(
         )
         item.copy(onClick = { onLocationClick(item) })
     }
+
+    // If list is large, keep current "top + scroll" behavior.
+    if (boundLocations.size > 5) {
+        PageContainer(
+            title = "Локации",
+            onSettingsClick = onSettingsClick,
+            isScrollable = true,
+            modifier = modifier
+        ) {
+            LocationsContainer(
+                locations = boundLocations,
+                modifier = Modifier.fillMaxWidth(),
+                iconSize = 56.dp * 1.1f,
+                fillAvailableHeight = false,
+                onEmptyButtonClick = { onFindControllerClick?.invoke() }
+            )
+        }
+        return
+    }
+
+    // If list is small, center within the free area (AppBar..AI panel top).
     PageContainer(
         title = "Локации",
         onSettingsClick = onSettingsClick,
-        isScrollable = true,
+        isScrollable = false,
+        bottomSpacerHeightOverride = 0.dp,
         modifier = modifier
     ) {
-        LocationsContainer(
-            locations = boundLocations,
-            modifier = Modifier.fillMaxWidth(),
-            iconSize = 56.dp * 1.1f,
-            fillAvailableHeight = false,
-            onEmptyButtonClick = { onFindControllerClick?.invoke() }
-        )
+        val bottomInset = LocalBottomOverlayInset.current
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(bottom = bottomInset),
+            contentAlignment = Alignment.Center
+        ) {
+            LocationsContainer(
+                locations = boundLocations,
+                modifier = Modifier.fillMaxWidth(),
+                iconSize = 56.dp * 1.1f,
+                fillAvailableHeight = true,
+                onEmptyButtonClick = { onFindControllerClick?.invoke() }
+            )
+        }
     }
 }
