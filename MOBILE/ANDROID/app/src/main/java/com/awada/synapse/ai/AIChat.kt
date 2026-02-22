@@ -17,54 +17,66 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.InputBar
+import com.awada.synapse.db.AiMessageEntity
+import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
 private val DRAG_HANDLE_BAR_WIDTH = 40.dp
 private val DRAG_HANDLE_BAR_HEIGHT = 4.dp
 private val CHAT_HORIZONTAL_PADDING = 16.dp
-private val INPUT_BAR_BOTTOM_PADDING = 76.dp
 
-// Chat message types
-sealed class ChatItem {
-    data class AIMessage(val text: String, val time: String) : ChatItem()
-    data class UserMessage(val text: String, val time: String) : ChatItem()
-    data class QuickReply(val text: String) : ChatItem()
+private const val ROLE_USER = "USER"
+private const val ROLE_AI = "AI"
+private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+private fun formatTime(timestampMs: Long): String {
+    return Instant.ofEpochMilli(timestampMs)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(TIME_FORMATTER)
 }
 
-// Mock data for demo
-private val mockChatItems = listOf(
-    ChatItem.AIMessage(
-        text = "Привет! Я Synapse — твой AI-ассистент. Чем могу помочь?",
-        time = "10:30"
-    ),
-    ChatItem.UserMessage(
-        text = "Привет! Расскажи о своих возможностях",
-        time = "10:31"
-    ),
-    ChatItem.AIMessage(
-        text = "Я могу помочь с ответами на вопросы, написанием текстов, анализом данных и многим другим. Просто напиши, что тебя интересует!",
-        time = "10:31"
-    ),
-    ChatItem.QuickReply(text = "Расскажи подробнее о своих возможностях и как ты можешь мне помочь"),
-    ChatItem.QuickReply(text = "Покажи пример"),
-    ChatItem.QuickReply(text = "Понятно, спасибо!")
-)
+private fun buildPrompt(history: List<AiMessageEntity>): String {
+    val sb = StringBuilder()
+    sb.appendLine("Ты Synapse — ассистент приложения. Отвечай по-русски, кратко и по делу.")
+    sb.appendLine()
+    history.forEach { msg ->
+        when (msg.role) {
+            ROLE_USER -> sb.append("User: ").appendLine(msg.text)
+            ROLE_AI -> sb.append("Assistant: ").appendLine(msg.text)
+            else -> Unit
+        }
+    }
+    sb.append("Assistant:")
+    return sb.toString()
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -76,6 +88,34 @@ fun AIChat(
     mainPanelHeightPx: Float,
     anchoredDraggableState: AnchoredDraggableState<ChatState>
 ) {
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val dao = remember { db.aiMessageDao() }
+    val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+
+    val messages by dao.observeAll().collectAsState(initial = emptyList())
+    var inputText by remember { mutableStateOf("") }
+    var isSending by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (dao.count() == 0) {
+            dao.insert(
+                AiMessageEntity(
+                    role = ROLE_AI,
+                    text = "Привет! Я Synapse — твой AI-ассистент. Чем могу помочь?",
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.lastIndex)
+        }
+    }
+
     val density = LocalDensity.current
     // Fixed height: from expanded top offset to bottom of screen, minus drag handle
     // Note: this extends under main panel to fill corner gaps (no clip on container)
@@ -85,8 +125,6 @@ fun AIChat(
     
     // Convert main panel height to dp for padding calculations
     val mainPanelHeightDp = with(density) { mainPanelHeightPx.toDp() }
-
-    var inputText by remember { mutableStateOf("") }
     
     // Calculate keyboard offset: lift chat content when keyboard appears
     val imeBottomPx = WindowInsets.ime.getBottom(density)
@@ -144,22 +182,18 @@ fun AIChat(
                             start = CHAT_HORIZONTAL_PADDING,
                             end = CHAT_HORIZONTAL_PADDING,
                             bottom = mainPanelHeightDp + 24.dp + 56.dp + 16.dp // input bar position + input bar height + padding
-                        )
+                        ),
+                    state = listState
                 ) {
-                    items(mockChatItems) { item: ChatItem ->
-                        when (item) {
-                            is ChatItem.AIMessage -> UIMessageAI(
-                                text = item.text,
-                                time = item.time
-                            )
-                            is ChatItem.UserMessage -> UIMessageUser(
-                                text = item.text,
-                                time = item.time
-                            )
-                            is ChatItem.QuickReply -> UIQuickReply(
-                                text = item.text,
-                                onClick = { /* TODO: Handle quick reply */ }
-                            )
+                    items(
+                        count = messages.size,
+                        key = { idx -> messages[idx].id }
+                    ) { idx ->
+                        val item = messages[idx]
+                        val time = formatTime(item.createdAt)
+                        when (item.role) {
+                            ROLE_AI -> UIMessageAI(text = item.text, time = time)
+                            else -> UIMessageUser(text = item.text, time = time)
                         }
                     }
                 }
@@ -180,8 +214,37 @@ fun AIChat(
                         value = inputText,
                         onValueChange = { inputText = it },
                         onSendClick = {
-                            // TODO: Handle send
+                            val text = inputText.trim()
+                            if (text.isEmpty() || isSending) return@InputBar
                             inputText = ""
+                            isSending = true
+
+                            scope.launch {
+                                val now = System.currentTimeMillis()
+                                dao.insert(
+                                    AiMessageEntity(
+                                        role = ROLE_USER,
+                                        text = text,
+                                        createdAt = now
+                                    )
+                                )
+
+                                val recent = dao.getRecent(limit = 24).reversed()
+                                val prompt = buildPrompt(recent)
+                                val reply = withContext(Dispatchers.IO) {
+                                    runCatching { OllamaClient.generateText(prompt) }
+                                        .getOrElse { "Ошибка запроса к Ollama: ${it.message ?: "unknown"}" }
+                                }.trim()
+
+                                dao.insert(
+                                    AiMessageEntity(
+                                        role = ROLE_AI,
+                                        text = if (reply.isNotEmpty()) reply else "…",
+                                        createdAt = System.currentTimeMillis()
+                                    )
+                                )
+                                isSending = false
+                            }
                         }
                     )
                 }

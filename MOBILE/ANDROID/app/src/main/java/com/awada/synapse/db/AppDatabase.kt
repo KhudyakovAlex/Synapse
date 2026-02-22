@@ -8,12 +8,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ControllerEntity::class],
-    version = 2,
+    entities = [ControllerEntity::class, AiMessageEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun controllerDao(): ControllerDao
+    abstract fun aiMessageDao(): AiMessageDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -21,6 +22,20 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "ALTER TABLE CONTROLLERS ADD COLUMN GRID_POS INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS AI_MESSAGES (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        ROLE TEXT NOT NULL,
+                        TEXT TEXT NOT NULL,
+                        CREATED_AT INTEGER NOT NULL
+                    )
+                    """.trimIndent()
                 )
             }
         }
@@ -34,7 +49,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).addMigrations(MIGRATION_1_2).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { INSTANCE = it }
             }
         }
     }
