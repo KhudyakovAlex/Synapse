@@ -10,8 +10,8 @@
 
 ```
 IMG/
-├── Controller/     (26 файлов) - иконки контроллеров/помещений
-├── Location/       (36 файлов) - иконки локаций
+├── Controller/     (26 файлов) - иконки локаций (контроллеров)
+├── Location/       (36 файлов) - иконки помещений (Room) *(исторически папка названа Location)*
 ├── Luminaire/      (36 файлов) - иконки светильников
 └── System/         (1 файлов) - системные иконки
 ```
@@ -20,7 +20,7 @@ IMG/
 
 **XML файлы** сохраняются в `app/src/main/res/drawable/` с префиксами:
 - `controller_*.xml` — из папки Controller
-- `location_*.xml` — из папки Location
+- `location_*.xml` — из папки Location *(иконки помещений / Room)*
 - `luminaire_*.xml` — из папки Luminaire
 - `system_*.xml` — из папки System
 
@@ -112,8 +112,8 @@ python convert_svg_to_android.py
 ### Шаг 1: Добавить SVG в папку IMG
 
 Положить новые SVG файлы в соответствующую папку:
-- `IMG/Controller/` — для контроллеров
-- `IMG/Location/` — для локаций
+- `IMG/Controller/` — для локаций (контроллеров)
+- `IMG/Location/` — для помещений (Room) *(исторически папка названа Location)*
 - `IMG/Luminaire/` — для светильников
 - `IMG/System/` — для системных иконок
 
@@ -512,7 +512,7 @@ fun ControllerCard(controller: Controller) {
 }
 ```
 
-#### Выбор иконки для локации
+#### Выбор иконки для локации (контроллера)
 
 ```kotlin
 @Composable
