@@ -47,7 +47,7 @@ fun PresSensor(
 }
 
 @Composable
-fun BraightSensor(
+fun BrightSensor(
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
@@ -56,21 +56,6 @@ fun BraightSensor(
     SystemIconTile(
         title = "Сенсор\nяркости",
         iconResId = R.drawable.system_902_sensorb,
-        modifier = modifier,
-        iconSize = iconSize,
-        enabled = enabled,
-        onClick = onClick
-    )
-}
-
-@Composable
-fun BrightSensor(
-    modifier: Modifier = Modifier,
-    iconSize: Dp = 72.dp,
-    enabled: Boolean = true,
-    onClick: (() -> Unit)? = null
-) {
-    BraightSensor(
         modifier = modifier,
         iconSize = iconSize,
         enabled = enabled,

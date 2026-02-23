@@ -30,7 +30,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.launch
 
 @Composable
-fun PageLocationSettingsScreen(
+fun PageLocationSettings(
     controllerId: Int?,
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,

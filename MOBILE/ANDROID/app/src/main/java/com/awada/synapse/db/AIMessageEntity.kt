@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "AI_MESSAGES")
-data class AiMessageEntity(
+data class AIMessageEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID")
     val id: Long = 0,

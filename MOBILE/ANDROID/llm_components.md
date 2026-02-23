@@ -184,3 +184,9 @@ PageContainer(
 )
 ```
 **Логика:** Фиксированный `AppBar` сверху, под ним область контента (опционально скроллируемая).
+
+## Naming conventions (компоненты)
+- Имена composable-компонентов: существительное + суффикс типа (`*Button`, `*Icon`, `*Indicator`, `*Field`).
+- Избегаем опечаток (`Bright`, не `Braight`) и неясных суффиксов (`L` и т.п.).
+- Acronyms в именах типов/файлов — **UPPERCASE** (например `AI...`), см. `llm.md`.
+- Примеры: `PrimaryIconButtonLarge` (вместо `PrimaryIconLButton`), `RoomIcon` (а не `IconRoom`).

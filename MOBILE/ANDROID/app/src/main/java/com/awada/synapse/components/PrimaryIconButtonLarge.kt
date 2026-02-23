@@ -35,7 +35,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
  * Colors taken from Pixso DSL selection.
  */
 @Composable
-fun PrimaryIconLButton(
+fun PrimaryIconButtonLarge(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

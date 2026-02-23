@@ -44,18 +44,18 @@ import com.awada.synapse.ai.AI
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
+import com.awada.synapse.pages.PageLumSettings
 import com.awada.synapse.pages.PageLocation
-import com.awada.synapse.pages.PageLocationSettingsScreen
+import com.awada.synapse.pages.PageLocationSettings
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PagePassword
+import com.awada.synapse.pages.PageButtonPanelSettings
 import com.awada.synapse.pages.PageRoom
 import com.awada.synapse.pages.PageRoomSettings
 import com.awada.synapse.pages.PageSearch
+import com.awada.synapse.pages.PageSensorBrightSettings
+import com.awada.synapse.pages.PageSensorPressSettings
 import com.awada.synapse.pages.PageSettings
-import com.awada.synapse.pages.PageSettingsButtonPanel
-import com.awada.synapse.pages.PageSettingsLum
-import com.awada.synapse.pages.PageSettingsSensorPress
-import com.awada.synapse.pages.PageSettingsSensorBright
 import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
@@ -90,10 +90,10 @@ enum class AppScreen {
     Lum,
     Search,
     Settings,
-    SettingsLum,
-    SettingsSensorPress,
-    SettingsSensorBright,
-    SettingsButtonPanel,
+    LumSettings,
+    SensorPressSettings,
+    SensorBrightSettings,
+    ButtonPanelSettings,
     Password
 }
 
@@ -138,8 +138,8 @@ private fun MainContent() {
     // Handle system back button
     BackHandler {
         when (currentScreen) {
-            AppScreen.SettingsLum -> currentScreen = settingsLumBackTarget
-            AppScreen.SettingsSensorPress, AppScreen.SettingsSensorBright, AppScreen.SettingsButtonPanel -> currentScreen = systemSettingsBackTarget
+            AppScreen.LumSettings -> currentScreen = settingsLumBackTarget
+            AppScreen.SensorPressSettings, AppScreen.SensorBrightSettings, AppScreen.ButtonPanelSettings -> currentScreen = systemSettingsBackTarget
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
             }
@@ -248,15 +248,15 @@ private fun MainContent() {
                             },
                             onSensorPressSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.LocationDetails
-                                currentScreen = AppScreen.SettingsSensorPress
+                                currentScreen = AppScreen.SensorPressSettings
                             },
                             onSensorBrightSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.LocationDetails
-                                currentScreen = AppScreen.SettingsSensorBright
+                                currentScreen = AppScreen.SensorBrightSettings
                             },
                             onButtonPanelSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.LocationDetails
-                                currentScreen = AppScreen.SettingsButtonPanel
+                                currentScreen = AppScreen.ButtonPanelSettings
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -276,15 +276,15 @@ private fun MainContent() {
                             },
                             onSensorPressSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.SettingsSensorPress
+                                currentScreen = AppScreen.SensorPressSettings
                             },
                             onSensorBrightSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.SettingsSensorBright
+                                currentScreen = AppScreen.SensorBrightSettings
                             },
                             onButtonPanelSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.SettingsButtonPanel
+                                currentScreen = AppScreen.ButtonPanelSettings
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -305,7 +305,7 @@ private fun MainContent() {
                         )
                     }
                     AppScreen.LocationSettings -> {
-                        PageLocationSettingsScreen(
+                        PageLocationSettings(
                             controllerId = selectedLocation?.controllerId,
                             onBackClick = { currentScreen = AppScreen.LocationDetails },
                             onSaved = { newName, newIconId ->
@@ -322,7 +322,7 @@ private fun MainContent() {
                             onBackClick = { currentScreen = lumBackTarget },
                             onSettingsClick = {
                                 settingsLumBackTarget = AppScreen.Lum
-                                currentScreen = AppScreen.SettingsLum
+                                currentScreen = AppScreen.LumSettings
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -341,26 +341,26 @@ private fun MainContent() {
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    AppScreen.SettingsLum -> {
-                        PageSettingsLum(
+                    AppScreen.LumSettings -> {
+                        PageLumSettings(
                             onBackClick = { currentScreen = settingsLumBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    AppScreen.SettingsSensorPress -> {
-                        PageSettingsSensorPress(
+                    AppScreen.SensorPressSettings -> {
+                        PageSensorPressSettings(
                             onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    AppScreen.SettingsSensorBright -> {
-                        PageSettingsSensorBright(
+                    AppScreen.SensorBrightSettings -> {
+                        PageSensorBrightSettings(
                             onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    AppScreen.SettingsButtonPanel -> {
-                        PageSettingsButtonPanel(
+                    AppScreen.ButtonPanelSettings -> {
+                        PageButtonPanelSettings(
                             onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )

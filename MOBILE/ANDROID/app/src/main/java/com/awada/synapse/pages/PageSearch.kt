@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.awada.synapse.components.SearchSwampIndicator
+import com.awada.synapse.components.SearchSwarmIndicator
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.delay
@@ -41,7 +41,7 @@ fun PageSearch(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                SearchSwampIndicator()
+                SearchSwarmIndicator()
                 Text(
                     text = "Ищем контроллер локации...",
                     modifier = Modifier

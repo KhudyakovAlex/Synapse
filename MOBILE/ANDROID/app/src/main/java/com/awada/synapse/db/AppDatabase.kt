@@ -8,13 +8,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ControllerEntity::class, AiMessageEntity::class],
+    entities = [ControllerEntity::class, AIMessageEntity::class],
     version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun controllerDao(): ControllerDao
-    abstract fun aiMessageDao(): AiMessageDao
+    abstract fun aiMessageDao(): AIMessageDao
 
     companion object {
         private const val DB_NAME = "synapse.db"

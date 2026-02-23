@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.awada.synapse.components.LocationIcon
 import com.awada.synapse.components.LocationsContainer
-import com.awada.synapse.components.PrimaryIconLButton
+import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ControllerEntity
@@ -117,7 +117,7 @@ fun PageSettings(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                PrimaryIconLButton(
+                PrimaryIconButtonLarge(
                     text = "Найти контроллер",
                     onClick = { onFindControllerClick?.invoke() },
                     modifier = Modifier.fillMaxWidth(),

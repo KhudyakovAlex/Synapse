@@ -23,19 +23,19 @@ import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
- * Press sensor settings page.
- * Configure press sensor parameters.
+ * Brightness sensor settings page.
+ * Configure brightness sensor parameters.
  */
 @Composable
-fun PageSettingsSensorPress(
+fun PageSensorBrightSettings(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
-    var roomId by remember { mutableIntStateOf(-1) } // -1 = null
-    var delaySec by remember { mutableStateOf("") }
+    var roomId by remember { mutableIntStateOf(-1) }
+    var groupId by remember { mutableIntStateOf(-1) }
     
-    // Mock data for dropdown
+    // Mock data for dropdowns
     val roomItems = listOf(
         DropdownItem(1, "Гостиная"),
         DropdownItem(2, "Спальня"),
@@ -43,8 +43,14 @@ fun PageSettingsSensorPress(
         DropdownItem(4, "Ванная")
     )
     
+    val groupItems = listOf(
+        DropdownItem(1, "Основное освещение"),
+        DropdownItem(2, "Декоративное"),
+        DropdownItem(3, "Рабочее")
+    )
+    
     PageContainer(
-        title = "Настройки\nдатчика присутствия",
+        title = "Настройки\nдатчика освещённости",
         onBackClick = onBackClick,
         isScrollable = true,
         modifier = modifier
@@ -78,13 +84,15 @@ fun PageSettingsSensorPress(
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
-            // 3. Задержка
-            TextField(
-                value = delaySec,
-                onValueChange = { delaySec = it },
-                label = "Задержка, сек",
-                placeholder = "",
-                enabled = true
+            // 3. Группа
+            TextFieldForList(
+                value = groupId.takeIf { it >= 0 },
+                onValueChange = { groupId = it },
+                icon = R.drawable.ic_chevron_down,
+                label = "Группа",
+                placeholder = "Не выбрано",
+                enabled = true,
+                dropdownItems = groupItems
             )
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))

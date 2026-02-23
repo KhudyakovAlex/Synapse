@@ -23,17 +23,18 @@ import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.ui.theme.PixsoDimens
 
 /**
- * Button panel settings page.
- * Placeholder: duplicated structure from sensor settings.
+ * Press sensor settings page.
+ * Configure press sensor parameters.
  */
 @Composable
-fun PageSettingsButtonPanel(
+fun PageSensorPressSettings(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
-    var roomId by remember { mutableIntStateOf(-1) }
-
+    var roomId by remember { mutableIntStateOf(-1) } // -1 = null
+    var delaySec by remember { mutableStateOf("") }
+    
     // Mock data for dropdown
     val roomItems = listOf(
         DropdownItem(1, "Гостиная"),
@@ -41,9 +42,9 @@ fun PageSettingsButtonPanel(
         DropdownItem(3, "Кухня"),
         DropdownItem(4, "Ванная")
     )
-
+    
     PageContainer(
-        title = "Настройки\nкнопочной панели",
+        title = "Настройки\nдатчика присутствия",
         onBackClick = onBackClick,
         isScrollable = true,
         modifier = modifier
@@ -61,9 +62,9 @@ fun PageSettingsButtonPanel(
                 placeholder = "",
                 enabled = true
             )
-
+            
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
+            
             // 2. Помещение
             TextFieldForList(
                 value = roomId.takeIf { it >= 0 },
@@ -74,9 +75,20 @@ fun PageSettingsButtonPanel(
                 enabled = true,
                 dropdownItems = roomItems
             )
-
+            
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            
+            // 3. Задержка
+            TextField(
+                value = delaySec,
+                onValueChange = { delaySec = it },
+                label = "Задержка, сек",
+                placeholder = "",
+                enabled = true
+            )
+            
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
-
+            
             // Bottom buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -87,7 +99,7 @@ fun PageSettingsButtonPanel(
                     onClick = onBackClick,
                     modifier = Modifier.weight(1f)
                 )
-
+                
                 PrimaryButton(
                     text = "Сохранить",
                     onClick = onBackClick,
@@ -97,4 +109,3 @@ fun PageSettingsButtonPanel(
         }
     }
 }
-

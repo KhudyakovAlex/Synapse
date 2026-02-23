@@ -47,6 +47,15 @@
 - Векторные изображения (SVG/иконки/логотипы) вытягивать по MCP из Pixso
 - Вопросы задавать с пронумерованными вариантами ответов (1, 2, 3...)
 
+## Naming conventions (единый принцип именования)
+- **Файл ↔ главный символ**: имя `.kt` совпадает с главным `@Composable fun` или `class/data class/object` в файле.
+- **Pages (экраны)**: `Page{Entity}{Suffix}`
+  - список: `Page{Entities}` (plural), детали: `Page{Entity}` (singular)
+  - настройки: `Page{Entity}Settings`
+  - действия: `Page{Action}` (Search, Password, IconSelect)
+- **Components (UI)**: существительное + суффикс типа (`*Button`, `*Icon`, `*Indicator`, `*Field`), без опечаток и неясных суффиксов.
+- **Acronyms**: пишем **UPPERCASE** в именах типов/файлов (`AIChat`, `AIMessageEntity`, `UIMessageAI`).
+
 ## Разделы документации
 
 ### [Текущая задача (шаблон)](llm_current_task.md)

@@ -68,7 +68,7 @@ fun LocationsContainer(
                     )
                     if (onEmptyButtonClick != null) {
                         Spacer(modifier = Modifier.height(20.dp))
-                        PrimaryIconLButton(
+                        PrimaryIconButtonLarge(
                             text = emptyButtonText,
                             onClick = onEmptyButtonClick,
                             modifier = Modifier.fillMaxWidth()

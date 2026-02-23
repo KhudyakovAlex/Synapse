@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.InputBar
-import com.awada.synapse.db.AiMessageEntity
+import com.awada.synapse.db.AIMessageEntity
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -63,7 +63,7 @@ private fun formatTime(timestampMs: Long): String {
         .format(TIME_FORMATTER)
 }
 
-private fun buildPrompt(history: List<AiMessageEntity>): String {
+private fun buildPrompt(history: List<AIMessageEntity>): String {
     val sb = StringBuilder()
     sb.appendLine("Ты Synapse — ассистент приложения. Отвечай по-русски, кратко и по делу.")
     sb.appendLine()
@@ -101,7 +101,7 @@ fun AIChat(
     LaunchedEffect(Unit) {
         if (dao.count() == 0) {
             dao.insert(
-                AiMessageEntity(
+                AIMessageEntity(
                     role = ROLE_AI,
                     text = "Привет! Я Synapse — твой AI-ассистент. Чем могу помочь?",
                     createdAt = System.currentTimeMillis()
@@ -222,7 +222,7 @@ fun AIChat(
                             scope.launch {
                                 val now = System.currentTimeMillis()
                                 dao.insert(
-                                    AiMessageEntity(
+                                    AIMessageEntity(
                                         role = ROLE_USER,
                                         text = text,
                                         createdAt = now
@@ -237,7 +237,7 @@ fun AIChat(
                                 }.trim()
 
                                 dao.insert(
-                                    AiMessageEntity(
+                                    AIMessageEntity(
                                         role = ROLE_AI,
                                         text = if (reply.isNotEmpty()) reply else "…",
                                         createdAt = System.currentTimeMillis()

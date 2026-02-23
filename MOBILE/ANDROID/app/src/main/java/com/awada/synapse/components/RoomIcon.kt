@@ -31,7 +31,7 @@ import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 
 @Composable
-fun IconRoom(
+fun RoomIcon(
     text: String,
     secondaryText: String? = null,
     @DrawableRes iconResId: Int,

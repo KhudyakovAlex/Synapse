@@ -7,18 +7,18 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface AiMessageDao {
+interface AIMessageDao {
     @Query("SELECT * FROM AI_MESSAGES ORDER BY CREATED_AT ASC, ID ASC")
-    fun observeAll(): Flow<List<AiMessageEntity>>
+    fun observeAll(): Flow<List<AIMessageEntity>>
 
     @Query("SELECT COUNT(*) FROM AI_MESSAGES")
     suspend fun count(): Int
 
     @Query("SELECT * FROM AI_MESSAGES ORDER BY CREATED_AT DESC, ID DESC LIMIT :limit")
-    suspend fun getRecent(limit: Int): List<AiMessageEntity>
+    suspend fun getRecent(limit: Int): List<AIMessageEntity>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(message: AiMessageEntity): Long
+    suspend fun insert(message: AIMessageEntity): Long
 
     @Query("DELETE FROM AI_MESSAGES")
     suspend fun clear()

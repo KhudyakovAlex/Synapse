@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
-import com.awada.synapse.components.IconRoom
+import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.PresSensor
@@ -116,7 +116,7 @@ fun PageLocation(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         rooms.take(2).forEach { (title, icon) ->
-                            IconRoom(
+                            RoomIcon(
                                 text = title,
                                 iconResId = icon,
                                 onClick = { onRoomClick(title, icon) },

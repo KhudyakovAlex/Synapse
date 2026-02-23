@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
-fun SearchSwampIndicator(
+fun SearchSwarmIndicator(
     dotSize: Dp = 24.dp,
     dotSpacing: Dp = 20.dp
 ) {
