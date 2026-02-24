@@ -189,30 +189,38 @@ private fun MainContent() {
             }
         }
 
-        CompositionLocalProvider(
-            LocalBottomOverlayInset provides maxOf(
+        // Navigation between pages with animation.
+        //
+        // Important: AnimatedContent keeps both initial+target screens composed during the transition.
+        // If we compute bottom inset from `currentScreen` outside of AnimatedContent, the outgoing screen
+        // may "jump" its layout when overlays (e.g. LumControlLayer) become visible for the target screen.
+        AnimatedContent(
+            targetState = currentScreen,
+            transitionSpec = {
+                if (targetState != AppScreen.Location) {
+                    // Slide in from right when going away from locations
+                    (slideInHorizontally { it } + fadeIn()).togetherWith(
+                        slideOutHorizontally { -it / 3 } + fadeOut()
+                    )
+                } else {
+                    // Slide in from left when going back to locations
+                    (slideInHorizontally { -it / 3 } + fadeIn()).togetherWith(
+                        slideOutHorizontally { it } + fadeOut()
+                    )
+                }.using(SizeTransform(clip = false))
+            },
+            label = "ScreenNavigation"
+        ) { screen ->
+            val isLumControlVisibleForScreen = when (screen) {
+                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails -> true
+                else -> false
+            }
+            val bottomOverlayInsetForScreen = maxOf(
                 aiBottomInsetDp,
-                if (isLumControlVisible) lumBottomInsetDp else 0.dp
+                if (isLumControlVisibleForScreen) lumBottomInsetDp else 0.dp
             )
-        ) {
-            // Navigation between pages with animation
-            AnimatedContent(
-                targetState = currentScreen,
-                transitionSpec = {
-                    if (targetState != AppScreen.Location) {
-                        // Slide in from right when going away from locations
-                        (slideInHorizontally { it } + fadeIn()).togetherWith(
-                            slideOutHorizontally { -it / 3 } + fadeOut()
-                        )
-                    } else {
-                        // Slide in from left when going back to locations
-                        (slideInHorizontally { -it / 3 } + fadeIn()).togetherWith(
-                            slideOutHorizontally { it } + fadeOut()
-                        )
-                    }.using(SizeTransform(clip = false))
-                },
-                label = "ScreenNavigation"
-            ) { screen ->
+
+            CompositionLocalProvider(LocalBottomOverlayInset provides bottomOverlayInsetForScreen) {
                 when (screen) {
                     AppScreen.Location -> {
                         PageLocations(
