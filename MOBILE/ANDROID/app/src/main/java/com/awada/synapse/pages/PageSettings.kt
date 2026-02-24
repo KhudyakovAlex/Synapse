@@ -353,7 +353,10 @@ private fun ReorderableControllersLayout(
 
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
                         val toRaw = if (dropOver != -1) dropOver else hoverIndex
-                        val to = if (toRaw > from) toRaw - 1 else toRaw
+                        // Target index is the slot we dropped over (or nearest hovered slot).
+                        // Using the raw index makes "drop on B" mean "take B's place" both
+                        // when moving up and when moving down.
+                        val to = toRaw
                         // If user dragged but ended up without a reorder, interpret as delete intent.
                         if (to == from) {
                             onRequestDelete(id)
