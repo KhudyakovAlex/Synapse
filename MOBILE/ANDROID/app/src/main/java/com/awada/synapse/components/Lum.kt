@@ -3,7 +3,8 @@ package com.awada.synapse.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,7 +66,36 @@ fun Lum(
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    interactionSource.collectIsPressedAsState() // keep interaction tracking for future states
+    var showPressed by remember { mutableStateOf(false) }
+
+    val instantPressModifier = if (onClick != null && enabled) {
+        Modifier.pointerInput(onClick, enabled) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                showPressed = true
+
+                val start = down.position
+                var cancelledByMove = false
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.first()
+                    if (!change.pressed) break
+
+                    if (!cancelledByMove) {
+                        val dist = (change.position - start).getDistance()
+                        if (dist > viewConfiguration.touchSlop) {
+                            cancelledByMove = true
+                            showPressed = false
+                        }
+                    }
+                }
+
+                showPressed = false
+            }
+        }
+    } else {
+        Modifier
+    }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
     val clickableModifier = if (onClick != null) {
@@ -79,6 +112,7 @@ fun Lum(
     Column(
         modifier = modifier
             .widthIn(min = iconSize)
+            .then(instantPressModifier)
             .then(clickableModifier),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -94,7 +128,13 @@ fun Lum(
                     spotColor = shadowColor
                 )
                 .clip(CircleShape)
-                .background(PixsoColors.Color_Bg_bg_surface),
+                .background(
+                    if (onClick != null && enabled && showPressed) {
+                        PixsoColors.Color_State_secondary_pressed
+                    } else {
+                        PixsoColors.Color_Bg_bg_surface
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             // Arcs (Pixso: Oval 41/45). Pixso strokeWeight now 4px.

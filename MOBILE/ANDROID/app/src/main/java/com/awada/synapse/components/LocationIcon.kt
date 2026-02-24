@@ -3,6 +3,7 @@ package com.awada.synapse.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import com.awada.synapse.ui.theme.LabelMedium
 import com.awada.synapse.ui.theme.PixsoColors
+import androidx.compose.runtime.getValue
 
 @Composable
 fun LocationIcon(
@@ -48,6 +50,7 @@ fun LocationIcon(
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val shadowElevation = if (enabled) 8.dp else 0.dp
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
@@ -80,7 +83,13 @@ fun LocationIcon(
                     spotColor = shadowColor
                 )
                 .clip(CircleShape)
-                .background(backgroundColor),
+                .background(
+                    if (onClick != null && enabled && isPressed && backgroundColor == PixsoColors.Color_Bg_bg_surface) {
+                        PixsoColors.Color_State_secondary_pressed
+                    } else {
+                        backgroundColor
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             Column(

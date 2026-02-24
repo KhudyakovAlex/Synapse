@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
-import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 
@@ -72,7 +72,7 @@ fun InputBar(
                 if (value.isEmpty()) {
                     Text(
                         text = "Сообщение...",
-                        style = BodyLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = PixsoColors.Color_Text_text_4_level
                     )
                 }
@@ -82,7 +82,7 @@ fun InputBar(
                     value = value,
                     onValueChange = onValueChange,
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = BodyLarge.merge(
+                    textStyle = MaterialTheme.typography.bodyLarge.merge(
                         TextStyle(color = PixsoColors.Color_Text_text_1_level)
                     ),
                     singleLine = true,
