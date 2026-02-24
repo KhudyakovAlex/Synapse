@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -373,7 +374,12 @@ private fun ReorderableControllersLayout(
                     val topLeft = slotPositions[index]
                     val target = IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt())
                     val isDragging = c.id == draggingId
-                    val animOffset by animateIntOffsetAsState(targetValue = target, label = "iconOffset")
+                    val animOffset by animateIntOffsetAsState(
+                        targetValue = target,
+                        // 2x slower reorder animation.
+                        animationSpec = tween(durationMillis = 600),
+                        label = "iconOffset"
+                    )
                     val isPressed = c.id == pressedId || isDragging
 
                     val title = c.name.ifBlank { "Контроллер ${c.id}" }
