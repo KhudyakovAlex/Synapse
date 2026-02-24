@@ -63,6 +63,7 @@ fun Lum(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     interactionSource.collectIsPressedAsState() // keep interaction tracking for future states
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -88,7 +89,9 @@ fun Lum(
                 .shadow(
                     elevation = 8.dp,
                     shape = CircleShape,
-                    clip = false
+                    clip = false,
+                    ambientColor = shadowColor,
+                    spotColor = shadowColor
                 )
                 .clip(CircleShape)
                 .background(PixsoColors.Color_Bg_bg_surface),

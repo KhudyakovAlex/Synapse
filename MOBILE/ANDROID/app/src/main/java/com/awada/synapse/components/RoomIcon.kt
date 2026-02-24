@@ -36,13 +36,14 @@ fun RoomIcon(
     secondaryText: String? = null,
     @DrawableRes iconResId: Int,
     modifier: Modifier = Modifier,
-    height: Dp = 96.dp,
+    height: Dp = 96.dp * 0.9f,
     elevation: Dp = 8.dp,
     backgroundColor: Color = PixsoColors.Color_Bg_bg_surface,
     contentColor: Color = PixsoColors.Color_State_tertiary,
     onClick: (() -> Unit)? = null
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_Full)
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val interactionSource = remember { MutableInteractionSource() }
 
     val clickableModifier = if (onClick != null) {
@@ -59,7 +60,13 @@ fun RoomIcon(
         modifier = modifier
             .height(height)
             // Shadow pattern matches LocationIcon: shadow outside, then clip + background.
-            .shadow(elevation = elevation, shape = shape, clip = false)
+            .shadow(
+                elevation = elevation,
+                shape = shape,
+                clip = false,
+                ambientColor = shadowColor,
+                spotColor = shadowColor
+            )
             .clip(shape)
             .background(backgroundColor)
             .then(clickableModifier)

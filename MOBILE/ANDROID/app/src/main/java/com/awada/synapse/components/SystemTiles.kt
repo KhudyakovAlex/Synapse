@@ -28,6 +28,7 @@ import com.awada.synapse.R
 import com.awada.synapse.ui.theme.LabelMedium
 import com.awada.synapse.ui.theme.PixsoColors
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun PresSensor(
@@ -94,6 +95,7 @@ private fun SystemIconTile(
     // keep tracking for future pressed/active visuals
     @Suppress("UNUSED_VARIABLE")
     val _ignore = isPressed
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -118,7 +120,9 @@ private fun SystemIconTile(
                 .shadow(
                     elevation = 8.dp,
                     shape = CircleShape,
-                    clip = false
+                    clip = false,
+                    ambientColor = shadowColor,
+                    spotColor = shadowColor
                 )
                 .clip(CircleShape)
                 .background(PixsoColors.Color_Bg_bg_surface),

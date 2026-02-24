@@ -63,6 +63,7 @@ fun LumInfoIndicator(
     // but scaled up to a larger `size`.
     val ringBg = PixsoColors.Color_Border_border_shade_8
     val ringFg = Color(0xFFFF9A37) // same as in `Lum.kt`
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
     Box(
         modifier = modifier
@@ -70,7 +71,9 @@ fun LumInfoIndicator(
             .shadow(
                 elevation = 8.dp,
                 shape = CircleShape,
-                clip = false
+                clip = false,
+                ambientColor = shadowColor,
+                spotColor = shadowColor
             )
             .clip(CircleShape)
             .background(PixsoColors.Color_Bg_bg_surface)

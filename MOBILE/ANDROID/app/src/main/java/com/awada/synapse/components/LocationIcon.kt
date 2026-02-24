@@ -49,6 +49,7 @@ fun LocationIcon(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val shadowElevation = if (enabled) 8.dp else 0.dp
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -74,7 +75,9 @@ fun LocationIcon(
                 .shadow(
                     elevation = shadowElevation,
                     shape = CircleShape,
-                    clip = false
+                    clip = false,
+                    ambientColor = shadowColor,
+                    spotColor = shadowColor
                 )
                 .clip(CircleShape)
                 .background(backgroundColor),
