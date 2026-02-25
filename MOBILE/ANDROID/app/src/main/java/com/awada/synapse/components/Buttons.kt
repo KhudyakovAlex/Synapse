@@ -266,6 +266,7 @@ fun SecondaryButton(
 enum class PinButtonState {
     Default,  // Empty, no input
     Input,    // Character entered
+    Active,   // Currently editing (cursor position)
     Error     // Input error
 }
 
@@ -277,6 +278,7 @@ enum class PinButtonState {
  * - Radius: Numeric_8 (8dp)
  * - Text style: Headline M (28sp/36sp line height)
  * - State=Default/Input: bg_surface + border_shade_8 + text_1_level
+ * - State=Active: bg_surface + border_focus (3dp) + text_1_level
  * - State=Error: error_bg + border_error + text_error
  */
 @Composable
@@ -293,7 +295,13 @@ fun PinButton(
 
     val borderColor = when (state) {
         PinButtonState.Error -> PixsoColors.Color_Border_border_error
+        PinButtonState.Active -> PixsoColors.Color_Border_border_focus
         else -> PixsoColors.Color_Border_border_shade_8
+    }
+
+    val borderWidth = when (state) {
+        PinButtonState.Active -> 3.dp
+        else -> PixsoDimens.Stroke_S
     }
 
     val textColor = when (state) {
@@ -309,7 +317,7 @@ fun PinButton(
             .clip(RoundedCornerShape(PixsoDimens.Numeric_8))
             .background(backgroundColor)
             .border(
-                width = PixsoDimens.Stroke_S,
+                width = borderWidth,
                 color = borderColor,
                 shape = RoundedCornerShape(PixsoDimens.Numeric_8)
             )
