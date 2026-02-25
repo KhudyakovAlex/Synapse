@@ -83,172 +83,167 @@ fun PageChangePassword(
         PageContainer(
             title = "Сменить пароль",
             onBackClick = onBackClick,
-            isScrollable = false,
+            isScrollable = true,
             modifier = Modifier.fillMaxSize()
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 44.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 44.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Current password
+                Text(
+                    text = "Текущий пароль",
+                    style = HeadlineExtraSmall,
+                    color = PixsoColors.Color_Text_text_1_level,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Current password
-                    Text(
-                        text = "Текущий пароль",
-                        style = HeadlineExtraSmall,
-                        color = PixsoColors.Color_Text_text_1_level,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        repeat(4) { index ->
-                            val state = when {
-                                pinError && activeField == 0 -> PinButtonState.Error
-                                index < currentPin.length -> PinButtonState.Input
-                                index == currentPin.length && activeField == 0 -> PinButtonState.Active
-                                else -> PinButtonState.Default
-                            }
-                            PinButton(
-                                state = state,
-                                text = if (index < currentPin.length) currentPin[index].toString() else "",
-                                onClick = { activeField = 0 }
-                            )
+                    repeat(4) { index ->
+                        val state = when {
+                            pinError && activeField == 0 -> PinButtonState.Error
+                            index < currentPin.length -> PinButtonState.Input
+                            index == currentPin.length && activeField == 0 -> PinButtonState.Active
+                            else -> PinButtonState.Default
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(38.dp))
-
-                    // Numeric keyboard - shown when on field 0
-                    if (activeField == 0) {
-                        NumericKeyboard(
-                            onDigitClick = { digit ->
-                                if (currentPin.length < 4) {
-                                    currentPin += digit
-                                    pinError = false
-                                }
-                            },
-                            leftButtonMode = NumericKeyboardLeftButton.Help,
-                            onHelpClick = {
-                                showHelpTooltip = true
-                            },
-                            onBackspaceClick = {
-                                if (currentPin.isNotEmpty()) {
-                                    currentPin = currentPin.dropLast(1)
-                                    pinError = false
-                                }
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(38.dp))
-                    }
-
-                    // New password
-                    Text(
-                        text = "Новый пароль",
-                        style = HeadlineExtraSmall,
-                        color = PixsoColors.Color_Text_text_1_level,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        repeat(4) { index ->
-                            val state = when {
-                                pinError && activeField == 1 -> PinButtonState.Error
-                                index < newPin.length -> PinButtonState.Input
-                                index == newPin.length && activeField == 1 -> PinButtonState.Active
-                                else -> PinButtonState.Default
-                            }
-                            PinButton(
-                                state = state,
-                                text = if (index < newPin.length) newPin[index].toString() else "",
-                                onClick = { activeField = 1 }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(38.dp))
-
-                    // Numeric keyboard - shown when on field 1
-                    if (activeField == 1) {
-                        NumericKeyboard(
-                            onDigitClick = { digit ->
-                                if (newPin.length < 4) {
-                                    newPin += digit
-                                    pinError = false
-                                }
-                            },
-                            leftButtonMode = NumericKeyboardLeftButton.None,
-                            onBackspaceClick = {
-                                if (newPin.isNotEmpty()) {
-                                    newPin = newPin.dropLast(1)
-                                    pinError = false
-                                }
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(38.dp))
-                    }
-
-                    // Confirm password
-                    Text(
-                        text = "Подтвердить пароль",
-                        style = HeadlineExtraSmall,
-                        color = PixsoColors.Color_Text_text_1_level,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        repeat(4) { index ->
-                            val state = when {
-                                pinError && activeField == 2 -> PinButtonState.Error
-                                index < confirmPin.length -> PinButtonState.Input
-                                index == confirmPin.length && activeField == 2 -> PinButtonState.Active
-                                else -> PinButtonState.Default
-                            }
-                            PinButton(
-                                state = state,
-                                text = if (index < confirmPin.length) confirmPin[index].toString() else "",
-                                onClick = { activeField = 2 }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(38.dp))
-
-                    // Numeric keyboard - shown when on field 2
-                    if (activeField == 2) {
-                        NumericKeyboard(
-                            onDigitClick = { digit ->
-                                if (confirmPin.length < 4) {
-                                    confirmPin += digit
-                                    pinError = false
-                                }
-                            },
-                            leftButtonMode = NumericKeyboardLeftButton.None,
-                            onBackspaceClick = {
-                                if (confirmPin.isNotEmpty()) {
-                                    confirmPin = confirmPin.dropLast(1)
-                                    pinError = false
-                                }
-                            }
+                        PinButton(
+                            state = state,
+                            text = if (index < currentPin.length) currentPin[index].toString() else "",
+                            onClick = { activeField = 0 }
                         )
                     }
+                }
+
+                Spacer(modifier = Modifier.height(38.dp))
+
+                // Numeric keyboard - shown when on field 0
+                if (activeField == 0) {
+                    NumericKeyboard(
+                        onDigitClick = { digit ->
+                            if (currentPin.length < 4) {
+                                currentPin += digit
+                                pinError = false
+                            }
+                        },
+                        leftButtonMode = NumericKeyboardLeftButton.Help,
+                        onHelpClick = {
+                            showHelpTooltip = true
+                        },
+                        onBackspaceClick = {
+                            if (currentPin.isNotEmpty()) {
+                                currentPin = currentPin.dropLast(1)
+                                pinError = false
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(38.dp))
+                }
+
+                // New password
+                Text(
+                    text = "Новый пароль",
+                    style = HeadlineExtraSmall,
+                    color = PixsoColors.Color_Text_text_1_level,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    repeat(4) { index ->
+                        val state = when {
+                            pinError && activeField == 1 -> PinButtonState.Error
+                            index < newPin.length -> PinButtonState.Input
+                            index == newPin.length && activeField == 1 -> PinButtonState.Active
+                            else -> PinButtonState.Default
+                        }
+                        PinButton(
+                            state = state,
+                            text = if (index < newPin.length) newPin[index].toString() else "",
+                            onClick = { activeField = 1 }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(38.dp))
+
+                // Numeric keyboard - shown when on field 1
+                if (activeField == 1) {
+                    NumericKeyboard(
+                        onDigitClick = { digit ->
+                            if (newPin.length < 4) {
+                                newPin += digit
+                                pinError = false
+                            }
+                        },
+                        leftButtonMode = NumericKeyboardLeftButton.None,
+                        onBackspaceClick = {
+                            if (newPin.isNotEmpty()) {
+                                newPin = newPin.dropLast(1)
+                                pinError = false
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(38.dp))
+                }
+
+                // Confirm password
+                Text(
+                    text = "Подтвердить пароль",
+                    style = HeadlineExtraSmall,
+                    color = PixsoColors.Color_Text_text_1_level,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    repeat(4) { index ->
+                        val state = when {
+                            pinError && activeField == 2 -> PinButtonState.Error
+                            index < confirmPin.length -> PinButtonState.Input
+                            index == confirmPin.length && activeField == 2 -> PinButtonState.Active
+                            else -> PinButtonState.Default
+                        }
+                        PinButton(
+                            state = state,
+                            text = if (index < confirmPin.length) confirmPin[index].toString() else "",
+                            onClick = { activeField = 2 }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(38.dp))
+
+                // Numeric keyboard - shown when on field 2
+                if (activeField == 2) {
+                    NumericKeyboard(
+                        onDigitClick = { digit ->
+                            if (confirmPin.length < 4) {
+                                confirmPin += digit
+                                pinError = false
+                            }
+                        },
+                        leftButtonMode = NumericKeyboardLeftButton.None,
+                        onBackspaceClick = {
+                            if (confirmPin.isNotEmpty()) {
+                                confirmPin = confirmPin.dropLast(1)
+                                pinError = false
+                            }
+                        }
+                    )
                 }
             }
         }
