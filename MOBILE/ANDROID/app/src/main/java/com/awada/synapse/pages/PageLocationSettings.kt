@@ -131,7 +131,7 @@ fun PageLocationSettings(
                 )
             }
 
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
             ScheduleCard(
                 modifier = Modifier.fillMaxWidth(),

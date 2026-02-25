@@ -97,6 +97,11 @@ fun Lum(
         Modifier
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
+    val circleBg = if (onClick != null && enabled && showPressed) {
+        PixsoColors.Color_State_secondary_pressed
+    } else {
+        PixsoColors.Color_Bg_bg_surface
+    }
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -129,11 +134,7 @@ fun Lum(
                 )
                 .clip(CircleShape)
                 .background(
-                    if (onClick != null && enabled && showPressed) {
-                        PixsoColors.Color_State_secondary_pressed
-                    } else {
-                        PixsoColors.Color_Bg_bg_surface
-                    }
+                    circleBg
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -204,7 +205,7 @@ fun Lum(
                 modifier = Modifier
                     .size(iconDp + iconPad * 2)
                     .clip(CircleShape)
-                    .background(PixsoColors.Color_Bg_bg_surface),
+                    .background(circleBg),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
