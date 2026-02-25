@@ -1,5 +1,6 @@
 package com.awada.synapse.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,14 +19,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.PrimaryButton
 import com.awada.synapse.components.SecondaryButton
+import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.ui.theme.HeadlineSmall
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -43,6 +49,7 @@ fun PageLocationSettings(
 
     var showIconSelect by remember { mutableStateOf(false) }
     var showChangePassword by remember { mutableStateOf(false) }
+    var showSchedule by remember { mutableStateOf(false) }
     var draftName by remember { mutableStateOf("") }
     var draftIconId by remember { mutableIntStateOf(100) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
@@ -75,6 +82,14 @@ fun PageLocationSettings(
     if (showChangePassword) {
         PageChangePassword(
             onBackClick = { showChangePassword = false },
+            modifier = modifier.fillMaxSize()
+        )
+        return
+    }
+
+    if (showSchedule) {
+        PageSchedule(
+            onBackClick = { showSchedule = false },
             modifier = modifier.fillMaxSize()
         )
         return
@@ -116,6 +131,13 @@ fun PageLocationSettings(
                 )
             }
 
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+
+            ScheduleCard(
+                modifier = Modifier.fillMaxWidth(),
+                onConfigureClick = { showSchedule = true }
+            )
+
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
             SecondaryButton(
@@ -153,3 +175,42 @@ fun PageLocationSettings(
     }
 }
 
+@Composable
+private fun ScheduleCard(
+    onConfigureClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isEnabled by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_M))
+            .background(PixsoColors.Color_Bg_bg_surface)
+            .padding(PixsoDimens.Numeric_20),
+        verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_24)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.Text(
+                text = "Расписание",
+                style = HeadlineSmall,
+                color = PixsoColors.Color_Text_text_1_level
+            )
+
+            Switch(
+                isChecked = isEnabled,
+                onCheckedChange = { isEnabled = it },
+                enabled = true
+            )
+        }
+
+        SecondaryButton(
+            text = "Настроить",
+            onClick = onConfigureClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
