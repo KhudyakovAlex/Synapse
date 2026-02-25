@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.PrimaryButton
@@ -91,6 +92,7 @@ fun PageRoomSettings(
             }
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

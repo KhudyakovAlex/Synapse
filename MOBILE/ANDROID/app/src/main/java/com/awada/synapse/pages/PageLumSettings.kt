@@ -178,7 +178,8 @@ fun PageLumSettings(
             )
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
-            
+            Spacer(modifier = Modifier.height(20.dp))
+
             // Bottom buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),

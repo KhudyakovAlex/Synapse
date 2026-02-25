@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.PrimaryButton
@@ -76,6 +77,7 @@ fun PageButtonPanelSettings(
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Bottom buttons
             Row(
