@@ -41,6 +41,7 @@ fun PageLocationSettings(
     val scope = rememberCoroutineScope()
 
     var showIconSelect by remember { mutableStateOf(false) }
+    var showChangePassword by remember { mutableStateOf(false) }
     var draftName by remember { mutableStateOf("") }
     var draftIconId by remember { mutableIntStateOf(100) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
@@ -65,6 +66,14 @@ fun PageLocationSettings(
                 showIconSelect = false
             },
             onBackClick = { showIconSelect = false },
+            modifier = modifier.fillMaxSize()
+        )
+        return
+    }
+
+    if (showChangePassword) {
+        PageChangePassword(
+            onBackClick = { showChangePassword = false },
             modifier = modifier.fillMaxSize()
         )
         return
@@ -107,6 +116,14 @@ fun PageLocationSettings(
             }
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+
+            SecondaryButton(
+                text = "Сменить пароль",
+                onClick = { showChangePassword = true },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
