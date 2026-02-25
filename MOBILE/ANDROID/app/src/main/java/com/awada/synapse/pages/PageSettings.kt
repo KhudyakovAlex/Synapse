@@ -111,20 +111,6 @@ fun PageSettings(
                     .fillMaxWidth()
                     .padding(horizontal = PixsoDimens.Numeric_16)
             ) {
-                Text(
-                    text = "Чтобы добавить локацию, подключитесь к ее контроллеру",
-                    style = TitleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                PrimaryIconButtonLarge(
-                    text = "Найти контроллер",
-                    onClick = { onFindControllerClick?.invoke() },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = onFindControllerClick != null
-                )
-                Spacer(modifier = Modifier.height(40.dp))
                 ReorderableControllersLayout(
                     controllers = ordered.value,
                     draggingId = draggingId,
@@ -146,6 +132,20 @@ fun PageSettings(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         vibrateStrongClick(context)
                     }
+                )
+                Spacer(modifier = Modifier.height(40.dp))
+                Text(
+                    text = "Чтобы добавить локацию, подключитесь к ее контроллеру",
+                    style = TitleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                PrimaryIconButtonLarge(
+                    text = "Найти контроллер",
+                    onClick = { onFindControllerClick?.invoke() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = onFindControllerClick != null
                 )
             }
         }

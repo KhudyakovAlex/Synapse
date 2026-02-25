@@ -9,6 +9,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.NumericKeyboard
+import com.awada.synapse.components.NumericKeyboardLeftButton
 import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
 import com.awada.synapse.components.Tooltip
@@ -108,6 +109,7 @@ fun PagePassword(
                         pinError = false
                     }
                 },
+                leftButtonMode = NumericKeyboardLeftButton.Help,
                 onHelpClick = {
                     showHelpTooltip = true
                 },
