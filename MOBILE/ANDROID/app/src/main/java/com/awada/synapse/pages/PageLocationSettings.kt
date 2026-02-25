@@ -23,8 +23,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.PrimaryButton
+import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
@@ -41,6 +43,8 @@ fun PageLocationSettings(
     controllerId: Int?,
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,
+    onRoomClick: ((roomTitle: String, roomIconResId: Int) -> Unit)? = null,
+    onAddRoomClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -96,6 +100,12 @@ fun PageLocationSettings(
     }
 
     val iconRes = iconResId(context, draftIconId)
+    val rooms = remember {
+        listOf(
+            "Кухня" to R.drawable.location_208_kuhnya,
+            "Спальня" to R.drawable.location_209_spalnya
+        )
+    }
 
     PageContainer(
         title = "Настройки\nлокации",
@@ -140,8 +150,39 @@ fun PageLocationSettings(
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
+            Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
+                Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
+                    rooms.chunked(2).forEach { rowRooms ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
+                        ) {
+                            rowRooms.forEach { (title, icon) ->
+                                RoomIcon(
+                                    text = title,
+                                    iconResId = icon,
+                                    onClick = onRoomClick?.let { cb -> { cb(title, icon) } },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (rowRooms.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+
+                SecondaryButton(
+                    text = "Добавить помещение",
+                    onClick = { onAddRoomClick?.invoke() },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+
             SecondaryButton(
-                text = "Сменить пароль",
+                text = "Сменить пароль контроллера",
                 onClick = { showChangePassword = true },
                 modifier = Modifier.fillMaxWidth()
             )
