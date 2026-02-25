@@ -2,6 +2,7 @@ package com.awada.synapse.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,21 +66,24 @@ fun LumInfoIndicator(
     val ringFg = Color(0xFFFF9A37) // same as in `Lum.kt`
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
 
-    Box(
-        modifier = modifier
-            .size(size)
-            .shadow(
-                elevation = 8.dp,
-                shape = CircleShape,
-                clip = false,
-                ambientColor = shadowColor,
-                spotColor = shadowColor
-            )
-            .clip(CircleShape)
-            .background(PixsoColors.Color_Bg_bg_surface)
-    ) {
-        // Arcs (same start/sweep logic as `Lum.kt`)
-        Canvas(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier) {
+        val actualSize = minOf(size, maxWidth, maxHeight)
+
+        Box(
+            modifier = Modifier
+                .size(actualSize)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = CircleShape,
+                    clip = false,
+                    ambientColor = shadowColor,
+                    spotColor = shadowColor
+                )
+                .clip(CircleShape)
+                .background(PixsoColors.Color_Bg_bg_surface)
+        ) {
+            // Arcs (same start/sweep logic as `Lum.kt`)
+            Canvas(modifier = Modifier.fillMaxSize()) {
             val strokePx = 8.dp.toPx()
             val inset = strokePx / 2f
 
@@ -122,42 +126,43 @@ fun LumInfoIndicator(
                     style = Stroke(width = strokePx, cap = StrokeCap.Round)
                 )
             }
-        }
+            }
 
-        // Center text stack (replaces icon in `Lum.kt`)
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .widthIn(min = 75.dp)
-                .padding(horizontal = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = valueText,
-                style = DisplayLarge,
-                color = PixsoColors.Color_Secondary_Secondary_30, // #313A3C
-                modifier = Modifier.offset(y = 2.dp)
-            )
-            Text(
-                text = labelText,
-                style = LabelMedium,
-                color = PixsoColors.Color_Text_text_4_level,
-                modifier = Modifier.offset(y = (-2).dp)
+            // Center text stack (replaces icon in `Lum.kt`)
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .widthIn(min = 75.dp)
+                    .padding(horizontal = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = valueText,
+                    style = DisplayLarge,
+                    color = PixsoColors.Color_Secondary_Secondary_30, // #313A3C
+                    modifier = Modifier.offset(y = 2.dp)
+                )
+                Text(
+                    text = labelText,
+                    style = LabelMedium,
+                    color = PixsoColors.Color_Text_text_4_level,
+                    modifier = Modifier.offset(y = (-2).dp)
+                )
+            }
+
+            // Small status dot (same ratios as `Lum.kt`, 104×104 basis)
+            val dotSize = actualSize * (16f / 104f)
+            val dotLeft = actualSize * (44f / 104f)
+            val dotTop = actualSize * (83.64825439453125f / 104f)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(x = dotLeft, y = dotTop)
+                    .size(dotSize)
+                    .clip(CircleShape)
+                    .background(statusDotColor)
             )
         }
-
-        // Small status dot (same ratios as `Lum.kt`, 104×104 basis)
-        val dotSize = size * (16f / 104f)
-        val dotLeft = size * (44f / 104f)
-        val dotTop = size * (83.64825439453125f / 104f)
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = dotLeft, y = dotTop)
-                .size(dotSize)
-                .clip(CircleShape)
-                .background(statusDotColor)
-        )
     }
 }
 
