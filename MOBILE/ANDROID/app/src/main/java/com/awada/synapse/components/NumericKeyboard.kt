@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -123,8 +124,8 @@ fun NumericKeyboard(
                     )
                 }
                 NumericKeyboardLeftButton.None -> {
-                    // Spacer to keep layout consistent
-                    Spacer(modifier = Modifier)
+                    // Reserve a full cell so "0" and backspace don't shift left
+                    Spacer(modifier = Modifier.size(width = 88.dp, height = 68.dp))
                 }
             }
             KeyboardButton(
