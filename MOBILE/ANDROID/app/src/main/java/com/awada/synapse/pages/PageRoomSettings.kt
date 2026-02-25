@@ -2,7 +2,6 @@ package com.awada.synapse.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
-import com.awada.synapse.components.PrimaryButton
-import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.ui.theme.LabelLarge
@@ -56,10 +52,14 @@ fun PageRoomSettings(
     }
 
     val iconRes = iconResId(context, draftIconId, fallback = R.drawable.location_208_kuhnya)
+    val handleBackClick: () -> Unit = {
+        onSaved(draftName, draftIconId)
+        onBackClick()
+    }
 
     PageContainer(
         title = "Настройки\nпомещения",
-        onBackClick = onBackClick,
+        onBackClick = handleBackClick,
         isScrollable = true,
         modifier = modifier.fillMaxSize()
     ) {
@@ -88,28 +88,6 @@ fun PageRoomSettings(
                 IconSelectButton(
                     icon = iconRes,
                     onClick = { showIconSelect = true }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
-            ) {
-                SecondaryButton(
-                    text = "Отменить",
-                    onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
-                )
-                PrimaryButton(
-                    text = "Сохранить",
-                    onClick = {
-                        onSaved(draftName, draftIconId)
-                        onBackClick()
-                    },
-                    modifier = Modifier.weight(1f)
                 )
             }
         }

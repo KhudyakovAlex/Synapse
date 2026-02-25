@@ -25,14 +25,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
-import com.awada.synapse.components.PrimaryButton
+import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
-import com.awada.synapse.ui.theme.HeadlineSmall
+import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -107,9 +107,22 @@ fun PageLocationSettings(
         )
     }
 
+    val handleBackClick: () -> Unit = {
+        val id = controllerId
+        if (id == null) {
+            onBackClick()
+        } else {
+            scope.launch {
+                db.controllerDao().updateNameAndIcon(id, draftName, draftIconId)
+                onSaved?.invoke(draftName, draftIconId)
+                onBackClick()
+            }
+        }
+    }
+
     PageContainer(
         title = "Настройки\nлокации",
-        onBackClick = onBackClick,
+        onBackClick = handleBackClick,
         isScrollable = true,
         modifier = modifier.fillMaxSize()
     ) {
@@ -172,9 +185,10 @@ fun PageLocationSettings(
                     }
                 }
 
-                SecondaryButton(
+                PrimaryIconButtonLarge(
                     text = "Добавить помещение",
                     onClick = { onAddRoomClick?.invoke() },
+                    iconResId = R.drawable.system_add,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -186,32 +200,6 @@ fun PageLocationSettings(
                 onClick = { showChangePassword = true },
                 modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
-            ) {
-                SecondaryButton(
-                    text = "Отменить",
-                    onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
-                )
-                PrimaryButton(
-                    text = "Сохранить",
-                    onClick = {
-                        val id = controllerId ?: return@PrimaryButton
-                        scope.launch {
-                            db.controllerDao().updateNameAndIcon(id, draftName, draftIconId)
-                            onSaved?.invoke(draftName, draftIconId)
-                            onBackClick()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
         }
     }
 }
@@ -237,7 +225,7 @@ private fun ScheduleCard(
         ) {
             androidx.compose.material3.Text(
                 text = "Расписание",
-                style = HeadlineSmall,
+                style = HeadlineExtraSmall,
                 color = PixsoColors.Color_Text_text_1_level
             )
 

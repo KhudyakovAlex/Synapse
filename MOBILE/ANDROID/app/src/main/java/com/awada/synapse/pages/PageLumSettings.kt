@@ -2,7 +2,6 @@ package com.awada.synapse.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,12 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.IconSelectButton
-import com.awada.synapse.components.PrimaryButton
-import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.iconResId
@@ -176,27 +172,6 @@ fun PageLumSettings(
                 placeholder = "",
                 enabled = true
             )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Bottom buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
-            ) {
-                SecondaryButton(
-                    text = "Отменить",
-                    onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                PrimaryButton(
-                    text = "Сохранить",
-                    onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
-                )
-            }
         }
     }
 }
