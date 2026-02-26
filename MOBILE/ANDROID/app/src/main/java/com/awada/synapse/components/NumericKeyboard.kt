@@ -118,7 +118,7 @@ fun NumericKeyboard(
                 }
                 NumericKeyboardLeftButton.Close -> {
                     KeyboardButton(
-                        style = KeyboardButtonStyle.Default,
+                        style = KeyboardButtonStyle.Help,
                         text = "Закрыть",
                         onClick = onCloseClick
                     )
