@@ -5,7 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +24,18 @@ fun PageSchedule(
     onAddClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    var showSchedulePoint by remember { mutableStateOf(false) }
+
+    if (showSchedulePoint) {
+        PageSchedulePoint(
+            onBackClick = { showSchedulePoint = false },
+            modifier = modifier.fillMaxSize(),
+        )
+        return
+    }
+
+    val openPoint: () -> Unit = { showSchedulePoint = true }
+
     PageContainer(
         title = "Расписание",
         onBackClick = onBackClick,
@@ -36,34 +52,40 @@ fun PageSchedule(
                 timeText = "10:00",
                 days = listOf("Пн", "Вт", "Ср", "Чт", "Пт"),
                 scenarios = listOf(
-                    ScheduleScenario(text = "Кухня – Вкл", onClick = {}),
-                    ScheduleScenario(text = "Моя любимая спаленка - темп. света 4500K", onClick = {}),
+                    ScheduleScenario(text = "Кухня – Вкл", onClick = openPoint),
+                    ScheduleScenario(text = "Моя любимая спаленка - темп. света 4500K", onClick = openPoint),
                 ),
                 modifier = Modifier.fillMaxWidth(),
+                onClick = openPoint,
             )
 
             SchedulePoint(
                 timeText = "19:00",
                 days = listOf("Ежедневно"),
                 scenarios = listOf(
-                    ScheduleScenario(text = "Спальня – Выкл", onClick = {}),
+                    ScheduleScenario(text = "Спальня – Выкл", onClick = openPoint),
                 ),
                 modifier = Modifier.fillMaxWidth(),
+                onClick = openPoint,
             )
 
             SchedulePoint(
                 timeText = "12:00",
                 days = listOf("Пн", "Вт", "Ср", "Чт", "Пт"),
                 scenarios = listOf(
-                    ScheduleScenario(text = "Кухня – Вкл", onClick = {}),
+                    ScheduleScenario(text = "Кухня – Вкл", onClick = openPoint),
                 ),
                 modifier = Modifier.fillMaxWidth(),
+                onClick = openPoint,
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_12))
             PrimaryIconButtonLarge(
                 text = "Добавить",
-                onClick = { onAddClick?.invoke() },
+                onClick = {
+                    onAddClick?.invoke()
+                    openPoint()
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
