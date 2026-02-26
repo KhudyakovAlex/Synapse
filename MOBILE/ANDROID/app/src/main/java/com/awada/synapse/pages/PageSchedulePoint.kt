@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,6 +24,7 @@ import com.awada.synapse.components.NumericKeyboard
 import com.awada.synapse.components.NumericKeyboardLeftButton
 import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
+import com.awada.synapse.components.WeekdayButton
 import com.awada.synapse.ui.theme.HeadlineMedium
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -43,7 +46,7 @@ fun PageSchedulePoint(
                 .padding(horizontal = PixsoDimens.Numeric_16),
         ) {
             var timeDigits by remember { mutableStateOf("1000") } // HHmm
-            var activeIndex by remember { mutableIntStateOf(0) } // 0..3
+            var activeIndex by remember { mutableIntStateOf(-1) } // -1 (none) or 0..3
             var showKeyboard by remember { mutableStateOf(false) }
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
@@ -72,7 +75,7 @@ fun PageSchedulePoint(
 
                         val digit = timeDigits.getOrNull(index)?.toString().orEmpty()
                         val state = when {
-                            index == activeIndex -> PinButtonState.Active
+                            showKeyboard && index == activeIndex -> PinButtonState.Active
                             digit.isNotEmpty() -> PinButtonState.Input
                             else -> PinButtonState.Default
                         }
@@ -81,17 +84,23 @@ fun PageSchedulePoint(
                             state = state,
                             text = digit,
                             onClick = {
-                                activeIndex = index
-                                showKeyboard = true
+                                if (showKeyboard && activeIndex == index) {
+                                    // Toggle off: remove focus and hide keyboard
+                                    showKeyboard = false
+                                    activeIndex = -1
+                                } else {
+                                    activeIndex = index
+                                    showKeyboard = true
+                                }
                             },
                         )
                     }
                 }
             }
 
-            if (showKeyboard) {
-                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
 
+            if (showKeyboard) {
                 fun isDigitAllowedAt(index: Int, digit: Int): Boolean {
                     return when (index) {
                         0 -> digit in 0..2
@@ -108,18 +117,26 @@ fun PageSchedulePoint(
                 NumericKeyboard(
                     onDigitClick = { d ->
                         val digit = d.toIntOrNull() ?: return@NumericKeyboard
-                        if (!isDigitAllowedAt(activeIndex, digit)) return@NumericKeyboard
+                        val idx = activeIndex
+                        if (idx !in 0..3) return@NumericKeyboard
+                        if (!isDigitAllowedAt(idx, digit)) return@NumericKeyboard
 
                         val chars = timeDigits.toCharArray()
-                        chars[activeIndex] = ('0'.code + digit).toChar()
+                        chars[idx] = ('0'.code + digit).toChar()
                         timeDigits = String(chars)
 
-                        activeIndex = (activeIndex + 1) % 4
+                        activeIndex = (idx + 1) % 4
                     },
                     leftButtonMode = NumericKeyboardLeftButton.Close,
-                    onCloseClick = { showKeyboard = false },
+                    onCloseClick = {
+                        showKeyboard = false
+                        activeIndex = -1
+                    },
                     onBackspaceClick = {
-                        val prevIndex = if (activeIndex == 0) 3 else activeIndex - 1
+                        val idx = activeIndex
+                        if (idx !in 0..3) return@NumericKeyboard
+
+                        val prevIndex = if (idx == 0) 3 else idx - 1
                         val chars = timeDigits.toCharArray()
                         chars[prevIndex] = '0'
                         timeDigits = String(chars)
@@ -127,6 +144,31 @@ fun PageSchedulePoint(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )
+
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
+            }
+
+            val weekdayLabels = remember { listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс") }
+            val weekdaysSelected = remember { mutableStateListOf(false, false, false, false, false, false, false) }
+            val weekdaySpacing = PixsoDimens.Numeric_20 / 6 // (328 - 7*44) / 6
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.wrapContentWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(weekdaySpacing),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    weekdayLabels.forEachIndexed { index, label ->
+                        WeekdayButton(
+                            text = label,
+                            selected = weekdaysSelected[index],
+                            onSelectedChange = { weekdaysSelected[index] = it },
+                        )
+                    }
+                }
             }
         }
     }

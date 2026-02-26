@@ -334,3 +334,63 @@ fun PinButton(
         }
     }
 }
+
+@Composable
+fun WeekdayButton(
+    text: String,
+    selected: Boolean,
+    onSelectedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val shape = RoundedCornerShape(PixsoDimens.Numeric_8)
+
+    val backgroundColor = when {
+        !enabled -> PixsoColors.Color_Bg_bg_shade_disabled
+        selected -> PixsoColors.Color_State_primary
+        isPressed -> PixsoColors.Color_State_secondary_pressed
+        else -> PixsoColors.Color_Bg_bg_subtle
+    }
+
+    val borderStroke = if (!selected) {
+        BorderStroke(PixsoDimens.Stroke_S, PixsoColors.Color_Border_border_shade_8)
+    } else {
+        null
+    }
+
+    val textColor = if (selected) {
+        PixsoColors.Color_State_on_primary
+    } else {
+        PixsoColors.Color_Text_text_1_level
+    }
+
+    Box(
+        modifier = modifier
+            .size(PixsoDimens.Numeric_44)
+            .clip(shape)
+            .background(backgroundColor)
+            .then(
+                if (borderStroke != null) {
+                    Modifier.border(borderStroke.width, borderStroke.brush, shape)
+                } else {
+                    Modifier
+                }
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = { onSelectedChange(!selected) },
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = ButtonMedium, // Synapse/Button/Button M
+            color = textColor,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
