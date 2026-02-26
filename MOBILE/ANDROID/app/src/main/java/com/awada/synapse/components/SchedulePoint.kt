@@ -44,7 +44,7 @@ fun SchedulePoint(
         ) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(104f)
                     .padding(
                         start = PixsoDimens.Numeric_16,
                         top = PixsoDimens.Numeric_8,
@@ -60,7 +60,7 @@ fun SchedulePoint(
                 )
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_1 * 2),
+                    horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_2),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     days.forEach { day ->
@@ -75,8 +75,7 @@ fun SchedulePoint(
 
             Column(
                 modifier = Modifier
-                    .weight(2f)
-                    .background(PixsoColors.Color_Bg_bg_surface)
+                    .weight(204f)
                     .padding(vertical = PixsoDimens.Numeric_4),
                 verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_0),
                 horizontalAlignment = Alignment.Start,

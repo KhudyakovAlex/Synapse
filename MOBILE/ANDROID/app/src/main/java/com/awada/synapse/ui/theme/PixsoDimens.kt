@@ -40,6 +40,7 @@ object PixsoDimens {
     val Font_Size_Size_56 = 56.sp
     val Numeric_0 = 0.dp
     val Numeric_1 = 1.dp
+    val Numeric_2 = 2.dp
     val Numeric_12 = 12.dp
     val Numeric_16 = 16.dp
     val Numeric_20 = 20.dp
