@@ -7,7 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -50,9 +50,10 @@ fun ScenarioButton(
     }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier)
             .defaultMinSize(minWidth = PixsoDimens.Numeric_80, minHeight = PixsoDimens.Numeric_44)
-            .height(PixsoDimens.Numeric_44)
             .clip(containerShape)
             .clickable(
                 interactionSource = interactionSource,
@@ -65,7 +66,8 @@ fun ScenarioButton(
     ) {
         Box(
             modifier = Modifier
-                .height(PixsoDimens.Numeric_32)
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = PixsoDimens.Numeric_32)
                 .clip(containerShape)
                 .background(backgroundColor)
                 .border(width = PixsoDimens.Stroke_S, color = borderColor, shape = containerShape)

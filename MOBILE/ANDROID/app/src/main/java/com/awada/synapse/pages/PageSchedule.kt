@@ -37,7 +37,7 @@ fun PageSchedule(
                 days = listOf("Пн", "Вт", "Ср", "Чт", "Пт"),
                 scenarios = listOf(
                     ScheduleScenario(text = "Кухня – Вкл", onClick = {}),
-                    ScheduleScenario(text = "Кухня – Выкл", onClick = {}),
+                    ScheduleScenario(text = "Моя любимая спаленка - темп. света 4500K", onClick = {}),
                 ),
                 modifier = Modifier.fillMaxWidth(),
             )

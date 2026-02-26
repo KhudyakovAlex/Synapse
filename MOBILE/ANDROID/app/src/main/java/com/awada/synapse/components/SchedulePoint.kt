@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import com.awada.synapse.ui.theme.HeadlineMedium
 import com.awada.synapse.ui.theme.LabelSmall
 import com.awada.synapse.ui.theme.PixsoColors
@@ -29,18 +32,26 @@ fun SchedulePoint(
     scenarios: List<ScheduleScenario>,
     modifier: Modifier = Modifier,
 ) {
+    val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
+    val shadowColor = Color.Black.copy(alpha = 1f / 3f)
+
     Column(
         modifier = modifier
-            .background(
-                color = PixsoColors.Color_Bg_bg_surface,
-                shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M),
+            .shadow(
+                elevation = PixsoDimens.Numeric_8,
+                shape = shape,
+                clip = false,
+                ambientColor = shadowColor,
+                spotColor = shadowColor,
             )
+            .clip(shape)
+            .background(PixsoColors.Color_Bg_bg_surface)
             .padding(PixsoDimens.Numeric_8),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_4),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
             Column(
                 modifier = Modifier
@@ -48,9 +59,9 @@ fun SchedulePoint(
                     .padding(
                         start = PixsoDimens.Numeric_16,
                         top = PixsoDimens.Numeric_8,
-                        bottom = PixsoDimens.Numeric_4,
+                        bottom = PixsoDimens.Numeric_8,
                     ),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
