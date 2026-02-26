@@ -49,7 +49,16 @@ fun PageSchedulePoint(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showScenario by remember { mutableStateOf(false) }
     var showSmoothnessHelp by remember { mutableStateOf(false) }
+
+    if (showScenario) {
+        PageScenario(
+            onBackClick = { showScenario = false },
+            modifier = modifier.fillMaxSize(),
+        )
+        return
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         PageContainer(
@@ -257,7 +266,7 @@ fun PageSchedulePoint(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val scenarioBlockClick: () -> Unit = {}
+            val scenarioBlockClick: () -> Unit = { showScenario = true }
             ScenarioBlock(
                 scenarios = listOf(
                     ScheduleScenario(text = "Кухня – Вкл", onClick = scenarioBlockClick),
