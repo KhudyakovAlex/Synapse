@@ -33,6 +33,7 @@ import com.awada.synapse.components.NumericKeyboard
 import com.awada.synapse.components.NumericKeyboardLeftButton
 import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
+import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.ScenarioBlock
 import com.awada.synapse.components.ScheduleScenario
 import com.awada.synapse.components.Switch
@@ -274,6 +275,13 @@ fun PageSchedulePoint(
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = scenarioBlockClick,
+            )
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_12))
+            PrimaryIconButtonLarge(
+                text = "Добавить",
+                onClick = { showScenario = true },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
