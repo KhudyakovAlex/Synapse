@@ -50,9 +50,11 @@ object PixsoDimens {
     val Numeric_36 = 36.dp
     val Numeric_4 = 4.dp
     val Numeric_40 = 40.dp
+    val Numeric_44 = 44.dp
     val Numeric_48 = 48.dp
     val Numeric_52 = 52.dp
     val Numeric_56 = 56.dp
+    val Numeric_80 = 80.dp
     val Numeric_8 = 8.dp
     val Numeric_88 = 88.dp
 

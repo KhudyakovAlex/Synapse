@@ -22,10 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
-import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Switch
@@ -185,10 +183,9 @@ fun PageLocationSettings(
                     }
                 }
 
-                PrimaryIconButtonLarge(
+                SecondaryButton(
                     text = "Добавить помещение",
                     onClick = { onAddRoomClick?.invoke() },
-                    iconResId = R.drawable.system_add,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
