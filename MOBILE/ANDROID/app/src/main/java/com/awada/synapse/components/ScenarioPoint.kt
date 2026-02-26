@@ -76,7 +76,7 @@ fun ScenarioPoint(
                 .fillMaxWidth()
                 .padding(start = PixsoDimens.Numeric_8),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = title,
@@ -91,7 +91,7 @@ fun ScenarioPoint(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chevron_down),
                     contentDescription = null,
-                    tint = PixsoColors.Color_Text_text_3_level,
+                    tint = PixsoColors.Color_State_on_secondary,
                     modifier = Modifier.rotate(if (expanded) 180f else 0f),
                 )
             }
