@@ -8,8 +8,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,11 +26,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.NumericKeyboard
 import com.awada.synapse.components.NumericKeyboardLeftButton
 import com.awada.synapse.components.PinButton
 import com.awada.synapse.components.PinButtonState
+import com.awada.synapse.components.ScenarioBlock
+import com.awada.synapse.components.ScheduleScenario
+import com.awada.synapse.components.Switch
+import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.WeekdayButton
+import com.awada.synapse.ui.theme.BodyMedium
+import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.HeadlineMedium
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -34,20 +49,28 @@ fun PageSchedulePoint(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PageContainer(
-        title = "Пункт расписания",
-        onBackClick = onBackClick,
-        isScrollable = true,
-        modifier = modifier.fillMaxSize(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PixsoDimens.Numeric_16),
+    var showSmoothnessHelp by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        PageContainer(
+            title = "Пункт расписания",
+            onBackClick = onBackClick,
+            isScrollable = true,
+            modifier = Modifier.fillMaxSize(),
         ) {
-            var timeDigits by remember { mutableStateOf("1000") } // HHmm
-            var activeIndex by remember { mutableIntStateOf(-1) } // -1 (none) or 0..3
-            var showKeyboard by remember { mutableStateOf(false) }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PixsoDimens.Numeric_16),
+            ) {
+                var timeDigits by remember { mutableStateOf("1000") } // HHmm
+                var activeIndex by remember { mutableIntStateOf(-1) } // -1 (none) or 0..3
+                var showKeyboard by remember { mutableStateOf(false) }
+                var smoothnessEnabled by remember { mutableStateOf(false) }
+                val context = LocalContext.current
+                val questionIconResId = remember {
+                    context.resources.getIdentifier("system_question", "drawable", context.packageName)
+                }
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
 
@@ -170,6 +193,88 @@ fun PageSchedulePoint(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(PixsoDimens.Numeric_44),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Плавность",
+                        style = HeadlineExtraSmall,
+                        color = PixsoColors.Color_Text_text_1_level,
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .offset(x = -PixsoDimens.Numeric_4)
+                            .height(PixsoDimens.Numeric_44)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { showSmoothnessHelp = true },
+                            )
+                            .padding(horizontal = PixsoDimens.Numeric_12),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (questionIconResId != 0) {
+                            Icon(
+                                painter = painterResource(id = questionIconResId),
+                                contentDescription = "Плавность",
+                                tint = PixsoColors.Color_Text_text_3_level,
+                                modifier = Modifier.size(PixsoDimens.Numeric_24),
+                            )
+                        } else {
+                            Text(
+                                text = "?",
+                                style = BodyMedium,
+                                color = PixsoColors.Color_Text_text_3_level,
+                            )
+                        }
+                    }
+                }
+
+                Switch(
+                    isChecked = smoothnessEnabled,
+                    onCheckedChange = { smoothnessEnabled = it },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
+
+            Text(
+                text = "Сценарий",
+                style = HeadlineExtraSmall,
+                color = PixsoColors.Color_Text_text_1_level,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val scenarioBlockClick: () -> Unit = {}
+            ScenarioBlock(
+                scenarios = listOf(
+                    ScheduleScenario(text = "Кухня – Вкл", onClick = scenarioBlockClick),
+                    ScheduleScenario(text = "Моя любимая спаленка - темп. света 4500K", onClick = scenarioBlockClick),
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = scenarioBlockClick,
+            )
+        }
+    }
+
+        if (showSmoothnessHelp) {
+            Tooltip(
+                text = "Плавность: плавное изменение параметров при срабатывании сценария.",
+                primaryButtonText = "Понятно",
+                onResult = { showSmoothnessHelp = false },
+            )
         }
     }
 }

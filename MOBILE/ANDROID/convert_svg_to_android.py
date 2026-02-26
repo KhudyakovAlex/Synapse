@@ -277,7 +277,7 @@ def main():
     print("=" * 60)
     print(f"\nРезультаты сохранены в: {OUTPUT_DIR}")
     print(f"Каталог сохранён в: {CATALOG_FILE}")
-    print("\n⚠️  НАПОМИНАНИЕ: Обновите описания иконок в icons_catalog.json!")
+    print("\n[REMINDER] Обновите описания иконок в icons_catalog.json!")
     print("Готово!")
 
 if __name__ == "__main__":

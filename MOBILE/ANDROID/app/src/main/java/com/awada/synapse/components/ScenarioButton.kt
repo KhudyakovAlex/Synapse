@@ -61,7 +61,7 @@ fun ScenarioButton(
                 enabled = enabled,
                 onClick = onClick,
             )
-            .padding(horizontal = PixsoDimens.Numeric_8, vertical = PixsoDimens.Numeric_4),
+            .padding(horizontal = PixsoDimens.Numeric_8, vertical = PixsoDimens.Numeric_8),
         contentAlignment = Alignment.Center,
     ) {
         Box(
