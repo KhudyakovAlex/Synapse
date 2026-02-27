@@ -15,6 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
+import com.awada.synapse.components.PanelButtonSettingBlock
+import com.awada.synapse.components.ScheduleScenario
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -26,10 +28,35 @@ import com.awada.synapse.ui.theme.PixsoDimens
 @Composable
 fun PageButtonPanelSettings(
     onBackClick: () -> Unit,
+    onScenarioClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
     var roomId by remember { mutableIntStateOf(-1) }
+    val shortPressScenarioBlocks: List<androidx.compose.runtime.MutableState<List<List<String>>>> = remember {
+        listOf(
+            mutableStateOf(
+                listOf(
+                    listOf(
+                        "Кухня – Вкл",
+                        "Моя любимая спаленка - темп. света 4500K",
+                    ),
+                    listOf("Гостиная – Выкл"),
+                )
+            ),
+            mutableStateOf<List<List<String>>>(emptyList()),
+            mutableStateOf<List<List<String>>>(emptyList()),
+            mutableStateOf<List<List<String>>>(emptyList()),
+        )
+    }
+    val longPressScenario: List<androidx.compose.runtime.MutableState<String?>> = remember {
+        listOf(
+            mutableStateOf<String?>("Спальня – Сцена 2"),
+            mutableStateOf<String?>(null),
+            mutableStateOf<String?>(null),
+            mutableStateOf<String?>(null),
+        )
+    }
 
     // Mock data for dropdown
     val roomItems = listOf(
@@ -71,6 +98,28 @@ fun PageButtonPanelSettings(
                 enabled = true,
                 dropdownItems = roomItems
             )
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
+
+            Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_24)) {
+                repeat(4) { idx ->
+                    val shortBlocks = shortPressScenarioBlocks[idx].value
+                    val shortScheduleBlocks = shortBlocks.map { block ->
+                        block.map { text -> ScheduleScenario(text = text, onClick = onScenarioClick) }
+                    }
+                    val longScheduleBlock = longPressScenario[idx].value?.let { text ->
+                        listOf(ScheduleScenario(text = text, onClick = onScenarioClick))
+                    }
+                    PanelButtonSettingBlock(
+                        buttonNumber = idx + 1,
+                        shortPressScenarioBlocks = shortScheduleBlocks,
+                        longPressScenarioBlock = longScheduleBlock,
+                        onAddShortPressScenario = onScenarioClick,
+                        onAddLongPressScenario = onScenarioClick,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
         }
     }
 }

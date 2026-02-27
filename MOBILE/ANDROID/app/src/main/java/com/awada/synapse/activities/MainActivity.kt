@@ -51,6 +51,7 @@ import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageButtonPanelSettings
 import com.awada.synapse.pages.PageRoom
 import com.awada.synapse.pages.PageRoomSettings
+import com.awada.synapse.pages.PageScenario
 import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSensorBrightSettings
 import com.awada.synapse.pages.PageSensorPressSettings
@@ -89,6 +90,7 @@ enum class AppScreen {
     SensorPressSettings,
     SensorBrightSettings,
     ButtonPanelSettings,
+    Scenario,
     Panel,
     Password
 }
@@ -105,6 +107,7 @@ private fun MainContent() {
     var systemSettingsBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var buttonPanelBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var selectedLocation by remember {
         mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
     }
@@ -137,6 +140,7 @@ private fun MainContent() {
         when (currentScreen) {
             AppScreen.LumSettings -> currentScreen = settingsLumBackTarget
             AppScreen.SensorPressSettings, AppScreen.SensorBrightSettings, AppScreen.ButtonPanelSettings -> currentScreen = systemSettingsBackTarget
+            AppScreen.Scenario -> currentScreen = scenarioBackTarget
             AppScreen.Panel -> currentScreen = buttonPanelBackTarget
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
@@ -367,8 +371,18 @@ private fun MainContent() {
                     }
                     AppScreen.ButtonPanelSettings -> {
                         PageButtonPanelSettings(
-                            onBackClick = { currentScreen = systemSettingsBackTarget },
+                            { currentScreen = systemSettingsBackTarget },
+                            {
+                                scenarioBackTarget = AppScreen.ButtonPanelSettings
+                                currentScreen = AppScreen.Scenario
+                            },
                             modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Scenario -> {
+                        PageScenario(
+                            onBackClick = { currentScreen = scenarioBackTarget },
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                     AppScreen.Panel -> {
