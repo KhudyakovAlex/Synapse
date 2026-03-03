@@ -150,8 +150,9 @@ fun Lum(
                     x = size.minDimension * (11.6796875f / 104f),
                     y = size.minDimension * (11.740234375f / 104f)
                 )
-                // Increase arc diameter by +4.dp, keeping the same center.
-                val arcBox = baseArcBox + 4.dp.toPx()
+                // Increase arc radius by +3.dp (=> diameter +6.dp), keeping the same center.
+                // Previous value was +4.dp to diameter; now +10.dp total.
+                val arcBox = baseArcBox + 10.dp.toPx()
                 val arcCenter = baseArcTopLeft + Offset(baseArcBox / 2f, baseArcBox / 2f)
                 val arcTopLeft = arcCenter - Offset(arcBox / 2f, arcBox / 2f)
 
@@ -187,7 +188,7 @@ fun Lum(
             run {
                 val dotSize = iconSize * (16f / 104f)
                 val dotLeft = iconSize * (44f / 104f)
-                val dotTop = iconSize * (83.64825439453125f / 104f)
+                val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -200,7 +201,8 @@ fun Lum(
 
             // Icon with guaranteed 2.dp "air" to arcs
             val iconDp = 48.dp * 0.8f
-            val iconPad = 2.dp
+            // Increased mask size to better cover brightness arc behind the icon.
+            val iconPad = 8.dp
             Box(
                 modifier = Modifier
                     .size(iconDp + iconPad * 2)

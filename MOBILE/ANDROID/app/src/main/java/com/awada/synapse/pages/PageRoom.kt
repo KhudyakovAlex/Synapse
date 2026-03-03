@@ -47,7 +47,7 @@ fun PageRoom(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val tiles = remember(roomTitle) { roomDeviceTilesMock(roomTitle) }
-            val iconSize = 72.dp
+            val iconSize = 82.dp
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 // 2 rows of 4 tiles below (8 slots).

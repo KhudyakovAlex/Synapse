@@ -122,7 +122,7 @@ fun PageLocation(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val iconSize = 72.dp
+                val iconSize = 82.dp
                 val iconSizePx = with(LocalDensity.current) { iconSize.toPx() }
                 val rooms = remember {
                     listOf(
