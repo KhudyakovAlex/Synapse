@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
@@ -55,9 +56,8 @@ fun PageLocation(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val samples = remember {
-                val rnd = Random(42)
-                val icons = listOf(
+            val luminaireIcons = remember {
+                listOf(
                     com.awada.synapse.R.drawable.luminaire_300_default,
                     com.awada.synapse.R.drawable.luminaire_301_pot_podv_lin,
                     com.awada.synapse.R.drawable.luminaire_302_pot_podv_krugl,
@@ -73,9 +73,32 @@ fun PageLocation(
                     com.awada.synapse.R.drawable.luminaire_312_pot_vstr_toch_troynoy,
                     com.awada.synapse.R.drawable.luminaire_313_pot_vstr_toch_pov,
                     com.awada.synapse.R.drawable.luminaire_314_pot_vstr_toch_pov_dvoynoy,
-                    com.awada.synapse.R.drawable.luminaire_315_pot_vstr_toch_pov_troynoy
+                    com.awada.synapse.R.drawable.luminaire_315_pot_vstr_toch_pov_troynoy,
+                    com.awada.synapse.R.drawable.luminaire_316_pot_nakl_lin,
+                    com.awada.synapse.R.drawable.luminaire_317_pot_nakl_krugl,
+                    com.awada.synapse.R.drawable.luminaire_318_pot_nakl_kvadr,
+                    com.awada.synapse.R.drawable.luminaire_319_pot_nakl_toch,
+                    com.awada.synapse.R.drawable.luminaire_320_pot_nakl_toch_pov,
+                    com.awada.synapse.R.drawable.luminaire_321_nas_bra,
+                    com.awada.synapse.R.drawable.luminaire_322_nas_nakl_lin,
+                    com.awada.synapse.R.drawable.luminaire_323_nas_nakl_kvadr,
+                    com.awada.synapse.R.drawable.luminaire_324_nas_nakl_krugl,
+                    com.awada.synapse.R.drawable.luminaire_325_nas_nakl_toch_pov,
+                    com.awada.synapse.R.drawable.luminaire_326_trek_lin,
+                    com.awada.synapse.R.drawable.luminaire_327_trek_toch_pov,
+                    com.awada.synapse.R.drawable.luminaire_328_podsv,
+                    com.awada.synapse.R.drawable.luminaire_329_lenta,
+                    com.awada.synapse.R.drawable.luminaire_330_torsher,
+                    com.awada.synapse.R.drawable.luminaire_331_fasad,
+                    com.awada.synapse.R.drawable.luminaire_332_prozh,
+                    com.awada.synapse.R.drawable.luminaire_333_stolb_fonar,
+                    com.awada.synapse.R.drawable.luminaire_334_grunt_vstr,
+                    com.awada.synapse.R.drawable.luminaire_335_grunt_stolb
                 )
+            }
 
+            val samples = remember {
+                val rnd = Random(42)
                 val dotColors = listOf(
                     PixsoColors.Color_Bg_bg_surface,
                     PixsoColors.Color_Border_border_error,
@@ -92,7 +115,7 @@ fun PageLocation(
                     LumSample(
                         title = title,
                         brightnessPercent = rnd.nextInt(0, 101),
-                        iconResId = icons[rnd.nextInt(icons.size)],
+                        iconResId = luminaireIcons[rnd.nextInt(luminaireIcons.size)],
                         statusDotColor = dotColors[rnd.nextInt(dotColors.size)]
                     )
                 }
@@ -226,6 +249,68 @@ fun PageLocation(
                         }
                     }
                 }
+
+                LuminaireMockups(
+                    icons = luminaireIcons,
+                    iconSize = iconSize,
+                    onLumClick = onLumClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LuminaireMockups(
+    icons: List<Int>,
+    iconSize: androidx.compose.ui.unit.Dp,
+    onLumClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        val dotColors = remember {
+            listOf(
+                PixsoColors.Color_Bg_bg_surface,
+                PixsoColors.Color_Border_border_error,
+                PixsoColors.Color_Border_border_focus,
+                PixsoColors.Color_State_on_disabled
+            )
+        }
+        val items = remember(icons, context) {
+            icons.mapIndexed { idx, iconResId ->
+                val entryName = context.resources.getResourceEntryName(iconResId)
+                LumSample(
+                    title = luminaireShortTitle(entryName),
+                    brightnessPercent = (idx * 7) % 101,
+                    iconResId = iconResId,
+                    statusDotColor = dotColors[idx % dotColors.size]
+                )
+            }
+        }
+
+        val perRow = 4
+        items.chunked(perRow).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                rowItems.forEach { s ->
+                    Lum(
+                        title = s.title,
+                        iconSize = iconSize,
+                        brightnessPercent = s.brightnessPercent,
+                        iconResId = s.iconResId,
+                        statusDotColor = s.statusDotColor,
+                        onClick = onLumClick
+                    )
+                }
+                repeat(perRow - rowItems.size) {
+                    Spacer(modifier = Modifier)
+                }
             }
         }
     }
@@ -237,4 +322,25 @@ private data class LumSample(
     val iconResId: Int,
     val statusDotColor: androidx.compose.ui.graphics.Color
 )
+
+private fun luminaireShortTitle(entryName: String): String {
+    val name = entryName.removePrefix("luminaire_")
+    val m = Regex("""^(\d+)(?:_(.+))?$""").matchEntire(name) ?: return entryName
+    val code = m.groupValues[1]
+    val rest = m.groupValues[2].ifBlank { return code }
+
+    return when (rest) {
+        "default" -> "Default"
+        "torsher" -> "Торшер"
+        "lenta" -> "Лента"
+        "fasad" -> "Фасад"
+        "prozh" -> "Прожектор"
+        "podsv" -> "Подсв."
+        "nas_bra" -> "Бра"
+        "stolb_fonar" -> "Фонарь"
+        "grunt_vstr" -> "Грунт"
+        "grunt_stolb" -> "Столб"
+        else -> code
+    }
+}
 
