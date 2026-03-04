@@ -80,6 +80,37 @@ def rgb_to_hex(color):
     # Если формат неизвестен, возвращаем как есть
     return color
 
+def parse_style_attr(style_value: str) -> dict:
+    """
+    Парсит SVG style="k:v; k2:v2" в словарь.
+    """
+    if not style_value:
+        return {}
+    out = {}
+    for part in style_value.split(';'):
+        part = part.strip()
+        if not part or ':' not in part:
+            continue
+        k, v = part.split(':', 1)
+        k = k.strip().lower()
+        v = v.strip()
+        if k:
+            out[k] = v
+    return out
+
+def svg_fill_rule_to_android_fill_type(rule: str) -> str:
+    """
+    SVG fill-rule/clip-rule → Android VectorDrawable fillType.
+    """
+    if not rule:
+        return ''
+    r = rule.strip().lower()
+    if r == 'evenodd':
+        return 'evenOdd'
+    if r in ('nonzero', 'non-zero'):
+        return 'nonZero'
+    return ''
+
 def parse_svg(svg_path):
     """Парсит SVG и извлекает необходимые данные"""
     try:
@@ -108,15 +139,23 @@ def parse_svg(svg_path):
         for path in root.findall('.//svg:path', ns):
             path_data = path.get('d', '')
             if path_data:
-                fill = rgb_to_hex(path.get('fill', '#000000'))
-                stroke = rgb_to_hex(path.get('stroke', ''))
-                stroke_width = path.get('stroke-width', '')
+                style = parse_style_attr(path.get('style', ''))
+                fill = rgb_to_hex(path.get('fill') or style.get('fill') or '#000000')
+                stroke = rgb_to_hex(path.get('stroke') or style.get('stroke') or '')
+                stroke_width = path.get('stroke-width') or style.get('stroke-width') or ''
+                fill_rule = path.get('fill-rule') or style.get('fill-rule') or ''
+                clip_rule = path.get('clip-rule') or style.get('clip-rule') or ''
+                fill_type = (
+                    svg_fill_rule_to_android_fill_type(fill_rule)
+                    or svg_fill_rule_to_android_fill_type(clip_rule)
+                )
                 
                 paths.append({
                     'data': path_data,
                     'fill': fill,
                     'stroke': stroke,
-                    'stroke_width': stroke_width
+                    'stroke_width': stroke_width,
+                    'fill_type': fill_type
                 })
         
         # Если путей нет, ищем в корне без namespace
@@ -124,15 +163,23 @@ def parse_svg(svg_path):
             for path in root.findall('.//path'):
                 path_data = path.get('d', '')
                 if path_data:
-                    fill = rgb_to_hex(path.get('fill', '#000000'))
-                    stroke = rgb_to_hex(path.get('stroke', ''))
-                    stroke_width = path.get('stroke-width', '')
+                    style = parse_style_attr(path.get('style', ''))
+                    fill = rgb_to_hex(path.get('fill') or style.get('fill') or '#000000')
+                    stroke = rgb_to_hex(path.get('stroke') or style.get('stroke') or '')
+                    stroke_width = path.get('stroke-width') or style.get('stroke-width') or ''
+                    fill_rule = path.get('fill-rule') or style.get('fill-rule') or ''
+                    clip_rule = path.get('clip-rule') or style.get('clip-rule') or ''
+                    fill_type = (
+                        svg_fill_rule_to_android_fill_type(fill_rule)
+                        or svg_fill_rule_to_android_fill_type(clip_rule)
+                    )
                     
                     paths.append({
                         'data': path_data,
                         'fill': fill,
                         'stroke': stroke,
-                        'stroke_width': stroke_width
+                        'stroke_width': stroke_width,
+                        'fill_type': fill_type
                     })
         
         return {
@@ -161,6 +208,9 @@ def generate_android_xml(svg_data):
         
         if path['fill']:
             xml_lines.append(f'        android:fillColor="{path["fill"]}"')
+
+        if path.get('fill_type'):
+            xml_lines.append(f'        android:fillType="{path["fill_type"]}"')
         
         if path['stroke']:
             xml_lines.append(f'        android:strokeColor="{path["stroke"]}"')
