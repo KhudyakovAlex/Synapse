@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
+import com.awada.synapse.ai.LLMDebugLog
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
@@ -66,6 +67,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LLMDebugLog.clearOnProcessStart()
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(PixsoColors.Color_Bg_bg_elevated.toArgb())
         )

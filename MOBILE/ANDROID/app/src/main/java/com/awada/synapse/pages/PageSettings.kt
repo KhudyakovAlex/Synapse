@@ -1,5 +1,9 @@
 package com.awada.synapse.pages
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -43,9 +47,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.awada.synapse.ai.LLMDebugLog
 import com.awada.synapse.components.LocationIcon
 import com.awada.synapse.components.LocationsContainer
 import com.awada.synapse.components.PrimaryIconButtonLarge
+import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ControllerEntity
@@ -146,6 +152,17 @@ fun PageSettings(
                     onClick = { onFindControllerClick?.invoke() },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = onFindControllerClick != null
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                SecondaryButton(
+                    text = "Скопировать LLM-лог",
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val clip = ClipData.newPlainText("LLM log", LLMDebugLog.dump())
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(clip)
+                        Toast.makeText(context, "LLM-лог скопирован", Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
         }
