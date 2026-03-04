@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.awada.synapse.R
 import com.awada.synapse.ui.theme.LabelMedium
 import com.awada.synapse.ui.theme.PixsoColors
@@ -184,21 +185,6 @@ fun Lum(
                 }
             }
 
-            // Small status dot (Pixso: Oval 44): 16×16, left=44, top=83.6483 inside 104×104.
-            run {
-                val dotSize = iconSize * (16f / 104f)
-                val dotLeft = iconSize * (44f / 104f)
-                val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .offset(x = dotLeft, y = dotTop)
-                        .size(dotSize)
-                        .clip(CircleShape)
-                        .background(statusDotColor)
-                )
-            }
-
             // Icon with guaranteed 2.dp "air" to arcs
             val iconDp = 48.dp * 0.8f
             // Increased mask size to better cover brightness arc behind the icon.
@@ -218,6 +204,23 @@ fun Lum(
             }
             // TODO: draw complex dynamic luminaire icon here
             iconContent()
+
+            // Small status dot (Pixso: Oval 44): 16×16, left=44, top=83.6483 inside 104×104.
+            // Must be drawn above the icon "mask" circle.
+            run {
+                val dotSize = iconSize * (16f / 104f)
+                val dotLeft = iconSize * (44f / 104f)
+                val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
+                Box(
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .align(Alignment.TopStart)
+                        .offset(x = dotLeft, y = dotTop)
+                        .size(dotSize)
+                        .clip(CircleShape)
+                        .background(statusDotColor)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
