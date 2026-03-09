@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +26,11 @@ import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.PresSensor
+import com.awada.synapse.components.iconResId
+import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.PixsoColors
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlin.random.Random
 
 /**
@@ -36,13 +41,26 @@ fun PageLocation(
     location: LocationItem,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onRoomClick: (roomTitle: String, roomIconResId: Int) -> Unit,
+    onRoomClick: (roomId: Int, roomTitle: String, roomIconId: Int) -> Unit,
     onLumClick: () -> Unit,
     onSensorPressSettingsClick: () -> Unit,
     onSensorBrightSettingsClick: () -> Unit,
     onButtonPanelSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val controllerId = location.controllerId
+    val db = remember { AppDatabase.getInstance(context) }
+    val roomsOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<List<com.awada.synapse.db.RoomEntity>?>(emptyList())
+        } else {
+            db.roomDao()
+                .observeAll(controllerId)
+                .map<List<com.awada.synapse.db.RoomEntity>, List<com.awada.synapse.db.RoomEntity>?> { it }
+        }
+    }.collectAsState(initial = null)
+
     PageContainer(
         title = location.title,
         onBackClick = onBackClick,
@@ -124,28 +142,39 @@ fun PageLocation(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 val iconSize = 82.dp
                 val iconSizePx = with(LocalDensity.current) { iconSize.toPx() }
-                val rooms = remember {
-                    listOf(
-                        "Кухня" to com.awada.synapse.R.drawable.location_208_kuhnya,
-                        "Спальня" to com.awada.synapse.R.drawable.location_209_spalnya
-                    )
-                }
-                val showRooms = rooms.isNotEmpty()
+                // Prevent a brief "no rooms" flicker before the first DB emission.
+                val rooms = roomsOrNull
+                val showRooms = rooms != null && rooms.isNotEmpty()
                 val showDevices = samples.isNotEmpty()
 
                 if (showRooms) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        rooms.take(2).forEach { (title, icon) ->
-                            RoomIcon(
-                                text = title,
-                                iconResId = icon,
-                                onClick = { onRoomClick(title, icon) },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        rooms!!
+                            .chunked(2)
+                            .forEach { rowRooms ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    rowRooms.forEach { r ->
+                                        val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
+                                        val icon = iconResId(
+                                            context = context,
+                                            iconId = r.icoNum,
+                                            fallback = com.awada.synapse.R.drawable.location_208_kuhnya
+                                        )
+                                        RoomIcon(
+                                            text = title,
+                                            iconResId = icon,
+                                            onClick = { onRoomClick(r.id, title, r.icoNum) },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                    if (rowRooms.size == 1) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
                     }
                 }
 

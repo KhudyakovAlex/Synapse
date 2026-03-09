@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,10 +31,13 @@ import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,8 +45,7 @@ fun PageLocationSettings(
     controllerId: Int?,
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,
-    onRoomClick: ((roomTitle: String, roomIconResId: Int) -> Unit)? = null,
-    onAddRoomClick: (() -> Unit)? = null,
+    onRoomClick: ((roomId: Int, roomTitle: String, roomIconId: Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -98,12 +101,16 @@ fun PageLocationSettings(
     }
 
     val iconRes = iconResId(context, draftIconId)
-    val rooms = remember {
-        listOf(
-            "Кухня" to R.drawable.location_208_kuhnya,
-            "Спальня" to R.drawable.location_209_spalnya
-        )
-    }
+    val roomsOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<List<RoomEntity>?>(emptyList())
+        } else {
+            db.roomDao()
+                .observeAll(controllerId)
+                .map<List<RoomEntity>, List<RoomEntity>?> { it }
+        }
+    }.collectAsState(initial = null)
+    val rooms = roomsOrNull
 
     val handleBackClick: () -> Unit = {
         val id = controllerId
@@ -163,16 +170,22 @@ fun PageLocationSettings(
 
             Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
                 Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
-                    rooms.chunked(2).forEach { rowRooms ->
+                    (rooms ?: emptyList()).chunked(2).forEach { rowRooms ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
                         ) {
-                            rowRooms.forEach { (title, icon) ->
+                            rowRooms.forEach { r ->
+                                val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
+                                val icon = iconResId(
+                                    context = context,
+                                    iconId = r.icoNum,
+                                    fallback = R.drawable.location_208_kuhnya
+                                )
                                 RoomIcon(
                                     text = title,
                                     iconResId = icon,
-                                    onClick = onRoomClick?.let { cb -> { cb(title, icon) } },
+                                    onClick = onRoomClick?.let { cb -> { cb(r.id, title, r.icoNum) } },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -183,9 +196,26 @@ fun PageLocationSettings(
                     }
                 }
 
+                val canAddRoom = controllerId != null && rooms != null && rooms.size < 16
                 SecondaryButton(
                     text = "Добавить помещение",
-                    onClick = { onAddRoomClick?.invoke() },
+                    enabled = canAddRoom,
+                    onClick = {
+                        val cid = controllerId ?: return@SecondaryButton
+                        val current = rooms ?: return@SecondaryButton
+                        val usedIds = current.asSequence().map { it.id }.toHashSet()
+                        val newId = (0..15).firstOrNull { it !in usedIds } ?: return@SecondaryButton
+                        val nextPos = (current.maxOfOrNull { it.gridPos } ?: -1) + 1
+                        scope.launch {
+                            db.roomDao().insert(
+                                RoomEntity(
+                                    controllerId = cid,
+                                    id = newId,
+                                    gridPos = nextPos
+                                )
+                            )
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

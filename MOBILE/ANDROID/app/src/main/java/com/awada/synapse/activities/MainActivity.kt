@@ -110,6 +110,7 @@ private fun MainContent() {
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var buttonPanelBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
     var selectedLocation by remember {
         mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
     }
@@ -154,7 +155,7 @@ private fun MainContent() {
                 currentScreen = AppScreen.LocationDetails
             }
             AppScreen.RoomSettings -> {
-                currentScreen = AppScreen.RoomDetails
+                currentScreen = roomSettingsBackTarget
             }
             AppScreen.LocationDetails -> {
                 currentScreen = AppScreen.Location
@@ -247,11 +248,14 @@ private fun MainContent() {
                             location = loc,
                             onBackClick = { currentScreen = AppScreen.Location },
                             onSettingsClick = { currentScreen = AppScreen.LocationSettings },
-                            onRoomClick = { roomTitle, roomIconResId ->
-                                val iconId = iconIdFromDrawableResId(context, roomIconResId)
-                                    ?: iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya)
-                                    ?: 208
-                                selectedRoom = RoomState(title = roomTitle, iconId = iconId)
+                            onRoomClick = { roomId, roomTitle, roomIconId ->
+                                val cid = loc.controllerId ?: return@PageLocation
+                                selectedRoom = RoomState(
+                                    controllerId = cid,
+                                    roomId = roomId,
+                                    title = roomTitle,
+                                    iconId = roomIconId
+                                )
                                 currentScreen = AppScreen.RoomDetails
                             },
                             onLumClick = {
@@ -274,12 +278,9 @@ private fun MainContent() {
                         )
                     }
                     AppScreen.RoomDetails -> {
-                        val room = selectedRoom ?: RoomState(
-                            title = "Помещение",
-                            iconId = iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya) ?: 208
-                        )
+                        val room = selectedRoom
                         PageRoom(
-                            roomTitle = room.title,
+                            roomTitle = room?.title ?: "Помещение",
                             onBackClick = { currentScreen = AppScreen.LocationDetails },
                             onSettingsClick = { currentScreen = AppScreen.RoomSettings },
                             onLumClick = {
@@ -302,16 +303,14 @@ private fun MainContent() {
                         )
                     }
                     AppScreen.RoomSettings -> {
-                        val room = selectedRoom ?: RoomState(
-                            title = "Помещение",
-                            iconId = iconIdFromDrawableResId(context, R.drawable.location_208_kuhnya) ?: 208
-                        )
                         PageRoomSettings(
-                            initialName = room.title,
-                            initialIconId = room.iconId,
-                            onBackClick = { currentScreen = AppScreen.RoomDetails },
+                            controllerId = selectedRoom?.controllerId,
+                            roomId = selectedRoom?.roomId,
+                            initialName = selectedRoom?.title.orEmpty(),
+                            initialIconId = selectedRoom?.iconId ?: 200,
+                            onBackClick = { currentScreen = roomSettingsBackTarget },
                             onSaved = { name, iconId ->
-                                selectedRoom = room.copy(title = name, iconId = iconId)
+                                selectedRoom = selectedRoom?.copy(title = name, iconId = iconId)
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -325,6 +324,18 @@ private fun MainContent() {
                                     title = newName,
                                     iconResId = com.awada.synapse.components.iconResId(context, newIconId)
                                 )
+                            },
+                            onRoomClick = { roomId, roomTitle, roomIconId ->
+                                val loc = selectedLocation ?: return@PageLocationSettings
+                                val cid = loc.controllerId ?: return@PageLocationSettings
+                                selectedRoom = RoomState(
+                                    controllerId = cid,
+                                    roomId = roomId,
+                                    title = roomTitle,
+                                    iconId = roomIconId
+                                )
+                                roomSettingsBackTarget = AppScreen.LocationSettings
+                                currentScreen = AppScreen.RoomSettings
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -450,6 +461,8 @@ private fun MainContent() {
 }
 
 private data class RoomState(
+    val controllerId: Int,
+    val roomId: Int,
     val title: String,
     val iconId: Int
 )
