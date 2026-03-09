@@ -67,10 +67,34 @@ private fun buildPrompt(history: List<AIMessageEntity>): String {
     val sb = StringBuilder()
     sb.appendLine("Ты Synapse — ассистент приложения. Отвечай по-русски, кратко и по делу.")
     sb.appendLine()
+    var lastUserNormalized: String? = null
     history.forEach { msg ->
         when (msg.role) {
-            ROLE_USER -> sb.append("User: ").appendLine(msg.text)
-            ROLE_AI -> sb.append("Assistant: ").appendLine(msg.text)
+            ROLE_USER -> {
+                val normalized = msg.text
+                    .trim()
+                    .asSequence()
+                    .filter { it.isLetterOrDigit() || it.isWhitespace() }
+                    .joinToString(separator = "")
+                    .replace(Regex("\\s+"), " ")
+                    .lowercase()
+                if (normalized.isNotEmpty() && normalized == lastUserNormalized) {
+                    return@forEach
+                }
+                sb.append("User: ").appendLine(msg.text)
+                lastUserNormalized = normalized
+            }
+            ROLE_AI -> {
+                lastUserNormalized = null
+                val t = msg.text.trimStart()
+                if (
+                    t.startsWith("Ошибка Ollama", ignoreCase = true) ||
+                    t.startsWith("Ошибка запроса к Ollama", ignoreCase = true)
+                ) {
+                    return@forEach
+                }
+                sb.append("Assistant: ").appendLine(msg.text)
+            }
             else -> Unit
         }
     }
@@ -218,6 +242,13 @@ fun AIChat(
                             if (text.isEmpty() || isSending) return@InputBar
                             inputText = ""
                             isSending = true
+                            run {
+                                val preview = text
+                                    .replace("\r", "")
+                                    .replace("\n", "\\n")
+                                    .take(200)
+                                LLMDebugLog.log("UI send: chars=${text.length} preview=\"$preview\"")
+                            }
 
                             scope.launch {
                                 val now = System.currentTimeMillis()
