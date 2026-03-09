@@ -62,6 +62,7 @@ import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ControllerEntity
+import com.awada.synapse.db.RoomEntity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -419,14 +420,25 @@ private fun MainContent() {
                                         .padStart(8, '0')
                                     val name = "SYN_$suffix"
                                     val nextPos = (dao.getMaxGridPos() ?: -1) + 1
-                                    dao.insert(
+                                    val controllerId = dao.insert(
                                         ControllerEntity(
                                             name = name,
                                             password = "1234",
                                             icoNum = 100,
                                             gridPos = nextPos
                                         )
-                                    )
+                                    ).toInt()
+
+                                    val roomDao = db.roomDao()
+                                    repeat(3) { idx ->
+                                        roomDao.insert(
+                                            RoomEntity(
+                                                controllerId = controllerId,
+                                                id = idx,
+                                                gridPos = idx
+                                            )
+                                        )
+                                    }
                                     currentScreen = AppScreen.Location
                                 }
                             },

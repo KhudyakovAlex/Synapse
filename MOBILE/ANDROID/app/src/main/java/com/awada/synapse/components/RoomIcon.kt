@@ -3,10 +3,9 @@ package com.awada.synapse.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -19,15 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -46,51 +42,23 @@ fun RoomIcon(
     elevation: Dp = 8.dp,
     backgroundColor: Color = PixsoColors.Color_Bg_bg_surface,
     contentColor: Color = PixsoColors.Color_State_tertiary,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_Full)
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val interactionSource = remember { MutableInteractionSource() }
-    var showPressed by remember { mutableStateOf(false) }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val isClickable = onClick != null || onLongClick != null
 
-    val instantPressModifier = if (onClick != null) {
-        Modifier.pointerInput(onClick) {
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                showPressed = true
-
-                val start = down.position
-                var cancelledByMove = false
-                while (true) {
-                    val event = awaitPointerEvent()
-                    val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.first()
-                    if (!change.pressed) break
-
-                    if (!cancelledByMove) {
-                        val dist = (change.position - start).getDistance()
-                        if (dist > viewConfiguration.touchSlop) {
-                            cancelledByMove = true
-                            showPressed = false
-                        }
-                    }
-                }
-
-                showPressed = false
-            }
-        }
-    } else {
-        Modifier
-    }
-
-    val clickableModifier = if (onClick != null) {
-        Modifier.clickable(
+    val clickableModifier = if (isClickable) {
+        Modifier.combinedClickable(
             interactionSource = interactionSource,
             indication = null,
-            onClick = onClick
+            onClick = { onClick?.invoke() },
+            onLongClick = onLongClick
         )
-    } else {
-        Modifier
-    }
+    } else Modifier
 
     Row(
         modifier = modifier
@@ -104,9 +72,8 @@ fun RoomIcon(
                 spotColor = shadowColor
             )
             .clip(shape)
-            .then(instantPressModifier)
             .background(
-                if (onClick != null && showPressed && backgroundColor == PixsoColors.Color_Bg_bg_surface) {
+                if (isClickable && isPressed && backgroundColor == PixsoColors.Color_Bg_bg_surface) {
                     PixsoColors.Color_State_secondary_pressed
                 } else {
                     backgroundColor

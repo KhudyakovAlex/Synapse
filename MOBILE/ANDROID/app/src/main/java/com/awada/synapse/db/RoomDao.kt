@@ -24,6 +24,12 @@ interface RoomDao {
     @Update
     suspend fun update(room: RoomEntity)
 
+    @Query("UPDATE ROOMS SET GRID_POS = :gridPos WHERE CONTROLLER_ID = :controllerId AND ID = :id")
+    suspend fun setGridPos(controllerId: Int, id: Int, gridPos: Int)
+
+    @Query("DELETE FROM ROOMS WHERE CONTROLLER_ID = :controllerId AND ID = :id")
+    suspend fun deleteById(controllerId: Int, id: Int)
+
     @Query("DELETE FROM ROOMS WHERE CONTROLLER_ID = :controllerId")
     suspend fun deleteAllForController(controllerId: Int)
 }

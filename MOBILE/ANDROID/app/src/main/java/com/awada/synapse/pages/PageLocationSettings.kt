@@ -2,6 +2,7 @@ package com.awada.synapse.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,8 @@ import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
@@ -58,6 +61,8 @@ fun PageLocationSettings(
     var draftName by remember { mutableStateOf("") }
     var draftIconId by remember { mutableIntStateOf(100) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
+    var pendingDeleteRoomId by remember { mutableIntStateOf(-1) }
+    var pendingDeleteRoomTitle by remember { mutableStateOf("") }
 
     LaunchedEffect(controllerId) {
         if (controllerId == null) return@LaunchedEffect
@@ -125,107 +130,151 @@ fun PageLocationSettings(
         }
     }
 
-    PageContainer(
-        title = "Настройки\nлокации",
-        onBackClick = handleBackClick,
-        isScrollable = true,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PixsoDimens.Numeric_16)
+    Box(modifier = modifier.fillMaxSize()) {
+        PageContainer(
+            title = "Настройки\nлокации",
+            onBackClick = handleBackClick,
+            isScrollable = true,
+            modifier = Modifier.fillMaxSize()
         ) {
-            TextField(
-                value = draftName,
-                onValueChange = { draftName = it },
-                label = "Название",
-                placeholder = "",
-                enabled = true
-            )
-
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
-            Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)) {
-                androidx.compose.material3.Text(
-                    text = "Иконка",
-                    style = LabelLarge,
-                    color = PixsoColors.Color_Text_text_3_level,
-                    modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PixsoDimens.Numeric_16)
+            ) {
+                TextField(
+                    value = draftName,
+                    onValueChange = { draftName = it },
+                    label = "Название",
+                    placeholder = "",
+                    enabled = true
                 )
-                IconSelectButton(
-                    icon = iconRes,
-                    onClick = { showIconSelect = true }
+
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+
+                Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)) {
+                    androidx.compose.material3.Text(
+                        text = "Иконка",
+                        style = LabelLarge,
+                        color = PixsoColors.Color_Text_text_3_level,
+                        modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)
+                    )
+                    IconSelectButton(
+                        icon = iconRes,
+                        onClick = { showIconSelect = true }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+
+                ScheduleCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    onConfigureClick = { showSchedule = true }
                 )
-            }
 
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
-            ScheduleCard(
-                modifier = Modifier.fillMaxWidth(),
-                onConfigureClick = { showSchedule = true }
-            )
-
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
-
-            Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
                 Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
-                    (rooms ?: emptyList()).chunked(2).forEach { rowRooms ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
-                        ) {
-                            rowRooms.forEach { r ->
-                                val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
-                                val icon = iconResId(
-                                    context = context,
-                                    iconId = r.icoNum,
-                                    fallback = R.drawable.location_208_kuhnya
-                                )
-                                RoomIcon(
-                                    text = title,
-                                    iconResId = icon,
-                                    onClick = onRoomClick?.let { cb -> { cb(r.id, title, r.icoNum) } },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                            if (rowRooms.size == 1) {
-                                Spacer(modifier = Modifier.weight(1f))
+                    Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)) {
+                        (rooms ?: emptyList()).chunked(2).forEach { rowRooms ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_16)
+                            ) {
+                                rowRooms.forEach { r ->
+                                    val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
+                                    val icon = iconResId(
+                                        context = context,
+                                        iconId = r.icoNum,
+                                        fallback = R.drawable.location_208_kuhnya
+                                    )
+                                    RoomIcon(
+                                        text = title,
+                                        iconResId = icon,
+                                        onClick = onRoomClick?.let { cb -> { cb(r.id, title, r.icoNum) } },
+                                        onLongClick = {
+                                            pendingDeleteRoomId = r.id
+                                            pendingDeleteRoomTitle = title
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rowRooms.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
+
+                    val canAddRoom = controllerId != null && rooms != null && rooms.size < 16
+                    SecondaryButton(
+                        text = "Добавить помещение",
+                        enabled = canAddRoom,
+                        onClick = {
+                            val cid = controllerId ?: return@SecondaryButton
+                            val current = rooms ?: return@SecondaryButton
+                            val usedIds = current.asSequence().map { it.id }.toHashSet()
+                            val newId = (0..15).firstOrNull { it !in usedIds } ?: return@SecondaryButton
+                            val nextPos = (current.maxOfOrNull { it.gridPos } ?: -1) + 1
+                            scope.launch {
+                                db.roomDao().insert(
+                                    RoomEntity(
+                                        controllerId = cid,
+                                        id = newId,
+                                        gridPos = nextPos
+                                    )
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
-                val canAddRoom = controllerId != null && rooms != null && rooms.size < 16
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+
                 SecondaryButton(
-                    text = "Добавить помещение",
-                    enabled = canAddRoom,
-                    onClick = {
-                        val cid = controllerId ?: return@SecondaryButton
-                        val current = rooms ?: return@SecondaryButton
-                        val usedIds = current.asSequence().map { it.id }.toHashSet()
-                        val newId = (0..15).firstOrNull { it !in usedIds } ?: return@SecondaryButton
-                        val nextPos = (current.maxOfOrNull { it.gridPos } ?: -1) + 1
-                        scope.launch {
-                            db.roomDao().insert(
-                                RoomEntity(
-                                    controllerId = cid,
-                                    id = newId,
-                                    gridPos = nextPos
-                                )
-                            )
-                        }
-                    },
+                    text = "Сменить пароль контроллера",
+                    onClick = { showChangePassword = true },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+        if (pendingDeleteRoomId != -1) {
+            val text = if (pendingDeleteRoomTitle.isNotBlank()) {
+                "Удалить помещение «$pendingDeleteRoomTitle»?"
+            } else {
+                "Удалить помещение?"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { res ->
+                    when (res) {
+                        TooltipResult.Primary -> {
+                            val cid = controllerId
+                            val rid = pendingDeleteRoomId
+                            pendingDeleteRoomId = -1
+                            pendingDeleteRoomTitle = ""
+                            if (cid != null && rid != -1) {
+                                scope.launch {
+                                    val roomDao = db.roomDao()
+                                    roomDao.deleteById(cid, rid)
+                                    val remaining = roomDao.getAllOrdered(cid)
+                                    remaining.forEachIndexed { index, r ->
+                                        roomDao.setGridPos(cid, r.id, index)
+                                    }
+                                }
+                            }
+                        }
 
-            SecondaryButton(
-                text = "Сменить пароль контроллера",
-                onClick = { showChangePassword = true },
-                modifier = Modifier.fillMaxWidth()
+                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                            pendingDeleteRoomId = -1
+                            pendingDeleteRoomTitle = ""
+                        }
+                    }
+                }
             )
         }
     }
