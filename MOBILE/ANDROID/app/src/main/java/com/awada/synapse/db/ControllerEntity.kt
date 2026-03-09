@@ -17,10 +17,10 @@ data class ControllerEntity(
     val password: String = "",
 
     @ColumnInfo(name = "IS_SCHEDULE", defaultValue = "0")
-    val isSchedule: Int = 0,
+    val isSchedule: Boolean = false,
 
     @ColumnInfo(name = "IS_AUTO", defaultValue = "0")
-    val isAuto: Int = 0,
+    val isAuto: Boolean = false,
 
     @ColumnInfo(name = "ICO_NUM", defaultValue = "100")
     val icoNum: Int = 100,

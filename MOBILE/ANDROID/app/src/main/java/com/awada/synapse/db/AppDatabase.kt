@@ -8,13 +8,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ControllerEntity::class, AIMessageEntity::class],
-    version = 3,
+    entities = [ControllerEntity::class, AIMessageEntity::class, RoomEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun controllerDao(): ControllerDao
     abstract fun aiMessageDao(): AIMessageDao
+    abstract fun roomDao(): RoomDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -39,6 +40,27 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ROOMS (
+                        CONTROLLER_ID INTEGER NOT NULL,
+                        ID INTEGER NOT NULL,
+                        NAME TEXT NOT NULL DEFAULT '',
+                        ICO_NUM INTEGER NOT NULL DEFAULT 200,
+                        IS_AUTO INTEGER NOT NULL DEFAULT 0,
+                        SCENE_NUM INTEGER NOT NULL DEFAULT -1,
+                        GRID_POS INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY (CONTROLLER_ID, ID),
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ROOMS_CONTROLLER_ID ON ROOMS (CONTROLLER_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ROOMS_CONTROLLER_ID_GRID_POS ON ROOMS (CONTROLLER_ID, GRID_POS)")
+            }
+        }
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -49,7 +71,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+                    .also { INSTANCE = it }
             }
         }
     }
