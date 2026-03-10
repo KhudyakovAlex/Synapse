@@ -44,6 +44,7 @@ fun PageLocationSettings(
     controllerId: Int?,
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,
+    onRoomAdded: ((roomId: Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -178,6 +179,8 @@ fun PageLocationSettings(
                         val newId = (0..15).firstOrNull { it !in usedIds } ?: return@SecondaryButton
                         val nextPos = (current.maxOfOrNull { it.gridPos } ?: -1) + 1
                         scope.launch {
+                            db.controllerDao().updateNameAndIcon(cid, draftName, draftIconId)
+                            onSaved?.invoke(draftName, draftIconId)
                             db.roomDao().insert(
                                 RoomEntity(
                                     controllerId = cid,
@@ -185,6 +188,7 @@ fun PageLocationSettings(
                                     gridPos = nextPos
                                 )
                             )
+                            onRoomAdded?.invoke(newId)
                         }
                     },
                     modifier = Modifier.fillMaxWidth()

@@ -131,6 +131,7 @@ private fun MainContent() {
     var buttonPanelBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
+    var appearingLocationRoomId by remember { mutableStateOf<Int?>(null) }
     var selectedLocation by remember {
         mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
     }
@@ -434,6 +435,12 @@ private fun MainContent() {
                                 buttonPanelBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.Panel
                             },
+                            appearingRoomId = appearingLocationRoomId,
+                            onAppearingRoomConsumed = { roomId: Int ->
+                                if (appearingLocationRoomId == roomId) {
+                                    appearingLocationRoomId = null
+                                }
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -492,6 +499,10 @@ private fun MainContent() {
                                     title = newName,
                                     iconResId = com.awada.synapse.components.iconResId(context, newIconId)
                                 )
+                            },
+                            onRoomAdded = { roomId ->
+                                appearingLocationRoomId = roomId
+                                currentScreen = AppScreen.LocationDetails
                             },
                             modifier = Modifier.fillMaxSize()
                         )

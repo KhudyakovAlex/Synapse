@@ -1,5 +1,6 @@
 package com.awada.synapse.pages
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -22,7 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
@@ -61,6 +62,8 @@ internal fun ReorderableRoomsGrid(
     onRoomBoundsChange: ((roomId: Int, bounds: Rect) -> Unit)? = null,
     modifier: Modifier = Modifier,
     itemHeight: Dp = 96.dp * 0.9f,
+    appearingRoomId: Int? = null,
+    onAppearingRoomConsumed: ((Int) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -218,12 +221,37 @@ internal fun ReorderableRoomsGrid(
                     val topLeft = slotPositions.getOrNull(index) ?: Offset.Zero
                     val target = IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt())
                     val isDragging = room.id == draggingId
+                    var isVisible by remember(room.id, appearingRoomId) {
+                        mutableStateOf(room.id != appearingRoomId)
+                    }
                     val animOffset by animateIntOffsetAsState(
                         targetValue = target,
                         animationSpec = tween(durationMillis = 600),
                         label = "roomOffset"
                     )
+                    val appearAlpha by animateFloatAsState(
+                        targetValue = if (isVisible || isDragging) 1f else 0f,
+                        animationSpec = tween(durationMillis = 350),
+                        label = "roomAppearAlpha"
+                    )
+                    val appearScale by animateFloatAsState(
+                        targetValue = if (isVisible || isDragging) 1f else 0.92f,
+                        animationSpec = tween(durationMillis = 350),
+                        label = "roomAppearScale"
+                    )
                     val isPressed = room.id == pressedId || isDragging
+
+                    LaunchedEffect(room.id, appearingRoomId) {
+                        if (room.id == appearingRoomId) {
+                            isVisible = false
+                            delay(40)
+                            isVisible = true
+                            delay(350)
+                            onAppearingRoomConsumed?.invoke(room.id)
+                        } else {
+                            isVisible = true
+                        }
+                    }
 
                     val title = room.name.ifBlank { "Помещение ${room.id + 1}" }
                     val icon = iconResId(
@@ -261,7 +289,15 @@ internal fun ReorderableRoomsGrid(
                                 }
                             }
                             .zIndex(if (isDragging) 10f else 0f)
-                            .alpha(if (isDragging) 0f else 1f)
+                            .graphicsLayer {
+                                if (isDragging) {
+                                    alpha = 0f
+                                } else {
+                                    alpha = appearAlpha
+                                    scaleX = appearScale
+                                    scaleY = appearScale
+                                }
+                            }
                             .onGloballyPositioned { coordinates ->
                                 onRoomBoundsChange?.invoke(room.id, coordinates.boundsInRoot())
                             }

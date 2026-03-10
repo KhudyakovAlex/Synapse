@@ -52,6 +52,8 @@ fun PageLocation(
     onSensorPressSettingsClick: (sensorId: Long) -> Unit,
     onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
     onButtonPanelClick: (buttonPanelId: Long) -> Unit,
+    appearingRoomId: Int? = null,
+    onAppearingRoomConsumed: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -165,6 +167,8 @@ fun PageLocation(
                             draggingId = draggingRoomId,
                             pressedId = pressedRoomId,
                             modalVisible = pendingDeleteRoomId != -1 || pendingDeleteKey != null,
+                            appearingRoomId = appearingRoomId,
+                            onAppearingRoomConsumed = onAppearingRoomConsumed,
                             onDraggingIdChange = { draggingRoomId = it },
                             onPressedIdChange = { pressedRoomId = it },
                             onRoomsChange = { orderedRoomsState.value = it },
