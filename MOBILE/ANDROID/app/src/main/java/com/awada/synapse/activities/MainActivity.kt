@@ -132,6 +132,7 @@ private fun MainContent() {
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
     var appearingLocationRoomId by remember { mutableStateOf<Int?>(null) }
+    var appearingLocationId by remember { mutableStateOf<Int?>(null) }
     var selectedLocation by remember {
         mutableStateOf<com.awada.synapse.components.LocationItem?>(null)
     }
@@ -392,6 +393,12 @@ private fun MainContent() {
                                 currentScreen = AppScreen.LocationDetails
                             },
                             onFindControllerClick = { currentScreen = AppScreen.Search },
+                            appearingLocationId = appearingLocationId,
+                            onAppearingLocationConsumed = { controllerId ->
+                                if (appearingLocationId == controllerId) {
+                                    appearingLocationId = null
+                                }
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -667,6 +674,7 @@ private fun MainContent() {
                                             gridPos = 11
                                         )
                                     )
+                                    appearingLocationId = controllerId
                                     currentScreen = AppScreen.Location
                                 }
                             },
