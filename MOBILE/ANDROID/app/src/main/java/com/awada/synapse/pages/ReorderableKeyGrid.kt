@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.Dp
@@ -48,6 +50,7 @@ internal fun <K : Any> ReorderableKeyGrid(
     onPressedKeyChange: (K?) -> Unit,
     onKeysChange: (List<K>) -> Unit,
     onCommitOrder: (List<K>) -> Unit,
+    onDropOutsideGrid: (key: K, itemCenterInRoot: Offset) -> Boolean = { _, _ -> false },
     onRequestDelete: (K) -> Unit,
     modifier: Modifier = Modifier,
     spacing: Dp = 16.dp,
@@ -60,6 +63,7 @@ internal fun <K : Any> ReorderableKeyGrid(
     val scope = rememberCoroutineScope()
     var suppressClickKey by remember { mutableStateOf<K?>(null) }
     var suppressClickToken by remember { mutableStateOf(0) }
+    var gridOriginInRoot by remember { mutableStateOf(Offset.Zero) }
 
     LaunchedEffect(draggingKey) {
         if (draggingKey == null) {
@@ -108,6 +112,10 @@ internal fun <K : Any> ReorderableKeyGrid(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(contentHeightDp)
+                .onGloballyPositioned { coordinates ->
+                    val position = coordinates.positionInRoot()
+                    gridOriginInRoot = Offset(position.x, position.y)
+                }
                 // Drag should win over scroll: pointerInput first, then PageContainer scroll.
                 .pointerInput(n, maxWidth, modalVisible, cols) {
                     if (modalVisible || n == 0) return@pointerInput
@@ -174,6 +182,11 @@ internal fun <K : Any> ReorderableKeyGrid(
                         }
 
                         val finalOrder = keysState.value
+                        val itemCenterInRoot =
+                            gridOriginInRoot +
+                                slotPositions[startIndex] +
+                                dragDelta +
+                                Offset(cardWpx / 2f, cardHpx / 2f)
                         onDraggingKeyChange(null)
                         dragDelta = Offset.Zero
 
@@ -184,6 +197,11 @@ internal fun <K : Any> ReorderableKeyGrid(
 
                         val from = finalOrder.indexOf(key0)
                         if (from == -1) return@awaitEachGesture
+
+                        if (onDropOutsideGrid(key0, itemCenterInRoot)) {
+                            onPressedKeyChange(null)
+                            return@awaitEachGesture
+                        }
 
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
                         val toRaw = if (dropOver != -1) dropOver else hoverIndex

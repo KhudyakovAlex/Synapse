@@ -15,11 +15,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
@@ -111,6 +115,7 @@ fun PageLocation(
     var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteTitle by remember { mutableStateOf("") }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
+    val roomBoundsById = remember { mutableStateMapOf<Int, Rect>() }
 
     val dotColors = remember {
         listOf(
@@ -169,7 +174,11 @@ fun PageLocation(
                                                 text = title,
                                                 iconResId = icon,
                                                 onClick = { onRoomClick(r.id, title, r.icoNum) },
-                                                modifier = Modifier.weight(1f)
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .onGloballyPositioned { coordinates ->
+                                                        roomBoundsById[r.id] = coordinates.boundsInRoot()
+                                                    }
                                             )
                                         }
                                         if (rowRooms.size == 1) {
@@ -311,6 +320,29 @@ fun PageLocation(
                             }
                         }
 
+                        fun moveDeviceToRoom(key: DeviceKey, roomId: Int) {
+                            val remainingKeys = orderedKeysState.value.filter { it != key }
+                            orderedKeysState.value = remainingKeys
+                            draggingKey = null
+                            pressedKey = null
+                            scope.launch {
+                                when (key.type) {
+                                    DeviceType.Luminaire -> db.luminaireDao().moveToRoom(key.id, roomId)
+                                    DeviceType.ButtonPanel -> db.buttonPanelDao().moveToRoom(key.id, roomId)
+                                    DeviceType.PresSensor -> db.presSensorDao().moveToRoom(key.id, roomId)
+                                    DeviceType.BrightSensor -> db.brightSensorDao().moveToRoom(key.id, roomId)
+                                }
+                                remainingKeys.forEachIndexed { index, deviceKey ->
+                                    when (deviceKey.type) {
+                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(deviceKey.id, index)
+                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(deviceKey.id, index)
+                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(deviceKey.id, index)
+                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(deviceKey.id, index)
+                                    }
+                                }
+                            }
+                        }
+
                         val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
                         ReorderableKeyGrid(
                             keys = orderedKeys,
@@ -322,6 +354,20 @@ fun PageLocation(
                             onPressedKeyChange = { pressedKey = it },
                             onKeysChange = { orderedKeysState.value = it },
                             onCommitOrder = { commitOrder(it) },
+                            onDropOutsideGrid = { key, itemCenterInRoot ->
+                                val targetRoomId =
+                                    rooms
+                                        ?.firstOrNull { room ->
+                                            roomBoundsById[room.id]?.contains(itemCenterInRoot) == true
+                                        }
+                                        ?.id
+                                if (targetRoomId != null) {
+                                    moveDeviceToRoom(key, targetRoomId)
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
                             onRequestDelete = { k ->
                                 pendingDeleteKey = k
                                 pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
