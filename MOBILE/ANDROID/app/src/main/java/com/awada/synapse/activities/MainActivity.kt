@@ -252,7 +252,7 @@ private fun MainContent() {
                             location = loc,
                             onBackClick = { currentScreen = AppScreen.Location },
                             onSettingsClick = { currentScreen = AppScreen.LocationSettings },
-                            _onRoomClick = { roomId, roomTitle, roomIconId ->
+                            onRoomClick = { roomId, roomTitle, roomIconId ->
                                 val cid = loc.controllerId ?: return@PageLocation
                                 selectedRoom = RoomState(
                                     controllerId = cid,

@@ -4,16 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
@@ -32,12 +31,11 @@ import kotlinx.coroutines.flow.map
  * Page for a single location (singular).
  */
 @Composable
-@Suppress("UNUSED_PARAMETER")
 fun PageLocation(
     location: LocationItem,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    _onRoomClick: (roomId: Int, roomTitle: String, roomIconId: Int) -> Unit,
+    onRoomClick: (roomId: Int, roomTitle: String, roomIconId: Int) -> Unit,
     onLumClick: () -> Unit,
     onSensorPressSettingsClick: () -> Unit,
     onSensorBrightSettingsClick: () -> Unit,
@@ -47,8 +45,15 @@ fun PageLocation(
     val context = LocalContext.current
     val controllerId = location.controllerId
     val db = remember { AppDatabase.getInstance(context) }
-    @Suppress("UNUSED_VARIABLE")
-    val roomsOrNull = Unit
+    val roomsOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<List<com.awada.synapse.db.RoomEntity>?>(emptyList())
+        } else {
+            db.roomDao()
+                .observeAll(controllerId)
+                .map<List<com.awada.synapse.db.RoomEntity>, List<com.awada.synapse.db.RoomEntity>?> { it }
+        }
+    }.collectAsState(initial = null)
 
     val luminairesOrNull by remember(db, controllerId) {
         if (controllerId == null) {
@@ -105,6 +110,8 @@ fun PageLocation(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 val iconSize = 82.dp
+                val rooms = roomsOrNull
+                val showRooms = rooms != null && rooms.isNotEmpty()
                 val luminaires = luminairesOrNull
                 val panels = buttonPanelsOrNull
                 val pres = presSensorsOrNull
@@ -112,7 +119,42 @@ fun PageLocation(
 
                 // Prevent a brief "empty" flicker before first DB emission.
                 val ready =
-                    luminaires != null && panels != null && pres != null && bright != null
+                    rooms != null && luminaires != null && panels != null && pres != null && bright != null
+
+                if (ready && showRooms) {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        rooms!!
+                            .chunked(2)
+                            .forEach { rowRooms ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    rowRooms.forEach { r ->
+                                        val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
+                                        val icon = iconResId(
+                                            context = context,
+                                            iconId = r.icoNum,
+                                            fallback = com.awada.synapse.R.drawable.location_208_kuhnya
+                                        )
+                                        RoomIcon(
+                                            text = title,
+                                            iconResId = icon,
+                                            onClick = { onRoomClick(r.id, title, r.icoNum) },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                    if (rowRooms.size == 1) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                    }
+                }
+
+                if (ready && showRooms) {
+                    Spacer(modifier = Modifier.height(15.dp))
+                }
 
                 if (ready) {
                     val dotColors = remember {
