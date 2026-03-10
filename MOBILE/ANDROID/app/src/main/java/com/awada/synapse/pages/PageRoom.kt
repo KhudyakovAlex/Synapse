@@ -86,15 +86,6 @@ fun PageRoom(
     var pendingDeleteTitle by remember { mutableStateOf("") }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
 
-    val dotColors = remember {
-        listOf(
-            PixsoColors.Color_Bg_bg_surface,
-            PixsoColors.Color_Border_border_error,
-            PixsoColors.Color_Border_border_focus,
-            PixsoColors.Color_State_on_disabled
-        )
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
         PageContainer(
             title = roomTitle,
@@ -126,7 +117,7 @@ fun PageRoom(
                     val iconSize = 82.dp
 
                     val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
-                        luminaires!!.forEachIndexed { idx, e ->
+                        luminaires!!.forEach { e ->
                             val icon = iconResId(
                                 context = context,
                                 iconId = e.icoNum,
@@ -144,8 +135,11 @@ fun PageRoom(
                                             title = e.name.ifBlank { "Светильник" },
                                             iconSize = iconSize,
                                             brightnessPercent = e.bright,
+                                            typeId = e.typeId,
+                                            hue = e.hue,
+                                            saturation = e.saturation,
+                                            temperature = e.temperature,
                                             iconResId = icon,
-                                            statusDotColor = dotColors[idx % dotColors.size],
                                             forcePressed = isPressed,
                                             onClick = if (suppressClick) null else { { onLumClick(e.id) } },
                                             modifier = m

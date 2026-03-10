@@ -217,6 +217,45 @@ private fun MainContent() {
             }
         }
     }
+    val lumControlColorValue by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            if (lumControlLuminaires.isEmpty()) {
+                0f
+            } else {
+                lumControlLuminaires
+                    .map { it.hue }
+                    .average()
+                    .roundToInt()
+                    .toFloat()
+            }
+        }
+    }
+    val lumControlSaturationValue by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            if (lumControlLuminaires.isEmpty()) {
+                0f
+            } else {
+                lumControlLuminaires
+                    .map { it.saturation }
+                    .average()
+                    .roundToInt()
+                    .toFloat()
+            }
+        }
+    }
+    val lumControlTemperatureValue by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            if (lumControlLuminaires.isEmpty()) {
+                3500f
+            } else {
+                lumControlLuminaires
+                    .map { if (it.temperature > 0) it.temperature else 3500 }
+                    .average()
+                    .roundToInt()
+                    .toFloat()
+            }
+        }
+    }
     val lumControlBrightnessEnabled by remember(currentScreen, lumControlLuminaires) {
         derivedStateOf {
             when (currentScreen) {
@@ -443,6 +482,10 @@ private fun MainContent() {
                     AppScreen.Lum -> {
                         PageLum(
                             brightnessPercent = selectedLuminaireOrNull?.bright ?: 0,
+                            typeId = selectedLuminaireOrNull?.typeId ?: LuminaireTypeEntity.TYPE_DIMMABLE,
+                            hue = selectedLuminaireOrNull?.hue ?: 0,
+                            saturation = selectedLuminaireOrNull?.saturation ?: 0,
+                            temperature = selectedLuminaireOrNull?.temperature ?: 0,
                             onBackClick = { currentScreen = lumBackTarget },
                             onSettingsClick = {
                                 settingsLumBackTarget = AppScreen.Lum
@@ -595,6 +638,132 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
+            colorValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+                lumControlColorValue
+            } else {
+                null
+            },
+            onColorValueChange = when (currentScreen) {
+                AppScreen.Lum -> { value ->
+                    val luminaireId = selectedLuminaireId
+                    if (luminaireId != null) {
+                        scope.launch {
+                            db.luminaireDao().setHue(
+                                id = luminaireId,
+                                hue = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.LocationDetails -> { value ->
+                    val controllerId = selectedLocation?.controllerId
+                    if (controllerId != null) {
+                        scope.launch {
+                            db.luminaireDao().setHueForController(
+                                controllerId = controllerId,
+                                hue = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.RoomDetails -> { value ->
+                    val room = selectedRoom
+                    if (room != null) {
+                        scope.launch {
+                            db.luminaireDao().setHueForRoom(
+                                controllerId = room.controllerId,
+                                roomId = room.roomId,
+                                hue = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                else -> null
+            },
+            saturationValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+                lumControlSaturationValue
+            } else {
+                null
+            },
+            onSaturationValueChange = when (currentScreen) {
+                AppScreen.Lum -> { value ->
+                    val luminaireId = selectedLuminaireId
+                    if (luminaireId != null) {
+                        scope.launch {
+                            db.luminaireDao().setSaturation(
+                                id = luminaireId,
+                                saturation = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.LocationDetails -> { value ->
+                    val controllerId = selectedLocation?.controllerId
+                    if (controllerId != null) {
+                        scope.launch {
+                            db.luminaireDao().setSaturationForController(
+                                controllerId = controllerId,
+                                saturation = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.RoomDetails -> { value ->
+                    val room = selectedRoom
+                    if (room != null) {
+                        scope.launch {
+                            db.luminaireDao().setSaturationForRoom(
+                                controllerId = room.controllerId,
+                                roomId = room.roomId,
+                                saturation = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                else -> null
+            },
+            temperatureValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+                lumControlTemperatureValue
+            } else {
+                null
+            },
+            onTemperatureValueChange = when (currentScreen) {
+                AppScreen.Lum -> { value ->
+                    val luminaireId = selectedLuminaireId
+                    if (luminaireId != null) {
+                        scope.launch {
+                            db.luminaireDao().setTemperature(
+                                id = luminaireId,
+                                temperature = value.roundToInt().coerceIn(3000, 5000)
+                            )
+                        }
+                    }
+                }
+                AppScreen.LocationDetails -> { value ->
+                    val controllerId = selectedLocation?.controllerId
+                    if (controllerId != null) {
+                        scope.launch {
+                            db.luminaireDao().setTemperatureForController(
+                                controllerId = controllerId,
+                                temperature = value.roundToInt().coerceIn(3000, 5000)
+                            )
+                        }
+                    }
+                }
+                AppScreen.RoomDetails -> { value ->
+                    val room = selectedRoom
+                    if (room != null) {
+                        scope.launch {
+                            db.luminaireDao().setTemperatureForRoom(
+                                controllerId = room.controllerId,
+                                roomId = room.roomId,
+                                temperature = value.roundToInt().coerceIn(3000, 5000)
+                            )
+                        }
+                    }
+                }
+                else -> null
+            },
             brightnessValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
                 lumControlBrightnessValue
             } else {

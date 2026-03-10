@@ -74,6 +74,33 @@ interface LuminaireDao {
     @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
     suspend fun setBrightForRoom(controllerId: Int, roomId: Int, bright: Int)
 
+    @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE ID = :id")
+    suspend fun setHue(id: Long, hue: Int)
+
+    @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE CONTROLLER_ID = :controllerId")
+    suspend fun setHueForController(controllerId: Int, hue: Int)
+
+    @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
+    suspend fun setHueForRoom(controllerId: Int, roomId: Int, hue: Int)
+
+    @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE ID = :id")
+    suspend fun setSaturation(id: Long, saturation: Int)
+
+    @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE CONTROLLER_ID = :controllerId")
+    suspend fun setSaturationForController(controllerId: Int, saturation: Int)
+
+    @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
+    suspend fun setSaturationForRoom(controllerId: Int, roomId: Int, saturation: Int)
+
+    @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE ID = :id")
+    suspend fun setTemperature(id: Long, temperature: Int)
+
+    @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE CONTROLLER_ID = :controllerId")
+    suspend fun setTemperatureForController(controllerId: Int, temperature: Int)
+
+    @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
+    suspend fun setTemperatureForRoom(controllerId: Int, roomId: Int, temperature: Int)
+
     @Query("DELETE FROM LUMINAIRES WHERE ID = :id")
     suspend fun deleteById(id: Long)
 

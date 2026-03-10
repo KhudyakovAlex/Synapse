@@ -54,6 +54,12 @@ enum class LumControlState { Collapsed, Expanded }
 fun LumControlLayer(
     isVisible: Boolean = true,
     sliders: List<String> = emptyList(),
+    colorValue: Float? = null,
+    onColorValueChange: ((Float) -> Unit)? = null,
+    saturationValue: Float? = null,
+    onSaturationValueChange: ((Float) -> Unit)? = null,
+    temperatureValue: Float? = null,
+    onTemperatureValueChange: ((Float) -> Unit)? = null,
     brightnessValue: Float? = null,
     onBrightnessValueChange: ((Float) -> Unit)? = null,
     brightnessEnabled: Boolean = true,
@@ -64,18 +70,51 @@ fun LumControlLayer(
 ) {
     val density = LocalDensity.current
 
-    var colorValue by remember { mutableFloatStateOf(0f) }
-    var saturationValue by remember { mutableFloatStateOf(50f) }
-    var temperatureValue by remember { mutableFloatStateOf(4000f) }
+    var localColorValue by remember { mutableFloatStateOf(0f) }
+    var localSaturationValue by remember { mutableFloatStateOf(50f) }
+    var localTemperatureValue by remember { mutableFloatStateOf(4000f) }
     var localBrightnessValue by remember { mutableFloatStateOf(50f) }
+    var controlledColorValue by remember(stateKey) { mutableFloatStateOf(colorValue ?: 0f) }
+    var controlledSaturationValue by remember(stateKey) { mutableFloatStateOf(saturationValue ?: 50f) }
+    var controlledTemperatureValue by remember(stateKey) { mutableFloatStateOf(temperatureValue ?: 4000f) }
     var controlledBrightnessValue by remember(stateKey) { mutableFloatStateOf(brightnessValue ?: 0f) }
 
+    LaunchedEffect(colorValue, stateKey) {
+        if (colorValue != null) {
+            controlledColorValue = colorValue.coerceIn(0f, 100f)
+        }
+    }
+    LaunchedEffect(saturationValue, stateKey) {
+        if (saturationValue != null) {
+            controlledSaturationValue = saturationValue.coerceIn(0f, 100f)
+        }
+    }
+    LaunchedEffect(temperatureValue, stateKey) {
+        if (temperatureValue != null) {
+            controlledTemperatureValue = temperatureValue.coerceIn(3000f, 5000f)
+        }
+    }
     LaunchedEffect(brightnessValue, stateKey) {
         if (brightnessValue != null) {
             controlledBrightnessValue = brightnessValue.coerceIn(0f, 100f)
         }
     }
 
+    val resolvedColorValue = if (colorValue != null) {
+        controlledColorValue
+    } else {
+        localColorValue
+    }
+    val resolvedSaturationValue = if (saturationValue != null) {
+        controlledSaturationValue
+    } else {
+        localSaturationValue
+    }
+    val resolvedTemperatureValue = if (temperatureValue != null) {
+        controlledTemperatureValue
+    } else {
+        localTemperatureValue
+    }
     val resolvedBrightnessValue = if (brightnessValue != null) {
         controlledBrightnessValue
     } else {
@@ -166,12 +205,36 @@ fun LumControlLayer(
                     RevealSlidersAboveButtons(
                         sliders = sliders,
                         revealPx = revealForUi,
-                        colorValue = colorValue,
-                        onColorValueChange = { colorValue = it },
-                        saturationValue = saturationValue,
-                        onSaturationValueChange = { saturationValue = it },
-                        temperatureValue = temperatureValue,
-                        onTemperatureValueChange = { temperatureValue = it },
+                        colorValue = resolvedColorValue,
+                        onColorValueChange = { value ->
+                            val clampedValue = value.coerceIn(0f, 100f)
+                            if (colorValue != null && onColorValueChange != null) {
+                                controlledColorValue = clampedValue
+                                onColorValueChange(clampedValue)
+                            } else {
+                                localColorValue = clampedValue
+                            }
+                        },
+                        saturationValue = resolvedSaturationValue,
+                        onSaturationValueChange = { value ->
+                            val clampedValue = value.coerceIn(0f, 100f)
+                            if (saturationValue != null && onSaturationValueChange != null) {
+                                controlledSaturationValue = clampedValue
+                                onSaturationValueChange(clampedValue)
+                            } else {
+                                localSaturationValue = clampedValue
+                            }
+                        },
+                        temperatureValue = resolvedTemperatureValue,
+                        onTemperatureValueChange = { value ->
+                            val clampedValue = value.coerceIn(3000f, 5000f)
+                            if (temperatureValue != null && onTemperatureValueChange != null) {
+                                controlledTemperatureValue = clampedValue
+                                onTemperatureValueChange(clampedValue)
+                            } else {
+                                localTemperatureValue = clampedValue
+                            }
+                        },
                         brightnessValue = resolvedBrightnessValue,
                         brightnessEnabled = brightnessEnabled,
                         onBrightnessValueChange = { value ->

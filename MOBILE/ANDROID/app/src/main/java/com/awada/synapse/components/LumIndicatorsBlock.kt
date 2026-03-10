@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,12 +38,24 @@ import com.awada.synapse.ui.theme.PixsoColors
 @Composable
 fun LumIndicatorsBlock(
     brightnessPercent: Int,
+    typeId: Int,
+    hue: Int,
+    saturation: Int,
+    temperature: Int,
     modifier: Modifier = Modifier
 ) {
+    val visualState = resolveLumVisualState(
+        typeId = typeId,
+        brightnessPercent = brightnessPercent,
+        hue = hue,
+        saturation = saturation,
+        temperature = temperature
+    )
     LumInfoIndicator(
-        valueText = brightnessPercent.coerceIn(0, 100).toString(),
+        valueText = visualState.brightnessPercent.toString(),
         labelText = "Яркость",
-        progress = brightnessPercent.coerceIn(0, 100) / 100f,
+        progress = visualState.brightnessPercent / 100f,
+        statusDotColor = visualState.statusDotColor,
         modifier = modifier
     )
 }
@@ -58,7 +71,7 @@ fun LumInfoIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
     size: Dp = 200.dp,
-    statusDotColor: Color = Color(0xFF81E83A)
+    statusDotColor: Color? = Color(0xFF81E83A)
 ) {
     // Tokens and geometry are intentionally copied from `Lum.kt`,
     // but scaled up to a larger `size`.
@@ -151,17 +164,20 @@ fun LumInfoIndicator(
             }
 
             // Small status dot (same ratios as `Lum.kt`, 104×104 basis)
-            val dotSize = actualSize * (16f / 104f)
-            val dotLeft = actualSize * (44f / 104f)
-            val dotTop = actualSize * (83.64825439453125f / 104f)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(x = dotLeft, y = dotTop)
-                    .size(dotSize)
-                    .clip(CircleShape)
-                    .background(statusDotColor)
-            )
+            statusDotColor?.let { dotColor ->
+                val dotSize = actualSize * (16f / 104f)
+                val dotLeft = actualSize * (44f / 104f)
+                val dotTop = actualSize * (83.64825439453125f / 104f)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(x = dotLeft, y = dotTop)
+                        .size(dotSize)
+                        .clip(CircleShape)
+                        .border(width = 1.dp, color = PixsoColors.Color_Border_border_shade_8, shape = CircleShape)
+                        .background(dotColor)
+                )
+            }
         }
     }
 }

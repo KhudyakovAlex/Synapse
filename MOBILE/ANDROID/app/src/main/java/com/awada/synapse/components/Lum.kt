@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,6 +63,10 @@ fun Lum(
     @Suppress("UNUSED_PARAMETER")
     isActive: Boolean = false,
     brightnessPercent: Int = 0,
+    typeId: Int? = null,
+    hue: Int = 0,
+    saturation: Int = 0,
+    temperature: Int = 0,
     iconResId: Int = R.drawable.luminaire_300_default,
     statusDotColor: Color = PixsoColors.Color_Bg_bg_surface,
     onClick: (() -> Unit)? = null,
@@ -73,6 +78,10 @@ fun Lum(
         iconSize = iconSize,
         enabled = enabled,
         brightnessPercent = brightnessPercent,
+        typeId = typeId,
+        hue = hue,
+        saturation = saturation,
+        temperature = temperature,
         iconResId = iconResId,
         statusDotColor = statusDotColor,
         forcePressed = false,
@@ -90,6 +99,10 @@ fun Lum(
     @Suppress("UNUSED_PARAMETER")
     isActive: Boolean = false,
     brightnessPercent: Int = 0,
+    typeId: Int? = null,
+    hue: Int = 0,
+    saturation: Int = 0,
+    temperature: Int = 0,
     iconResId: Int = R.drawable.luminaire_300_default,
     statusDotColor: Color = PixsoColors.Color_Bg_bg_surface,
     forcePressed: Boolean,
@@ -102,6 +115,10 @@ fun Lum(
         iconSize = iconSize,
         enabled = enabled,
         brightnessPercent = brightnessPercent,
+        typeId = typeId,
+        hue = hue,
+        saturation = saturation,
+        temperature = temperature,
         iconResId = iconResId,
         statusDotColor = statusDotColor,
         forcePressed = forcePressed,
@@ -117,6 +134,10 @@ private fun LumInternal(
     iconSize: Dp,
     enabled: Boolean,
     brightnessPercent: Int,
+    typeId: Int?,
+    hue: Int,
+    saturation: Int,
+    temperature: Int,
     iconResId: Int,
     statusDotColor: Color,
     forcePressed: Boolean,
@@ -161,6 +182,22 @@ private fun LumInternal(
         PixsoColors.Color_State_primary_pressed
     } else {
         PixsoColors.Color_Bg_bg_surface
+    }
+    val visualState = remember(typeId, brightnessPercent, hue, saturation, temperature, statusDotColor) {
+        if (typeId != null) {
+            resolveLumVisualState(
+                typeId = typeId,
+                brightnessPercent = brightnessPercent,
+                hue = hue,
+                saturation = saturation,
+                temperature = temperature
+            )
+        } else {
+            LumVisualState(
+                brightnessPercent = brightnessPercent.coerceIn(0, 100),
+                statusDotColor = statusDotColor
+            )
+        }
     }
 
     val clickableModifier = if (onClick != null) {
@@ -223,7 +260,7 @@ private fun LumInternal(
                     style = Stroke(width = strokePx, cap = StrokeCap.Round)
                 )
 
-                val p = (brightnessPercent.coerceIn(0, 100) / 100f)
+                val p = visualState.brightnessPercent / 100f
                 val arcSweepValue = arcSweepTotal * p
                 if (arcSweepValue > 0f) {
                     drawArc(
@@ -265,18 +302,21 @@ private fun LumInternal(
 
             // Small status dot centered on the white circle vertical axis.
             // Must be drawn above the icon "mask" circle.
-            run {
-                val dotSize = iconSize * (16f / 104f)
-                val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
-                Box(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .align(Alignment.TopCenter)
-                        .offset(y = dotTop)
-                        .size(dotSize)
-                        .clip(CircleShape)
-                        .background(statusDotColor)
-                )
+            visualState.statusDotColor?.let { dotColor ->
+                run {
+                    val dotSize = iconSize * (16f / 104f)
+                    val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
+                    Box(
+                        modifier = Modifier
+                            .zIndex(2f)
+                            .align(Alignment.TopCenter)
+                            .offset(y = dotTop)
+                            .size(dotSize)
+                            .clip(CircleShape)
+                            .border(width = 1.dp, color = PixsoColors.Color_Border_border_shade_8, shape = CircleShape)
+                            .background(dotColor)
+                    )
+                }
             }
         }
 

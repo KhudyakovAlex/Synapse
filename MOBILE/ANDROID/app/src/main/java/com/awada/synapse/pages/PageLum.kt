@@ -20,6 +20,10 @@ fun PageLum(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     brightnessPercent: Int,
+    typeId: Int,
+    hue: Int,
+    saturation: Int,
+    temperature: Int,
     indicatorsOffsetY: Dp = 0.dp,
     modifier: Modifier = Modifier
 ) {
@@ -43,6 +47,10 @@ fun PageLum(
             // Single unified block to position as a whole.
             LumIndicatorsBlock(
                 brightnessPercent = brightnessPercent,
+                typeId = typeId,
+                hue = hue,
+                saturation = saturation,
+                temperature = temperature,
                 modifier = Modifier.offset(y = indicatorsOffsetY)
             )
         }
