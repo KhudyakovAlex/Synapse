@@ -155,7 +155,7 @@ fun PageLocation(
                         rooms != null && luminaires != null && panels != null && pres != null && bright != null
 
                     if (ready && showRooms) {
-                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             rooms!!
                                 .chunked(2)
                                 .forEach { rowRooms ->
@@ -347,6 +347,7 @@ fun PageLocation(
                         ReorderableKeyGrid(
                             keys = orderedKeys,
                             columns = 4,
+                            rowSpacing = 8.dp,
                             draggingKey = draggingKey,
                             pressedKey = pressedKey,
                             modalVisible = pendingDeleteKey != null,

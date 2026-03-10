@@ -248,6 +248,7 @@ fun PageRoom(
                     ReorderableKeyGrid(
                         keys = orderedKeys,
                         columns = 4,
+                        rowSpacing = 8.dp,
                         draggingKey = draggingKey,
                         pressedKey = pressedKey,
                         modalVisible = pendingDeleteKey != null,

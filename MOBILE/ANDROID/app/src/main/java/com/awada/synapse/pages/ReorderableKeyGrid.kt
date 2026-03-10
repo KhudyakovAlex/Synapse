@@ -54,6 +54,8 @@ internal fun <K : Any> ReorderableKeyGrid(
     onRequestDelete: (K) -> Unit,
     modifier: Modifier = Modifier,
     spacing: Dp = 16.dp,
+    rowSpacing: Dp = spacing,
+    columnSpacing: Dp = spacing,
     itemHeight: Dp = 128.dp,
     itemContent: @Composable (key: K, isPressed: Boolean, suppressClick: Boolean, modifier: Modifier) -> Unit,
 ) {
@@ -76,19 +78,20 @@ internal fun <K : Any> ReorderableKeyGrid(
         val n = keys.size
         val cols = columns.coerceAtLeast(1)
 
-        val cardWidthDp = (maxWidth - spacing * (cols - 1)) / cols.toFloat()
+        val cardWidthDp = (maxWidth - columnSpacing * (cols - 1)) / cols.toFloat()
         val shadowBottomPadding = 12.dp
 
         val cardWpx = with(density) { cardWidthDp.toPx() }
         val cardHpx = with(density) { itemHeight.toPx() }
-        val spacingPx = with(density) { spacing.toPx() }
+        val rowSpacingPx = with(density) { rowSpacing.toPx() }
+        val columnSpacingPx = with(density) { columnSpacing.toPx() }
         val shadowBottomPaddingPx = with(density) { shadowBottomPadding.toPx() }
 
         fun slotTopLeft(index: Int): Offset {
             val col = index % cols
             val row = index / cols
-            val x = col * (cardWpx + spacingPx)
-            val y = row * (cardHpx + spacingPx)
+            val x = col * (cardWpx + columnSpacingPx)
+            val y = row * (cardHpx + rowSpacingPx)
             return Offset(x, y)
         }
 
@@ -96,7 +99,7 @@ internal fun <K : Any> ReorderableKeyGrid(
         val totalRows = if (n == 0) 0 else ceil(n / cols.toFloat()).toInt()
         val gridHeightPx =
             totalRows * cardHpx +
-                (totalRows - 1).coerceAtLeast(0) * spacingPx +
+                (totalRows - 1).coerceAtLeast(0) * rowSpacingPx +
                 shadowBottomPaddingPx
         val contentHeightDp = with(density) { gridHeightPx.toDp() }
 
@@ -117,7 +120,7 @@ internal fun <K : Any> ReorderableKeyGrid(
                     gridOriginInRoot = Offset(position.x, position.y)
                 }
                 // Drag should win over scroll: pointerInput first, then PageContainer scroll.
-                .pointerInput(n, maxWidth, modalVisible, cols) {
+                .pointerInput(n, maxWidth, modalVisible, cols, rowSpacing, columnSpacing) {
                     if (modalVisible || n == 0) return@pointerInput
 
                     awaitEachGesture {
