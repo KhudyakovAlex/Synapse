@@ -22,6 +22,7 @@ import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.GroupEntity
 import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.db.displayName
 import com.awada.synapse.ui.theme.LabelLarge
@@ -44,16 +45,20 @@ fun PageSensorBrightSettings(
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
     var roomId by remember { mutableStateOf<Int?>(null) }
+    var groupId by remember { mutableStateOf<Int?>(null) }
     var controllerId by remember { mutableStateOf<Int?>(null) }
     var rooms by remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
+    var groups by remember { mutableStateOf<List<GroupEntity>>(emptyList()) }
 
     LaunchedEffect(sensorId) {
         val id = sensorId ?: return@LaunchedEffect
         val e = db.brightSensorDao().getById(id) ?: return@LaunchedEffect
         name = e.name
         roomId = e.roomId
+        groupId = e.groupId
         controllerId = e.controllerId
         rooms = db.roomDao().getAllOrdered(e.controllerId)
+        groups = db.groupDao().getAllOrdered()
     }
 
     fun saveAndBack() {
@@ -62,6 +67,7 @@ fun PageSensorBrightSettings(
             if (id != null) {
                 db.brightSensorDao().setName(id = id, name = name)
                 db.brightSensorDao().moveToRoom(id = id, roomId = roomId)
+                db.brightSensorDao().moveToGroup(id = id, groupId = groupId)
             }
             onBackClick()
         }
@@ -105,6 +111,24 @@ fun PageSensorBrightSettings(
                 placeholder = "Выберите помещение",
                 enabled = true,
                 dropdownItems = roomDropdownItems
+            )
+
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+
+            // 3. Группа
+            val groupDropdownItems = listOf(DropdownItem(id = -1, text = "Вне групп")) +
+                groups.map { DropdownItem(id = it.id, text = it.displayName()) }
+
+            TextFieldForList(
+                value = groupId ?: -1,
+                onValueChange = { selectedId ->
+                    groupId = if (selectedId == -1) null else selectedId
+                },
+                icon = R.drawable.ic_chevron_down,
+                label = "Группа",
+                placeholder = "Выберите группу",
+                enabled = true,
+                dropdownItems = groupDropdownItems
             )
         }
     }

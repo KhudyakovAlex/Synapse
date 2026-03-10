@@ -13,6 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ControllerEntity::class,
         AIMessageEntity::class,
         RoomEntity::class,
+        GroupEntity::class,
         LuminaireTypeEntity::class,
         LuminaireEntity::class,
         LuminaireSceneEntity::class,
@@ -20,13 +21,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         BrightSensorEntity::class,
         ButtonPanelEntity::class
     ],
-    version = 9,
+    version = 12,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun controllerDao(): ControllerDao
     abstract fun aiMessageDao(): AIMessageDao
     abstract fun roomDao(): RoomDao
+    abstract fun groupDao(): GroupDao
     abstract fun luminaireTypeDao(): LuminaireTypeDao
     abstract fun luminaireDao(): LuminaireDao
     abstract fun luminaireSceneDao(): LuminaireSceneDao
@@ -48,10 +50,50 @@ abstract class AppDatabase : RoomDatabase() {
             )
         }
 
+        private fun insertGroups(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS GROUPS (
+                    ID INTEGER PRIMARY KEY NOT NULL,
+                    NAME TEXT NOT NULL DEFAULT ''
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                INSERT OR IGNORE INTO GROUPS (ID, NAME) VALUES
+                    (0, 'Группа 1'),
+                    (1, 'Группа 2'),
+                    (2, 'Группа 3'),
+                    (3, 'Группа 4'),
+                    (4, 'Группа 5'),
+                    (5, 'Группа 6'),
+                    (6, 'Группа 7'),
+                    (7, 'Группа 8'),
+                    (8, 'Группа 9'),
+                    (9, 'Группа 10'),
+                    (10, 'Группа 11'),
+                    (11, 'Группа 12'),
+                    (12, 'Группа 13'),
+                    (13, 'Группа 14'),
+                    (14, 'Группа 15'),
+                    (15, 'Группа 16')
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                UPDATE GROUPS
+                SET NAME = 'Группа ' || (ID + 1)
+                WHERE NAME IS NULL OR TRIM(NAME) = ''
+                """.trimIndent()
+            )
+        }
+
         private val SEED_LUMINAIRE_TYPES_CALLBACK = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 insertLuminaireTypes(db)
+                insertGroups(db)
             }
         }
 
@@ -324,6 +366,126 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                insertGroups(db)
+            }
+        }
+
+        private val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add group binding support for luminaires (nullable GROUP_ID).
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS LUMINAIRES_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER NOT NULL,
+                        ROOM_ID INTEGER,
+                        GROUP_ID INTEGER,
+                        NAME TEXT NOT NULL DEFAULT '',
+                        ICO_NUM INTEGER NOT NULL DEFAULT 300,
+                        TYPE_ID INTEGER NOT NULL DEFAULT 2,
+                        BRIGHT INTEGER NOT NULL DEFAULT 0,
+                        TEMPERATURE INTEGER NOT NULL DEFAULT 0,
+                        SATURATION INTEGER NOT NULL DEFAULT 0,
+                        HUE INTEGER NOT NULL DEFAULT 0,
+                        GRID_POS INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY (CONTROLLER_ID, ROOM_ID) REFERENCES ROOMS(CONTROLLER_ID, ID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+                        FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON UPDATE NO ACTION ON DELETE SET NULL,
+                        FOREIGN KEY (TYPE_ID) REFERENCES LUMINAIRE_TYPES(ID) ON UPDATE NO ACTION ON DELETE NO ACTION
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO LUMINAIRES_NEW (
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        GROUP_ID,
+                        NAME,
+                        ICO_NUM,
+                        TYPE_ID,
+                        BRIGHT,
+                        TEMPERATURE,
+                        SATURATION,
+                        HUE,
+                        GRID_POS
+                    )
+                    SELECT
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        NULL,
+                        NAME,
+                        ICO_NUM,
+                        TYPE_ID,
+                        BRIGHT,
+                        TEMPERATURE,
+                        SATURATION,
+                        HUE,
+                        GRID_POS
+                    FROM LUMINAIRES
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE LUMINAIRES")
+                db.execSQL("ALTER TABLE LUMINAIRES_NEW RENAME TO LUMINAIRES")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID ON LUMINAIRES (CONTROLLER_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID_ROOM_ID ON LUMINAIRES (CONTROLLER_ID, ROOM_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID_ROOM_ID_GRID_POS ON LUMINAIRES (CONTROLLER_ID, ROOM_ID, GRID_POS)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_TYPE_ID ON LUMINAIRES (TYPE_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_GROUP_ID ON LUMINAIRES (GROUP_ID)")
+            }
+        }
+
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add group binding support for bright sensors (nullable GROUP_ID).
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS BRIGHT_SENSORS_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER NOT NULL,
+                        ROOM_ID INTEGER,
+                        GROUP_ID INTEGER,
+                        NAME TEXT NOT NULL DEFAULT '',
+                        GRID_POS INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY (CONTROLLER_ID, ROOM_ID) REFERENCES ROOMS(CONTROLLER_ID, ID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+                        FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON UPDATE NO ACTION ON DELETE SET NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO BRIGHT_SENSORS_NEW (
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        GROUP_ID,
+                        NAME,
+                        GRID_POS
+                    )
+                    SELECT
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        NULL,
+                        NAME,
+                        GRID_POS
+                    FROM BRIGHT_SENSORS
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE BRIGHT_SENSORS")
+                db.execSQL("ALTER TABLE BRIGHT_SENSORS_NEW RENAME TO BRIGHT_SENSORS")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BRIGHT_SENSORS_CONTROLLER_ID ON BRIGHT_SENSORS (CONTROLLER_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BRIGHT_SENSORS_CONTROLLER_ID_ROOM_ID ON BRIGHT_SENSORS (CONTROLLER_ID, ROOM_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BRIGHT_SENSORS_CONTROLLER_ID_ROOM_ID_GRID_POS ON BRIGHT_SENSORS (CONTROLLER_ID, ROOM_ID, GRID_POS)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BRIGHT_SENSORS_GROUP_ID ON BRIGHT_SENSORS (GROUP_ID)")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -341,7 +503,10 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_5_6,
                     MIGRATION_6_7,
                     MIGRATION_7_8,
-                    MIGRATION_8_9
+                    MIGRATION_8_9,
+                    MIGRATION_9_10,
+                    MIGRATION_10_11,
+                    MIGRATION_11_12
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

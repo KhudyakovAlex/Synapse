@@ -20,12 +20,19 @@ import androidx.room.PrimaryKey
             parentColumns = ["CONTROLLER_ID", "ID"],
             childColumns = ["CONTROLLER_ID", "ROOM_ID"],
             onDelete = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = GroupEntity::class,
+            parentColumns = ["ID"],
+            childColumns = ["GROUP_ID"],
+            onDelete = ForeignKey.SET_NULL
         )
     ],
     indices = [
         Index(value = ["CONTROLLER_ID"]),
         Index(value = ["CONTROLLER_ID", "ROOM_ID"]),
-        Index(value = ["CONTROLLER_ID", "ROOM_ID", "GRID_POS"])
+        Index(value = ["CONTROLLER_ID", "ROOM_ID", "GRID_POS"]),
+        Index(value = ["GROUP_ID"])
     ]
 )
 data class BrightSensorEntity(
@@ -38,6 +45,9 @@ data class BrightSensorEntity(
 
     @ColumnInfo(name = "ROOM_ID")
     val roomId: Int? = null,
+
+    @ColumnInfo(name = "GROUP_ID")
+    val groupId: Int? = null,
 
     @ColumnInfo(name = "NAME", defaultValue = "''")
     val name: String = "",

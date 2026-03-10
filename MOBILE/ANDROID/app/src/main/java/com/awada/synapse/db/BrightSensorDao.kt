@@ -47,6 +47,9 @@ interface BrightSensorDao {
     @Query("UPDATE BRIGHT_SENSORS SET ROOM_ID = :roomId WHERE ID = :id")
     suspend fun moveToRoom(id: Long, roomId: Int?)
 
+    @Query("UPDATE BRIGHT_SENSORS SET GROUP_ID = :groupId WHERE ID = :id")
+    suspend fun moveToGroup(id: Long, groupId: Int?)
+
     @Query("DELETE FROM BRIGHT_SENSORS WHERE ID = :id")
     suspend fun deleteById(id: Long)
 

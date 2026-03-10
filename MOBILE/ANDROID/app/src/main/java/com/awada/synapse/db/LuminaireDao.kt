@@ -65,6 +65,9 @@ interface LuminaireDao {
     @Query("UPDATE LUMINAIRES SET ROOM_ID = :roomId WHERE ID = :id")
     suspend fun moveToRoom(id: Long, roomId: Int?)
 
+    @Query("UPDATE LUMINAIRES SET GROUP_ID = :groupId WHERE ID = :id")
+    suspend fun moveToGroup(id: Long, groupId: Int?)
+
     @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE ID = :id")
     suspend fun setBright(id: Long, bright: Int)
 

@@ -22,6 +22,12 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
+            entity = GroupEntity::class,
+            parentColumns = ["ID"],
+            childColumns = ["GROUP_ID"],
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
             entity = LuminaireTypeEntity::class,
             parentColumns = ["ID"],
             childColumns = ["TYPE_ID"],
@@ -32,6 +38,7 @@ import androidx.room.PrimaryKey
         Index(value = ["CONTROLLER_ID"]),
         Index(value = ["CONTROLLER_ID", "ROOM_ID"]),
         Index(value = ["CONTROLLER_ID", "ROOM_ID", "GRID_POS"]),
+        Index(value = ["GROUP_ID"]),
         Index(value = ["TYPE_ID"])
     ]
 )
@@ -45,6 +52,9 @@ data class LuminaireEntity(
 
     @ColumnInfo(name = "ROOM_ID")
     val roomId: Int? = null,
+
+    @ColumnInfo(name = "GROUP_ID")
+    val groupId: Int? = null,
 
     @ColumnInfo(name = "NAME", defaultValue = "''")
     val name: String = "",
