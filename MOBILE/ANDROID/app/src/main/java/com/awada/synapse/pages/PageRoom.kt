@@ -143,7 +143,7 @@ fun PageRoom(
                                         Lum(
                                             title = e.name.ifBlank { "Светильник" },
                                             iconSize = iconSize,
-                                            brightnessPercent = 35,
+                                            brightnessPercent = e.bright,
                                             iconResId = icon,
                                             statusDotColor = dotColors[idx % dotColors.size],
                                             forcePressed = isPressed,

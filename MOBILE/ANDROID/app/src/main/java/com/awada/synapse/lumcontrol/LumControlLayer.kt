@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,8 @@ enum class LumControlState { Collapsed, Expanded }
 fun LumControlLayer(
     isVisible: Boolean = true,
     sliders: List<String> = emptyList(),
+    brightnessValue: Float? = null,
+    onBrightnessValueChange: ((Float) -> Unit)? = null,
     bottomPadding: Int = 178,
     autoExpandOnShow: Boolean = false,
     stateKey: Any? = null,
@@ -63,7 +66,20 @@ fun LumControlLayer(
     var colorValue by remember { mutableFloatStateOf(0f) }
     var saturationValue by remember { mutableFloatStateOf(50f) }
     var temperatureValue by remember { mutableFloatStateOf(4000f) }
-    var brightnessValue by remember { mutableFloatStateOf(50f) }
+    var localBrightnessValue by remember { mutableFloatStateOf(50f) }
+    var controlledBrightnessValue by remember(stateKey) { mutableFloatStateOf(brightnessValue ?: 0f) }
+
+    LaunchedEffect(brightnessValue, stateKey) {
+        if (brightnessValue != null) {
+            controlledBrightnessValue = brightnessValue.coerceIn(0f, 100f)
+        }
+    }
+
+    val resolvedBrightnessValue = if (brightnessValue != null) {
+        controlledBrightnessValue
+    } else {
+        localBrightnessValue
+    }
 
     val sliderCount = sliders.size
     val sliderSectionPx = with(density) {
@@ -155,8 +171,16 @@ fun LumControlLayer(
                         onSaturationValueChange = { saturationValue = it },
                         temperatureValue = temperatureValue,
                         onTemperatureValueChange = { temperatureValue = it },
-                        brightnessValue = brightnessValue,
-                        onBrightnessValueChange = { brightnessValue = it }
+                        brightnessValue = resolvedBrightnessValue,
+                        onBrightnessValueChange = { value ->
+                            val clampedValue = value.coerceIn(0f, 100f)
+                            if (brightnessValue != null && onBrightnessValueChange != null) {
+                                controlledBrightnessValue = clampedValue
+                                onBrightnessValueChange(clampedValue)
+                            } else {
+                                localBrightnessValue = clampedValue
+                            }
+                        }
                     )
                 }
             }

@@ -30,6 +30,9 @@ interface LuminaireDao {
     suspend fun getAllOrdered(controllerId: Int, roomId: Int?): List<LuminaireEntity>
 
     @Query("SELECT * FROM LUMINAIRES WHERE ID = :id LIMIT 1")
+    fun observeById(id: Long): Flow<LuminaireEntity?>
+
+    @Query("SELECT * FROM LUMINAIRES WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Long): LuminaireEntity?
 
     @Query("UPDATE LUMINAIRES SET NAME = :name WHERE ID = :id")
@@ -52,6 +55,9 @@ interface LuminaireDao {
 
     @Query("UPDATE LUMINAIRES SET ROOM_ID = :roomId WHERE ID = :id")
     suspend fun moveToRoom(id: Long, roomId: Int?)
+
+    @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE ID = :id")
+    suspend fun setBright(id: Long, bright: Int)
 
     @Query("DELETE FROM LUMINAIRES WHERE ID = :id")
     suspend fun deleteById(id: Long)

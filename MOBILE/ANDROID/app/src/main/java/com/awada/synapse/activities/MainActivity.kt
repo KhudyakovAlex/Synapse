@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -68,6 +69,8 @@ import com.awada.synapse.db.ButtonPanelEntity
 import com.awada.synapse.db.ControllerEntity
 import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.PresSensorEntity
+import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -155,6 +158,13 @@ private fun MainContent() {
         }
     }
     var aiBottomInsetDp by remember { mutableStateOf(0.dp) }
+    val selectedLuminaireOrNull by remember(db, selectedLuminaireId) {
+        if (selectedLuminaireId == null) {
+            flowOf<LuminaireEntity?>(null)
+        } else {
+            db.luminaireDao().observeById(selectedLuminaireId!!)
+        }
+    }.collectAsState(initial = null)
 
     // Handle system back button
     BackHandler {
@@ -372,6 +382,7 @@ private fun MainContent() {
                     }
                     AppScreen.Lum -> {
                         PageLum(
+                            brightnessPercent = selectedLuminaireOrNull?.bright ?: 0,
                             onBackClick = { currentScreen = lumBackTarget },
                             onSettingsClick = {
                                 settingsLumBackTarget = AppScreen.Lum
@@ -523,6 +534,26 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
+            brightnessValue = if (currentScreen == AppScreen.Lum) {
+                selectedLuminaireOrNull?.bright?.toFloat()
+            } else {
+                null
+            },
+            onBrightnessValueChange = if (currentScreen == AppScreen.Lum) {
+                { value ->
+                    val luminaireId = selectedLuminaireId
+                    if (luminaireId != null) {
+                        scope.launch {
+                            db.luminaireDao().setBright(
+                                id = luminaireId,
+                                bright = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+            } else {
+                null
+            },
             autoExpandOnShow = currentScreen == AppScreen.Lum,
             stateKey = currentScreen,
             modifier = Modifier

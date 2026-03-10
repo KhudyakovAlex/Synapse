@@ -19,6 +19,7 @@ import com.awada.synapse.components.LumIndicatorsBlock
 fun PageLum(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    brightnessPercent: Int,
     indicatorsOffsetY: Dp = 0.dp,
     modifier: Modifier = Modifier
 ) {
@@ -41,7 +42,7 @@ fun PageLum(
         ) {
             // Single unified block to position as a whole.
             LumIndicatorsBlock(
-                brightnessPercent = 35, // TODO: bind to real device state
+                brightnessPercent = brightnessPercent,
                 modifier = Modifier.offset(y = indicatorsOffsetY)
             )
         }
