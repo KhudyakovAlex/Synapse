@@ -21,8 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.TextField
+import com.awada.synapse.components.TextFieldForList
+import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -44,12 +47,18 @@ fun PageLumSettings(
     var showIconSelect by remember { mutableStateOf(false) }
     var iconId by remember { mutableIntStateOf(300) }
     var name by remember { mutableStateOf("") }
+    var roomId by remember { mutableStateOf<Int?>(null) }
+    var controllerId by remember { mutableStateOf<Int?>(null) }
+    var rooms by remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
 
     LaunchedEffect(luminaireId) {
         val id = luminaireId ?: return@LaunchedEffect
         val e = db.luminaireDao().getById(id) ?: return@LaunchedEffect
         name = e.name
         iconId = e.icoNum
+        roomId = e.roomId
+        controllerId = e.controllerId
+        rooms = db.roomDao().getAllOrdered(e.controllerId)
     }
 
     fun saveAndBack() {
@@ -57,6 +66,7 @@ fun PageLumSettings(
             val id = luminaireId
             if (id != null) {
                 db.luminaireDao().setNameAndIcon(id = id, name = name, icoNum = iconId)
+                db.luminaireDao().moveToRoom(id = id, roomId = roomId)
             }
             onBackClick()
         }
@@ -106,7 +116,25 @@ fun PageLumSettings(
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
-            // 2. Иконка
+            // 2. Помещение
+            val roomDropdownItems = listOf(DropdownItem(id = -1, text = "Вне помещений")) +
+                rooms.map { DropdownItem(id = it.id, text = it.name) }
+            
+            TextFieldForList(
+                value = roomId ?: -1,
+                onValueChange = { selectedId ->
+                    roomId = if (selectedId == -1) null else selectedId
+                },
+                icon = R.drawable.ic_chevron_down,
+                label = "Помещение",
+                placeholder = "Выберите помещение",
+                enabled = true,
+                dropdownItems = roomDropdownItems
+            )
+            
+            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+            
+            // 3. Иконка
             Column(
                 verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)
             ) {
