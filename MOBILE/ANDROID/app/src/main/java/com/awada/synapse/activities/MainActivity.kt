@@ -300,28 +300,36 @@ private fun MainContent() {
                     }
                     AppScreen.RoomDetails -> {
                         val room = selectedRoom
-                        PageRoom(
-                            roomTitle = room?.title ?: "Помещение",
-                            onBackClick = { currentScreen = AppScreen.LocationDetails },
-                            onSettingsClick = { currentScreen = AppScreen.RoomSettings },
-                            onLumClick = {
-                                lumBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.Lum
-                            },
-                            onSensorPressSettingsClick = {
-                                systemSettingsBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.SensorPressSettings
-                            },
-                            onSensorBrightSettingsClick = {
-                                systemSettingsBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.SensorBrightSettings
-                            },
-                            onButtonPanelSettingsClick = {
-                                buttonPanelBackTarget = AppScreen.RoomDetails
-                                currentScreen = AppScreen.Panel
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        if (room != null) {
+                            PageRoom(
+                                roomTitle = room.title,
+                                controllerId = room.controllerId,
+                                roomId = room.roomId,
+                                onBackClick = { currentScreen = AppScreen.LocationDetails },
+                                onSettingsClick = { currentScreen = AppScreen.RoomSettings },
+                                onLumClick = { luminaireId ->
+                                    selectedLuminaireId = luminaireId
+                                    lumBackTarget = AppScreen.RoomDetails
+                                    currentScreen = AppScreen.Lum
+                                },
+                                onSensorPressSettingsClick = { sensorId ->
+                                    selectedPresSensorId = sensorId
+                                    systemSettingsBackTarget = AppScreen.RoomDetails
+                                    currentScreen = AppScreen.SensorPressSettings
+                                },
+                                onSensorBrightSettingsClick = { sensorId ->
+                                    selectedBrightSensorId = sensorId
+                                    systemSettingsBackTarget = AppScreen.RoomDetails
+                                    currentScreen = AppScreen.SensorBrightSettings
+                                },
+                                onButtonPanelSettingsClick = { panelId ->
+                                    selectedButtonPanelId = panelId
+                                    buttonPanelBackTarget = AppScreen.RoomDetails
+                                    currentScreen = AppScreen.Panel
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                     AppScreen.RoomSettings -> {
                         PageRoomSettings(

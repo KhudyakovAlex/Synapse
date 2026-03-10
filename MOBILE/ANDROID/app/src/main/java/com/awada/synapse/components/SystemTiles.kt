@@ -178,7 +178,7 @@ private fun SystemIconTile(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = title,
+            text = formatTileTitle(title),
             style = LabelMedium.copy(lineHeight = LabelMedium.lineHeight * 0.8f),
             color = PixsoColors.Color_Text_text_1_level,
             textAlign = TextAlign.Center,
@@ -187,5 +187,36 @@ private fun SystemIconTile(
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+private fun formatTileTitle(text: String): String {
+    val maxLength = 24
+    var result = text.take(maxLength)
+    
+    val lines = result.split("\n")
+    if (lines.size >= 2) {
+        return result
+    }
+    
+    val words = result.split(" ")
+    if (words.isNotEmpty() && words[0].length > 12) {
+        return result.split("").take(13).joinToString("").trim() + "\n" + 
+               result.drop(12).take(12)
+    }
+    
+    var currentLine = ""
+    val formattedLines = mutableListOf<String>()
+    
+    for (word in words) {
+        if ((currentLine + word).length <= 12) {
+            currentLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+        } else {
+            if (currentLine.isNotEmpty()) formattedLines.add(currentLine)
+            currentLine = word
+        }
+    }
+    if (currentLine.isNotEmpty()) formattedLines.add(currentLine)
+    
+    return formattedLines.take(2).joinToString("\n")
 }
 

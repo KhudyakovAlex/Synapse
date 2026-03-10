@@ -5,34 +5,72 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.awada.synapse.R
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.PresSensor
+import com.awada.synapse.components.iconResId
+import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.BrightSensorEntity
+import com.awada.synapse.db.ButtonPanelEntity
+import com.awada.synapse.db.LuminaireEntity
+import com.awada.synapse.db.PresSensorEntity
 import com.awada.synapse.ui.theme.PixsoColors
-import kotlin.random.Random
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 /**
  * Page for a single room (within a location).
- * Mock UI: random device icon set per room.
+ * Displays devices (luminaires, sensors, button panels) from the database for this room.
  */
 @Composable
 fun PageRoom(
     roomTitle: String,
+    controllerId: Int,
+    roomId: Int,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onLumClick: () -> Unit,
-    onSensorPressSettingsClick: () -> Unit,
-    onSensorBrightSettingsClick: () -> Unit,
-    onButtonPanelSettingsClick: () -> Unit,
+    onLumClick: (luminaireId: Long) -> Unit,
+    onSensorPressSettingsClick: (sensorId: Long) -> Unit,
+    onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
+    onButtonPanelSettingsClick: (buttonPanelId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+
+    val luminairesOrNull by remember(db, controllerId, roomId) {
+        db.luminaireDao()
+            .observeAll(controllerId, roomId)
+            .map<List<LuminaireEntity>, List<LuminaireEntity>?> { it }
+    }.collectAsState(initial = null)
+
+    val buttonPanelsOrNull by remember(db, controllerId, roomId) {
+        db.buttonPanelDao()
+            .observeAll(controllerId, roomId)
+            .map<List<ButtonPanelEntity>, List<ButtonPanelEntity>?> { it }
+    }.collectAsState(initial = null)
+
+    val presSensorsOrNull by remember(db, controllerId, roomId) {
+        db.presSensorDao()
+            .observeAll(controllerId, roomId)
+            .map<List<PresSensorEntity>, List<PresSensorEntity>?> { it }
+    }.collectAsState(initial = null)
+
+    val brightSensorsOrNull by remember(db, controllerId, roomId) {
+        db.brightSensorDao()
+            .observeAll(controllerId, roomId)
+            .map<List<BrightSensorEntity>, List<BrightSensorEntity>?> { it }
+    }.collectAsState(initial = null)
+
     PageContainer(
         title = roomTitle,
         onBackClick = onBackClick,
@@ -46,109 +84,86 @@ fun PageRoom(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val tiles = remember(roomTitle) { roomDeviceTilesMock(roomTitle) }
-            val iconSize = 82.dp
+            val luminaires = luminairesOrNull
+            val panels = buttonPanelsOrNull
+            val pres = presSensorsOrNull
+            val bright = brightSensorsOrNull
+            val ready = luminaires != null && panels != null && pres != null && bright != null
 
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                // 2 rows of 4 tiles below (8 slots).
-                repeat(2) { row ->
+            if (ready) {
+                val dotColors = remember {
+                    listOf(
+                        PixsoColors.Color_Bg_bg_surface,
+                        PixsoColors.Color_Border_border_error,
+                        PixsoColors.Color_Border_border_focus,
+                        PixsoColors.Color_State_on_disabled
+                    )
+                }
+
+                val iconSize = 82.dp
+                val tiles = buildList<@Composable () -> Unit> {
+                    luminaires!!.forEachIndexed { idx, e ->
+                        val icon = iconResId(
+                            context = context,
+                            iconId = e.icoNum,
+                            fallback = com.awada.synapse.R.drawable.luminaire_300_default
+                        )
+                        add {
+                            Lum(
+                                title = e.name.ifBlank { "Светильник" },
+                                iconSize = iconSize,
+                                brightnessPercent = 35,
+                                iconResId = icon,
+                                statusDotColor = dotColors[idx % dotColors.size],
+                                onClick = { onLumClick(e.id) }
+                            )
+                        }
+                    }
+                    panels!!.forEach { e ->
+                        add {
+                            ButtonPanel(
+                                title = e.name.ifBlank { "Панель\nкнопок" },
+                                iconSize = iconSize,
+                                onClick = { onButtonPanelSettingsClick(e.id) }
+                            )
+                        }
+                    }
+                    pres!!.forEach { e ->
+                        add {
+                            PresSensor(
+                                title = e.name.ifBlank { "Сенсор\nнажатия" },
+                                iconSize = iconSize,
+                                onClick = { onSensorPressSettingsClick(e.id) }
+                            )
+                        }
+                    }
+                    bright!!.forEach { e ->
+                        add {
+                            BrightSensor(
+                                title = e.name.ifBlank { "Сенсор\nяркости" },
+                                iconSize = iconSize,
+                                onClick = { onSensorBrightSettingsClick(e.id) }
+                            )
+                        }
+                    }
+                }
+
+                val perRow = 4
+                tiles.chunked(perRow).forEach { rowTiles ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        repeat(4) { col ->
-                            val idx = row * 4 + col
-                            when (val t = tiles[idx]) {
-                                is RoomTileMock.Lum -> Lum(
-                                    title = t.title,
-                                    iconSize = iconSize,
-                                    brightnessPercent = t.brightnessPercent,
-                                    iconResId = t.iconResId,
-                                    statusDotColor = t.statusDotColor,
-                                    onClick = onLumClick
-                                )
-                                RoomTileMock.PresSensor -> PresSensor(
-                                    iconSize = iconSize,
-                                    onClick = onSensorPressSettingsClick
-                                )
-                                RoomTileMock.BrightSensor -> BrightSensor(
-                                    iconSize = iconSize,
-                                    onClick = onSensorBrightSettingsClick
-                                )
-                                RoomTileMock.ButtonPanel -> ButtonPanel(
-                                    iconSize = iconSize,
-                                    onClick = onButtonPanelSettingsClick
-                                )
-                            }
+                        rowTiles.forEach { content ->
+                            content()
+                        }
+                        repeat(perRow - rowTiles.size) {
+                            Spacer(modifier = Modifier)
                         }
                     }
                 }
             }
         }
     }
-}
-
-private sealed class RoomTileMock {
-    data class Lum(
-        val title: String,
-        val brightnessPercent: Int,
-        val iconResId: Int,
-        val statusDotColor: androidx.compose.ui.graphics.Color
-    ) : RoomTileMock()
-
-    data object PresSensor : RoomTileMock()
-    data object BrightSensor : RoomTileMock()
-    data object ButtonPanel : RoomTileMock()
-}
-
-private fun roomDeviceTilesMock(roomTitle: String): List<RoomTileMock> {
-    val rnd = Random(roomTitle.hashCode())
-    val lumIcons = listOf(
-        R.drawable.luminaire_300_default,
-        R.drawable.luminaire_301_pot_podv_lin,
-        R.drawable.luminaire_302_pot_podv_krugl,
-        R.drawable.luminaire_303_pot_podv_abazh,
-        R.drawable.luminaire_304_pot_podv_lustra,
-        R.drawable.luminaire_305_pot_podv_kvadr,
-        R.drawable.luminaire_306_pot_podv_toch,
-        R.drawable.luminaire_307_pot_vstr_lin,
-        R.drawable.luminaire_308_pot_vstr_krugl,
-        R.drawable.luminaire_309_pot_vstr_kvadr,
-        R.drawable.luminaire_310_pot_vstr_toch,
-        R.drawable.luminaire_311_pot_vstr_toch_dvoynoy,
-        R.drawable.luminaire_312_pot_vstr_toch_troynoy,
-        R.drawable.luminaire_313_pot_vstr_toch_pov,
-        R.drawable.luminaire_314_pot_vstr_toch_pov_dvoynoy,
-        R.drawable.luminaire_315_pot_vstr_toch_pov_troynoy
-    )
-    val dotColors = listOf(
-        PixsoColors.Color_Bg_bg_surface,
-        PixsoColors.Color_Border_border_error,
-        PixsoColors.Color_Border_border_focus,
-        PixsoColors.Color_State_on_disabled
-    )
-
-    val tiles = MutableList<RoomTileMock>(8) {
-        when (rnd.nextInt(100)) {
-            in 0..9 -> RoomTileMock.PresSensor
-            in 10..19 -> RoomTileMock.BrightSensor
-            in 20..29 -> RoomTileMock.ButtonPanel
-            else -> {
-                val title = when (rnd.nextInt(3)) {
-                    0 -> "Настенный"
-                    1 -> "Торшер"
-                    else -> "Настенный\nсветильник"
-                }
-                RoomTileMock.Lum(
-                    title = title,
-                    brightnessPercent = rnd.nextInt(0, 101),
-                    iconResId = lumIcons[rnd.nextInt(lumIcons.size)],
-                    statusDotColor = dotColors[rnd.nextInt(dotColors.size)]
-                )
-            }
-        }
-    }
-
-    return tiles
 }
 

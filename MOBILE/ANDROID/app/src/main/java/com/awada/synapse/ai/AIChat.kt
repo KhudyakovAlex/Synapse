@@ -58,11 +58,11 @@ private const val ROLE_USER = "USER"
 private const val ROLE_AI = "AI"
 private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-private const val LOGDOG_MAX_TEXT_CHARS = 50_000
+private const val LOGDOG_MAX_TEXT_CHARS = 40_000
 
-private fun clipForLogdog(text: String): Pair<String, Boolean> {
-    if (text.length <= LOGDOG_MAX_TEXT_CHARS) return text to false
-    return text.take(LOGDOG_MAX_TEXT_CHARS) to true
+private fun clipForLogdog(text: String, maxChars: Int = LOGDOG_MAX_TEXT_CHARS): Pair<String, Boolean> {
+    if (text.length <= maxChars) return text to false
+    return text.take(maxChars) to true
 }
 
 private fun formatTime(timestampMs: Long): String {
@@ -262,14 +262,13 @@ fun AIChat(
 
                             scope.launch {
                                 run {
-                                    val (clipped, truncated) = clipForLogdog(text)
+                                    val (userClipped, userTruncated) = clipForLogdog(text)
                                     Logdog.i(
-                                        message = "llm_user_message",
+                                        message = "USER:\n$userClipped",
                                         traceId = traceId,
                                         fields = mapOf(
                                             "chars" to text.length,
-                                            "truncated" to truncated,
-                                            "text" to clipped,
+                                            "truncated" to userTruncated,
                                         )
                                     )
                                 }
@@ -290,14 +289,13 @@ fun AIChat(
                                 }.trim()
 
                                 run {
-                                    val (clipped, truncated) = clipForLogdog(reply)
+                                    val (replyClipped, replyTruncated) = clipForLogdog(reply)
                                     Logdog.i(
-                                        message = "llm_assistant_reply",
+                                        message = "LLM:\n$replyClipped",
                                         traceId = traceId,
                                         fields = mapOf(
                                             "chars" to reply.length,
-                                            "truncated" to truncated,
-                                            "text" to clipped,
+                                            "truncated" to replyTruncated,
                                         )
                                     )
                                 }
