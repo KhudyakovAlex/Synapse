@@ -24,6 +24,7 @@ import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.defaultRoomName
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -87,6 +88,15 @@ fun PageRoomSettings(
         return
     }
 
+    val defaultTitle = remember(roomId, initialName) {
+        val rid = roomId
+        when {
+            rid != null -> defaultRoomName(rid)
+            initialName.isNotBlank() -> initialName
+            else -> ""
+        }
+    }
+
     val iconRes = iconResId(context, draftIconId, fallback = R.drawable.location_208_kuhnya)
     val handleBackClick: () -> Unit = handle@{
         val cid = controllerId
@@ -96,15 +106,16 @@ fun PageRoomSettings(
             return@handle
         }
         scope.launch {
+            val storedName = draftName.trim().ifBlank { defaultRoomName(rid) }
             val current = db.roomDao().getById(cid, rid)
             val updated = (current ?: RoomEntity(controllerId = cid, id = rid))
-                .copy(name = draftName, icoNum = draftIconId)
+                .copy(name = storedName, icoNum = draftIconId)
             if (current == null) {
                 db.roomDao().insert(updated)
             } else {
                 db.roomDao().update(updated)
             }
-            onSaved(draftName, draftIconId)
+            onSaved(storedName, draftIconId)
             onBackClick()
         }
     }
@@ -124,7 +135,7 @@ fun PageRoomSettings(
                 value = draftName,
                 onValueChange = { draftName = it },
                 label = "Название",
-                placeholder = "",
+                placeholder = defaultTitle,
                 enabled = controllerId != null && roomId != null
             )
 

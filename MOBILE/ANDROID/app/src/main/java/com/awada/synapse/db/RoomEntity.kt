@@ -50,3 +50,7 @@ data class RoomEntity(
     val gridPos: Int = 0
 )
 
+fun defaultRoomName(roomId: Int): String = "Помещение ${roomId + 1}"
+
+fun RoomEntity.displayName(): String = name.ifBlank { defaultRoomName(id) }
+

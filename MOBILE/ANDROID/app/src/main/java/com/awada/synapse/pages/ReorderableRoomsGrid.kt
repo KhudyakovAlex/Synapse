@@ -39,6 +39,7 @@ import com.awada.synapse.R
 import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.displayName
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.delay
@@ -191,7 +192,7 @@ internal fun ReorderableRoomsGrid(
                         onDraggingIdChange(-1)
                         dragDelta = Offset.Zero
 
-                        val title0 = room0.name.ifBlank { "Помещение ${room0.id + 1}" }
+                        val title0 = room0.displayName()
                         if (!moved) {
                             onRequestDelete(id, title0)
                             return@awaitEachGesture
@@ -253,7 +254,7 @@ internal fun ReorderableRoomsGrid(
                         }
                     }
 
-                    val title = room.name.ifBlank { "Помещение ${room.id + 1}" }
+                    val title = room.displayName()
                     val icon = iconResId(
                         context = context,
                         iconId = room.icoNum,
@@ -311,7 +312,7 @@ internal fun ReorderableRoomsGrid(
             val draggedRoom = rooms.getOrNull(draggedIndex)
             if (draggedIndex != -1 && draggedRoom != null) {
                 val topLeft = slotPositions[draggedIndex]
-                val title = draggedRoom.name.ifBlank { "Помещение ${draggedRoom.id + 1}" }
+                val title = draggedRoom.displayName()
                 val icon = iconResId(
                     context = context,
                     iconId = draggedRoom.icoNum,

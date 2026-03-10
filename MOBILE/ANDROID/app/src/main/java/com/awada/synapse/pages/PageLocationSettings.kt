@@ -31,6 +31,7 @@ import com.awada.synapse.components.TextField
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.defaultRoomName
 import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
@@ -185,6 +186,7 @@ fun PageLocationSettings(
                                 RoomEntity(
                                     controllerId = cid,
                                     id = newId,
+                                    name = defaultRoomName(newId),
                                     gridPos = nextPos
                                 )
                             )

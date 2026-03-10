@@ -20,7 +20,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         BrightSensorEntity::class,
         ButtonPanelEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -311,6 +311,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Ensure room names are never empty; required for downstream JSON export.
+                db.execSQL(
+                    """
+                    UPDATE ROOMS
+                    SET NAME = 'Помещение ' || (ID + 1)
+                    WHERE NAME IS NULL OR TRIM(NAME) = ''
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -327,7 +340,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
-                    MIGRATION_7_8
+                    MIGRATION_7_8,
+                    MIGRATION_8_9
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

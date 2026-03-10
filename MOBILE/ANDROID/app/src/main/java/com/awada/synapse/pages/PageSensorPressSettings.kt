@@ -23,6 +23,7 @@ import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.displayName
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -93,7 +94,7 @@ fun PageSensorPressSettings(
             
             // 2. Помещение
             val roomDropdownItems = listOf(DropdownItem(id = -1, text = "Вне помещений")) +
-                rooms.map { DropdownItem(id = it.id, text = it.name) }
+                rooms.map { DropdownItem(id = it.id, text = it.displayName()) }
             
             TextFieldForList(
                 value = roomId ?: -1,
