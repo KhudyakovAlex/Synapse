@@ -74,6 +74,7 @@ fun Lum(
     statusDotColor: Color = PixsoColors.Color_Bg_bg_surface,
     onClick: (() -> Unit)? = null,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
     LumInternal(
@@ -91,6 +92,7 @@ fun Lum(
         forcePressed = false,
         onClick = onClick,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         iconContent = iconContent
     )
 }
@@ -113,6 +115,7 @@ fun Lum(
     forcePressed: Boolean,
     onClick: (() -> Unit)? = null,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
     LumInternal(
@@ -130,6 +133,7 @@ fun Lum(
         forcePressed = forcePressed,
         onClick = onClick,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         iconContent = iconContent
     )
 }
@@ -150,6 +154,7 @@ private fun LumInternal(
     forcePressed: Boolean,
     onClick: (() -> Unit)?,
     onCircleBoundsInRoot: ((Rect) -> Unit)?,
+    circleAlpha: Float,
     iconContent: @Composable BoxScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -184,13 +189,14 @@ private fun LumInternal(
         Modifier
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
-    val circleBg = if (onClick != null && enabled && showPressed) {
+    val rawCircleBg = if (onClick != null && enabled && showPressed) {
         PixsoColors.Color_State_secondary_pressed
     } else if (forcePressed) {
         PixsoColors.Color_State_primary_pressed
     } else {
         PixsoColors.Color_Bg_bg_surface
     }
+    val circleBg = rawCircleBg.copy(alpha = rawCircleBg.alpha * circleAlpha.coerceIn(0f, 1f))
     val visualState = remember(typeId, brightnessPercent, hue, saturation, temperature, statusDotColor) {
         if (typeId != null) {
             resolveLumVisualState(
@@ -288,13 +294,11 @@ private fun LumInternal(
 
             // Icon with guaranteed 2.dp "air" to arcs
             val iconDp = 48.dp * 0.8f
-            // Increased mask size to better cover brightness arc behind the icon.
             val iconPad = 8.dp
             Box(
                 modifier = Modifier
                     .size(iconDp + iconPad * 2)
-                    .clip(CircleShape)
-                    .background(circleBg),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(

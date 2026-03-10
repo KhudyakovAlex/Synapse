@@ -151,6 +151,7 @@ fun PageLocation(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     val iconSize = 82.dp
+                        val dimmedCircleAlpha = 0.55f
                     val rooms = roomsOrNull
                     val showRooms = rooms != null && rooms.isNotEmpty()
                     val luminaires = luminairesOrNull
@@ -206,7 +207,7 @@ fun PageLocation(
                             val gridPos: Int,
                             val titleForDelete: String,
                             val groupId: Int?,
-                            val content: @Composable (Boolean, Boolean, Modifier) -> Unit
+                            val content: @Composable (Boolean, Boolean, Float, Modifier) -> Unit
                         )
 
                         val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
@@ -224,7 +225,7 @@ fun PageLocation(
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Светильник" },
                                         groupId = e.groupId,
-                                        content = { isPressed, suppressClick, m ->
+                                        content = { isPressed, suppressClick, circleAlpha, m ->
                                             Lum(
                                                 title = e.name.ifBlank { "Светильник" },
                                                 iconSize = iconSize,
@@ -236,6 +237,7 @@ fun PageLocation(
                                                 iconResId = icon,
                                                 forcePressed = isPressed,
                                                 onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                circleAlpha = circleAlpha,
                                                 onClick = if (suppressClick) null else { { onLumClick(e.id) } },
                                                 modifier = m
                                             )
@@ -252,11 +254,13 @@ fun PageLocation(
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Панель кнопок" },
                                     groupId = null,
-                                        content = { isPressed, suppressClick, m ->
+                                        content = { isPressed, suppressClick, circleAlpha, m ->
                                             ButtonPanel(
                                                 title = e.name.ifBlank { "Панель\nкнопок" },
                                                 iconSize = iconSize,
                                                 forcePressed = isPressed,
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                circleAlpha = circleAlpha,
                                                 onClick = if (suppressClick) null else { { onButtonPanelClick(e.id) } },
                                                 modifier = m
                                             )
@@ -273,11 +277,13 @@ fun PageLocation(
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Сенсор нажатия" },
                                     groupId = null,
-                                        content = { isPressed, suppressClick, m ->
+                                        content = { isPressed, suppressClick, circleAlpha, m ->
                                             PresSensor(
                                                 title = e.name.ifBlank { "Сенсор\nнажатия" },
                                                 iconSize = iconSize,
                                                 forcePressed = isPressed,
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                circleAlpha = circleAlpha,
                                                 onClick = if (suppressClick) null else { { onSensorPressSettingsClick(e.id) } },
                                                 modifier = m
                                             )
@@ -294,12 +300,13 @@ fun PageLocation(
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Сенсор яркости" },
                                     groupId = e.groupId,
-                                        content = { isPressed, suppressClick, m ->
+                                        content = { isPressed, suppressClick, circleAlpha, m ->
                                             BrightSensor(
                                                 title = e.name.ifBlank { "Сенсор\nяркости" },
                                                 iconSize = iconSize,
                                                 forcePressed = isPressed,
-                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                circleAlpha = circleAlpha,
                                                 onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
                                                 modifier = m
                                             )
@@ -362,6 +369,15 @@ fun PageLocation(
 
                         val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
                         val groupIdByKey: Map<DeviceKey, Int?> = infoByKey.values.associate { it.key to it.groupId }
+                        val dimmedKeys =
+                            if (draggingKey == null) {
+                                groupLinkCoveredKeysInRoot(
+                                    circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                    groupIdByKey = groupIdByKey
+                                )
+                            } else {
+                                emptySet()
+                            }
                         Box(modifier = Modifier.fillMaxWidth()) {
                             GroupLinksOverlay(
                                 circleBoundsInRootByKey = deviceCircleBoundsByKey,
@@ -400,7 +416,12 @@ fun PageLocation(
                                 },
                                 itemHeight = 128.dp,
                                 itemContent = { k, isPressed, suppressClick, m ->
-                                    infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
+                                    infoByKey[k]?.content?.invoke(
+                                        isPressed,
+                                        suppressClick,
+                                        if (k in dimmedKeys) dimmedCircleAlpha else 1f,
+                                        m
+                                    )
                                 }
                             )
                         }

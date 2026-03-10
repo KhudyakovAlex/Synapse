@@ -44,6 +44,8 @@ fun PresSensor(
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -53,6 +55,8 @@ fun PresSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = false,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -64,6 +68,8 @@ fun PresSensor(
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     forcePressed: Boolean,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -73,6 +79,8 @@ fun PresSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = forcePressed,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -84,6 +92,7 @@ fun BrightSensor(
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -94,6 +103,7 @@ fun BrightSensor(
         enabled = enabled,
         forcePressed = false,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -106,6 +116,7 @@ fun BrightSensor(
     enabled: Boolean = true,
     forcePressed: Boolean,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -116,6 +127,7 @@ fun BrightSensor(
         enabled = enabled,
         forcePressed = forcePressed,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -126,6 +138,8 @@ fun ButtonPanel(
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -135,6 +149,8 @@ fun ButtonPanel(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = false,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -146,6 +162,8 @@ fun ButtonPanel(
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     forcePressed: Boolean,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -155,6 +173,8 @@ fun ButtonPanel(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = forcePressed,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
+        circleAlpha = circleAlpha,
         onClick = onClick
     )
 }
@@ -168,6 +188,7 @@ private fun SystemIconTileInternal(
     enabled: Boolean,
     forcePressed: Boolean,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
+    circleAlpha: Float = 1f,
     onClick: (() -> Unit)?
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -202,13 +223,14 @@ private fun SystemIconTileInternal(
         Modifier
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
-    val circleBg = if (onClick != null && enabled && showPressed) {
+    val rawCircleBg = if (onClick != null && enabled && showPressed) {
         PixsoColors.Color_State_secondary_pressed
     } else if (forcePressed) {
         PixsoColors.Color_State_primary_pressed
     } else {
         PixsoColors.Color_Bg_bg_surface
     }
+    val circleBg = rawCircleBg.copy(alpha = rawCircleBg.alpha * circleAlpha.coerceIn(0f, 1f))
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(

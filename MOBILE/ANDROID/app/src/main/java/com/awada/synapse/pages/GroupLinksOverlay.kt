@@ -15,7 +15,15 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.PixsoColors
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
+
+private data class GroupLinkSegment(
+    val groupId: Int,
+    val startInRoot: Offset,
+    val endInRoot: Offset
+)
 
 @Composable
 internal fun GroupLinksOverlay(
@@ -40,27 +48,82 @@ internal fun GroupLinksOverlay(
             val color = PixsoColors.Color_Text_text_4_level.copy(alpha = 0.55f)
             val strokeWidthPx = strokePx.toPx()
 
-            // Collect centers grouped by groupId, only for luminaire + bright sensor keys.
-            val centersByGroup: Map<Int, List<Offset>> = buildMap {
-                for ((key, gid) in groupIdByKey) {
-                    if (gid == null) continue
-                    if (key.type != DeviceType.Luminaire && key.type != DeviceType.BrightSensor) continue
-                    val rect = circleBoundsInRootByKey[key] ?: continue
-                    val centerInRoot = rect.center
-                    val center = centerInRoot - canvasOriginInRoot
-                    getOrPut(gid) { mutableListOf() }.let { (it as MutableList).add(center) }
-                }
-            }
-
-            centersByGroup.values.forEach { points ->
-                if (points.size < 2) return@forEach
-                val edges = nearestTreeEdges(points)
-                edges.forEach { (a, b) ->
-                    drawLine(color = color, start = a, end = b, strokeWidth = strokeWidthPx, cap = StrokeCap.Round)
-                }
+            groupLinkSegmentsInRoot(
+                circleBoundsInRootByKey = circleBoundsInRootByKey,
+                groupIdByKey = groupIdByKey
+            ).forEach { segment ->
+                drawLine(
+                    color = color,
+                    start = segment.startInRoot - canvasOriginInRoot,
+                    end = segment.endInRoot - canvasOriginInRoot,
+                    strokeWidth = strokeWidthPx,
+                    cap = StrokeCap.Round
+                )
             }
         }
     }
+}
+
+internal fun groupLinkCoveredKeysInRoot(
+    circleBoundsInRootByKey: Map<DeviceKey, Rect>,
+    groupIdByKey: Map<DeviceKey, Int?>,
+    lineHitSlopPx: Float = 0f
+): Set<DeviceKey> {
+    val segments = groupLinkSegmentsInRoot(
+        circleBoundsInRootByKey = circleBoundsInRootByKey,
+        groupIdByKey = groupIdByKey
+    )
+    if (segments.isEmpty()) return emptySet()
+
+    return buildSet {
+        for ((key, rect) in circleBoundsInRootByKey) {
+            val ownGroupId = groupIdByKey[key]
+            val center = rect.center
+            val radius = min(rect.width, rect.height) / 2f + lineHitSlopPx
+            if (
+                segments.any { segment ->
+                    segment.groupId != ownGroupId &&
+                        distanceFromPointToSegment(center, segment.startInRoot, segment.endInRoot) < radius
+                }
+            ) {
+                add(key)
+            }
+        }
+    }
+}
+
+private fun groupLinkSegmentsInRoot(
+    circleBoundsInRootByKey: Map<DeviceKey, Rect>,
+    groupIdByKey: Map<DeviceKey, Int?>
+): List<GroupLinkSegment> {
+    val nodesByGroup: Map<Int, List<Pair<DeviceKey, Offset>>> = buildMap {
+        for ((key, gid) in groupIdByKey) {
+            if (gid == null) continue
+            if (key.type != DeviceType.Luminaire && key.type != DeviceType.BrightSensor) continue
+            val rect = circleBoundsInRootByKey[key] ?: continue
+            getOrPut(gid) { mutableListOf() }.let { (it as MutableList).add(key to rect.center) }
+        }
+    }
+
+    return buildList {
+        nodesByGroup.forEach { (groupId, nodes) ->
+            if (nodes.size < 2) return@forEach
+            nearestTreeEdges(nodes.map { it.second }).forEach { (a, b) ->
+                add(GroupLinkSegment(groupId = groupId, startInRoot = a, endInRoot = b))
+            }
+        }
+    }
+}
+
+private fun distanceFromPointToSegment(point: Offset, start: Offset, end: Offset): Float {
+    val dx = end.x - start.x
+    val dy = end.y - start.y
+    if (dx == 0f && dy == 0f) return (point - start).getDistance()
+
+    val t = (((point.x - start.x) * dx) + ((point.y - start.y) * dy)) / (dx * dx + dy * dy)
+    val clampedT = max(0f, min(1f, t))
+    val projection = Offset(start.x + dx * clampedT, start.y + dy * clampedT)
+    return (point - projection).getDistance()
 }
 
 private fun nearestTreeEdges(points: List<Offset>): List<Pair<Offset, Offset>> {
