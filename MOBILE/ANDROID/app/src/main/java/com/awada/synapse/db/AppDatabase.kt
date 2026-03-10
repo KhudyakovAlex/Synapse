@@ -15,11 +15,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         RoomEntity::class,
         LuminaireTypeEntity::class,
         LuminaireEntity::class,
+        LuminaireSceneEntity::class,
         PresSensorEntity::class,
         BrightSensorEntity::class,
         ButtonPanelEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun roomDao(): RoomDao
     abstract fun luminaireTypeDao(): LuminaireTypeDao
     abstract fun luminaireDao(): LuminaireDao
+    abstract fun luminaireSceneDao(): LuminaireSceneDao
     abstract fun presSensorDao(): PresSensorDao
     abstract fun brightSensorDao(): BrightSensorDao
     abstract fun buttonPanelDao(): ButtonPanelDao
@@ -289,6 +291,25 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_TYPE_ID ON LUMINAIRES (TYPE_ID)")
             }
         }
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS LUMINAIRE_SCENES (
+                        SCENE_NUM INTEGER NOT NULL,
+                        LUMINAIRE_ID INTEGER NOT NULL,
+                        BRIGHT INTEGER NOT NULL DEFAULT 0,
+                        TEMPERATURE INTEGER,
+                        SATURATION INTEGER,
+                        HUE INTEGER,
+                        PRIMARY KEY (SCENE_NUM, LUMINAIRE_ID),
+                        FOREIGN KEY (LUMINAIRE_ID) REFERENCES LUMINAIRES(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRE_SCENES_LUMINAIRE_ID ON LUMINAIRE_SCENES (LUMINAIRE_ID)")
+            }
+        }
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -305,7 +326,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_3_4,
                     MIGRATION_4_5,
                     MIGRATION_5_6,
-                    MIGRATION_6_7
+                    MIGRATION_6_7,
+                    MIGRATION_7_8
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

@@ -27,6 +27,9 @@ interface RoomDao {
     @Query("UPDATE ROOMS SET GRID_POS = :gridPos WHERE CONTROLLER_ID = :controllerId AND ID = :id")
     suspend fun setGridPos(controllerId: Int, id: Int, gridPos: Int)
 
+    @Query("UPDATE ROOMS SET SCENE_NUM = :sceneNum WHERE CONTROLLER_ID = :controllerId AND ID = :id")
+    suspend fun setSceneNum(controllerId: Int, id: Int, sceneNum: Int)
+
     @Query("DELETE FROM ROOMS WHERE CONTROLLER_ID = :controllerId AND ID = :id")
     suspend fun deleteById(controllerId: Int, id: Int)
 

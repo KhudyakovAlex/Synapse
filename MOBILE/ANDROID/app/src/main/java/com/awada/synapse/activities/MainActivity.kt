@@ -691,6 +691,34 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
             sliders = lumControlSliders,
+            onSceneSelected = { sceneNum ->
+                val targetLuminaires = lumControlLuminaires
+                if (targetLuminaires.isNotEmpty()) {
+                    scope.launch {
+                        applySceneToLuminaires(
+                            db = db,
+                            sceneNum = sceneNum,
+                            luminaires = targetLuminaires
+                        )
+
+                        when (currentScreen) {
+                            AppScreen.RoomDetails -> {
+                                val room = selectedRoom
+                                if (room != null) {
+                                    db.roomDao().setSceneNum(room.controllerId, room.roomId, sceneNum)
+                                }
+                            }
+                            AppScreen.LocationDetails -> {
+                                val controllerId = selectedLocation?.controllerId
+                                if (controllerId != null) {
+                                    db.controllerDao().setSceneNum(controllerId, sceneNum)
+                                }
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+            },
             colorValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
                 lumControlColorValue
             } else {
@@ -883,6 +911,59 @@ private data class RoomState(
     val title: String,
     val iconId: Int
 )
+
+private suspend fun applySceneToLuminaires(
+    db: AppDatabase,
+    sceneNum: Int,
+    luminaires: List<LuminaireEntity>
+) {
+    if (luminaires.isEmpty()) return
+
+    val sceneByLuminaireId = db.luminaireSceneDao()
+        .getAllForSceneAndLuminaires(sceneNum, luminaires.map { it.id })
+        .associateBy { it.luminaireId }
+
+    val luminaireDao = db.luminaireDao()
+    luminaires.forEach { luminaire ->
+        val sceneState = sceneByLuminaireId[luminaire.id]
+        val fallback = defaultSceneStateFor(luminaire = luminaire, sceneNum = sceneNum)
+        val resolvedBright = sceneState?.bright ?: fallback.bright
+        val resolvedTemperature = sceneState?.temperature ?: fallback.temperature
+        val resolvedSaturation = sceneState?.saturation ?: fallback.saturation
+        val resolvedHue = sceneState?.hue ?: fallback.hue
+
+        luminaireDao.update(
+            luminaire.copy(
+                bright = resolvedBright,
+                temperature = resolvedTemperature,
+                saturation = resolvedSaturation,
+                hue = resolvedHue
+            )
+        )
+    }
+}
+
+private fun defaultSceneStateFor(
+    luminaire: LuminaireEntity,
+    sceneNum: Int
+): LuminaireEntity {
+    val defaultBright = when (sceneNum.coerceIn(0, 4)) {
+        0 -> 0
+        1 -> 25
+        2 -> 50
+        3 -> 75
+        else -> 100
+    }
+
+    return when (luminaire.typeId) {
+        LuminaireTypeEntity.TYPE_RGB -> luminaire.copy(
+            bright = defaultBright,
+            hue = 0,
+            saturation = 100
+        )
+        else -> luminaire.copy(bright = defaultBright)
+    }
+}
 
 private fun iconIdFromDrawableResId(context: Context, drawableResId: Int): Int? {
     val entryName = runCatching { context.resources.getResourceEntryName(drawableResId) }.getOrNull()

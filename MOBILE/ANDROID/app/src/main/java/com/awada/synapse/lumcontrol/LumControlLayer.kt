@@ -63,6 +63,7 @@ fun LumControlLayer(
     brightnessValue: Float? = null,
     onBrightnessValueChange: ((Float) -> Unit)? = null,
     brightnessEnabled: Boolean = true,
+    onSceneSelected: ((Int) -> Unit)? = null,
     bottomPadding: Int = 178,
     autoExpandOnShow: Boolean = false,
     stateKey: Any? = null,
@@ -245,7 +246,8 @@ fun LumControlLayer(
                             } else {
                                 localBrightnessValue = clampedValue
                             }
-                        }
+                        },
+                        onSceneSelected = onSceneSelected
                     )
                 }
             }
@@ -294,7 +296,8 @@ private fun RevealSlidersAboveButtons(
     onTemperatureValueChange: (Float) -> Unit,
     brightnessValue: Float,
     brightnessEnabled: Boolean,
-    onBrightnessValueChange: (Float) -> Unit
+    onBrightnessValueChange: (Float) -> Unit,
+    onSceneSelected: ((Int) -> Unit)?
 ) {
     SubcomposeLayout(
         modifier = Modifier
@@ -354,7 +357,7 @@ private fun RevealSlidersAboveButtons(
         val buttonsPlaceable = subcompose("buttons") {
             QuickButtonsRow(
                 buttons = defaultQuickButtons,
-                onButtonSelected = { _ -> }
+                onButtonSelected = { button -> onSceneSelected?.invoke(button.id) }
             )
         }.first().measure(loose)
 

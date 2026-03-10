@@ -31,6 +31,9 @@ interface ControllerDao {
     @Query("UPDATE CONTROLLERS SET GRID_POS = :gridPos WHERE ID = :id")
     suspend fun setGridPos(id: Int, gridPos: Int)
 
+    @Query("UPDATE CONTROLLERS SET SCENE_NUM = :sceneNum WHERE ID = :id")
+    suspend fun setSceneNum(id: Int, sceneNum: Int)
+
     @Query("SELECT * FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC")
     suspend fun getAllOrdered(): List<ControllerEntity>
 
