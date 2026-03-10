@@ -23,6 +23,15 @@ interface LuminaireDao {
         """
         SELECT * FROM LUMINAIRES
         WHERE CONTROLLER_ID = :controllerId
+        ORDER BY GRID_POS ASC, ID ASC
+        """
+    )
+    fun observeAllForController(controllerId: Int): Flow<List<LuminaireEntity>>
+
+    @Query(
+        """
+        SELECT * FROM LUMINAIRES
+        WHERE CONTROLLER_ID = :controllerId
           AND ((:roomId IS NULL AND ROOM_ID IS NULL) OR ROOM_ID = :roomId)
         ORDER BY GRID_POS ASC, ID ASC
         """
@@ -58,6 +67,12 @@ interface LuminaireDao {
 
     @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE ID = :id")
     suspend fun setBright(id: Long, bright: Int)
+
+    @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE CONTROLLER_ID = :controllerId")
+    suspend fun setBrightForController(controllerId: Int, bright: Int)
+
+    @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
+    suspend fun setBrightForRoom(controllerId: Int, roomId: Int, bright: Int)
 
     @Query("DELETE FROM LUMINAIRES WHERE ID = :id")
     suspend fun deleteById(id: Long)

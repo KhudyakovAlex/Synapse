@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,6 +87,7 @@ fun BaseSlider(
     enabled: Boolean = true,
     valueFormatter: ((Float) -> String)? = null
 ) {
+    val currentOnValueChange = rememberUpdatedState(onValueChange)
     val valueText = if (showValue) {
         valueFormatter?.invoke(value) ?: "${value.toInt()} %"
     } else ""
@@ -147,7 +149,7 @@ fun BaseSlider(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(sliderHeight)
-                .pointerInput(Unit) {
+                .pointerInput(enabled, minValue, maxValue) {
                     if (enabled) {
                         awaitEachGesture {
                             val down = awaitFirstDown()
@@ -157,12 +159,12 @@ fun BaseSlider(
                             
                             val xPosition = (down.position.x - padding).coerceIn(0f, availableWidth)
                             val newValue = minValue + (xPosition / availableWidth) * (maxValue - minValue)
-                            onValueChange(newValue.coerceIn(minValue, maxValue))
+                            currentOnValueChange.value(newValue.coerceIn(minValue, maxValue))
                             
                             horizontalDrag(down.id) { change ->
                                 val newX = (change.position.x - padding).coerceIn(0f, availableWidth)
                                 val dragValue = minValue + (newX / availableWidth) * (maxValue - minValue)
-                                onValueChange(dragValue.coerceIn(minValue, maxValue))
+                                currentOnValueChange.value(dragValue.coerceIn(minValue, maxValue))
                                 change.consume()
                             }
                         }

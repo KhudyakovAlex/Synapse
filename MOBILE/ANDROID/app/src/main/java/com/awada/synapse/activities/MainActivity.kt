@@ -71,6 +71,7 @@ import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.PresSensorEntity
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -165,6 +166,64 @@ private fun MainContent() {
             db.luminaireDao().observeById(selectedLuminaireId!!)
         }
     }.collectAsState(initial = null)
+    val lumControlLuminaires by remember(
+        db,
+        currentScreen,
+        selectedLuminaireId,
+        selectedLocation?.controllerId,
+        selectedRoom?.controllerId,
+        selectedRoom?.roomId
+    ) {
+        when (currentScreen) {
+            AppScreen.Lum -> {
+                if (selectedLuminaireId == null) {
+                    flowOf(emptyList())
+                } else {
+                    db.luminaireDao().observeById(selectedLuminaireId!!).map { luminaire ->
+                        luminaire?.let { listOf(it) } ?: emptyList()
+                    }
+                }
+            }
+            AppScreen.LocationDetails -> {
+                val controllerId = selectedLocation?.controllerId
+                if (controllerId == null) {
+                    flowOf(emptyList())
+                } else {
+                    db.luminaireDao().observeAllForController(controllerId)
+                }
+            }
+            AppScreen.RoomDetails -> {
+                val room = selectedRoom
+                if (room == null) {
+                    flowOf(emptyList())
+                } else {
+                    db.luminaireDao().observeAll(room.controllerId, room.roomId)
+                }
+            }
+            else -> flowOf(emptyList())
+        }
+    }.collectAsState(initial = emptyList())
+    val lumControlBrightnessValue by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            if (lumControlLuminaires.isEmpty()) {
+                0f
+            } else {
+                lumControlLuminaires
+                    .map { it.bright }
+                    .average()
+                    .roundToInt()
+                    .toFloat()
+            }
+        }
+    }
+    val lumControlBrightnessEnabled by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            when (currentScreen) {
+                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails -> lumControlLuminaires.isNotEmpty()
+                else -> false
+            }
+        }
+    }
 
     // Handle system back button
     BackHandler {
@@ -534,13 +593,13 @@ private fun MainContent() {
         LumControlLayer(
             isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
-            brightnessValue = if (currentScreen == AppScreen.Lum) {
-                selectedLuminaireOrNull?.bright?.toFloat()
+            brightnessValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+                lumControlBrightnessValue
             } else {
                 null
             },
-            onBrightnessValueChange = if (currentScreen == AppScreen.Lum) {
-                { value ->
+            onBrightnessValueChange = when (currentScreen) {
+                AppScreen.Lum -> { value ->
                     val luminaireId = selectedLuminaireId
                     if (luminaireId != null) {
                         scope.launch {
@@ -551,9 +610,32 @@ private fun MainContent() {
                         }
                     }
                 }
-            } else {
-                null
+                AppScreen.LocationDetails -> { value ->
+                    val controllerId = selectedLocation?.controllerId
+                    if (controllerId != null) {
+                        scope.launch {
+                            db.luminaireDao().setBrightForController(
+                                controllerId = controllerId,
+                                bright = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.RoomDetails -> { value ->
+                    val room = selectedRoom
+                    if (room != null) {
+                        scope.launch {
+                            db.luminaireDao().setBrightForRoom(
+                                controllerId = room.controllerId,
+                                roomId = room.roomId,
+                                bright = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                else -> null
             },
+            brightnessEnabled = lumControlBrightnessEnabled,
             autoExpandOnShow = currentScreen == AppScreen.Lum,
             stateKey = currentScreen,
             modifier = Modifier

@@ -56,6 +56,7 @@ fun LumControlLayer(
     sliders: List<String> = emptyList(),
     brightnessValue: Float? = null,
     onBrightnessValueChange: ((Float) -> Unit)? = null,
+    brightnessEnabled: Boolean = true,
     bottomPadding: Int = 178,
     autoExpandOnShow: Boolean = false,
     stateKey: Any? = null,
@@ -172,6 +173,7 @@ fun LumControlLayer(
                         temperatureValue = temperatureValue,
                         onTemperatureValueChange = { temperatureValue = it },
                         brightnessValue = resolvedBrightnessValue,
+                        brightnessEnabled = brightnessEnabled,
                         onBrightnessValueChange = { value ->
                             val clampedValue = value.coerceIn(0f, 100f)
                             if (brightnessValue != null && onBrightnessValueChange != null) {
@@ -228,6 +230,7 @@ private fun RevealSlidersAboveButtons(
     temperatureValue: Float,
     onTemperatureValueChange: (Float) -> Unit,
     brightnessValue: Float,
+    brightnessEnabled: Boolean,
     onBrightnessValueChange: (Float) -> Unit
 ) {
     SubcomposeLayout(
@@ -276,7 +279,8 @@ private fun RevealSlidersAboveButtons(
                             )
                             "Brightness" -> BrightnessSlider(
                                 value = brightnessValue,
-                                onValueChange = onBrightnessValueChange
+                                onValueChange = onBrightnessValueChange,
+                                enabled = brightnessEnabled
                             )
                         }
                     }
