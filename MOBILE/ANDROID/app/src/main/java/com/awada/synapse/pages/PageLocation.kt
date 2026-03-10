@@ -420,7 +420,7 @@ fun PageLocation(
                                 }
                             }
                         }
-                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                        TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
                             pendingDeleteKey = null
                             pendingDeleteTitle = ""
                             pressedKey = null

@@ -271,13 +271,14 @@ fun PageRoom(
         if (pendingDeleteKey != null) {
             val keyToDelete = pendingDeleteKey!!
             val text = if (pendingDeleteTitle.isNotBlank()) {
-                "Удалить устройство «$pendingDeleteTitle»?"
+                "Что сделать с устройством «$pendingDeleteTitle»?"
             } else {
-                "Удалить устройство?"
+                "Что сделать с устройством?"
             }
             Tooltip(
                 text = text,
                 primaryButtonText = "Удалить",
+                tertiaryButtonText = "Вынести из помещения",
                 secondaryButtonText = "Отмена",
                 onResult = { res ->
                     when (res) {
@@ -293,6 +294,29 @@ fun PageRoom(
                                     DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(keyToDelete.id)
                                     DeviceType.PresSensor -> db.presSensorDao().deleteById(keyToDelete.id)
                                     DeviceType.BrightSensor -> db.brightSensorDao().deleteById(keyToDelete.id)
+                                }
+                                remaining.forEachIndexed { index, k ->
+                                    when (k.type) {
+                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                                    }
+                                }
+                            }
+                        }
+                        TooltipResult.Tertiary -> {
+                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
+                            orderedKeysState.value = remaining
+                            pendingDeleteKey = null
+                            pendingDeleteTitle = ""
+                            pressedKey = null
+                            scope.launch {
+                                when (keyToDelete.type) {
+                                    DeviceType.Luminaire -> db.luminaireDao().moveToRoom(keyToDelete.id, null)
+                                    DeviceType.ButtonPanel -> db.buttonPanelDao().moveToRoom(keyToDelete.id, null)
+                                    DeviceType.PresSensor -> db.presSensorDao().moveToRoom(keyToDelete.id, null)
+                                    DeviceType.BrightSensor -> db.brightSensorDao().moveToRoom(keyToDelete.id, null)
                                 }
                                 remaining.forEachIndexed { index, k ->
                                     when (k.type) {

@@ -176,7 +176,7 @@ fun PageSettings(
                                 }
                             }
                         }
-                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                        TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
                             pendingDeleteId = -1
                             pressedId = -1
                         }

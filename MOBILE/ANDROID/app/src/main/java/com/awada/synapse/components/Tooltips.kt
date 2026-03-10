@@ -26,6 +26,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
  */
 enum class TooltipResult {
     Primary,    // Primary button clicked
+    Tertiary,   // Middle optional button clicked
     Secondary,  // Secondary button clicked
     Dismissed   // Dismissed by tapping outside
 }
@@ -54,6 +55,7 @@ object TooltipOverlayState {
  * @param onResult Callback with result (Primary/Secondary/Dismissed)
  * @param primaryButtonText Primary button text (right button, required)
  * @param secondaryButtonText Optional secondary button text (left button)
+ * @param tertiaryButtonText Optional middle button text
  */
 @Composable
 fun Tooltip(
@@ -61,7 +63,8 @@ fun Tooltip(
     primaryButtonText: String,
     onResult: (TooltipResult) -> Unit,
     modifier: Modifier = Modifier,
-    secondaryButtonText: String? = null
+    secondaryButtonText: String? = null,
+    tertiaryButtonText: String? = null
 ) {
     DisposableEffect(Unit) {
         TooltipOverlayState.isVisible = true
@@ -104,26 +107,50 @@ fun Tooltip(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Buttons row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp), // Additional 4dp for total 16dp spacing
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
-            ) {
-                // Secondary button (left) - optional
-                secondaryButtonText?.let {
+            if (tertiaryButtonText != null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    secondaryButtonText?.let {
+                        SecondaryButton(
+                            text = it,
+                            onClick = { onResult(TooltipResult.Secondary) }
+                        )
+                    }
+
                     SecondaryButton(
-                        text = it,
-                        onClick = { onResult(TooltipResult.Secondary) }
+                        text = tertiaryButtonText,
+                        onClick = { onResult(TooltipResult.Tertiary) }
+                    )
+
+                    PrimaryButton(
+                        text = primaryButtonText,
+                        onClick = { onResult(TooltipResult.Primary) }
                     )
                 }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp), // Additional 4dp for total 16dp spacing
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
+                ) {
+                    secondaryButtonText?.let {
+                        SecondaryButton(
+                            text = it,
+                            onClick = { onResult(TooltipResult.Secondary) }
+                        )
+                    }
 
-                // Primary button (right) - required
-                PrimaryButton(
-                    text = primaryButtonText,
-                    onClick = { onResult(TooltipResult.Primary) }
-                )
+                    PrimaryButton(
+                        text = primaryButtonText,
+                        onClick = { onResult(TooltipResult.Primary) }
+                    )
+                }
             }
         }
     }

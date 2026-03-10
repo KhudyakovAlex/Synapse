@@ -297,7 +297,7 @@ fun PageLocationSettings(
                             }
                         }
 
-                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                        TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
                             pendingDeleteRoomId = -1
                             pendingDeleteRoomTitle = ""
                             pressedRoomId = -1
