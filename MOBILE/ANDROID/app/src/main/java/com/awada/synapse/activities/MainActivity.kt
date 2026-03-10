@@ -264,6 +264,30 @@ private fun MainContent() {
             }
         }
     }
+    val lumControlSliders by remember(currentScreen, lumControlLuminaires) {
+        derivedStateOf {
+            if (currentScreen != AppScreen.Lum &&
+                currentScreen != AppScreen.LocationDetails &&
+                currentScreen != AppScreen.RoomDetails
+            ) {
+                emptyList()
+            } else {
+                buildList {
+                    val typeIds = lumControlLuminaires.map { it.typeId }.toSet()
+                    if (LuminaireTypeEntity.TYPE_RGB in typeIds) {
+                        add("Color")
+                        add("Saturation")
+                    }
+                    if (LuminaireTypeEntity.TYPE_TW in typeIds) {
+                        add("Temperature")
+                    }
+                    if (typeIds.isNotEmpty()) {
+                        add("Brightness")
+                    }
+                }
+            }
+        }
+    }
 
     // Handle system back button
     BackHandler {
@@ -654,7 +678,7 @@ private fun MainContent() {
         // Positioned above AI component with proper padding
         LumControlLayer(
             isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
-            sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
+            sliders = lumControlSliders,
             colorValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
                 lumControlColorValue
             } else {

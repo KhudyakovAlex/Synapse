@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -36,12 +41,21 @@ fun PageLum(
         modifier = modifier
     ) {
         val bottomInset = LocalBottomOverlayInset.current
+        var stableBottomInset by remember { mutableStateOf(0.dp) }
+
+        // Keep the largest observed inset for this screen instance so the indicator
+        // does not jump down while the panel is closing during navigation away.
+        LaunchedEffect(bottomInset) {
+            if (bottomInset > stableBottomInset) {
+                stableBottomInset = bottomInset
+            }
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 // Shrink available height so center is between AppBar and panel top
-                .padding(bottom = bottomInset),
+                .padding(bottom = stableBottomInset),
             contentAlignment = Alignment.Center
         ) {
             // Single unified block to position as a whole.
