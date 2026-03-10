@@ -93,6 +93,7 @@ fun BrightSensor(
     enabled: Boolean = true,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     circleAlpha: Float = 1f,
+    forceSecondaryPressed: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -102,6 +103,7 @@ fun BrightSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = false,
+        forceSecondaryPressed = forceSecondaryPressed,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
         circleAlpha = circleAlpha,
         onClick = onClick
@@ -117,6 +119,7 @@ fun BrightSensor(
     forcePressed: Boolean,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     circleAlpha: Float = 1f,
+    forceSecondaryPressed: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -126,6 +129,7 @@ fun BrightSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = forcePressed,
+        forceSecondaryPressed = forceSecondaryPressed,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
         circleAlpha = circleAlpha,
         onClick = onClick
@@ -187,6 +191,7 @@ private fun SystemIconTileInternal(
     iconSize: Dp,
     enabled: Boolean,
     forcePressed: Boolean,
+    forceSecondaryPressed: Boolean = false,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     circleAlpha: Float = 1f,
     onClick: (() -> Unit)?
@@ -224,6 +229,8 @@ private fun SystemIconTileInternal(
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val rawCircleBg = if (onClick != null && enabled && showPressed) {
+        PixsoColors.Color_State_secondary_pressed
+    } else if (forceSecondaryPressed) {
         PixsoColors.Color_State_secondary_pressed
     } else if (forcePressed) {
         PixsoColors.Color_State_primary_pressed

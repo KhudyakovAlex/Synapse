@@ -75,6 +75,7 @@ fun Lum(
     onClick: (() -> Unit)? = null,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     circleAlpha: Float = 1f,
+    forceSecondaryPressed: Boolean = false,
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
     LumInternal(
@@ -90,6 +91,7 @@ fun Lum(
         iconResId = iconResId,
         statusDotColor = statusDotColor,
         forcePressed = false,
+        forceSecondaryPressed = forceSecondaryPressed,
         onClick = onClick,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
         circleAlpha = circleAlpha,
@@ -116,6 +118,7 @@ fun Lum(
     onClick: (() -> Unit)? = null,
     onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     circleAlpha: Float = 1f,
+    forceSecondaryPressed: Boolean = false,
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
     LumInternal(
@@ -131,6 +134,7 @@ fun Lum(
         iconResId = iconResId,
         statusDotColor = statusDotColor,
         forcePressed = forcePressed,
+        forceSecondaryPressed = forceSecondaryPressed,
         onClick = onClick,
         onCircleBoundsInRoot = onCircleBoundsInRoot,
         circleAlpha = circleAlpha,
@@ -152,6 +156,7 @@ private fun LumInternal(
     iconResId: Int,
     statusDotColor: Color,
     forcePressed: Boolean,
+    forceSecondaryPressed: Boolean,
     onClick: (() -> Unit)?,
     onCircleBoundsInRoot: ((Rect) -> Unit)?,
     circleAlpha: Float,
@@ -190,6 +195,8 @@ private fun LumInternal(
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val rawCircleBg = if (onClick != null && enabled && showPressed) {
+        PixsoColors.Color_State_secondary_pressed
+    } else if (forceSecondaryPressed) {
         PixsoColors.Color_State_secondary_pressed
     } else if (forcePressed) {
         PixsoColors.Color_State_primary_pressed
