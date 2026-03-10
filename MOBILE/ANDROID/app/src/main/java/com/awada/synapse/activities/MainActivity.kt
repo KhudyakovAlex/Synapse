@@ -470,6 +470,10 @@ private fun MainContent() {
                                                     roomId = null,
                                                     name = "Светильник ${idx + 1}",
                                                     icoNum = 300,
+                                                    bright = 0,
+                                                    temperature = 0,
+                                                    saturation = 0,
+                                                    hue = 0,
                                                     gridPos = idx
                                                 )
                                             )

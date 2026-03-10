@@ -17,7 +17,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         BrightSensorEntity::class,
         ButtonPanelEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -190,6 +190,14 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE LUMINAIRES ADD COLUMN BRIGHT INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE LUMINAIRES ADD COLUMN TEMPERATURE INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE LUMINAIRES ADD COLUMN SATURATION INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE LUMINAIRES ADD COLUMN HUE INTEGER NOT NULL DEFAULT 0")
+            }
+        }
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -200,7 +208,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build()
                     .also { INSTANCE = it }
             }
         }

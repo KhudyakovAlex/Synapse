@@ -45,6 +45,18 @@ data class LuminaireEntity(
     @ColumnInfo(name = "ICO_NUM", defaultValue = "300")
     val icoNum: Int = 300,
 
+    @ColumnInfo(name = "BRIGHT", defaultValue = "0")
+    val bright: Int = 0,
+
+    @ColumnInfo(name = "TEMPERATURE", defaultValue = "0")
+    val temperature: Int = 0,
+
+    @ColumnInfo(name = "SATURATION", defaultValue = "0")
+    val saturation: Int = 0,
+
+    @ColumnInfo(name = "HUE", defaultValue = "0")
+    val hue: Int = 0,
+
     @ColumnInfo(name = "GRID_POS", defaultValue = "0")
     val gridPos: Int = 0
 )
