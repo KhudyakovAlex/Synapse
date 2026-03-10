@@ -81,6 +81,7 @@ fun PageLocations(
             ordered.value = controllers
         }
     }
+    val visibleControllers = if (draggingId == -1) controllers else ordered.value
 
     fun openLocation(controller: ControllerEntity) {
         onLocationClick(
@@ -92,7 +93,7 @@ fun PageLocations(
         )
     }
 
-    if (ordered.value.isEmpty()) {
+    if (visibleControllers.isEmpty()) {
         PageContainer(
             title = "Локации",
             onSettingsClick = onSettingsClick,
@@ -107,7 +108,7 @@ fun PageLocations(
                 onEmptyButtonClick = { onFindControllerClick?.invoke() }
             )
         }
-    } else if (ordered.value.size > 5) {
+    } else if (visibleControllers.size > 5) {
         PageContainer(
             title = "Локации",
             onSettingsClick = onSettingsClick,
@@ -120,7 +121,7 @@ fun PageLocations(
                     .padding(horizontal = PixsoDimens.Numeric_16)
             ) {
                 ReorderableControllersGrid(
-                    controllers = ordered.value,
+                    controllers = visibleControllers,
                     draggingId = draggingId,
                     pressedId = pressedId,
                     modalVisible = pendingDeleteId != -1,
@@ -165,7 +166,7 @@ fun PageLocations(
                 contentAlignment = Alignment.Center
             ) {
                 ReorderableControllersGrid(
-                    controllers = ordered.value,
+                    controllers = visibleControllers,
                     draggingId = draggingId,
                     pressedId = pressedId,
                     modalVisible = pendingDeleteId != -1,
