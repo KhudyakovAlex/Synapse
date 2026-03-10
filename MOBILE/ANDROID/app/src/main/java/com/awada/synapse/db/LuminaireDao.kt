@@ -23,6 +23,16 @@ interface LuminaireDao {
         """
         SELECT * FROM LUMINAIRES
         WHERE CONTROLLER_ID = :controllerId
+          AND GROUP_ID = :groupId
+        ORDER BY GRID_POS ASC, ID ASC
+        """
+    )
+    fun observeAllForGroup(controllerId: Int, groupId: Int): Flow<List<LuminaireEntity>>
+
+    @Query(
+        """
+        SELECT * FROM LUMINAIRES
+        WHERE CONTROLLER_ID = :controllerId
         ORDER BY GRID_POS ASC, ID ASC
         """
     )
@@ -77,6 +87,9 @@ interface LuminaireDao {
     @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
     suspend fun setBrightForRoom(controllerId: Int, roomId: Int, bright: Int)
 
+    @Query("UPDATE LUMINAIRES SET BRIGHT = :bright WHERE CONTROLLER_ID = :controllerId AND GROUP_ID = :groupId")
+    suspend fun setBrightForGroup(controllerId: Int, groupId: Int, bright: Int)
+
     @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE ID = :id")
     suspend fun setHue(id: Long, hue: Int)
 
@@ -85,6 +98,9 @@ interface LuminaireDao {
 
     @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
     suspend fun setHueForRoom(controllerId: Int, roomId: Int, hue: Int)
+
+    @Query("UPDATE LUMINAIRES SET HUE = :hue WHERE CONTROLLER_ID = :controllerId AND GROUP_ID = :groupId")
+    suspend fun setHueForGroup(controllerId: Int, groupId: Int, hue: Int)
 
     @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE ID = :id")
     suspend fun setSaturation(id: Long, saturation: Int)
@@ -95,6 +111,9 @@ interface LuminaireDao {
     @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
     suspend fun setSaturationForRoom(controllerId: Int, roomId: Int, saturation: Int)
 
+    @Query("UPDATE LUMINAIRES SET SATURATION = :saturation WHERE CONTROLLER_ID = :controllerId AND GROUP_ID = :groupId")
+    suspend fun setSaturationForGroup(controllerId: Int, groupId: Int, saturation: Int)
+
     @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE ID = :id")
     suspend fun setTemperature(id: Long, temperature: Int)
 
@@ -103,6 +122,9 @@ interface LuminaireDao {
 
     @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE CONTROLLER_ID = :controllerId AND ROOM_ID = :roomId")
     suspend fun setTemperatureForRoom(controllerId: Int, roomId: Int, temperature: Int)
+
+    @Query("UPDATE LUMINAIRES SET TEMPERATURE = :temperature WHERE CONTROLLER_ID = :controllerId AND GROUP_ID = :groupId")
+    suspend fun setTemperatureForGroup(controllerId: Int, groupId: Int, temperature: Int)
 
     @Query("DELETE FROM LUMINAIRES WHERE ID = :id")
     suspend fun deleteById(id: Long)

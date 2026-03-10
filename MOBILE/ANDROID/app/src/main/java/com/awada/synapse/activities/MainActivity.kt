@@ -55,6 +55,7 @@ import com.awada.synapse.pages.PageLocationSettings
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PageButtonPanel
 import com.awada.synapse.pages.PagePassword
+import com.awada.synapse.pages.PageGroup
 import com.awada.synapse.pages.PageButtonPanelSettings
 import com.awada.synapse.pages.PageRoom
 import com.awada.synapse.pages.PageRoomSettings
@@ -105,6 +106,7 @@ enum class AppScreen {
     Location,
     LocationDetails,
     RoomDetails,
+    GroupDetails,
     RoomSettings,
     LocationSettings,
     Lum,
@@ -133,6 +135,7 @@ private fun MainContent() {
     var buttonPanelBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
+    var groupBackTarget by remember { mutableStateOf(AppScreen.LocationDetails) }
     var appearingLocationRoomId by remember { mutableStateOf<Int?>(null) }
     var appearingLocationId by remember { mutableStateOf<Int?>(null) }
     var selectedLocation by remember {
@@ -141,17 +144,21 @@ private fun MainContent() {
     var selectedRoom by remember {
         mutableStateOf<RoomState?>(null)
     }
+    var selectedGroup by remember {
+        mutableStateOf<GroupState?>(null)
+    }
     var selectedLuminaireId by remember { mutableStateOf<Long?>(null) }
     var selectedButtonPanelId by remember { mutableStateOf<Long?>(null) }
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
-    // Show LumControlLayer on Lum + LocationDetails + RoomDetails (collapsed by default except Lum).
+    // Show LumControlLayer on Lum + aggregate lighting pages (collapsed by default except Lum).
     val isLumControlVisible by remember {
         derivedStateOf {
             currentScreen == AppScreen.Lum ||
                 currentScreen == AppScreen.LocationDetails ||
-                currentScreen == AppScreen.RoomDetails
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.GroupDetails
         }
     }
 
@@ -179,7 +186,9 @@ private fun MainContent() {
         selectedLuminaireId,
         selectedLocation?.controllerId,
         selectedRoom?.controllerId,
-        selectedRoom?.roomId
+        selectedRoom?.roomId,
+        selectedGroup?.controllerId,
+        selectedGroup?.groupId
     ) {
         when (currentScreen) {
             AppScreen.Lum -> {
@@ -205,6 +214,14 @@ private fun MainContent() {
                     flowOf(emptyList())
                 } else {
                     db.luminaireDao().observeAll(room.controllerId, room.roomId)
+                }
+            }
+            AppScreen.GroupDetails -> {
+                val group = selectedGroup
+                if (group == null) {
+                    flowOf(emptyList())
+                } else {
+                    db.luminaireDao().observeAllForGroup(group.controllerId, group.groupId)
                 }
             }
             else -> flowOf(emptyList())
@@ -265,7 +282,10 @@ private fun MainContent() {
     val lumControlBrightnessEnabled by remember(currentScreen, lumControlLuminaires) {
         derivedStateOf {
             when (currentScreen) {
-                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails -> lumControlLuminaires.isNotEmpty()
+                AppScreen.Lum,
+                AppScreen.LocationDetails,
+                AppScreen.RoomDetails,
+                AppScreen.GroupDetails -> lumControlLuminaires.isNotEmpty()
                 else -> false
             }
         }
@@ -274,7 +294,8 @@ private fun MainContent() {
         derivedStateOf {
             if (currentScreen != AppScreen.Lum &&
                 currentScreen != AppScreen.LocationDetails &&
-                currentScreen != AppScreen.RoomDetails
+                currentScreen != AppScreen.RoomDetails &&
+                currentScreen != AppScreen.GroupDetails
             ) {
                 emptyList()
             } else {
@@ -310,6 +331,9 @@ private fun MainContent() {
             }
             AppScreen.RoomDetails -> {
                 currentScreen = AppScreen.LocationDetails
+            }
+            AppScreen.GroupDetails -> {
+                currentScreen = groupBackTarget
             }
             AppScreen.RoomSettings -> {
                 currentScreen = roomSettingsBackTarget
@@ -378,7 +402,7 @@ private fun MainContent() {
             label = "ScreenNavigation"
         ) { screen ->
             val isLumControlVisibleForScreen = when (screen) {
-                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails -> true
+                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails, AppScreen.GroupDetails -> true
                 else -> false
             }
             val bottomOverlayInsetForScreen = maxOf(
@@ -425,6 +449,12 @@ private fun MainContent() {
                                 )
                                 currentScreen = AppScreen.RoomDetails
                             },
+                            onGroupClick = { groupId ->
+                                val controllerId = loc.controllerId ?: return@PageLocation
+                                selectedGroup = GroupState(controllerId = controllerId, groupId = groupId)
+                                groupBackTarget = AppScreen.LocationDetails
+                                currentScreen = AppScreen.GroupDetails
+                            },
                             onLumClick = { luminaireId ->
                                 selectedLuminaireId = luminaireId
                                 lumBackTarget = AppScreen.LocationDetails
@@ -463,6 +493,11 @@ private fun MainContent() {
                                 roomId = room.roomId,
                                 onBackClick = { currentScreen = AppScreen.LocationDetails },
                                 onSettingsClick = { currentScreen = AppScreen.RoomSettings },
+                                onGroupClick = { groupId ->
+                                    selectedGroup = GroupState(controllerId = room.controllerId, groupId = groupId)
+                                    groupBackTarget = AppScreen.RoomDetails
+                                    currentScreen = AppScreen.GroupDetails
+                                },
                                 onLumClick = { luminaireId ->
                                     selectedLuminaireId = luminaireId
                                     lumBackTarget = AppScreen.RoomDetails
@@ -482,6 +517,27 @@ private fun MainContent() {
                                     selectedButtonPanelId = panelId
                                     buttonPanelBackTarget = AppScreen.RoomDetails
                                     currentScreen = AppScreen.Panel
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                    AppScreen.GroupDetails -> {
+                        val group = selectedGroup
+                        if (group != null) {
+                            PageGroup(
+                                controllerId = group.controllerId,
+                                groupId = group.groupId,
+                                onBackClick = { currentScreen = groupBackTarget },
+                                onLumClick = { luminaireId ->
+                                    selectedLuminaireId = luminaireId
+                                    lumBackTarget = AppScreen.GroupDetails
+                                    currentScreen = AppScreen.Lum
+                                },
+                                onSensorBrightSettingsClick = { sensorId ->
+                                    selectedBrightSensorId = sensorId
+                                    systemSettingsBackTarget = AppScreen.GroupDetails
+                                    currentScreen = AppScreen.SensorBrightSettings
                                 },
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -711,6 +767,7 @@ private fun MainContent() {
                                     db.roomDao().setSceneNum(room.controllerId, room.roomId, sceneNum)
                                 }
                             }
+                            AppScreen.GroupDetails -> Unit
                             AppScreen.LocationDetails -> {
                                 val controllerId = selectedLocation?.controllerId
                                 if (controllerId != null) {
@@ -727,7 +784,12 @@ private fun MainContent() {
                     pendingSaveSceneNum = sceneNum
                 }
             },
-            colorValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+            colorValue = if (
+                currentScreen == AppScreen.Lum ||
+                currentScreen == AppScreen.LocationDetails ||
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.GroupDetails
+            ) {
                 lumControlColorValue
             } else {
                 null
@@ -767,9 +829,26 @@ private fun MainContent() {
                         }
                     }
                 }
+                AppScreen.GroupDetails -> { value ->
+                    val group = selectedGroup
+                    if (group != null) {
+                        scope.launch {
+                            db.luminaireDao().setHueForGroup(
+                                controllerId = group.controllerId,
+                                groupId = group.groupId,
+                                hue = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
                 else -> null
             },
-            saturationValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+            saturationValue = if (
+                currentScreen == AppScreen.Lum ||
+                currentScreen == AppScreen.LocationDetails ||
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.GroupDetails
+            ) {
                 lumControlSaturationValue
             } else {
                 null
@@ -809,9 +888,26 @@ private fun MainContent() {
                         }
                     }
                 }
+                AppScreen.GroupDetails -> { value ->
+                    val group = selectedGroup
+                    if (group != null) {
+                        scope.launch {
+                            db.luminaireDao().setSaturationForGroup(
+                                controllerId = group.controllerId,
+                                groupId = group.groupId,
+                                saturation = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
                 else -> null
             },
-            temperatureValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+            temperatureValue = if (
+                currentScreen == AppScreen.Lum ||
+                currentScreen == AppScreen.LocationDetails ||
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.GroupDetails
+            ) {
                 lumControlTemperatureValue
             } else {
                 null
@@ -851,9 +947,26 @@ private fun MainContent() {
                         }
                     }
                 }
+                AppScreen.GroupDetails -> { value ->
+                    val group = selectedGroup
+                    if (group != null) {
+                        scope.launch {
+                            db.luminaireDao().setTemperatureForGroup(
+                                controllerId = group.controllerId,
+                                groupId = group.groupId,
+                                temperature = value.roundToInt().coerceIn(3000, 5000)
+                            )
+                        }
+                    }
+                }
                 else -> null
             },
-            brightnessValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
+            brightnessValue = if (
+                currentScreen == AppScreen.Lum ||
+                currentScreen == AppScreen.LocationDetails ||
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.GroupDetails
+            ) {
                 lumControlBrightnessValue
             } else {
                 null
@@ -888,6 +1001,18 @@ private fun MainContent() {
                             db.luminaireDao().setBrightForRoom(
                                 controllerId = room.controllerId,
                                 roomId = room.roomId,
+                                bright = value.roundToInt().coerceIn(0, 100)
+                            )
+                        }
+                    }
+                }
+                AppScreen.GroupDetails -> { value ->
+                    val group = selectedGroup
+                    if (group != null) {
+                        scope.launch {
+                            db.luminaireDao().setBrightForGroup(
+                                controllerId = group.controllerId,
+                                groupId = group.groupId,
                                 bright = value.roundToInt().coerceIn(0, 100)
                             )
                         }
@@ -947,6 +1072,11 @@ private data class RoomState(
     val roomId: Int,
     val title: String,
     val iconId: Int
+)
+
+private data class GroupState(
+    val controllerId: Int,
+    val groupId: Int
 )
 
 private suspend fun applySceneToLuminaires(

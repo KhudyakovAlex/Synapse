@@ -48,6 +48,7 @@ fun PageLocation(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onRoomClick: (roomId: Int, roomTitle: String, roomIconId: Int) -> Unit,
+    onGroupClick: (groupId: Int) -> Unit,
     onLumClick: (luminaireId: Long) -> Unit,
     onSensorPressSettingsClick: (sensorId: Long) -> Unit,
     onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
@@ -238,7 +239,11 @@ fun PageLocation(
                                                 forcePressed = isPressed,
                                                 onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                                 circleAlpha = circleAlpha,
-                                                onClick = if (suppressClick) null else { { onLumClick(e.id) } },
+                                                onClick = if (suppressClick) {
+                                                    null
+                                                } else {
+                                                    { e.groupId?.let(onGroupClick) ?: onLumClick(e.id) }
+                                                },
                                                 modifier = m
                                             )
                                         }
@@ -307,7 +312,11 @@ fun PageLocation(
                                                 forcePressed = isPressed,
                                                 onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                                 circleAlpha = circleAlpha,
-                                                onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
+                                                onClick = if (suppressClick) {
+                                                    null
+                                                } else {
+                                                    { e.groupId?.let(onGroupClick) ?: onSensorBrightSettingsClick(e.id) }
+                                                },
                                                 modifier = m
                                             )
                                         }

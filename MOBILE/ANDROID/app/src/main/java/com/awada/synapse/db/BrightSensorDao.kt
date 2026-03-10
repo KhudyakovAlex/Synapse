@@ -23,6 +23,16 @@ interface BrightSensorDao {
         """
         SELECT * FROM BRIGHT_SENSORS
         WHERE CONTROLLER_ID = :controllerId
+          AND GROUP_ID = :groupId
+        ORDER BY GRID_POS ASC, ID ASC
+        """
+    )
+    fun observeAllForGroup(controllerId: Int, groupId: Int): Flow<List<BrightSensorEntity>>
+
+    @Query(
+        """
+        SELECT * FROM BRIGHT_SENSORS
+        WHERE CONTROLLER_ID = :controllerId
           AND ((:roomId IS NULL AND ROOM_ID IS NULL) OR ROOM_ID = :roomId)
         ORDER BY GRID_POS ASC, ID ASC
         """

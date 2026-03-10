@@ -48,6 +48,7 @@ fun PageRoom(
     roomId: Int,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onGroupClick: (groupId: Int) -> Unit,
     onLumClick: (luminaireId: Long) -> Unit,
     onSensorPressSettingsClick: (sensorId: Long) -> Unit,
     onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
@@ -149,7 +150,11 @@ fun PageRoom(
                                             forcePressed = isPressed,
                                             onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                             circleAlpha = circleAlpha,
-                                            onClick = if (suppressClick) null else { { onLumClick(e.id) } },
+                                            onClick = if (suppressClick) {
+                                                null
+                                            } else {
+                                                { e.groupId?.let(onGroupClick) ?: onLumClick(e.id) }
+                                            },
                                             modifier = m
                                         )
                                     }
@@ -218,7 +223,11 @@ fun PageRoom(
                                             forcePressed = isPressed,
                                             onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                             circleAlpha = circleAlpha,
-                                            onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
+                                            onClick = if (suppressClick) {
+                                                null
+                                            } else {
+                                                { e.groupId?.let(onGroupClick) ?: onSensorBrightSettingsClick(e.id) }
+                                            },
                                             modifier = m
                                         )
                                     }
