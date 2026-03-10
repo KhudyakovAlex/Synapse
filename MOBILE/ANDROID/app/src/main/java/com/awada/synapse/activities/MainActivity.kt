@@ -61,8 +61,11 @@ import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.BrightSensorEntity
+import com.awada.synapse.db.ButtonPanelEntity
 import com.awada.synapse.db.ControllerEntity
-import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.LuminaireEntity
+import com.awada.synapse.db.PresSensorEntity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -249,7 +252,7 @@ private fun MainContent() {
                             location = loc,
                             onBackClick = { currentScreen = AppScreen.Location },
                             onSettingsClick = { currentScreen = AppScreen.LocationSettings },
-                            onRoomClick = { roomId, roomTitle, roomIconId ->
+                            _onRoomClick = { roomId, roomTitle, roomIconId ->
                                 val cid = loc.controllerId ?: return@PageLocation
                                 selectedRoom = RoomState(
                                     controllerId = cid,
@@ -429,16 +432,47 @@ private fun MainContent() {
                                         )
                                     ).toInt()
 
-                                    val roomDao = db.roomDao()
-                                    repeat(3) { idx ->
-                                        roomDao.insert(
-                                            RoomEntity(
-                                                controllerId = controllerId,
-                                                id = idx,
-                                                gridPos = idx
+                                    db.luminaireDao().apply {
+                                        repeat(8) { idx ->
+                                            insert(
+                                                LuminaireEntity(
+                                                    controllerId = controllerId,
+                                                    roomId = null,
+                                                    name = "Светильник ${idx + 1}",
+                                                    icoNum = 300,
+                                                    gridPos = idx
+                                                )
                                             )
-                                        )
+                                        }
                                     }
+                                    db.buttonPanelDao().apply {
+                                        repeat(2) { idx ->
+                                            insert(
+                                                ButtonPanelEntity(
+                                                    controllerId = controllerId,
+                                                    roomId = null,
+                                                    name = "Кнопочная панель ${idx + 1}",
+                                                    gridPos = 8 + idx
+                                                )
+                                            )
+                                        }
+                                    }
+                                    db.presSensorDao().insert(
+                                        PresSensorEntity(
+                                            controllerId = controllerId,
+                                            roomId = null,
+                                            name = "Датчик присутствия",
+                                            gridPos = 10
+                                        )
+                                    )
+                                    db.brightSensorDao().insert(
+                                        BrightSensorEntity(
+                                            controllerId = controllerId,
+                                            roomId = null,
+                                            name = "Датчик освещенности",
+                                            gridPos = 11
+                                        )
+                                    )
                                     currentScreen = AppScreen.Location
                                 }
                             },
