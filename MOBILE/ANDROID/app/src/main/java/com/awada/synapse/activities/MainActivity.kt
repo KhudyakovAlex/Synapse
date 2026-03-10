@@ -577,14 +577,31 @@ private fun MainContent() {
                                     ).toInt()
 
                                     db.luminaireDao().apply {
-                                        repeat(8) { idx ->
+                                        val initialLuminaireTypes = listOf(
+                                            LuminaireTypeEntity.TYPE_ON_OFF,
+                                            LuminaireTypeEntity.TYPE_DIMMABLE,
+                                            LuminaireTypeEntity.TYPE_RGB,
+                                            LuminaireTypeEntity.TYPE_TW,
+                                            LuminaireTypeEntity.TYPE_ON_OFF,
+                                            LuminaireTypeEntity.TYPE_DIMMABLE,
+                                            LuminaireTypeEntity.TYPE_RGB,
+                                            LuminaireTypeEntity.TYPE_TW
+                                        )
+                                        initialLuminaireTypes.forEachIndexed { idx, typeId ->
+                                            val typeName = when (typeId) {
+                                                LuminaireTypeEntity.TYPE_ON_OFF -> "Вкл/выкл"
+                                                LuminaireTypeEntity.TYPE_DIMMABLE -> "Диммируемый"
+                                                LuminaireTypeEntity.TYPE_RGB -> "RGB"
+                                                LuminaireTypeEntity.TYPE_TW -> "TW"
+                                                else -> "Светильник"
+                                            }
                                             insert(
                                                 LuminaireEntity(
                                                     controllerId = controllerId,
                                                     roomId = null,
-                                                    name = "Светильник ${idx + 1}",
+                                                    name = "$typeName ${idx + 1}",
                                                     icoNum = 300,
-                                                    typeId = LuminaireTypeEntity.TYPE_DIMMABLE,
+                                                    typeId = typeId,
                                                     bright = 0,
                                                     temperature = 0,
                                                     saturation = 0,
