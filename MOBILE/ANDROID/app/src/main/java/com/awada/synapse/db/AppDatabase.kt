@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.Room
+import androidx.room.RoomDatabase.Callback
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -12,18 +13,20 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ControllerEntity::class,
         AIMessageEntity::class,
         RoomEntity::class,
+        LuminaireTypeEntity::class,
         LuminaireEntity::class,
         PresSensorEntity::class,
         BrightSensorEntity::class,
         ButtonPanelEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun controllerDao(): ControllerDao
     abstract fun aiMessageDao(): AIMessageDao
     abstract fun roomDao(): RoomDao
+    abstract fun luminaireTypeDao(): LuminaireTypeDao
     abstract fun luminaireDao(): LuminaireDao
     abstract fun presSensorDao(): PresSensorDao
     abstract fun brightSensorDao(): BrightSensorDao
@@ -31,6 +34,25 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         private const val DB_NAME = "synapse.db"
+        private fun insertLuminaireTypes(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                INSERT OR IGNORE INTO LUMINAIRE_TYPES (ID, NAME) VALUES
+                    (${LuminaireTypeEntity.TYPE_ON_OFF}, 'Вкл/выкл'),
+                    (${LuminaireTypeEntity.TYPE_DIMMABLE}, 'Диммируемый'),
+                    (${LuminaireTypeEntity.TYPE_RGB}, 'RGB'),
+                    (${LuminaireTypeEntity.TYPE_TW}, 'TW')
+                """.trimIndent()
+            )
+        }
+
+        private val SEED_LUMINAIRE_TYPES_CALLBACK = object : Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                insertLuminaireTypes(db)
+            }
+        }
+
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
@@ -198,6 +220,75 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE LUMINAIRES ADD COLUMN HUE INTEGER NOT NULL DEFAULT 0")
             }
         }
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS LUMINAIRE_TYPES (
+                        ID INTEGER PRIMARY KEY NOT NULL,
+                        NAME TEXT NOT NULL DEFAULT ''
+                    )
+                    """.trimIndent()
+                )
+                insertLuminaireTypes(db)
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS LUMINAIRES_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER NOT NULL,
+                        ROOM_ID INTEGER,
+                        NAME TEXT NOT NULL DEFAULT '',
+                        ICO_NUM INTEGER NOT NULL DEFAULT 300,
+                        TYPE_ID INTEGER NOT NULL DEFAULT 2,
+                        BRIGHT INTEGER NOT NULL DEFAULT 0,
+                        TEMPERATURE INTEGER NOT NULL DEFAULT 0,
+                        SATURATION INTEGER NOT NULL DEFAULT 0,
+                        HUE INTEGER NOT NULL DEFAULT 0,
+                        GRID_POS INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY (CONTROLLER_ID, ROOM_ID) REFERENCES ROOMS(CONTROLLER_ID, ID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+                        FOREIGN KEY (TYPE_ID) REFERENCES LUMINAIRE_TYPES(ID) ON UPDATE NO ACTION ON DELETE NO ACTION
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO LUMINAIRES_NEW (
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        NAME,
+                        ICO_NUM,
+                        TYPE_ID,
+                        BRIGHT,
+                        TEMPERATURE,
+                        SATURATION,
+                        HUE,
+                        GRID_POS
+                    )
+                    SELECT
+                        ID,
+                        CONTROLLER_ID,
+                        ROOM_ID,
+                        NAME,
+                        ICO_NUM,
+                        ${LuminaireTypeEntity.TYPE_DIMMABLE},
+                        BRIGHT,
+                        TEMPERATURE,
+                        SATURATION,
+                        HUE,
+                        GRID_POS
+                    FROM LUMINAIRES
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE LUMINAIRES")
+                db.execSQL("ALTER TABLE LUMINAIRES_NEW RENAME TO LUMINAIRES")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID ON LUMINAIRES (CONTROLLER_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID_ROOM_ID ON LUMINAIRES (CONTROLLER_ID, ROOM_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_CONTROLLER_ID_ROOM_ID_GRID_POS ON LUMINAIRES (CONTROLLER_ID, ROOM_ID, GRID_POS)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_LUMINAIRES_TYPE_ID ON LUMINAIRES (TYPE_ID)")
+            }
+        }
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -208,7 +299,14 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build()
+                ).addMigrations(
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                    MIGRATION_4_5,
+                    MIGRATION_5_6,
+                    MIGRATION_6_7
+                ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }
         }

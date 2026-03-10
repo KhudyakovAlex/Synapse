@@ -68,6 +68,7 @@ import com.awada.synapse.db.BrightSensorEntity
 import com.awada.synapse.db.ButtonPanelEntity
 import com.awada.synapse.db.ControllerEntity
 import com.awada.synapse.db.LuminaireEntity
+import com.awada.synapse.db.LuminaireTypeEntity
 import com.awada.synapse.db.PresSensorEntity
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.flowOf
@@ -540,6 +541,7 @@ private fun MainContent() {
                                                     roomId = null,
                                                     name = "Светильник ${idx + 1}",
                                                     icoNum = 300,
+                                                    typeId = LuminaireTypeEntity.TYPE_DIMMABLE,
                                                     bright = 0,
                                                     temperature = 0,
                                                     saturation = 0,

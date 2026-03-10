@@ -50,8 +50,8 @@ interface LuminaireDao {
     @Query("UPDATE LUMINAIRES SET ICO_NUM = :icoNum WHERE ID = :id")
     suspend fun setIcoNum(id: Long, icoNum: Int)
 
-    @Query("UPDATE LUMINAIRES SET NAME = :name, ICO_NUM = :icoNum WHERE ID = :id")
-    suspend fun setNameAndIcon(id: Long, name: String, icoNum: Int)
+    @Query("UPDATE LUMINAIRES SET NAME = :name, ICO_NUM = :icoNum, TYPE_ID = :typeId WHERE ID = :id")
+    suspend fun setNameIconAndType(id: Long, name: String, icoNum: Int, typeId: Int)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: LuminaireEntity): Long

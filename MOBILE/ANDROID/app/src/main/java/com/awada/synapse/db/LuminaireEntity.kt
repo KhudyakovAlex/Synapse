@@ -20,12 +20,19 @@ import androidx.room.PrimaryKey
             parentColumns = ["CONTROLLER_ID", "ID"],
             childColumns = ["CONTROLLER_ID", "ROOM_ID"],
             onDelete = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = LuminaireTypeEntity::class,
+            parentColumns = ["ID"],
+            childColumns = ["TYPE_ID"],
+            onDelete = ForeignKey.NO_ACTION
         )
     ],
     indices = [
         Index(value = ["CONTROLLER_ID"]),
         Index(value = ["CONTROLLER_ID", "ROOM_ID"]),
-        Index(value = ["CONTROLLER_ID", "ROOM_ID", "GRID_POS"])
+        Index(value = ["CONTROLLER_ID", "ROOM_ID", "GRID_POS"]),
+        Index(value = ["TYPE_ID"])
     ]
 )
 data class LuminaireEntity(
@@ -44,6 +51,9 @@ data class LuminaireEntity(
 
     @ColumnInfo(name = "ICO_NUM", defaultValue = "300")
     val icoNum: Int = 300,
+
+    @ColumnInfo(name = "TYPE_ID", defaultValue = "2")
+    val typeId: Int = LuminaireTypeEntity.TYPE_DIMMABLE,
 
     @ColumnInfo(name = "BRIGHT", defaultValue = "0")
     val bright: Int = 0,
