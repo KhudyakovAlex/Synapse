@@ -203,17 +203,11 @@ private fun LumInternal(
                 val strokePx = 4.dp.toPx()
                 val inset = strokePx / 2f
 
-                // Pixso: arc group is positioned at (11.6797, 11.7402) inside 104×104 circle.
-                // Use ratios to keep it correct for any iconSize.
                 val baseArcBox = size.minDimension * (80.64049530029297f / 104f)
-                val baseArcTopLeft = Offset(
-                    x = size.minDimension * (11.6796875f / 104f),
-                    y = size.minDimension * (11.740234375f / 104f)
-                )
                 // Increase arc radius by +3.dp (=> diameter +6.dp), keeping the same center.
                 // Previous value was +4.dp to diameter; now +10.dp total.
                 val arcBox = baseArcBox + 10.dp.toPx()
-                val arcCenter = baseArcTopLeft + Offset(baseArcBox / 2f, baseArcBox / 2f)
+                val arcCenter = Offset(size.width / 2f, size.height / 2f)
                 val arcTopLeft = arcCenter - Offset(arcBox / 2f, arcBox / 2f)
 
                 val arcStartAngle = 110f
@@ -269,17 +263,16 @@ private fun LumInternal(
             // TODO: draw complex dynamic luminaire icon here
             iconContent()
 
-            // Small status dot (Pixso: Oval 44): 16×16, left=44, top=83.6483 inside 104×104.
+            // Small status dot centered on the white circle vertical axis.
             // Must be drawn above the icon "mask" circle.
             run {
                 val dotSize = iconSize * (16f / 104f)
-                val dotLeft = iconSize * (44f / 104f)
                 val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
                 Box(
                     modifier = Modifier
                         .zIndex(2f)
-                        .align(Alignment.TopStart)
-                        .offset(x = dotLeft, y = dotTop)
+                        .align(Alignment.TopCenter)
+                        .offset(y = dotTop)
                         .size(dotSize)
                         .clip(CircleShape)
                         .background(statusDotColor)
