@@ -11,12 +11,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
@@ -85,6 +87,7 @@ fun PageRoom(
     var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteTitle by remember { mutableStateOf("") }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
+    val deviceCircleBoundsByKey = remember { mutableStateMapOf<DeviceKey, Rect>() }
 
     Box(modifier = modifier.fillMaxSize()) {
         PageContainer(
@@ -111,6 +114,7 @@ fun PageRoom(
                         val key: DeviceKey,
                         val gridPos: Int,
                         val titleForDelete: String,
+                        val groupId: Int?,
                         val content: @Composable (Boolean, Boolean, Modifier) -> Unit
                     )
 
@@ -130,6 +134,7 @@ fun PageRoom(
                                     key = key,
                                     gridPos = e.gridPos,
                                     titleForDelete = e.name.ifBlank { "Светильник" },
+                                    groupId = e.groupId,
                                     content = { isPressed, suppressClick, m ->
                                         Lum(
                                             title = e.name.ifBlank { "Светильник" },
@@ -141,6 +146,7 @@ fun PageRoom(
                                             temperature = e.temperature,
                                             iconResId = icon,
                                             forcePressed = isPressed,
+                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                             onClick = if (suppressClick) null else { { onLumClick(e.id) } },
                                             modifier = m
                                         )
@@ -156,6 +162,7 @@ fun PageRoom(
                                     key = key,
                                     gridPos = e.gridPos,
                                     titleForDelete = e.name.ifBlank { "Панель кнопок" },
+                                    groupId = null,
                                     content = { isPressed, suppressClick, m ->
                                         ButtonPanel(
                                             title = e.name.ifBlank { "Панель\nкнопок" },
@@ -176,6 +183,7 @@ fun PageRoom(
                                     key = key,
                                     gridPos = e.gridPos,
                                     titleForDelete = e.name.ifBlank { "Сенсор нажатия" },
+                                    groupId = null,
                                     content = { isPressed, suppressClick, m ->
                                         PresSensor(
                                             title = e.name.ifBlank { "Сенсор\nнажатия" },
@@ -196,11 +204,13 @@ fun PageRoom(
                                     key = key,
                                     gridPos = e.gridPos,
                                     titleForDelete = e.name.ifBlank { "Сенсор яркости" },
+                                    groupId = e.groupId,
                                     content = { isPressed, suppressClick, m ->
                                         BrightSensor(
                                             title = e.name.ifBlank { "Сенсор\nяркости" },
                                             iconSize = iconSize,
                                             forcePressed = isPressed,
+                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                             onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
                                             modifier = m
                                         )
@@ -239,26 +249,35 @@ fun PageRoom(
                     }
 
                     val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
-                    ReorderableKeyGrid(
-                        keys = orderedKeys,
-                        columns = 4,
-                        rowSpacing = 4.dp,
-                        draggingKey = draggingKey,
-                        pressedKey = pressedKey,
-                        modalVisible = pendingDeleteKey != null,
-                        onDraggingKeyChange = { draggingKey = it },
-                        onPressedKeyChange = { pressedKey = it },
-                        onKeysChange = { orderedKeysState.value = it },
-                        onCommitOrder = { commitOrder(it) },
-                        onRequestDelete = { k ->
-                            pendingDeleteKey = k
-                            pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
-                        },
-                        itemHeight = 128.dp,
-                        itemContent = { k, isPressed, suppressClick, m ->
-                            infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
-                        }
-                    )
+                    val groupIdByKey: Map<DeviceKey, Int?> = infoByKey.values.associate { it.key to it.groupId }
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        GroupLinksOverlay(
+                            circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                            groupIdByKey = groupIdByKey,
+                            visible = draggingKey == null,
+                            modifier = Modifier.matchParentSize()
+                        )
+                        ReorderableKeyGrid(
+                            keys = orderedKeys,
+                            columns = 4,
+                            rowSpacing = 4.dp,
+                            draggingKey = draggingKey,
+                            pressedKey = pressedKey,
+                            modalVisible = pendingDeleteKey != null,
+                            onDraggingKeyChange = { draggingKey = it },
+                            onPressedKeyChange = { pressedKey = it },
+                            onKeysChange = { orderedKeysState.value = it },
+                            onCommitOrder = { commitOrder(it) },
+                            onRequestDelete = { k ->
+                                pendingDeleteKey = k
+                                pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
+                            },
+                            itemHeight = 128.dp,
+                            itemContent = { k, isPressed, suppressClick, m ->
+                                infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
 import com.awada.synapse.R
 import com.awada.synapse.ui.theme.LabelMedium
 import com.awada.synapse.ui.theme.PixsoColors
@@ -34,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.onGloballyPositioned
 
 @Composable
 fun PresSensor(
@@ -80,6 +83,7 @@ fun BrightSensor(
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -89,6 +93,7 @@ fun BrightSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = false,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
         onClick = onClick
     )
 }
@@ -100,6 +105,7 @@ fun BrightSensor(
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     forcePressed: Boolean,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTileInternal(
@@ -109,6 +115,7 @@ fun BrightSensor(
         iconSize = iconSize,
         enabled = enabled,
         forcePressed = forcePressed,
+        onCircleBoundsInRoot = onCircleBoundsInRoot,
         onClick = onClick
     )
 }
@@ -160,6 +167,7 @@ private fun SystemIconTileInternal(
     iconSize: Dp,
     enabled: Boolean,
     forcePressed: Boolean,
+    onCircleBoundsInRoot: ((Rect) -> Unit)? = null,
     onClick: (() -> Unit)?
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -223,6 +231,9 @@ private fun SystemIconTileInternal(
         Box(
             modifier = Modifier
                 .size(iconSize)
+                .onGloballyPositioned { coords ->
+                    onCircleBoundsInRoot?.invoke(coords.boundsInRoot())
+                }
                 .shadow(
                     elevation = 8.dp,
                     shape = CircleShape,

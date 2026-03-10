@@ -121,6 +121,7 @@ fun PageLocation(
     var draggingRoomId by remember { mutableIntStateOf(-1) }
     var pressedRoomId by remember { mutableIntStateOf(-1) }
     val roomBoundsById = remember { mutableStateMapOf<Int, Rect>() }
+    val deviceCircleBoundsByKey = remember { mutableStateMapOf<DeviceKey, Rect>() }
 
     LaunchedEffect(roomsOrNull, draggingRoomId) {
         if (draggingRoomId == -1) {
@@ -204,6 +205,7 @@ fun PageLocation(
                             val key: DeviceKey,
                             val gridPos: Int,
                             val titleForDelete: String,
+                            val groupId: Int?,
                             val content: @Composable (Boolean, Boolean, Modifier) -> Unit
                         )
 
@@ -221,6 +223,7 @@ fun PageLocation(
                                         key = key,
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Светильник" },
+                                        groupId = e.groupId,
                                         content = { isPressed, suppressClick, m ->
                                             Lum(
                                                 title = e.name.ifBlank { "Светильник" },
@@ -232,6 +235,7 @@ fun PageLocation(
                                                 temperature = e.temperature,
                                                 iconResId = icon,
                                                 forcePressed = isPressed,
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                                 onClick = if (suppressClick) null else { { onLumClick(e.id) } },
                                                 modifier = m
                                             )
@@ -247,6 +251,7 @@ fun PageLocation(
                                         key = key,
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Панель кнопок" },
+                                    groupId = null,
                                         content = { isPressed, suppressClick, m ->
                                             ButtonPanel(
                                                 title = e.name.ifBlank { "Панель\nкнопок" },
@@ -267,6 +272,7 @@ fun PageLocation(
                                         key = key,
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Сенсор нажатия" },
+                                    groupId = null,
                                         content = { isPressed, suppressClick, m ->
                                             PresSensor(
                                                 title = e.name.ifBlank { "Сенсор\nнажатия" },
@@ -287,11 +293,13 @@ fun PageLocation(
                                         key = key,
                                         gridPos = e.gridPos,
                                         titleForDelete = e.name.ifBlank { "Сенсор яркости" },
+                                    groupId = e.groupId,
                                         content = { isPressed, suppressClick, m ->
                                             BrightSensor(
                                                 title = e.name.ifBlank { "Сенсор\nяркости" },
                                                 iconSize = iconSize,
                                                 forcePressed = isPressed,
+                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
                                                 onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
                                                 modifier = m
                                             )
@@ -353,40 +361,49 @@ fun PageLocation(
                         }
 
                         val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
-                        ReorderableKeyGrid(
-                            keys = orderedKeys,
-                            columns = 4,
-                            rowSpacing = 4.dp,
-                            draggingKey = draggingKey,
-                            pressedKey = pressedKey,
-                            modalVisible = pendingDeleteKey != null || pendingDeleteRoomId != -1,
-                            onDraggingKeyChange = { draggingKey = it },
-                            onPressedKeyChange = { pressedKey = it },
-                            onKeysChange = { orderedKeysState.value = it },
-                            onCommitOrder = { commitOrder(it) },
-                            onDropOutsideGrid = { key, itemCenterInRoot ->
-                                val targetRoomId =
-                                    rooms
-                                        ?.firstOrNull { room ->
-                                            roomBoundsById[room.id]?.contains(itemCenterInRoot) == true
-                                        }
-                                        ?.id
-                                if (targetRoomId != null) {
-                                    moveDeviceToRoom(key, targetRoomId)
-                                    true
-                                } else {
-                                    false
+                        val groupIdByKey: Map<DeviceKey, Int?> = infoByKey.values.associate { it.key to it.groupId }
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            GroupLinksOverlay(
+                                circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                groupIdByKey = groupIdByKey,
+                                visible = draggingKey == null,
+                                modifier = Modifier.matchParentSize()
+                            )
+                            ReorderableKeyGrid(
+                                keys = orderedKeys,
+                                columns = 4,
+                                rowSpacing = 4.dp,
+                                draggingKey = draggingKey,
+                                pressedKey = pressedKey,
+                                modalVisible = pendingDeleteKey != null || pendingDeleteRoomId != -1,
+                                onDraggingKeyChange = { draggingKey = it },
+                                onPressedKeyChange = { pressedKey = it },
+                                onKeysChange = { orderedKeysState.value = it },
+                                onCommitOrder = { commitOrder(it) },
+                                onDropOutsideGrid = { key, itemCenterInRoot ->
+                                    val targetRoomId =
+                                        rooms
+                                            ?.firstOrNull { room ->
+                                                roomBoundsById[room.id]?.contains(itemCenterInRoot) == true
+                                            }
+                                            ?.id
+                                    if (targetRoomId != null) {
+                                        moveDeviceToRoom(key, targetRoomId)
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                },
+                                onRequestDelete = { k ->
+                                    pendingDeleteKey = k
+                                    pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
+                                },
+                                itemHeight = 128.dp,
+                                itemContent = { k, isPressed, suppressClick, m ->
+                                    infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
                                 }
-                            },
-                            onRequestDelete = { k ->
-                                pendingDeleteKey = k
-                                pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
-                            },
-                            itemHeight = 128.dp,
-                            itemContent = { k, isPressed, suppressClick, m ->
-                                infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
-                            }
-                        )
+                            )
+                        }
 
                     }
                 }
