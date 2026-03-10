@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,12 +26,15 @@ import com.awada.synapse.components.ButtonPanel
 import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.components.PresSensor
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /**
  * Page for a single location (singular).
@@ -47,6 +54,7 @@ fun PageLocation(
     val context = LocalContext.current
     val controllerId = location.controllerId
     val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     val roomsOrNull by remember(db, controllerId) {
         if (controllerId == null) {
             flowOf<List<com.awada.synapse.db.RoomEntity>?>(emptyList())
@@ -104,135 +112,261 @@ fun PageLocation(
         isScrollable = true,
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val iconSize = 82.dp
-                val rooms = roomsOrNull
-                val showRooms = rooms != null && rooms.isNotEmpty()
-                val luminaires = luminairesOrNull
-                val panels = buttonPanelsOrNull
-                val pres = presSensorsOrNull
-                val bright = brightSensorsOrNull
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    val iconSize = 82.dp
+                    val rooms = roomsOrNull
+                    val showRooms = rooms != null && rooms.isNotEmpty()
+                    val luminaires = luminairesOrNull
+                    val panels = buttonPanelsOrNull
+                    val pres = presSensorsOrNull
+                    val bright = brightSensorsOrNull
 
-                // Prevent a brief "empty" flicker before first DB emission.
-                val ready =
-                    rooms != null && luminaires != null && panels != null && pres != null && bright != null
+                    // Prevent a brief "empty" flicker before first DB emission.
+                    val ready =
+                        rooms != null && luminaires != null && panels != null && pres != null && bright != null
 
-                if (ready && showRooms) {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        rooms!!
-                            .chunked(2)
-                            .forEach { rowRooms ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    rowRooms.forEach { r ->
-                                        val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
-                                        val icon = iconResId(
-                                            context = context,
-                                            iconId = r.icoNum,
-                                            fallback = com.awada.synapse.R.drawable.location_208_kuhnya
-                                        )
-                                        RoomIcon(
-                                            text = title,
-                                            iconResId = icon,
-                                            onClick = { onRoomClick(r.id, title, r.icoNum) },
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
-                                    if (rowRooms.size == 1) {
-                                        Spacer(modifier = Modifier.weight(1f))
+                    if (ready && showRooms) {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            rooms!!
+                                .chunked(2)
+                                .forEach { rowRooms ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        rowRooms.forEach { r ->
+                                            val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
+                                            val icon = iconResId(
+                                                context = context,
+                                                iconId = r.icoNum,
+                                                fallback = com.awada.synapse.R.drawable.location_208_kuhnya
+                                            )
+                                            RoomIcon(
+                                                text = title,
+                                                iconResId = icon,
+                                                onClick = { onRoomClick(r.id, title, r.icoNum) },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+                                        if (rowRooms.size == 1) {
+                                            Spacer(modifier = Modifier.weight(1f))
+                                        }
                                     }
                                 }
-                            }
+                        }
                     }
-                }
 
-                if (ready && showRooms) {
-                    Spacer(modifier = Modifier.height(15.dp))
-                }
+                    if (ready && showRooms) {
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
 
-                if (ready) {
-                    val dotColors = remember {
-                        listOf(
-                            PixsoColors.Color_Bg_bg_surface,
-                            PixsoColors.Color_Border_border_error,
-                            PixsoColors.Color_Border_border_focus,
-                            PixsoColors.Color_State_on_disabled
+                    if (ready) {
+                        data class DeviceInfo(
+                            val key: DeviceKey,
+                            val gridPos: Int,
+                            val titleForDelete: String,
+                            val content: @Composable (Boolean, Boolean, Modifier) -> Unit
                         )
-                    }
 
-                    val tiles = buildList<@Composable () -> Unit> {
-                        luminaires!!.forEachIndexed { idx, e ->
-                            val icon = iconResId(
-                                context = context,
-                                iconId = e.icoNum,
-                                fallback = com.awada.synapse.R.drawable.luminaire_300_default
+                        var draggingKey by remember { mutableStateOf<DeviceKey?>(null) }
+                        var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
+                        var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
+                        var pendingDeleteTitle by remember { mutableStateOf("") }
+                        val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
+
+                        val dotColors = remember {
+                            listOf(
+                                PixsoColors.Color_Bg_bg_surface,
+                                PixsoColors.Color_Border_border_error,
+                                PixsoColors.Color_Border_border_focus,
+                                PixsoColors.Color_State_on_disabled
                             )
-                            add {
-                                Lum(
-                                    title = e.name.ifBlank { "Светильник" },
-                                    iconSize = iconSize,
-                                    brightnessPercent = 35,
-                                    iconResId = icon,
-                                    statusDotColor = dotColors[idx % dotColors.size],
-                                    onClick = { onLumClick(e.id) }
-                                )
-                            }
                         }
-                        panels!!.forEach { e ->
-                            add {
-                                ButtonPanel(
-                                    title = e.name.ifBlank { "Панель\nкнопок" },
-                                    iconSize = iconSize,
-                                    onClick = { onButtonPanelClick(e.id) }
-                                )
-                            }
-                        }
-                        pres!!.forEach { e ->
-                            add {
-                                PresSensor(
-                                    title = e.name.ifBlank { "Сенсор\nнажатия" },
-                                    iconSize = iconSize,
-                                    onClick = { onSensorPressSettingsClick(e.id) }
-                                )
-                            }
-                        }
-                        bright!!.forEach { e ->
-                            add {
-                                BrightSensor(
-                                    title = e.name.ifBlank { "Сенсор\nяркости" },
-                                    iconSize = iconSize,
-                                    onClick = { onSensorBrightSettingsClick(e.id) }
-                                )
-                            }
-                        }
-                    }
 
-                    // Unified matrix: 4 columns, as many rows as needed.
-                    val perRow = 4
-                    tiles.chunked(perRow).forEach { rowTiles ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
-                        ) {
-                            rowTiles.forEach { content ->
-                                Box(
-                                    modifier = Modifier.weight(1f),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    content()
+                        val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
+                            luminaires!!.forEachIndexed { idx, e ->
+                                val icon = iconResId(
+                                    context = context,
+                                    iconId = e.icoNum,
+                                    fallback = com.awada.synapse.R.drawable.luminaire_300_default
+                                )
+                                val key = DeviceKey(DeviceType.Luminaire, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForDelete = e.name.ifBlank { "Светильник" },
+                                        content = { isPressed, suppressClick, m ->
+                                            Lum(
+                                                title = e.name.ifBlank { "Светильник" },
+                                                iconSize = iconSize,
+                                                brightnessPercent = 35,
+                                                iconResId = icon,
+                                                statusDotColor = dotColors[idx % dotColors.size],
+                                                forcePressed = isPressed,
+                                                onClick = if (suppressClick) null else { { onLumClick(e.id) } },
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                            panels!!.forEach { e ->
+                                val key = DeviceKey(DeviceType.ButtonPanel, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForDelete = e.name.ifBlank { "Панель кнопок" },
+                                        content = { isPressed, suppressClick, m ->
+                                            ButtonPanel(
+                                                title = e.name.ifBlank { "Панель\nкнопок" },
+                                                iconSize = iconSize,
+                                                forcePressed = isPressed,
+                                                onClick = if (suppressClick) null else { { onButtonPanelClick(e.id) } },
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                            pres!!.forEach { e ->
+                                val key = DeviceKey(DeviceType.PresSensor, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForDelete = e.name.ifBlank { "Сенсор нажатия" },
+                                        content = { isPressed, suppressClick, m ->
+                                            PresSensor(
+                                                title = e.name.ifBlank { "Сенсор\nнажатия" },
+                                                iconSize = iconSize,
+                                                forcePressed = isPressed,
+                                                onClick = if (suppressClick) null else { { onSensorPressSettingsClick(e.id) } },
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                            bright!!.forEach { e ->
+                                val key = DeviceKey(DeviceType.BrightSensor, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForDelete = e.name.ifBlank { "Сенсор яркости" },
+                                        content = { isPressed, suppressClick, m ->
+                                            BrightSensor(
+                                                title = e.name.ifBlank { "Сенсор\nяркости" },
+                                                iconSize = iconSize,
+                                                forcePressed = isPressed,
+                                                onClick = if (suppressClick) null else { { onSensorBrightSettingsClick(e.id) } },
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        }
+
+                        val initialOrder: List<DeviceKey> =
+                            infoByKey.values
+                                .sortedWith(
+                                    compareBy<DeviceInfo> { it.gridPos }
+                                        .thenBy { it.key.type.ordinal }
+                                        .thenBy { it.key.id }
+                                )
+                                .map { it.key }
+
+                        LaunchedEffect(initialOrder, draggingKey) {
+                            if (draggingKey == null) {
+                                orderedKeysState.value = initialOrder
+                            }
+                        }
+
+                        fun commitOrder(finalKeys: List<DeviceKey>) {
+                            scope.launch {
+                                finalKeys.forEachIndexed { index, k ->
+                                    when (k.type) {
+                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                                    }
                                 }
                             }
-                            repeat(perRow - rowTiles.size) {
-                                Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
+                        ReorderableKeyGrid(
+                            keys = orderedKeys,
+                            columns = 4,
+                            draggingKey = draggingKey,
+                            pressedKey = pressedKey,
+                            modalVisible = pendingDeleteKey != null,
+                            onDraggingKeyChange = { draggingKey = it },
+                            onPressedKeyChange = { pressedKey = it },
+                            onKeysChange = { orderedKeysState.value = it },
+                            onCommitOrder = { commitOrder(it) },
+                            onRequestDelete = { k ->
+                                pendingDeleteKey = k
+                                pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
+                            },
+                            itemHeight = 128.dp,
+                            itemContent = { k, isPressed, suppressClick, m ->
+                                infoByKey[k]?.content?.invoke(isPressed, suppressClick, m)
                             }
+                        )
+
+                        if (pendingDeleteKey != null) {
+                            val keyToDelete = pendingDeleteKey!!
+                            val text = if (pendingDeleteTitle.isNotBlank()) {
+                                "Удалить устройство «$pendingDeleteTitle»?"
+                            } else {
+                                "Удалить устройство?"
+                            }
+                            Tooltip(
+                                text = text,
+                                primaryButtonText = "Удалить",
+                                secondaryButtonText = "Отмена",
+                                onResult = { res ->
+                                    when (res) {
+                                        TooltipResult.Primary -> {
+                                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
+                                            orderedKeysState.value = remaining
+                                            pendingDeleteKey = null
+                                            pendingDeleteTitle = ""
+                                            pressedKey = null
+                                            scope.launch {
+                                                when (keyToDelete.type) {
+                                                    DeviceType.Luminaire -> db.luminaireDao().deleteById(keyToDelete.id)
+                                                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(keyToDelete.id)
+                                                    DeviceType.PresSensor -> db.presSensorDao().deleteById(keyToDelete.id)
+                                                    DeviceType.BrightSensor -> db.brightSensorDao().deleteById(keyToDelete.id)
+                                                }
+                                            }
+                                            commitOrder(remaining)
+                                        }
+                                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                                            pendingDeleteKey = null
+                                            pendingDeleteTitle = ""
+                                            pressedKey = null
+                                        }
+                                    }
+                                }
+                            )
                         }
                     }
                 }

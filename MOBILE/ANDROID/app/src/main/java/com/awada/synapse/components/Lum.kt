@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -66,6 +67,62 @@ fun Lum(
     onClick: (() -> Unit)? = null,
     iconContent: @Composable BoxScope.() -> Unit = {}
 ) {
+    LumInternal(
+        title = title,
+        modifier = modifier,
+        iconSize = iconSize,
+        enabled = enabled,
+        brightnessPercent = brightnessPercent,
+        iconResId = iconResId,
+        statusDotColor = statusDotColor,
+        forcePressed = false,
+        onClick = onClick,
+        iconContent = iconContent
+    )
+}
+
+@Composable
+fun Lum(
+    title: String,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 72.dp,
+    enabled: Boolean = true,
+    @Suppress("UNUSED_PARAMETER")
+    isActive: Boolean = false,
+    brightnessPercent: Int = 0,
+    iconResId: Int = R.drawable.luminaire_300_default,
+    statusDotColor: Color = PixsoColors.Color_Bg_bg_surface,
+    forcePressed: Boolean,
+    onClick: (() -> Unit)? = null,
+    iconContent: @Composable BoxScope.() -> Unit = {}
+) {
+    LumInternal(
+        title = title,
+        modifier = modifier,
+        iconSize = iconSize,
+        enabled = enabled,
+        brightnessPercent = brightnessPercent,
+        iconResId = iconResId,
+        statusDotColor = statusDotColor,
+        forcePressed = forcePressed,
+        onClick = onClick,
+        iconContent = iconContent
+    )
+}
+
+@Composable
+private fun LumInternal(
+    title: String,
+    modifier: Modifier,
+    iconSize: Dp,
+    enabled: Boolean,
+    brightnessPercent: Int,
+    iconResId: Int,
+    statusDotColor: Color,
+    forcePressed: Boolean,
+    onClick: (() -> Unit)?,
+    iconContent: @Composable BoxScope.() -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
     var showPressed by remember { mutableStateOf(false) }
 
@@ -100,6 +157,8 @@ fun Lum(
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val circleBg = if (onClick != null && enabled && showPressed) {
         PixsoColors.Color_State_secondary_pressed
+    } else if (forcePressed) {
+        PixsoColors.Color_State_primary_pressed
     } else {
         PixsoColors.Color_Bg_bg_surface
     }
@@ -199,7 +258,12 @@ fun Lum(
                 Image(
                     painter = painterResource(iconResId),
                     contentDescription = null,
-                    modifier = Modifier.size(iconDp)
+                    modifier = Modifier.size(iconDp),
+                    colorFilter = if (forcePressed) {
+                        ColorFilter.tint(PixsoColors.Color_State_on_primary)
+                    } else {
+                        null
+                    }
                 )
             }
             // TODO: draw complex dynamic luminaire icon here

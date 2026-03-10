@@ -42,12 +42,33 @@ fun PresSensor(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    SystemIconTile(
+    SystemIconTileInternal(
         title = title,
         iconResId = R.drawable.system_901_sensorp,
         modifier = modifier,
         iconSize = iconSize,
         enabled = enabled,
+        forcePressed = false,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun PresSensor(
+    title: String = "Сенсор\nнажатия",
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 72.dp,
+    enabled: Boolean = true,
+    forcePressed: Boolean,
+    onClick: (() -> Unit)? = null
+) {
+    SystemIconTileInternal(
+        title = title,
+        iconResId = R.drawable.system_901_sensorp,
+        modifier = modifier,
+        iconSize = iconSize,
+        enabled = enabled,
+        forcePressed = forcePressed,
         onClick = onClick
     )
 }
@@ -60,12 +81,33 @@ fun BrightSensor(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    SystemIconTile(
+    SystemIconTileInternal(
         title = title,
         iconResId = R.drawable.system_902_sensorb,
         modifier = modifier,
         iconSize = iconSize,
         enabled = enabled,
+        forcePressed = false,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun BrightSensor(
+    title: String = "Сенсор\nяркости",
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 72.dp,
+    enabled: Boolean = true,
+    forcePressed: Boolean,
+    onClick: (() -> Unit)? = null
+) {
+    SystemIconTileInternal(
+        title = title,
+        iconResId = R.drawable.system_902_sensorb,
+        modifier = modifier,
+        iconSize = iconSize,
+        enabled = enabled,
+        forcePressed = forcePressed,
         onClick = onClick
     )
 }
@@ -78,23 +120,45 @@ fun ButtonPanel(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    SystemIconTile(
+    SystemIconTileInternal(
         title = title,
         iconResId = R.drawable.system_903_buttons,
         modifier = modifier,
         iconSize = iconSize,
         enabled = enabled,
+        forcePressed = false,
         onClick = onClick
     )
 }
 
 @Composable
-private fun SystemIconTile(
+fun ButtonPanel(
+    title: String = "Панель\nкнопок",
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 72.dp,
+    enabled: Boolean = true,
+    forcePressed: Boolean,
+    onClick: (() -> Unit)? = null
+) {
+    SystemIconTileInternal(
+        title = title,
+        iconResId = R.drawable.system_903_buttons,
+        modifier = modifier,
+        iconSize = iconSize,
+        enabled = enabled,
+        forcePressed = forcePressed,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun SystemIconTileInternal(
     title: String,
     iconResId: Int,
     modifier: Modifier,
     iconSize: Dp,
     enabled: Boolean,
+    forcePressed: Boolean,
     onClick: (() -> Unit)?
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -129,6 +193,13 @@ private fun SystemIconTile(
         Modifier
     }
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
+    val circleBg = if (onClick != null && enabled && showPressed) {
+        PixsoColors.Color_State_secondary_pressed
+    } else if (forcePressed) {
+        PixsoColors.Color_State_primary_pressed
+    } else {
+        PixsoColors.Color_Bg_bg_surface
+    }
 
     val clickableModifier = if (onClick != null) {
         Modifier.clickable(
@@ -159,13 +230,7 @@ private fun SystemIconTile(
                     spotColor = shadowColor
                 )
                 .clip(CircleShape)
-                .background(
-                    if (onClick != null && enabled && showPressed) {
-                        PixsoColors.Color_State_secondary_pressed
-                    } else {
-                        PixsoColors.Color_Bg_bg_surface
-                    }
-                ),
+                .background(circleBg),
             contentAlignment = Alignment.Center
         ) {
             Image(
