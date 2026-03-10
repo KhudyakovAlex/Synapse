@@ -1,5 +1,6 @@
 package com.awada.synapse.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,22 +9,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.R
-import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.TextField
-import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.iconResId
+import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
+import kotlinx.coroutines.launch
 
 /**
  * Luminaire settings page.
@@ -31,18 +34,41 @@ import com.awada.synapse.ui.theme.PixsoDimens
  */
 @Composable
 fun PageLumSettings(
+    luminaireId: Long?,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     var showIconSelect by remember { mutableStateOf(false) }
     var iconId by remember { mutableIntStateOf(300) }
     var name by remember { mutableStateOf("") }
-    var roomId by remember { mutableIntStateOf(-1) }
-    var groupId by remember { mutableIntStateOf(-1) }
-    var minBrightness by remember { mutableStateOf("") }
-    var maxBrightness by remember { mutableStateOf("") }
-    var fadeSec by remember { mutableStateOf("") }
+
+    LaunchedEffect(luminaireId) {
+        val id = luminaireId ?: return@LaunchedEffect
+        val e = db.luminaireDao().getById(id) ?: return@LaunchedEffect
+        name = e.name
+        iconId = e.icoNum
+    }
+
+    fun saveAndBack() {
+        scope.launch {
+            val id = luminaireId
+            if (id != null) {
+                db.luminaireDao().setNameAndIcon(id = id, name = name, icoNum = iconId)
+            }
+            onBackClick()
+        }
+    }
+    
+    BackHandler {
+        if (showIconSelect) {
+            showIconSelect = false
+        } else {
+            saveAndBack()
+        }
+    }
 
     if (showIconSelect) {
         PageIconSelect(
@@ -58,27 +84,9 @@ fun PageLumSettings(
         return
     }
 
-    // TODO: Add state management for all fields
-    // TODO: Load actual data for dropdowns (rooms, groups)
-    // TODO: Implement save logic
-    
-    // Mock data for dropdowns
-    val roomItems = listOf(
-        DropdownItem(1, "Гостиная"),
-        DropdownItem(2, "Спальня"),
-        DropdownItem(3, "Кухня"),
-        DropdownItem(4, "Ванная")
-    )
-    
-    val groupItems = listOf(
-        DropdownItem(1, "Основное освещение"),
-        DropdownItem(2, "Декоративное"),
-        DropdownItem(3, "Рабочее")
-    )
-    
     PageContainer(
         title = "Настройки\nсветильника",
-        onBackClick = onBackClick,
+        onBackClick = ::saveAndBack,
         isScrollable = true,
         modifier = modifier
     ) {
@@ -115,63 +123,6 @@ fun PageLumSettings(
             }
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 3. Помещение
-            TextFieldForList(
-                value = roomId.takeIf { it >= 0 },
-                onValueChange = { roomId = it },
-                icon = R.drawable.ic_chevron_down,
-                label = "Помещение",
-                placeholder = "Не выбрано",
-                enabled = true,
-                dropdownItems = roomItems
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 4. Группа
-            TextFieldForList(
-                value = groupId.takeIf { it >= 0 },
-                onValueChange = { groupId = it },
-                icon = R.drawable.ic_chevron_down,
-                label = "Группа",
-                placeholder = "Не выбрано",
-                enabled = true,
-                dropdownItems = groupItems
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 5. Минимальная яркость
-            TextField(
-                value = minBrightness,
-                onValueChange = { minBrightness = it },
-                label = "Минимальная яркость, %",
-                placeholder = "",
-                enabled = true
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 6. Максимальная яркость
-            TextField(
-                value = maxBrightness,
-                onValueChange = { maxBrightness = it },
-                label = "Максимальная яркость, %",
-                placeholder = "",
-                enabled = true
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 7. Время затухания
-            TextField(
-                value = fadeSec,
-                onValueChange = { fadeSec = it },
-                label = "Время затухания, сек",
-                placeholder = "",
-                enabled = true
-            )
         }
     }
 }

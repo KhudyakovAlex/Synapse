@@ -32,6 +32,9 @@ interface ButtonPanelDao {
     @Query("SELECT * FROM BUTTON_PANELS WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Long): ButtonPanelEntity?
 
+    @Query("UPDATE BUTTON_PANELS SET NAME = :name WHERE ID = :id")
+    suspend fun setName(id: Long, name: String)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: ButtonPanelEntity): Long
 

@@ -36,10 +36,10 @@ fun PageLocation(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onRoomClick: (roomId: Int, roomTitle: String, roomIconId: Int) -> Unit,
-    onLumClick: () -> Unit,
-    onSensorPressSettingsClick: () -> Unit,
-    onSensorBrightSettingsClick: () -> Unit,
-    onButtonPanelSettingsClick: () -> Unit,
+    onLumClick: (luminaireId: Long) -> Unit,
+    onSensorPressSettingsClick: (sensorId: Long) -> Unit,
+    onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
+    onButtonPanelClick: (buttonPanelId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -180,31 +180,34 @@ fun PageLocation(
                                     brightnessPercent = 35,
                                     iconResId = icon,
                                     statusDotColor = dotColors[idx % dotColors.size],
-                                    onClick = onLumClick
+                                    onClick = { onLumClick(e.id) }
                                 )
                             }
                         }
-                        panels!!.forEach { _ ->
+                        panels!!.forEach { e ->
                             add {
                                 ButtonPanel(
+                                    title = e.name.ifBlank { "Панель\nкнопок" },
                                     iconSize = iconSize,
-                                    onClick = onButtonPanelSettingsClick
+                                    onClick = { onButtonPanelClick(e.id) }
                                 )
                             }
                         }
-                        pres!!.forEach {
+                        pres!!.forEach { e ->
                             add {
                                 PresSensor(
+                                    title = e.name.ifBlank { "Сенсор\nнажатия" },
                                     iconSize = iconSize,
-                                    onClick = onSensorPressSettingsClick
+                                    onClick = { onSensorPressSettingsClick(e.id) }
                                 )
                             }
                         }
-                        bright!!.forEach {
+                        bright!!.forEach { e ->
                             add {
                                 BrightSensor(
+                                    title = e.name.ifBlank { "Сенсор\nяркости" },
                                     iconSize = iconSize,
-                                    onClick = onSensorBrightSettingsClick
+                                    onClick = { onSensorBrightSettingsClick(e.id) }
                                 )
                             }
                         }

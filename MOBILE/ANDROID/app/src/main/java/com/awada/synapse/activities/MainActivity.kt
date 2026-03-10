@@ -121,6 +121,10 @@ private fun MainContent() {
     var selectedRoom by remember {
         mutableStateOf<RoomState?>(null)
     }
+    var selectedLuminaireId by remember { mutableStateOf<Long?>(null) }
+    var selectedButtonPanelId by remember { mutableStateOf<Long?>(null) }
+    var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
+    var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
     // Show LumControlLayer on Lum + LocationDetails + RoomDetails (collapsed by default except Lum).
     val isLumControlVisible by remember {
         derivedStateOf {
@@ -262,19 +266,23 @@ private fun MainContent() {
                                 )
                                 currentScreen = AppScreen.RoomDetails
                             },
-                            onLumClick = {
+                            onLumClick = { luminaireId ->
+                                selectedLuminaireId = luminaireId
                                 lumBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.Lum
                             },
-                            onSensorPressSettingsClick = {
+                            onSensorPressSettingsClick = { sensorId ->
+                                selectedPresSensorId = sensorId
                                 systemSettingsBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.SensorPressSettings
                             },
-                            onSensorBrightSettingsClick = {
+                            onSensorBrightSettingsClick = { sensorId ->
+                                selectedBrightSensorId = sensorId
                                 systemSettingsBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.SensorBrightSettings
                             },
-                            onButtonPanelSettingsClick = {
+                            onButtonPanelClick = { panelId ->
+                                selectedButtonPanelId = panelId
                                 buttonPanelBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.Panel
                             },
@@ -370,26 +378,30 @@ private fun MainContent() {
                     }
                     AppScreen.LumSettings -> {
                         PageLumSettings(
+                            luminaireId = selectedLuminaireId,
                             onBackClick = { currentScreen = settingsLumBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SensorPressSettings -> {
                         PageSensorPressSettings(
+                            sensorId = selectedPresSensorId,
                             onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.SensorBrightSettings -> {
                         PageSensorBrightSettings(
+                            sensorId = selectedBrightSensorId,
                             onBackClick = { currentScreen = systemSettingsBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     AppScreen.ButtonPanelSettings -> {
                         PageButtonPanelSettings(
-                            { currentScreen = systemSettingsBackTarget },
-                            {
+                            buttonPanelId = selectedButtonPanelId,
+                            onBackClick = { currentScreen = systemSettingsBackTarget },
+                            onScenarioClick = {
                                 scenarioBackTarget = AppScreen.ButtonPanelSettings
                                 currentScreen = AppScreen.Scenario
                             },

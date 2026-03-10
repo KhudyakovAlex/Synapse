@@ -32,6 +32,15 @@ interface LuminaireDao {
     @Query("SELECT * FROM LUMINAIRES WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Long): LuminaireEntity?
 
+    @Query("UPDATE LUMINAIRES SET NAME = :name WHERE ID = :id")
+    suspend fun setName(id: Long, name: String)
+
+    @Query("UPDATE LUMINAIRES SET ICO_NUM = :icoNum WHERE ID = :id")
+    suspend fun setIcoNum(id: Long, icoNum: Int)
+
+    @Query("UPDATE LUMINAIRES SET NAME = :name, ICO_NUM = :icoNum WHERE ID = :id")
+    suspend fun setNameAndIcon(id: Long, name: String, icoNum: Int)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: LuminaireEntity): Long
 

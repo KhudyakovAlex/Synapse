@@ -32,6 +32,9 @@ interface PresSensorDao {
     @Query("SELECT * FROM PRES_SENSORS WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Long): PresSensorEntity?
 
+    @Query("UPDATE PRES_SENSORS SET NAME = :name WHERE ID = :id")
+    suspend fun setName(id: Long, name: String)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: PresSensorEntity): Long
 

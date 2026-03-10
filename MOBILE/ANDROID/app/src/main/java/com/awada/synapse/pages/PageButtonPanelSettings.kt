@@ -1,5 +1,6 @@
 package com.awada.synapse.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,19 +8,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.awada.synapse.R
-import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.PanelButtonSettingBlock
 import com.awada.synapse.components.ScheduleScenario
 import com.awada.synapse.components.TextField
-import com.awada.synapse.components.TextFieldForList
+import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.ui.theme.PixsoDimens
+import kotlinx.coroutines.launch
 
 /**
  * Button panel settings page.
@@ -27,12 +29,15 @@ import com.awada.synapse.ui.theme.PixsoDimens
  */
 @Composable
 fun PageButtonPanelSettings(
+    buttonPanelId: Long?,
     onBackClick: () -> Unit,
     onScenarioClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
-    var roomId by remember { mutableIntStateOf(-1) }
     val shortPressScenarioBlocks: List<androidx.compose.runtime.MutableState<List<List<String>>>> = remember {
         listOf(
             mutableStateOf(
@@ -58,17 +63,27 @@ fun PageButtonPanelSettings(
         )
     }
 
-    // Mock data for dropdown
-    val roomItems = listOf(
-        DropdownItem(1, "Гостиная"),
-        DropdownItem(2, "Спальня"),
-        DropdownItem(3, "Кухня"),
-        DropdownItem(4, "Ванная")
-    )
+    LaunchedEffect(buttonPanelId) {
+        val id = buttonPanelId ?: return@LaunchedEffect
+        val e = db.buttonPanelDao().getById(id) ?: return@LaunchedEffect
+        name = e.name
+    }
+
+    fun saveAndBack() {
+        scope.launch {
+            val id = buttonPanelId
+            if (id != null) {
+                db.buttonPanelDao().setName(id = id, name = name)
+            }
+            onBackClick()
+        }
+    }
+
+    BackHandler { saveAndBack() }
 
     PageContainer(
         title = "Настройки\nкнопочной панели",
-        onBackClick = onBackClick,
+        onBackClick = ::saveAndBack,
         isScrollable = true,
         modifier = modifier
     ) {
@@ -87,17 +102,6 @@ fun PageButtonPanelSettings(
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
-            // 2. Помещение
-            TextFieldForList(
-                value = roomId.takeIf { it >= 0 },
-                onValueChange = { roomId = it },
-                icon = R.drawable.ic_chevron_down,
-                label = "Помещение",
-                placeholder = "Не выбрано",
-                enabled = true,
-                dropdownItems = roomItems
-            )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
 

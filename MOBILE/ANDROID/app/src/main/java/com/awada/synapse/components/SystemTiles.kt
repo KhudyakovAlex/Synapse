@@ -36,13 +36,14 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun PresSensor(
+    title: String = "Сенсор\nнажатия",
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTile(
-        title = "Сенсор\nнажатия",
+        title = title,
         iconResId = R.drawable.system_901_sensorp,
         modifier = modifier,
         iconSize = iconSize,
@@ -53,13 +54,14 @@ fun PresSensor(
 
 @Composable
 fun BrightSensor(
+    title: String = "Сенсор\nяркости",
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTile(
-        title = "Сенсор\nяркости",
+        title = title,
         iconResId = R.drawable.system_902_sensorb,
         modifier = modifier,
         iconSize = iconSize,
@@ -70,13 +72,14 @@ fun BrightSensor(
 
 @Composable
 fun ButtonPanel(
+    title: String = "Панель\nкнопок",
     modifier: Modifier = Modifier,
     iconSize: Dp = 72.dp,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
     SystemIconTile(
-        title = "Панель\nкнопок",
+        title = title,
         iconResId = R.drawable.system_903_buttons,
         modifier = modifier,
         iconSize = iconSize,
