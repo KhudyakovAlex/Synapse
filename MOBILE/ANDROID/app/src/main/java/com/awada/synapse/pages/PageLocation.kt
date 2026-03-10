@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -22,13 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
-import com.awada.synapse.components.RoomIcon
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
 import com.awada.synapse.components.Tooltip
@@ -36,6 +33,7 @@ import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.components.PresSensor
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -114,8 +112,24 @@ fun PageLocation(
     var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteTitle by remember { mutableStateOf("") }
+    var pendingDeleteRoomId by remember { mutableIntStateOf(-1) }
+    var pendingDeleteRoomTitle by remember { mutableStateOf("") }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
+    val orderedRoomsState = remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
+    var draggingRoomId by remember { mutableIntStateOf(-1) }
+    var pressedRoomId by remember { mutableIntStateOf(-1) }
     val roomBoundsById = remember { mutableStateMapOf<Int, Rect>() }
+
+    LaunchedEffect(roomsOrNull, draggingRoomId) {
+        if (draggingRoomId == -1) {
+            val rooms = roomsOrNull ?: emptyList()
+            orderedRoomsState.value = rooms
+            val validIds = rooms.asSequence().map { it.id }.toSet()
+            roomBoundsById.keys
+                .filter { it !in validIds }
+                .forEach(roomBoundsById::remove)
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         PageContainer(
@@ -146,42 +160,39 @@ fun PageLocation(
                         rooms != null && luminaires != null && panels != null && pres != null && bright != null
 
                     if (ready && showRooms) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            rooms!!
-                                .chunked(2)
-                                .forEach { rowRooms ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                    ) {
-                                        rowRooms.forEach { r ->
-                                            val title = r.name.ifBlank { "Помещение ${r.id + 1}" }
-                                            val icon = iconResId(
-                                                context = context,
-                                                iconId = r.icoNum,
-                                                fallback = com.awada.synapse.R.drawable.location_208_kuhnya
-                                            )
-                                            RoomIcon(
-                                                text = title,
-                                                iconResId = icon,
-                                                onClick = { onRoomClick(r.id, title, r.icoNum) },
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .onGloballyPositioned { coordinates ->
-                                                        roomBoundsById[r.id] = coordinates.boundsInRoot()
-                                                    }
-                                            )
-                                        }
-                                        if (rowRooms.size == 1) {
-                                            Spacer(modifier = Modifier.weight(1f))
-                                        }
+                        ReorderableRoomsGrid(
+                            rooms = orderedRoomsState.value,
+                            draggingId = draggingRoomId,
+                            pressedId = pressedRoomId,
+                            modalVisible = pendingDeleteRoomId != -1 || pendingDeleteKey != null,
+                            onDraggingIdChange = { draggingRoomId = it },
+                            onPressedIdChange = { pressedRoomId = it },
+                            onRoomsChange = { orderedRoomsState.value = it },
+                            onCommitOrder = { finalOrder ->
+                                val cid = controllerId ?: return@ReorderableRoomsGrid
+                                scope.launch {
+                                    val roomDao = db.roomDao()
+                                    finalOrder.forEachIndexed { index, room ->
+                                        roomDao.setGridPos(cid, room.id, index)
                                     }
                                 }
-                        }
+                            },
+                            onRequestDelete = { roomId, title ->
+                                pendingDeleteRoomId = roomId
+                                pendingDeleteRoomTitle = title
+                            },
+                            onRoomClick = { roomId, title, iconId ->
+                                onRoomClick(roomId, title, iconId)
+                            },
+                            onRoomBoundsChange = { roomId, bounds ->
+                                roomBoundsById[roomId] = bounds
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
 
                     if (ready && showRooms) {
-                        Spacer(modifier = Modifier.height(15.dp))
+                        Spacer(modifier = Modifier.height(7.5.dp))
                     }
 
                     if (ready) {
@@ -341,10 +352,10 @@ fun PageLocation(
                         ReorderableKeyGrid(
                             keys = orderedKeys,
                             columns = 4,
-                            rowSpacing = 8.dp,
+                            rowSpacing = 4.dp,
                             draggingKey = draggingKey,
                             pressedKey = pressedKey,
-                            modalVisible = pendingDeleteKey != null,
+                            modalVisible = pendingDeleteKey != null || pendingDeleteRoomId != -1,
                             onDraggingKeyChange = { draggingKey = it },
                             onPressedKeyChange = { pressedKey = it },
                             onKeysChange = { orderedKeysState.value = it },
@@ -419,6 +430,47 @@ fun PageLocation(
                             pendingDeleteKey = null
                             pendingDeleteTitle = ""
                             pressedKey = null
+                        }
+                    }
+                }
+            )
+        }
+
+        if (pendingDeleteRoomId != -1) {
+            val text = if (pendingDeleteRoomTitle.isNotBlank()) {
+                "Удалить помещение «$pendingDeleteRoomTitle»?"
+            } else {
+                "Удалить помещение?"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { res ->
+                    when (res) {
+                        TooltipResult.Primary -> {
+                            val cid = controllerId
+                            val roomId = pendingDeleteRoomId
+                            pendingDeleteRoomId = -1
+                            pendingDeleteRoomTitle = ""
+                            pressedRoomId = -1
+                            draggingRoomId = -1
+                            if (cid != null && roomId != -1) {
+                                scope.launch {
+                                    val roomDao = db.roomDao()
+                                    roomDao.deleteById(cid, roomId)
+                                    val remaining = roomDao.getAllOrdered(cid)
+                                    remaining.forEachIndexed { index, room ->
+                                        roomDao.setGridPos(cid, room.id, index)
+                                    }
+                                }
+                            }
+                        }
+                        TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                            pendingDeleteRoomId = -1
+                            pendingDeleteRoomTitle = ""
+                            pressedRoomId = -1
+                            draggingRoomId = -1
                         }
                     }
                 }

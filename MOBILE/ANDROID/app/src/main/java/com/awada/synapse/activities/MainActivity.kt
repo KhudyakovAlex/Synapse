@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -353,7 +354,11 @@ private fun MainContent() {
         AnimatedContent(
             targetState = currentScreen,
             transitionSpec = {
-                if (targetState != AppScreen.Location) {
+                if (initialState == AppScreen.Lum && targetState != AppScreen.Lum) {
+                    (slideInHorizontally { -it / 3 } + fadeIn()).togetherWith(
+                        fadeOut(animationSpec = tween(durationMillis = 0))
+                    )
+                } else if (targetState != AppScreen.Location) {
                     // Slide in from right when going away from locations
                     (slideInHorizontally { it } + fadeIn()).togetherWith(
                         slideOutHorizontally { -it / 3 } + fadeOut()
@@ -487,18 +492,6 @@ private fun MainContent() {
                                     title = newName,
                                     iconResId = com.awada.synapse.components.iconResId(context, newIconId)
                                 )
-                            },
-                            onRoomClick = { roomId, roomTitle, roomIconId ->
-                                val loc = selectedLocation ?: return@PageLocationSettings
-                                val cid = loc.controllerId ?: return@PageLocationSettings
-                                selectedRoom = RoomState(
-                                    controllerId = cid,
-                                    roomId = roomId,
-                                    title = roomTitle,
-                                    iconId = roomIconId
-                                )
-                                roomSettingsBackTarget = AppScreen.LocationSettings
-                                currentScreen = AppScreen.RoomSettings
                             },
                             modifier = Modifier.fillMaxSize()
                         )
