@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
+import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
 import com.awada.synapse.pages.PageLum
@@ -72,6 +73,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LLMDebugLog.clearOnProcessStart()
+        Logdog.i(
+            message = "process_start",
+            fields = mapOf(
+                "versionName" to com.awada.synapse.BuildConfig.VERSION_NAME,
+                "versionCode" to com.awada.synapse.BuildConfig.VERSION_CODE,
+                "debug" to com.awada.synapse.BuildConfig.DEBUG,
+            )
+        )
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(PixsoColors.Color_Bg_bg_elevated.toArgb())
         )

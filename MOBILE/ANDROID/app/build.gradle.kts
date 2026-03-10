@@ -6,6 +6,12 @@ plugins {
     kotlin("kapt")
 }
 
+val logdogHost: String =
+    (project.findProperty("logdogHost") as String?)?.takeIf { it.isNotBlank() } ?: "10.10.3.170"
+
+val logdogPort: String =
+    (project.findProperty("logdogPort") as String?)?.takeIf { it.isNotBlank() } ?: "3000"
+
 android {
     namespace = "com.awada.synapse"
     compileSdk = 36
@@ -20,9 +26,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Reserved for future (cloud LLM keys etc.)
+
+        buildConfigField("boolean", "LOGDOG_ENABLED", "false")
+        buildConfigField("String", "LOGDOG_HOST", "\"127.0.0.1\"")
+        buildConfigField("int", "LOGDOG_PORT", "3000")
+        buildConfigField("String", "LOGDOG_APP", "\"synapse-android\"")
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "LOGDOG_ENABLED", "true")
+            buildConfigField("String", "LOGDOG_HOST", "\"$logdogHost\"")
+            buildConfigField("int", "LOGDOG_PORT", logdogPort)
+            buildConfigField("String", "LOGDOG_APP", "\"synapse-android\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

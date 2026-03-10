@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.InputBar
 import com.awada.synapse.db.AIMessageEntity
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,7 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.math.roundToInt
 
 private val DRAG_HANDLE_HEIGHT = 48.dp
@@ -55,6 +57,13 @@ private val CHAT_HORIZONTAL_PADDING = 16.dp
 private const val ROLE_USER = "USER"
 private const val ROLE_AI = "AI"
 private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+private const val LOGDOG_MAX_TEXT_CHARS = 50_000
+
+private fun clipForLogdog(text: String): Pair<String, Boolean> {
+    if (text.length <= LOGDOG_MAX_TEXT_CHARS) return text to false
+    return text.take(LOGDOG_MAX_TEXT_CHARS) to true
+}
 
 private fun formatTime(timestampMs: Long): String {
     return Instant.ofEpochMilli(timestampMs)
@@ -242,6 +251,7 @@ fun AIChat(
                             if (text.isEmpty() || isSending) return@InputBar
                             inputText = ""
                             isSending = true
+                            val traceId = UUID.randomUUID().toString()
                             run {
                                 val preview = text
                                     .replace("\r", "")
@@ -251,6 +261,18 @@ fun AIChat(
                             }
 
                             scope.launch {
+                                run {
+                                    val (clipped, truncated) = clipForLogdog(text)
+                                    Logdog.i(
+                                        message = "llm_user_message",
+                                        traceId = traceId,
+                                        fields = mapOf(
+                                            "chars" to text.length,
+                                            "truncated" to truncated,
+                                            "text" to clipped,
+                                        )
+                                    )
+                                }
                                 val now = System.currentTimeMillis()
                                 dao.insert(
                                     AIMessageEntity(
@@ -267,6 +289,18 @@ fun AIChat(
                                         .getOrElse { "Ошибка запроса к Ollama: ${it.message ?: "unknown"}" }
                                 }.trim()
 
+                                run {
+                                    val (clipped, truncated) = clipForLogdog(reply)
+                                    Logdog.i(
+                                        message = "llm_assistant_reply",
+                                        traceId = traceId,
+                                        fields = mapOf(
+                                            "chars" to reply.length,
+                                            "truncated" to truncated,
+                                            "text" to clipped,
+                                        )
+                                    )
+                                }
                                 dao.insert(
                                     AIMessageEntity(
                                         role = ROLE_AI,
