@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -105,21 +106,37 @@ fun PageLocation(
         }
     }.collectAsState(initial = null)
 
-    PageContainer(
-        title = location.title,
-        onBackClick = onBackClick,
-        onSettingsClick = onSettingsClick,
-        isScrollable = true,
-        modifier = modifier
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    var draggingKey by remember { mutableStateOf<DeviceKey?>(null) }
+    var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
+    var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
+    var pendingDeleteTitle by remember { mutableStateOf("") }
+    val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
+
+    val dotColors = remember {
+        listOf(
+            PixsoColors.Color_Bg_bg_surface,
+            PixsoColors.Color_Border_border_error,
+            PixsoColors.Color_Border_border_focus,
+            PixsoColors.Color_State_on_disabled
+        )
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        PageContainer(
+            title = location.title,
+            onBackClick = onBackClick,
+            onSettingsClick = onSettingsClick,
+            isScrollable = true,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     val iconSize = 82.dp
                     val rooms = roomsOrNull
                     val showRooms = rooms != null && rooms.isNotEmpty()
@@ -174,21 +191,6 @@ fun PageLocation(
                             val titleForDelete: String,
                             val content: @Composable (Boolean, Boolean, Modifier) -> Unit
                         )
-
-                        var draggingKey by remember { mutableStateOf<DeviceKey?>(null) }
-                        var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
-                        var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
-                        var pendingDeleteTitle by remember { mutableStateOf("") }
-                        val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
-
-                        val dotColors = remember {
-                            listOf(
-                                PixsoColors.Color_Bg_bg_surface,
-                                PixsoColors.Color_Border_border_error,
-                                PixsoColors.Color_Border_border_focus,
-                                PixsoColors.Color_State_on_disabled
-                            )
-                        }
 
                         val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
                             luminaires!!.forEachIndexed { idx, e ->
@@ -330,47 +332,56 @@ fun PageLocation(
                             }
                         )
 
-                        if (pendingDeleteKey != null) {
-                            val keyToDelete = pendingDeleteKey!!
-                            val text = if (pendingDeleteTitle.isNotBlank()) {
-                                "Удалить устройство «$pendingDeleteTitle»?"
-                            } else {
-                                "Удалить устройство?"
-                            }
-                            Tooltip(
-                                text = text,
-                                primaryButtonText = "Удалить",
-                                secondaryButtonText = "Отмена",
-                                onResult = { res ->
-                                    when (res) {
-                                        TooltipResult.Primary -> {
-                                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
-                                            orderedKeysState.value = remaining
-                                            pendingDeleteKey = null
-                                            pendingDeleteTitle = ""
-                                            pressedKey = null
-                                            scope.launch {
-                                                when (keyToDelete.type) {
-                                                    DeviceType.Luminaire -> db.luminaireDao().deleteById(keyToDelete.id)
-                                                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(keyToDelete.id)
-                                                    DeviceType.PresSensor -> db.presSensorDao().deleteById(keyToDelete.id)
-                                                    DeviceType.BrightSensor -> db.brightSensorDao().deleteById(keyToDelete.id)
-                                                }
-                                            }
-                                            commitOrder(remaining)
-                                        }
-                                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
-                                            pendingDeleteKey = null
-                                            pendingDeleteTitle = ""
-                                            pressedKey = null
-                                        }
-                                    }
-                                }
-                            )
-                        }
                     }
                 }
             }
+        }
+        }
+
+        if (pendingDeleteKey != null) {
+            val keyToDelete = pendingDeleteKey!!
+            val text = if (pendingDeleteTitle.isNotBlank()) {
+                "Удалить устройство «$pendingDeleteTitle»?"
+            } else {
+                "Удалить устройство?"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { res ->
+                    when (res) {
+                        TooltipResult.Primary -> {
+                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
+                            orderedKeysState.value = remaining
+                            pendingDeleteKey = null
+                            pendingDeleteTitle = ""
+                            pressedKey = null
+                            scope.launch {
+                                when (keyToDelete.type) {
+                                    DeviceType.Luminaire -> db.luminaireDao().deleteById(keyToDelete.id)
+                                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(keyToDelete.id)
+                                    DeviceType.PresSensor -> db.presSensorDao().deleteById(keyToDelete.id)
+                                    DeviceType.BrightSensor -> db.brightSensorDao().deleteById(keyToDelete.id)
+                                }
+                                remaining.forEachIndexed { index, k ->
+                                    when (k.type) {
+                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                                    }
+                                }
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                            pendingDeleteKey = null
+                            pendingDeleteTitle = ""
+                            pressedKey = null
+                        }
+                    }
+                }
+            )
         }
     }
 }

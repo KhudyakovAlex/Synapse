@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +28,10 @@ enum class TooltipResult {
     Primary,    // Primary button clicked
     Secondary,  // Secondary button clicked
     Dismissed   // Dismissed by tapping outside
+}
+
+object TooltipOverlayState {
+    var isVisible by mutableStateOf(false)
 }
 
 /**
@@ -55,6 +63,13 @@ fun Tooltip(
     modifier: Modifier = Modifier,
     secondaryButtonText: String? = null
 ) {
+    DisposableEffect(Unit) {
+        TooltipOverlayState.isVisible = true
+        onDispose {
+            TooltipOverlayState.isVisible = false
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.ColorFilter
 import com.awada.synapse.R
 import com.awada.synapse.ui.theme.LabelMedium
 import com.awada.synapse.ui.theme.PixsoColors
@@ -236,7 +237,12 @@ private fun SystemIconTileInternal(
             Image(
                 painter = painterResource(iconResId),
                 contentDescription = null,
-                modifier = Modifier.size(iconSize * 0.53f)
+                modifier = Modifier.size(iconSize * 0.53f),
+                colorFilter = if (forcePressed) {
+                    ColorFilter.tint(PixsoColors.Color_State_on_primary)
+                } else {
+                    null
+                }
             )
         }
 

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
+import com.awada.synapse.components.TooltipOverlayState
 import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
@@ -516,7 +517,7 @@ private fun MainContent() {
         // Lighting control layer - between pages and AI
         // Positioned above AI component with proper padding
         LumControlLayer(
-            isVisible = isLumControlVisible,
+            isVisible = isLumControlVisible && !TooltipOverlayState.isVisible,
             sliders = listOf("Color", "Saturation", "Temperature", "Brightness"), // TODO: Get from current page/device
             autoExpandOnShow = currentScreen == AppScreen.Lum,
             stateKey = currentScreen,
