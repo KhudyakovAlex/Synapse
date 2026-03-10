@@ -961,6 +961,10 @@ private fun defaultSceneStateFor(
             hue = 0,
             saturation = 100
         )
+        LuminaireTypeEntity.TYPE_TW -> luminaire.copy(
+            bright = defaultBright,
+            temperature = 4000
+        )
         else -> luminaire.copy(bright = defaultBright)
     }
 }
