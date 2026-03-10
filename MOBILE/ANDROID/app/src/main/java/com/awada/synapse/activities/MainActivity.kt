@@ -43,6 +43,8 @@ import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
 import com.awada.synapse.components.TooltipOverlayState
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
@@ -143,6 +145,7 @@ private fun MainContent() {
     var selectedButtonPanelId by remember { mutableStateOf<Long?>(null) }
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
+    var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
     // Show LumControlLayer on Lum + LocationDetails + RoomDetails (collapsed by default except Lum).
     val isLumControlVisible by remember {
         derivedStateOf {
@@ -719,6 +722,11 @@ private fun MainContent() {
                     }
                 }
             },
+            onSceneLongSelected = { sceneNum ->
+                if (lumControlLuminaires.isNotEmpty()) {
+                    pendingSaveSceneNum = sceneNum
+                }
+            },
             colorValue = if (currentScreen == AppScreen.Lum || currentScreen == AppScreen.LocationDetails || currentScreen == AppScreen.RoomDetails) {
                 lumControlColorValue
             } else {
@@ -902,6 +910,35 @@ private fun MainContent() {
             modifier = Modifier.fillMaxSize(),
             onMainPanelTopPxChanged = { aiPanelTopPx = it }
         )
+
+        if (pendingSaveSceneNum != null) {
+            val sceneNum = pendingSaveSceneNum!!
+            Tooltip(
+                text = "Сохранить текущие параметры в сцену ${sceneLabel(sceneNum)}?",
+                primaryButtonText = "Сохранить",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            val targetLuminaires = lumControlLuminaires
+                            pendingSaveSceneNum = null
+                            if (targetLuminaires.isNotEmpty()) {
+                                scope.launch {
+                                    saveSceneForLuminaires(
+                                        db = db,
+                                        sceneNum = sceneNum,
+                                        luminaires = targetLuminaires
+                                    )
+                                }
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Tertiary, TooltipResult.Dismissed -> {
+                            pendingSaveSceneNum = null
+                        }
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -943,6 +980,45 @@ private suspend fun applySceneToLuminaires(
     }
 }
 
+private suspend fun saveSceneForLuminaires(
+    db: AppDatabase,
+    sceneNum: Int,
+    luminaires: List<LuminaireEntity>
+) {
+    if (luminaires.isEmpty()) return
+
+    db.luminaireSceneDao().upsertAll(
+        luminaires.map { luminaire ->
+            when (luminaire.typeId) {
+                LuminaireTypeEntity.TYPE_RGB -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = sceneNum,
+                    luminaireId = luminaire.id,
+                    bright = luminaire.bright,
+                    temperature = null,
+                    saturation = luminaire.saturation,
+                    hue = luminaire.hue
+                )
+                LuminaireTypeEntity.TYPE_TW -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = sceneNum,
+                    luminaireId = luminaire.id,
+                    bright = luminaire.bright,
+                    temperature = luminaire.temperature,
+                    saturation = null,
+                    hue = null
+                )
+                else -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = sceneNum,
+                    luminaireId = luminaire.id,
+                    bright = luminaire.bright,
+                    temperature = null,
+                    saturation = null,
+                    hue = null
+                )
+            }
+        }
+    )
+}
+
 private fun defaultSceneStateFor(
     luminaire: LuminaireEntity,
     sceneNum: Int
@@ -967,6 +1043,12 @@ private fun defaultSceneStateFor(
         )
         else -> luminaire.copy(bright = defaultBright)
     }
+}
+
+private fun sceneLabel(sceneNum: Int): String = when (sceneNum) {
+    0 -> "«Выкл»"
+    4 -> "«Вкл»"
+    else -> "«$sceneNum»"
 }
 
 private fun iconIdFromDrawableResId(context: Context, drawableResId: Int): Int? {

@@ -1,9 +1,11 @@
 package com.awada.synapse.lumcontrol
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,6 +161,7 @@ data class QuickButtonItem(
 /**
  * Individual quick button (Off, 1, 2, 3, On)
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuickButton(
     item: QuickButtonItem,
@@ -166,6 +169,7 @@ fun QuickButton(
     isEnabled: Boolean = true,
     isLarge: Boolean = false,
     onSelected: () -> Unit = {},
+    onLongSelected: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = when {
@@ -196,7 +200,11 @@ fun QuickButton(
                 color = backgroundColor,
                 shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
             )
-            .clickable(enabled = isEnabled, onClick = onSelected)
+            .combinedClickable(
+                enabled = isEnabled,
+                onClick = onSelected,
+                onLongClick = { onLongSelected?.invoke() }
+            )
             .border(
                 width = 1.dp,
                 color = borderColor,
@@ -220,6 +228,7 @@ fun QuickButtonsRow(
     buttons: List<QuickButtonItem> = defaultQuickButtons,
     selectedId: Int? = null,
     onButtonSelected: (QuickButtonItem) -> Unit = {},
+    onButtonLongSelected: ((QuickButtonItem) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val selected = remember { mutableStateOf(selectedId) }
@@ -239,6 +248,9 @@ fun QuickButtonsRow(
                 onSelected = {
                     selected.value = button.id
                     onButtonSelected(button)
+                },
+                onLongSelected = {
+                    onButtonLongSelected?.invoke(button)
                 },
                 modifier = if (index == 0 || index == buttons.size - 1) {
                     Modifier.weight(1.2f)

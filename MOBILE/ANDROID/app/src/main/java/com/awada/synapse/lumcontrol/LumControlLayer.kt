@@ -64,6 +64,7 @@ fun LumControlLayer(
     onBrightnessValueChange: ((Float) -> Unit)? = null,
     brightnessEnabled: Boolean = true,
     onSceneSelected: ((Int) -> Unit)? = null,
+    onSceneLongSelected: ((Int) -> Unit)? = null,
     bottomPadding: Int = 178,
     autoExpandOnShow: Boolean = false,
     stateKey: Any? = null,
@@ -247,7 +248,8 @@ fun LumControlLayer(
                                 localBrightnessValue = clampedValue
                             }
                         },
-                        onSceneSelected = onSceneSelected
+                        onSceneSelected = onSceneSelected,
+                        onSceneLongSelected = onSceneLongSelected
                     )
                 }
             }
@@ -297,7 +299,8 @@ private fun RevealSlidersAboveButtons(
     brightnessValue: Float,
     brightnessEnabled: Boolean,
     onBrightnessValueChange: (Float) -> Unit,
-    onSceneSelected: ((Int) -> Unit)?
+    onSceneSelected: ((Int) -> Unit)?,
+    onSceneLongSelected: ((Int) -> Unit)?
 ) {
     SubcomposeLayout(
         modifier = Modifier
@@ -357,7 +360,8 @@ private fun RevealSlidersAboveButtons(
         val buttonsPlaceable = subcompose("buttons") {
             QuickButtonsRow(
                 buttons = defaultQuickButtons,
-                onButtonSelected = { button -> onSceneSelected?.invoke(button.id) }
+                onButtonSelected = { button -> onSceneSelected?.invoke(button.id) },
+                onButtonLongSelected = { button -> onSceneLongSelected?.invoke(button.id) }
             )
         }.first().measure(loose)
 
