@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import com.awada.synapse.R
 import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.PixsoColors
@@ -48,6 +49,9 @@ fun ScenarioPoint(
     valueField: ScenarioPointField,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    backgroundColor: Color = PixsoColors.Color_Bg_bg_surface,
+    borderColor: Color = PixsoColors.Color_Border_border_primary,
+    headerColor: Color = PixsoColors.Color_State_on_secondary,
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
     val interactionSource = remember { MutableInteractionSource() }
@@ -55,10 +59,10 @@ fun ScenarioPoint(
     Column(
         modifier = modifier
             .clip(shape)
-            .background(PixsoColors.Color_Bg_bg_surface)
+            .background(backgroundColor)
             .border(
                 width = PixsoDimens.Stroke_S,
-                color = PixsoColors.Color_Border_border_primary,
+                color = borderColor,
                 shape = shape,
             )
             .clickable(
@@ -81,7 +85,7 @@ fun ScenarioPoint(
             Text(
                 text = title,
                 style = HeadlineExtraSmall,
-                color = PixsoColors.Color_State_on_secondary,
+                color = headerColor,
             )
 
             Box(
@@ -91,7 +95,7 @@ fun ScenarioPoint(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chevron_down),
                     contentDescription = null,
-                    tint = PixsoColors.Color_State_on_secondary,
+                    tint = headerColor,
                     modifier = Modifier.rotate(if (expanded) 180f else 0f),
                 )
             }
