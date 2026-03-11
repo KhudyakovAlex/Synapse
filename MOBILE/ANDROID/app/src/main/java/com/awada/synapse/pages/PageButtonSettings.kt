@@ -3,6 +3,9 @@ package com.awada.synapse.pages
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -15,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -40,8 +46,6 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.awada.synapse.components.ScheduleScenario
-import com.awada.synapse.components.ScenarioBlock
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
@@ -53,6 +57,7 @@ import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.db.ScenarioEntity
 import com.awada.synapse.db.ScenarioSetEntity
+import com.awada.synapse.ui.theme.ButtonSmall
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -425,27 +430,83 @@ private fun ScenarioSummaryBlock(
             )
         }
     }
-    val scenarios = if (actionTitles.isEmpty()) {
-        listOf(ScheduleScenario(text = "Действие", onClick = { onScenarioClick(scenarioId) }))
-    } else {
-        actionTitles.map { title ->
-            ScheduleScenario(text = title, onClick = { onScenarioClick(scenarioId) })
+    val summaryRows = if (actionTitles.isEmpty()) listOf("Действие") else actionTitles
+    val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
+
+    Column(
+        modifier = modifier
+            .then(
+                if (onMeasured != null) {
+                    Modifier.onGloballyPositioned { onMeasured(it.size.height) }
+                } else {
+                    Modifier
+                }
+            )
+            .clip(shape)
+            .background(
+                if (highlighted) PixsoColors.Color_State_primary_pressed
+                else PixsoColors.Color_Bg_bg_surface
+            )
+            .border(
+                width = PixsoDimens.Stroke_S,
+                color = if (highlighted) {
+                    PixsoColors.Color_State_primary_pressed
+                } else {
+                    PixsoColors.Color_Border_border_primary
+                },
+                shape = shape,
+            )
+            .then(
+                if (clickEnabled) {
+                    Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember {
+                            androidx.compose.foundation.interaction.MutableInteractionSource()
+                        },
+                        onClick = { onScenarioClick(scenarioId) },
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .padding(PixsoDimens.Numeric_8),
+        verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8),
+    ) {
+        summaryRows.forEach { title ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(
+                        if (highlighted) PixsoColors.Color_State_primary_pressed
+                        else PixsoColors.Color_Bg_bg_surface
+                    )
+                    .border(
+                        width = PixsoDimens.Stroke_S,
+                        color = if (highlighted) {
+                            PixsoColors.Color_State_primary_pressed
+                        } else {
+                            PixsoColors.Color_Border_border_primary
+                        },
+                        shape = shape,
+                    )
+                    .padding(
+                        horizontal = PixsoDimens.Numeric_12,
+                        vertical = PixsoDimens.Numeric_8,
+                    ),
+            ) {
+                Text(
+                    text = title,
+                    style = ButtonSmall,
+                    color = if (highlighted) {
+                        PixsoColors.Color_State_on_primary
+                    } else {
+                        PixsoColors.Color_State_on_secondary
+                    },
+                )
+            }
         }
     }
-
-    ScenarioBlock(
-        scenarios = scenarios,
-        onClick = { onScenarioClick(scenarioId) },
-        clickEnabled = clickEnabled,
-        highlighted = highlighted,
-        modifier = modifier.then(
-            if (onMeasured != null) {
-                Modifier.onGloballyPositioned { onMeasured(it.size.height) }
-            } else {
-                Modifier
-            }
-        ),
-    )
 }
 
 @Composable
@@ -605,7 +666,9 @@ private fun ReorderableScenarioSetList(
                             clickEnabled = suppressClickScenarioSetId != scenarioSet.id,
                             highlighted = isDragging,
                             onMeasured = { scenarioBlockHeights[scenarioSet.id] = it },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(unbounded = true),
                         )
                     }
                 }
@@ -625,6 +688,7 @@ private fun ReorderableScenarioSetList(
                     onMeasured = { scenarioBlockHeights[draggedItem.id] = it },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .wrapContentHeight(unbounded = true)
                         .offset { IntOffset(0, (slotTops[draggedIndex] + dragDelta.y).roundToInt()) }
                         .zIndex(20f),
                 )

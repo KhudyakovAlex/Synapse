@@ -147,6 +147,7 @@ fun PageScenario(
             DropdownItem(1, "Включить АВТО"),
         )
     }
+    val estimatedActionHeightPx = with(LocalDensity.current) { 220.dp.roundToPx() }
 
     LaunchedEffect(draggingActionId) {
         if (draggingActionId == null) {
@@ -249,6 +250,7 @@ fun PageScenario(
                         expandedStates.keys.toList().forEach { key ->
                             expandedStates[key] = false
                         }
+                        actionHeights[newActionId] = actionHeights.values.maxOrNull() ?: estimatedActionHeightPx
                         expandedStates[newActionId] = true
                     }
                 },
@@ -372,7 +374,7 @@ private fun ReorderableScenarioActionsList(
     val density = LocalDensity.current
     val viewConfig = LocalViewConfiguration.current
     val spacingPx = with(density) { PixsoDimens.Numeric_12.toPx() }
-    val fallbackHeightPx = with(density) { 520.dp.toPx() }
+    val fallbackHeightPx = with(density) { 220.dp.toPx() }
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val widthPx = with(density) { maxWidth.toPx() }
