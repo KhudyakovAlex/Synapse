@@ -113,7 +113,7 @@ fun TextFieldForList(
                     }
                     .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
                     .background(
-                        if (enabled) PixsoColors.Color_Bg_bg_surface 
+                        if (enabled) PixsoColors.Color_Bg_bg_subtle
                         else PixsoColors.Color_State_disabled
                     )
                     .border(
@@ -195,7 +195,7 @@ fun TextFieldForList(
                     modifier = Modifier
                         .width(with(density) { fieldWidth.toDp() })
                         .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_S))
-                        .background(PixsoColors.Color_Bg_bg_surface)
+                        .background(PixsoColors.Color_Bg_bg_subtle)
                         .border(
                             width = PixsoDimens.Stroke_S,
                             color = PixsoColors.Color_Border_border_shade_8,
@@ -241,7 +241,7 @@ private fun DropdownMenuItem(
             )
             .background(
                 if (isPressed) PixsoColors.Color_State_secondary_pressed
-                else PixsoColors.Color_Bg_bg_surface
+                else PixsoColors.Color_Bg_bg_subtle
             )
             .padding(horizontal = PixsoDimens.Numeric_20),
         contentAlignment = Alignment.CenterStart

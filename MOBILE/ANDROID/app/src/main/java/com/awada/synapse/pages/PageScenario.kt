@@ -143,8 +143,8 @@ fun PageScenario(
     }
     val autoValueItems = remember {
         listOf(
-            DropdownItem(0, "Выключить"),
-            DropdownItem(1, "Включить"),
+            DropdownItem(0, "Выключить АВТО"),
+            DropdownItem(1, "Включить АВТО"),
         )
     }
 
@@ -550,6 +550,13 @@ private fun ScenarioActionCard(
         objectItems.isEmpty() && action.objectTypeId == OBJECT_TYPE_LUMINAIRE -> "Нет светильников"
         else -> "Не выбрано"
     }
+    val objectTitle = objectItems.firstOrNull { it.id == action.objectId }?.text
+    val changeValueTitle = valueItems.firstOrNull { it.id == action.changeValueId?.toLong() }?.text
+    val actionTitle = if (!objectTitle.isNullOrBlank() && !changeValueTitle.isNullOrBlank()) {
+        "$objectTitle - $changeValueTitle"
+    } else {
+        "Действие"
+    }
 
     Box(
         modifier = modifier.then(
@@ -562,7 +569,7 @@ private fun ScenarioActionCard(
         )
     ) {
         ScenarioPoint(
-            title = "Действие",
+            title = actionTitle,
             expanded = expanded,
             onExpandedChange = onExpandedChange,
             objectTypeField = ScenarioPointField(

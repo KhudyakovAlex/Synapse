@@ -25,7 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import com.awada.synapse.R
-import com.awada.synapse.ui.theme.HeadlineExtraSmall
+import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import androidx.compose.ui.res.painterResource
@@ -85,7 +85,7 @@ fun ScenarioPoint(
         ) {
             Text(
                 text = title,
-                style = HeadlineExtraSmall,
+                style = BodyLarge,
                 color = headerColor,
             )
 
