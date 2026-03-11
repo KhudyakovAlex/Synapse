@@ -63,6 +63,7 @@ internal fun ReorderableRoomsGrid(
     onRoomBoundsChange: ((roomId: Int, bounds: Rect) -> Unit)? = null,
     modifier: Modifier = Modifier,
     itemHeight: Dp = 96.dp * 0.9f,
+    rowSpacing: Dp = PixsoDimens.Numeric_16,
     appearingRoomId: Int? = null,
     onAppearingRoomConsumed: ((Int) -> Unit)? = null,
 ) {
@@ -84,21 +85,22 @@ internal fun ReorderableRoomsGrid(
         val density = androidx.compose.ui.platform.LocalDensity.current
         val n = rooms.size
 
-        val spacing = PixsoDimens.Numeric_16
+        val columnSpacing = PixsoDimens.Numeric_16
         val shadowBottomPadding = 12.dp
         val cardHeightDp = itemHeight
-        val cardWidthDp = (maxWidth - spacing) / 2f
+        val cardWidthDp = (maxWidth - columnSpacing) / 2f
 
         val cardWpx = with(density) { cardWidthDp.toPx() }
         val cardHpx = with(density) { cardHeightDp.toPx() }
-        val spacingPx = with(density) { spacing.toPx() }
+        val columnSpacingPx = with(density) { columnSpacing.toPx() }
+        val rowSpacingPx = with(density) { rowSpacing.toPx() }
         val shadowBottomPaddingPx = with(density) { shadowBottomPadding.toPx() }
 
         fun slotTopLeft(index: Int): Offset {
             val col = index % 2
             val row = index / 2
-            val x = col * (cardWpx + spacingPx)
-            val y = row * (cardHpx + spacingPx)
+            val x = col * (cardWpx + columnSpacingPx)
+            val y = row * (cardHpx + rowSpacingPx)
             return Offset(x, y)
         }
 
@@ -106,7 +108,7 @@ internal fun ReorderableRoomsGrid(
         val totalRows = if (n == 0) 0 else ceil(n / 2f).toInt()
         val gridHeightPx =
             totalRows * cardHpx +
-                (totalRows - 1).coerceAtLeast(0) * spacingPx +
+                (totalRows - 1).coerceAtLeast(0) * rowSpacingPx +
                 shadowBottomPaddingPx
         val contentHeightDp = with(density) { gridHeightPx.toDp() }
 

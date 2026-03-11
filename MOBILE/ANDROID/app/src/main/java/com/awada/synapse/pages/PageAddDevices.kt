@@ -384,10 +384,10 @@ private fun DevicesGrid(
     BoxWithConstraints(modifier = modifier) {
         val columns = 4
         val columnSpacing = 16.dp
-        val rowSpacing = 4.dp
+        val rowSpacing = 0.dp
         val itemWidth = (maxWidth - columnSpacing * (columns - 1)) / columns.toFloat()
-        val itemHeight = itemWidth
-        val iconSize = (itemWidth * 0.78f).coerceIn(56.dp, 82.dp)
+        val itemHeight = 128.dp
+        val iconSize = 82.dp
 
         Column(
             verticalArrangement = Arrangement.spacedBy(rowSpacing)

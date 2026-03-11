@@ -95,11 +95,11 @@ fun PageGroup(
 
                     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                         val columnSpacing = 16.dp
-                        val rowSpacing = 4.dp
+                        val rowSpacing = 0.dp
                         val columns = 4
                         val itemWidth = (maxWidth - columnSpacing * (columns - 1)) / columns.toFloat()
-                        val itemHeight = itemWidth
-                        val iconSize = (itemWidth * 0.78f).coerceIn(56.dp, 82.dp)
+                        val itemHeight = 128.dp
+                        val iconSize = 82.dp
 
                         val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
                             luminaires!!.forEach { e ->

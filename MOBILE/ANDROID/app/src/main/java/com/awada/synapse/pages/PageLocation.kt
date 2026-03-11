@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -196,10 +195,6 @@ fun PageLocation(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
-
-                    if (ready && showRooms) {
-                        Spacer(modifier = Modifier.height(7.5.dp))
                     }
 
                     if (ready) {
@@ -397,7 +392,7 @@ fun PageLocation(
                             ReorderableKeyGrid(
                                 keys = orderedKeys,
                                 columns = 4,
-                                rowSpacing = 4.dp,
+                                rowSpacing = 0.dp,
                                 draggingKey = draggingKey,
                                 pressedKey = pressedKey,
                                 modalVisible = pendingDeleteKey != null || pendingDeleteRoomId != -1,
