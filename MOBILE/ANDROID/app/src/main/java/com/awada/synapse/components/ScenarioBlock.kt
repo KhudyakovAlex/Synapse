@@ -20,6 +20,8 @@ fun ScenarioBlock(
     scenarios: List<ScheduleScenario>,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    clickEnabled: Boolean = true,
+    highlighted: Boolean = false,
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
     val interactionSource = remember { MutableInteractionSource() }
@@ -27,9 +29,12 @@ fun ScenarioBlock(
     Column(
         modifier = modifier
             .clip(shape)
-            .background(PixsoColors.Color_Bg_bg_surface)
+            .background(
+                if (highlighted) PixsoColors.Color_State_primary_pressed
+                else PixsoColors.Color_Bg_bg_surface
+            )
             .then(
-                if (onClick != null) {
+                if (onClick != null && clickEnabled) {
                     Modifier.clickable(
                         interactionSource = interactionSource,
                         indication = null,
@@ -43,11 +48,12 @@ fun ScenarioBlock(
         verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_0),
     ) {
         scenarios.forEach { scenario ->
-            val itemOnClick = onClick ?: scenario.onClick
+            val itemOnClick = if (clickEnabled) (onClick ?: scenario.onClick) else null
             ScenarioButton(
                 text = scenario.text,
                 onClick = itemOnClick,
                 enabled = scenario.enabled,
+                highlighted = highlighted,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

@@ -246,6 +246,9 @@ fun PageScenario(
                                 position = nextPosition,
                             )
                         )
+                        expandedStates.keys.toList().forEach { key ->
+                            expandedStates[key] = false
+                        }
                         expandedStates[newActionId] = true
                     }
                 },
@@ -309,11 +312,67 @@ private fun ReorderableScenarioActionsList(
     isPressed: (Long) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
+    if (actions.size == 1) {
+        val action = actions.first()
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .pointerInput(action.id, pendingDeleteVisible) {
+                    if (pendingDeleteVisible) return@pointerInput
+
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                        down.consume()
+
+                        var moved = false
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.first()
+                            if (!change.pressed) {
+                                change.consume()
+                                break
+                            }
+                            if (change.position != change.previousPosition) {
+                                moved = true
+                            }
+                            change.consume()
+                        }
+
+                        if (!moved) {
+                            onRequestDelete(action.id)
+                        }
+                    }
+                },
+        ) {
+            ScenarioActionCard(
+                action = action,
+                expanded = expandedStates[action.id] ?: false,
+                rooms = rooms,
+                groups = groups,
+                luminaires = luminaires,
+                objectTypeItems = objectTypeItems,
+                changeTypeItems = changeTypeItems,
+                sceneValueItems = sceneValueItems,
+                autoValueItems = autoValueItems,
+                onExpandedChange = { expandedStates[action.id] = it },
+                onObjectTypeChange = { onObjectTypeChange(action, it) },
+                onObjectChange = { onObjectChange(action, it) },
+                onChangeTypeChange = { onChangeTypeChange(action, it) },
+                onChangeValueChange = { onChangeValueChange(action, it) },
+                modifier = Modifier.fillMaxWidth(),
+                onMeasured = { actionHeights[action.id] = it },
+                isPressed = isPressed(action.id),
+            )
+        }
+        return
+    }
+
     val actionsState = rememberUpdatedState(actions)
     val density = LocalDensity.current
     val viewConfig = LocalViewConfiguration.current
     val spacingPx = with(density) { PixsoDimens.Numeric_12.toPx() }
-    val fallbackHeightPx = with(density) { 248.dp.toPx() }
+    val fallbackHeightPx = with(density) { 520.dp.toPx() }
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val widthPx = with(density) { maxWidth.toPx() }

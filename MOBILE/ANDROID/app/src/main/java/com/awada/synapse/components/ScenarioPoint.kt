@@ -66,12 +66,6 @@ fun ScenarioPoint(
                 color = borderColor,
                 shape = shape,
             )
-            .clickable(
-                enabled = enabled,
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = { onExpandedChange(!expanded) },
-            )
             .padding(PixsoDimens.Numeric_12),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,7 +73,13 @@ fun ScenarioPoint(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = PixsoDimens.Numeric_8),
+                .padding(start = PixsoDimens.Numeric_8)
+                .clickable(
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = { onExpandedChange(!expanded) },
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import com.awada.synapse.ui.theme.ButtonSmall
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -24,9 +25,10 @@ import com.awada.synapse.ui.theme.PixsoDimens
 @Composable
 fun ScenarioButton(
     text: String,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    highlighted: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -35,17 +37,20 @@ fun ScenarioButton(
 
     val backgroundColor = when {
         !enabled -> PixsoColors.Color_Bg_bg_shade_disabled
+        highlighted -> PixsoColors.Color_State_primary_pressed
         isPressed -> PixsoColors.Color_State_secondary_pressed
         else -> PixsoColors.Color_Bg_bg_surface
     }
 
     val borderColor = when {
         !enabled -> PixsoColors.Color_State_on_disabled
+        highlighted -> PixsoColors.Color_State_primary_pressed
         else -> PixsoColors.Color_Border_border_primary
     }
 
     val textColor = when {
         !enabled -> PixsoColors.Color_State_on_disabled
+        highlighted -> PixsoColors.Color_State_on_primary
         else -> PixsoColors.Color_State_on_secondary
     }
 
@@ -58,8 +63,8 @@ fun ScenarioButton(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                enabled = enabled,
-                onClick = onClick,
+                enabled = enabled && onClick != null,
+                onClick = { onClick?.invoke() },
             )
             .padding(horizontal = PixsoDimens.Numeric_8, vertical = PixsoDimens.Numeric_8),
         contentAlignment = Alignment.Center,
@@ -72,12 +77,14 @@ fun ScenarioButton(
                 .background(backgroundColor)
                 .border(width = PixsoDimens.Stroke_S, color = borderColor, shape = containerShape)
                 .padding(horizontal = PixsoDimens.Numeric_12, vertical = PixsoDimens.Numeric_8),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.CenterStart,
         ) {
             Text(
                 text = text,
                 style = ButtonSmall,
                 color = textColor,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
