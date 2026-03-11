@@ -7,11 +7,14 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.Image
@@ -240,9 +243,10 @@ private fun LumInternal(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Pixso updated: big circle (Oval 43) is 104×104 and starts at (0,0) in the component.
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
-                .size(iconSize)
+                .width(iconSize)
+                .aspectRatio(1f)
                 .onGloballyPositioned { coords ->
                     onCircleBoundsInRoot?.invoke(coords.boundsInRoot())
                 }
@@ -259,6 +263,7 @@ private fun LumInternal(
                 ),
             contentAlignment = Alignment.Center
         ) {
+            val actualSize = maxWidth
             // Arcs (Pixso: Oval 41/45). Pixso strokeWeight now 4px.
             Canvas(modifier = Modifier.size(iconSize)) {
                 val strokePx = 4.dp.toPx()
@@ -326,8 +331,8 @@ private fun LumInternal(
             // Must be drawn above the icon "mask" circle.
             visualState.statusDotColor?.let { dotColor ->
                 run {
-                    val dotSize = iconSize * (16f / 104f)
-                    val dotTop = iconSize * (83.64825439453125f / 104f) + 2.dp
+                    val dotSize = actualSize * (16f / 104f)
+                    val dotTop = actualSize * (83.64825439453125f / 104f) + 2.dp
                     Box(
                         modifier = Modifier
                             .zIndex(2f)
