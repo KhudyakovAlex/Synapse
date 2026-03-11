@@ -51,6 +51,7 @@ internal fun <K : Any> ReorderableKeyGrid(
     onKeysChange: (List<K>) -> Unit,
     onCommitOrder: (List<K>) -> Unit,
     onDropOutsideGrid: (key: K, itemCenterInRoot: Offset) -> Boolean = { _, _ -> false },
+    onDropOverKey: (draggedKey: K, targetKey: K) -> Boolean = { _, _ -> false },
     onRequestDelete: (K) -> Unit,
     modifier: Modifier = Modifier,
     spacing: Dp = 16.dp,
@@ -207,6 +208,14 @@ internal fun <K : Any> ReorderableKeyGrid(
                         }
 
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
+                        val targetKey =
+                            dropOver
+                                .takeIf { it != -1 }
+                                ?.let { finalOrder.getOrNull(it) }
+                        if (targetKey != null && targetKey != key0 && onDropOverKey(key0, targetKey)) {
+                            onPressedKeyChange(null)
+                            return@awaitEachGesture
+                        }
                         val toRaw = if (dropOver != -1) dropOver else hoverIndex
                         val to = toRaw
                         if (to == from) {

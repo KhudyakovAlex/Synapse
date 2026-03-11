@@ -49,6 +49,15 @@ interface BrightSensorDao {
     )
     suspend fun getAllOrdered(controllerId: Int, roomId: Int?): List<BrightSensorEntity>
 
+    @Query(
+        """
+        SELECT * FROM BRIGHT_SENSORS
+        WHERE CONTROLLER_ID = :controllerId
+        ORDER BY GRID_POS ASC, ID ASC
+        """
+    )
+    suspend fun getAllForController(controllerId: Int): List<BrightSensorEntity>
+
     @Query("SELECT * FROM BRIGHT_SENSORS WHERE ID = :id LIMIT 1")
     suspend fun getById(id: Long): BrightSensorEntity?
 
