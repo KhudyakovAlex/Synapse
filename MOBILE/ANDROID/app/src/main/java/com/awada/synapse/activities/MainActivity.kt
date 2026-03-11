@@ -555,6 +555,7 @@ private fun MainContent() {
                         if (group != null) {
                             PageAddDevices(
                                 controllerId = group.controllerId,
+                                groupId = group.groupId,
                                 onBackClick = { currentScreen = AppScreen.GroupDetails },
                                 modifier = Modifier.fillMaxSize()
                             )
