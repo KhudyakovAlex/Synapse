@@ -266,12 +266,14 @@ private fun SystemIconTileInternal(
                 .onGloballyPositioned { coords ->
                     onCircleBoundsInRoot?.invoke(coords.boundsInRoot())
                 }
-                .shadow(
-                    elevation = 8.dp,
-                    shape = CircleShape,
-                    clip = false,
-                    ambientColor = shadowColor,
-                    spotColor = shadowColor
+                .then(
+                    if (circleAlpha >= 1f) Modifier.shadow(
+                        elevation = 8.dp,
+                        shape = CircleShape,
+                        clip = false,
+                        ambientColor = shadowColor,
+                        spotColor = shadowColor
+                    ) else Modifier
                 )
                 .clip(CircleShape)
                 .background(circleBg),
