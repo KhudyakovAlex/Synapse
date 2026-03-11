@@ -9,4 +9,8 @@ data class ScenarioEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID")
     val id: Long = 0,
-)
+) {
+    companion object {
+        const val PLACEHOLDER_ID = -1L
+    }
+}

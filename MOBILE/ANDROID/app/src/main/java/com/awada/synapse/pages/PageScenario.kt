@@ -72,6 +72,7 @@ private const val CHANGE_TYPE_AUTO = 2
 fun PageScenario(
     scenarioId: Long?,
     buttonPanelId: Long?,
+    controllerId: Int? = null,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -86,7 +87,7 @@ fun PageScenario(
             db.buttonPanelDao().observeById(buttonPanelId)
         }
     }.collectAsState(initial = null)
-    val controllerId = buttonPanel?.controllerId
+    val resolvedControllerId = controllerId ?: buttonPanel?.controllerId
     val actions by remember(db, scenarioId) {
         if (scenarioId == null) {
             flowOf(emptyList())
@@ -94,21 +95,21 @@ fun PageScenario(
             db.actionDao().observeAllForScenario(scenarioId)
         }
     }.collectAsState(initial = emptyList())
-    val rooms by remember(db, controllerId) {
-        if (controllerId == null) {
+    val rooms by remember(db, resolvedControllerId) {
+        if (resolvedControllerId == null) {
             flowOf(emptyList())
         } else {
-            db.roomDao().observeAll(controllerId)
+            db.roomDao().observeAll(resolvedControllerId)
         }
     }.collectAsState(initial = emptyList())
     val groups by remember(db) {
         db.groupDao().observeAll()
     }.collectAsState(initial = emptyList())
-    val luminaires by remember(db, controllerId) {
-        if (controllerId == null) {
+    val luminaires by remember(db, resolvedControllerId) {
+        if (resolvedControllerId == null) {
             flowOf(emptyList())
         } else {
-            db.luminaireDao().observeAllForController(controllerId)
+            db.luminaireDao().observeAllForController(resolvedControllerId)
         }
     }.collectAsState(initial = emptyList())
     val expandedStates = remember { mutableStateMapOf<Long, Boolean>() }

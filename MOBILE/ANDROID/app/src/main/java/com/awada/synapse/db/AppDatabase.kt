@@ -23,9 +23,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ButtonEntity::class,
         ScenarioEntity::class,
         ActionEntity::class,
-        ScenarioSetEntity::class
+        ScenarioSetEntity::class,
+        EventEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -43,6 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun scenarioDao(): ScenarioDao
     abstract fun actionDao(): ActionDao
     abstract fun scenarioSetDao(): ScenarioSetDao
+    abstract fun eventDao(): EventDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -97,11 +99,20 @@ abstract class AppDatabase : RoomDatabase() {
             )
         }
 
+        private fun insertScenarioPlaceholder(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                INSERT OR IGNORE INTO SCENARIOS (ID) VALUES (${ScenarioEntity.PLACEHOLDER_ID})
+                """.trimIndent()
+            )
+        }
+
         private val SEED_LUMINAIRE_TYPES_CALLBACK = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 insertLuminaireTypes(db)
                 insertGroups(db)
+                insertScenarioPlaceholder(db)
             }
         }
 
@@ -681,6 +692,28 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                insertScenarioPlaceholder(db)
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS EVENTS (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER NOT NULL,
+                        DAYS TEXT NOT NULL DEFAULT '',
+                        TIME TEXT NOT NULL DEFAULT '',
+                        SCENARIO_ID INTEGER NOT NULL DEFAULT -1,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY (SCENARIO_ID) REFERENCES SCENARIOS(ID) ON UPDATE NO ACTION ON DELETE SET DEFAULT
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_EVENTS_CONTROLLER_ID ON EVENTS (CONTROLLER_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_EVENTS_SCENARIO_ID ON EVENTS (SCENARIO_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_EVENTS_CONTROLLER_ID_TIME ON EVENTS (CONTROLLER_ID, TIME)")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -706,7 +739,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_13_14,
                     MIGRATION_14_15,
                     MIGRATION_15_16,
-                    MIGRATION_16_17
+                    MIGRATION_16_17,
+                    MIGRATION_17_18
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

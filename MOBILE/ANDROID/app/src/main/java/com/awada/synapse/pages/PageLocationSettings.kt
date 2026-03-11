@@ -51,6 +51,7 @@ fun PageLocationSettings(
     var showSchedule by remember { mutableStateOf(false) }
     var draftName by remember { mutableStateOf("") }
     var draftIconId by remember { mutableIntStateOf(100) }
+    var draftIsSchedule by remember { mutableStateOf(false) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(controllerId) {
@@ -60,6 +61,7 @@ fun PageLocationSettings(
         if (c != null) {
             draftName = c.name
             draftIconId = c.icoNum
+            draftIsSchedule = c.isSchedule
             loadedForId = controllerId
         }
     }
@@ -88,6 +90,7 @@ fun PageLocationSettings(
 
     if (showSchedule) {
         PageSchedule(
+            controllerId = controllerId,
             onBackClick = { showSchedule = false },
             modifier = modifier.fillMaxSize()
         )
@@ -112,7 +115,16 @@ fun PageLocationSettings(
             onBackClick()
         } else {
             scope.launch {
-                db.controllerDao().updateNameAndIcon(id, draftName, draftIconId)
+                val current = db.controllerDao().getById(id)
+                if (current != null) {
+                    db.controllerDao().update(
+                        current.copy(
+                            name = draftName,
+                            icoNum = draftIconId,
+                            isSchedule = draftIsSchedule,
+                        )
+                    )
+                }
                 onSaved?.invoke(draftName, draftIconId)
                 onBackClick()
             }
@@ -157,6 +169,8 @@ fun PageLocationSettings(
                 Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
                 ScheduleCard(
+                    isEnabled = draftIsSchedule,
+                    onEnabledChange = { draftIsSchedule = it },
                     modifier = Modifier.fillMaxWidth(),
                     onConfigureClick = { showSchedule = true }
                 )
@@ -174,7 +188,16 @@ fun PageLocationSettings(
                         val newId = (0..15).firstOrNull { it !in usedIds } ?: return@SecondaryButton
                         val nextPos = (current.maxOfOrNull { it.gridPos } ?: -1) + 1
                         scope.launch {
-                            db.controllerDao().updateNameAndIcon(cid, draftName, draftIconId)
+                            val currentController = db.controllerDao().getById(cid)
+                            if (currentController != null) {
+                                db.controllerDao().update(
+                                    currentController.copy(
+                                        name = draftName,
+                                        icoNum = draftIconId,
+                                        isSchedule = draftIsSchedule,
+                                    )
+                                )
+                            }
                             onSaved?.invoke(draftName, draftIconId)
                             db.roomDao().insert(
                                 RoomEntity(
@@ -205,11 +228,11 @@ fun PageLocationSettings(
 
 @Composable
 private fun ScheduleCard(
+    isEnabled: Boolean,
+    onEnabledChange: (Boolean) -> Unit,
     onConfigureClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isEnabled by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_M))
@@ -230,7 +253,7 @@ private fun ScheduleCard(
 
             Switch(
                 isChecked = isEnabled,
-                onCheckedChange = { isEnabled = it },
+                onCheckedChange = onEnabledChange,
                 enabled = true
             )
         }

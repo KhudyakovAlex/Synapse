@@ -1,8 +1,9 @@
 package com.awada.synapse.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,10 +37,13 @@ fun SchedulePoint(
     scenarios: List<ScheduleScenario>,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
     val shadowColor = Color.Black.copy(alpha = 1f / 3f)
     val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val isClickable = onClick != null || onLongClick != null
 
     Column(
         modifier = modifier
@@ -50,13 +55,20 @@ fun SchedulePoint(
                 spotColor = shadowColor,
             )
             .clip(shape)
-            .background(PixsoColors.Color_Bg_bg_surface)
+            .background(
+                if (isClickable && isPressed) {
+                    PixsoColors.Color_State_secondary_pressed
+                } else {
+                    PixsoColors.Color_Bg_bg_surface
+                }
+            )
             .then(
-                if (onClick != null) {
-                    Modifier.clickable(
+                if (isClickable) {
+                    Modifier.combinedClickable(
                         interactionSource = interactionSource,
                         indication = null,
-                        onClick = onClick,
+                        onClick = { onClick?.invoke() },
+                        onLongClick = onLongClick,
                     )
                 } else {
                     Modifier
@@ -110,7 +122,7 @@ fun SchedulePoint(
                 scenarios.forEach { scenario ->
                     ScenarioButton(
                         text = scenario.text,
-                        onClick = scenario.onClick,
+                        onClick = if (isClickable) null else scenario.onClick,
                         enabled = scenario.enabled,
                         modifier = Modifier.fillMaxWidth(),
                     )
