@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -63,6 +64,34 @@ interface ButtonDao {
         secondRow: Int,
         secondCol: Int,
     )
+
+    @Transaction
+    suspend fun moveToOccupiedMatrixPosition(
+        draggedId: Int,
+        targetId: Int,
+        targetRow: Int,
+        targetCol: Int,
+        emptyRow: Int,
+        emptyCol: Int,
+    ) {
+        // Use a temporary off-grid slot to avoid violating the unique matrix-position index
+        // when the nearest empty slot is the dragged button's original position.
+        setMatrixPosition(
+            id = draggedId,
+            matrixRow = -1,
+            matrixCol = -1,
+        )
+        setMatrixPosition(
+            id = targetId,
+            matrixRow = emptyRow,
+            matrixCol = emptyCol,
+        )
+        setMatrixPosition(
+            id = draggedId,
+            matrixRow = targetRow,
+            matrixCol = targetCol,
+        )
+    }
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: ButtonEntity)

@@ -129,13 +129,21 @@ fun PageButtonPanelSettings(
                             it.id != draggedButton.id && it.matrixRow == row && it.matrixCol == col
                         }
                         if (targetButton != null) {
-                            db.buttonDao().swapMatrixPositions(
-                                firstId = draggedButton.id,
-                                firstRow = draggedButton.matrixRow,
-                                firstCol = draggedButton.matrixCol,
-                                secondId = targetButton.id,
-                                secondRow = targetButton.matrixRow,
-                                secondCol = targetButton.matrixCol,
+                            val emptyIndex = findNextEmptyMatrixIndex(
+                                buttons = buttons,
+                                draggedButton = draggedButton,
+                                targetRow = row,
+                                targetCol = col,
+                            )
+                            if (emptyIndex == null) return@launch
+
+                            db.buttonDao().moveToOccupiedMatrixPosition(
+                                draggedId = draggedButton.id,
+                                targetId = targetButton.id,
+                                targetRow = row,
+                                targetCol = col,
+                                emptyRow = emptyIndex / ButtonEntity.MATRIX_SIZE,
+                                emptyCol = emptyIndex % ButtonEntity.MATRIX_SIZE,
                             )
                         } else {
                             db.buttonDao().setMatrixPosition(
@@ -195,6 +203,7 @@ private fun ButtonMatrixEditor(
             Rect(topLeft, androidx.compose.ui.geometry.Size(cellSizePx, cellSizePx))
         }
         val buttonSize = if (cellSize > 108.dp) 108.dp else cellSize - 4.dp
+        val slotDotSize = buttonSize / 10f
 
         Box(
             modifier = Modifier
@@ -270,7 +279,10 @@ private fun ButtonMatrixEditor(
                         pressedButtonId = null
                         dragDelta = Offset.Zero
 
-                        if (!moved) return@awaitEachGesture
+                        if (!moved) {
+                            onButtonClick(startButton.num)
+                            return@awaitEachGesture
+                        }
 
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
                         val targetIndex = if (dropOver != -1) dropOver else hoverIndex
@@ -288,12 +300,18 @@ private fun ButtonMatrixEditor(
                 Box(
                     modifier = Modifier
                         .size(cellSize)
-                        .offset { IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt()) }
-                        .background(
-                            color = PixsoColors.Color_State_disabled,
-                            shape = CircleShape,
-                        ),
-                )
+                        .offset { IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt()) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(slotDotSize)
+                            .background(
+                                color = PixsoColors.Color_State_disabled,
+                                shape = CircleShape,
+                            ),
+                    )
+                }
             }
 
             matrixButtons.forEach { button ->
@@ -355,5 +373,28 @@ private fun PanelButtonWithSuppressedClick(
             { onButtonClick(button.num) }
         },
     )
+}
+
+private fun findNextEmptyMatrixIndex(
+    buttons: List<ButtonEntity>,
+    draggedButton: ButtonEntity,
+    targetRow: Int,
+    targetCol: Int,
+): Int? {
+    val matrixSize = ButtonEntity.MATRIX_SIZE
+    val targetIndex = targetRow * matrixSize + targetCol
+    val occupiedIndices = buttons
+        .filter { it.id != draggedButton.id }
+        .map { it.matrixRow * matrixSize + it.matrixCol }
+        .toSet()
+
+    for (offset in 1 until matrixSize * matrixSize) {
+        val candidateIndex = (targetIndex + offset) % (matrixSize * matrixSize)
+        if (candidateIndex !in occupiedIndices) {
+            return candidateIndex
+        }
+    }
+
+    return null
 }
 
