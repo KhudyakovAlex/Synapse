@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,13 +39,12 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.TextField
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ButtonEntity
-import com.awada.synapse.ui.theme.BodyLarge
+import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Text
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.collectAsState
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -114,9 +113,9 @@ fun PageButtonPanelSettings(
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
             Text(
-                text = "Настройка нажатий и расположения кнопок",
-                style = BodyLarge,
-                color = PixsoColors.Color_Text_text_1_level,
+                text = "Настройка нажатий\nи расположения кнопок",
+                style = LabelLarge.copy(color = PixsoColors.Color_Text_text_3_level),
+                modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12),
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
@@ -178,7 +177,7 @@ private fun ButtonMatrixEditor(
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val density = LocalDensity.current
-        val cellSpacing = 8.dp
+        val cellSpacing = 4.dp
         val matrixSize = ButtonEntity.MATRIX_SIZE
         val cellSize = (maxWidth - cellSpacing * (matrixSize - 1)) / matrixSize.toFloat()
         val cellSizePx = with(density) { cellSize.toPx() }
@@ -195,7 +194,7 @@ private fun ButtonMatrixEditor(
         val slotRects = slotPositions.map { topLeft ->
             Rect(topLeft, androidx.compose.ui.geometry.Size(cellSizePx, cellSizePx))
         }
-        val buttonSize = if (cellSize > 56.dp) 56.dp else cellSize - 8.dp
+        val buttonSize = if (cellSize > 108.dp) 108.dp else cellSize - 4.dp
 
         Box(
             modifier = Modifier
@@ -290,14 +289,9 @@ private fun ButtonMatrixEditor(
                     modifier = Modifier
                         .size(cellSize)
                         .offset { IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt()) }
-                        .border(
-                            width = 1.dp,
-                            color = PixsoColors.Color_Border_border_shade_8,
-                            shape = RoundedCornerShape(8.dp),
-                        )
                         .background(
-                            color = PixsoColors.Color_Bg_bg_surface,
-                            shape = RoundedCornerShape(8.dp),
+                            color = PixsoColors.Color_State_disabled,
+                            shape = CircleShape,
                         ),
                 )
             }
