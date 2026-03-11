@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["BUTTON_PANEL_ID"]),
         Index(value = ["BUTTON_PANEL_ID", "NUM"], unique = true),
-        Index(value = ["DALI_INST"])
+        Index(value = ["DALI_INST"]),
+        Index(value = ["BUTTON_PANEL_ID", "MATRIX_ROW", "MATRIX_COL"], unique = true)
     ]
 )
 data class ButtonEntity(
@@ -25,10 +26,17 @@ data class ButtonEntity(
     val buttonPanelId: Long = UNASSIGNED_BUTTON_PANEL_ID,
 
     @ColumnInfo(name = "DALI_INST", defaultValue = "-1")
-    val daliInst: Int = UNASSIGNED_DALI_INST
+    val daliInst: Int = UNASSIGNED_DALI_INST,
+
+    @ColumnInfo(name = "MATRIX_ROW", defaultValue = "0")
+    val matrixRow: Int = 0,
+
+    @ColumnInfo(name = "MATRIX_COL", defaultValue = "0")
+    val matrixCol: Int = 0,
 ) {
     companion object {
         const val MAX_ID = 511
+        const val MATRIX_SIZE = 4
         const val UNASSIGNED_BUTTON_PANEL_ID = -1L
         const val UNASSIGNED_DALI_INST = -1
     }

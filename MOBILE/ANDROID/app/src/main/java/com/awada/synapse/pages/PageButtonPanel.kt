@@ -28,6 +28,7 @@ fun PageButtonPanel(
     buttonPanelId: Long?,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onButtonLongClick: (buttonNumber: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -79,6 +80,7 @@ fun PageButtonPanel(
                         buttonSize = buttonSize,
                         gap = gap,
                         gridWidth = gridWidth,
+                        onButtonLongClick = onButtonLongClick,
                     )
                 }
             }
@@ -92,6 +94,7 @@ private fun ButtonPanelRow(
     buttonSize: Dp,
     gap: Dp,
     gridWidth: Dp,
+    onButtonLongClick: (buttonNumber: Int) -> Unit,
 ) {
     Row(
         modifier = Modifier.width(gridWidth),
@@ -104,6 +107,7 @@ private fun ButtonPanelRow(
                 size = buttonSize,
                 tapToActiveHoldMs = 1000L,
                 onClick = {},
+                onLongClick = { onButtonLongClick(button.num) },
             )
         }
         repeat(2 - buttons.size) {

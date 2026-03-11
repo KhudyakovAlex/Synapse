@@ -54,6 +54,7 @@ import com.awada.synapse.pages.PageLocation
 import com.awada.synapse.pages.PageLocationSettings
 import com.awada.synapse.pages.PageLocations
 import com.awada.synapse.pages.PageButtonPanel
+import com.awada.synapse.pages.PageButtonSettings
 import com.awada.synapse.pages.PagePassword
 import com.awada.synapse.pages.PageGroup
 import com.awada.synapse.pages.PageButtonPanelSettings
@@ -117,6 +118,7 @@ enum class AppScreen {
     SensorPressSettings,
     SensorBrightSettings,
     ButtonPanelSettings,
+    ButtonSettings,
     Scenario,
     Panel,
     Password
@@ -134,6 +136,7 @@ private fun MainContent() {
     var systemSettingsBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var settingsLumBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var buttonPanelBackTarget by remember { mutableStateOf(AppScreen.Location) }
+    var buttonSettingsBackTarget by remember { mutableStateOf(AppScreen.Panel) }
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
     var groupBackTarget by remember { mutableStateOf(AppScreen.LocationDetails) }
@@ -150,6 +153,7 @@ private fun MainContent() {
     }
     var selectedLuminaireId by remember { mutableStateOf<Long?>(null) }
     var selectedButtonPanelId by remember { mutableStateOf<Long?>(null) }
+    var selectedButtonNumber by remember { mutableStateOf<Int?>(null) }
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
@@ -324,6 +328,7 @@ private fun MainContent() {
         when (currentScreen) {
             AppScreen.LumSettings -> currentScreen = settingsLumBackTarget
             AppScreen.SensorPressSettings, AppScreen.SensorBrightSettings, AppScreen.ButtonPanelSettings -> currentScreen = systemSettingsBackTarget
+            AppScreen.ButtonSettings -> currentScreen = buttonSettingsBackTarget
             AppScreen.Scenario -> currentScreen = scenarioBackTarget
             AppScreen.Panel -> currentScreen = buttonPanelBackTarget
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
@@ -629,13 +634,25 @@ private fun MainContent() {
                     }
                     AppScreen.ButtonPanelSettings -> {
                         PageButtonPanelSettings(
-                            buttonPanelId = selectedButtonPanelId,
-                            onBackClick = { currentScreen = systemSettingsBackTarget },
+                            selectedButtonPanelId,
+                            { currentScreen = systemSettingsBackTarget },
+                            { buttonNumber: Int ->
+                                selectedButtonNumber = buttonNumber
+                                buttonSettingsBackTarget = AppScreen.ButtonPanelSettings
+                                currentScreen = AppScreen.ButtonSettings
+                            },
+                            Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.ButtonSettings -> {
+                        PageButtonSettings(
+                            buttonNumber = selectedButtonNumber,
+                            onBackClick = { currentScreen = buttonSettingsBackTarget },
                             onScenarioClick = {
-                                scenarioBackTarget = AppScreen.ButtonPanelSettings
+                                scenarioBackTarget = AppScreen.ButtonSettings
                                 currentScreen = AppScreen.Scenario
                             },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                     AppScreen.Scenario -> {
@@ -651,6 +668,11 @@ private fun MainContent() {
                             onSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.Panel
                                 currentScreen = AppScreen.ButtonPanelSettings
+                            },
+                            onButtonLongClick = { buttonNumber ->
+                                selectedButtonNumber = buttonNumber
+                                buttonSettingsBackTarget = AppScreen.Panel
+                                currentScreen = AppScreen.ButtonSettings
                             },
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -729,7 +751,9 @@ private fun MainContent() {
                                                         id = nextButtonId + buttonIdx,
                                                         num = buttonIdx + 1,
                                                         buttonPanelId = buttonPanelId,
-                                                        daliInst = ButtonEntity.UNASSIGNED_DALI_INST
+                                                        daliInst = ButtonEntity.UNASSIGNED_DALI_INST,
+                                                        matrixRow = buttonIdx / ButtonEntity.MATRIX_SIZE,
+                                                        matrixCol = buttonIdx % ButtonEntity.MATRIX_SIZE,
                                                     )
                                                 }
                                             )

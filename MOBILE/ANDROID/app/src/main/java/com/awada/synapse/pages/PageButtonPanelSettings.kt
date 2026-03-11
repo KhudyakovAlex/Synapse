@@ -1,28 +1,54 @@
 package com.awada.synapse.pages
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.awada.synapse.components.PanelButtonSettingBlock
-import com.awada.synapse.components.ScheduleScenario
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.TextField
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.ButtonEntity
+import com.awada.synapse.ui.theme.BodyLarge
+import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.collectAsState
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Button panel settings page.
@@ -32,37 +58,20 @@ import kotlinx.coroutines.launch
 fun PageButtonPanelSettings(
     buttonPanelId: Long?,
     onBackClick: () -> Unit,
-    onScenarioClick: () -> Unit,
+    onButtonClick: (buttonNumber: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
-    val shortPressScenarioBlocks: List<androidx.compose.runtime.MutableState<List<List<String>>>> = remember {
-        listOf(
-            mutableStateOf(
-                listOf(
-                    listOf(
-                        "Кухня – Вкл",
-                        "Моя любимая спаленка - темп. света 4500K",
-                    ),
-                    listOf("Гостиная – Выкл"),
-                )
-            ),
-            mutableStateOf<List<List<String>>>(emptyList()),
-            mutableStateOf<List<List<String>>>(emptyList()),
-            mutableStateOf<List<List<String>>>(emptyList()),
-        )
-    }
-    val longPressScenario: List<androidx.compose.runtime.MutableState<String?>> = remember {
-        listOf(
-            mutableStateOf<String?>("Спальня – Сцена 2"),
-            mutableStateOf<String?>(null),
-            mutableStateOf<String?>(null),
-            mutableStateOf<String?>(null),
-        )
-    }
+    val buttons by remember(db, buttonPanelId) {
+        if (buttonPanelId == null) {
+            kotlinx.coroutines.flow.flowOf(emptyList())
+        } else {
+            db.buttonDao().observeAllForPanel(buttonPanelId)
+        }
+    }.collectAsState(initial = emptyList())
 
     LaunchedEffect(buttonPanelId) {
         val id = buttonPanelId ?: return@LaunchedEffect
@@ -104,28 +113,253 @@ fun PageButtonPanelSettings(
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
+            Text(
+                text = "Настройка нажатий и расположения кнопок",
+                style = BodyLarge,
+                color = PixsoColors.Color_Text_text_1_level,
+            )
+
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_24))
 
-            Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_24)) {
-                repeat(4) { idx ->
-                    val shortBlocks = shortPressScenarioBlocks[idx].value
-                    val shortScheduleBlocks = shortBlocks.map { block ->
-                        block.map { text -> ScheduleScenario(text = text, onClick = onScenarioClick) }
+            ButtonMatrixEditor(
+                buttons = buttons,
+                onButtonClick = onButtonClick,
+                onMoveButton = { draggedButton, row, col ->
+                    scope.launch {
+                        val targetButton = buttons.firstOrNull {
+                            it.id != draggedButton.id && it.matrixRow == row && it.matrixCol == col
+                        }
+                        if (targetButton != null) {
+                            db.buttonDao().swapMatrixPositions(
+                                firstId = draggedButton.id,
+                                firstRow = draggedButton.matrixRow,
+                                firstCol = draggedButton.matrixCol,
+                                secondId = targetButton.id,
+                                secondRow = targetButton.matrixRow,
+                                secondCol = targetButton.matrixCol,
+                            )
+                        } else {
+                            db.buttonDao().setMatrixPosition(
+                                id = draggedButton.id,
+                                matrixRow = row,
+                                matrixCol = col,
+                            )
+                        }
                     }
-                    val longScheduleBlock = longPressScenario[idx].value?.let { text ->
-                        listOf(ScheduleScenario(text = text, onClick = onScenarioClick))
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonMatrixEditor(
+    buttons: List<ButtonEntity>,
+    onButtonClick: (buttonNumber: Int) -> Unit,
+    onMoveButton: (button: ButtonEntity, row: Int, col: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val matrixButtons = buttons
+        .filter { it.matrixRow in 0 until ButtonEntity.MATRIX_SIZE && it.matrixCol in 0 until ButtonEntity.MATRIX_SIZE }
+    val buttonsState = rememberUpdatedState(matrixButtons)
+    val scope = rememberCoroutineScope()
+    val viewConfig = LocalViewConfiguration.current
+    var draggingButtonId by remember { mutableStateOf<Int?>(null) }
+    var pressedButtonId by remember { mutableStateOf<Int?>(null) }
+    var dragDelta by remember { mutableStateOf(Offset.Zero) }
+    var suppressClickButtonId by remember { mutableStateOf<Int?>(null) }
+    var suppressClickToken by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(draggingButtonId) {
+        if (draggingButtonId == null) {
+            dragDelta = Offset.Zero
+        }
+    }
+
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val density = LocalDensity.current
+        val cellSpacing = 8.dp
+        val matrixSize = ButtonEntity.MATRIX_SIZE
+        val cellSize = (maxWidth - cellSpacing * (matrixSize - 1)) / matrixSize.toFloat()
+        val cellSizePx = with(density) { cellSize.toPx() }
+        val cellSpacingPx = with(density) { cellSpacing.toPx() }
+        val contentHeight = cellSize * matrixSize + cellSpacing * (matrixSize - 1)
+        val slotPositions = List(matrixSize * matrixSize) { index ->
+            val row = index / matrixSize
+            val col = index % matrixSize
+            Offset(
+                x = col * (cellSizePx + cellSpacingPx),
+                y = row * (cellSizePx + cellSpacingPx),
+            )
+        }
+        val slotRects = slotPositions.map { topLeft ->
+            Rect(topLeft, androidx.compose.ui.geometry.Size(cellSizePx, cellSizePx))
+        }
+        val buttonSize = if (cellSize > 56.dp) 56.dp else cellSize - 8.dp
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(contentHeight)
+                .pointerInput(matrixButtons, maxWidth) {
+                    if (buttonsState.value.isEmpty()) return@pointerInput
+
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val startIndex = slotRects.indexOfFirst { it.contains(down.position) }
+                        if (startIndex == -1) return@awaitEachGesture
+
+                        val startButton = buttonsState.value.firstOrNull {
+                            it.matrixRow * matrixSize + it.matrixCol == startIndex
+                        } ?: return@awaitEachGesture
+
+                        awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                        down.consume()
+
+                        suppressClickToken += 1
+                        val token = suppressClickToken
+                        suppressClickButtonId = startButton.id
+                        draggingButtonId = startButton.id
+                        pressedButtonId = startButton.id
+
+                        var moved = false
+                        var hoverIndex = startIndex
+                        var lastPos = down.position
+                        dragDelta = Offset.Zero
+
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change =
+                                event.changes.firstOrNull { it.id == down.id } ?: event.changes.first()
+                            if (!change.pressed) {
+                                change.consume()
+                                break
+                            }
+
+                            val delta = change.position - change.previousPosition
+                            lastPos = change.position
+                            if (delta != Offset.Zero) {
+                                dragDelta += delta
+                                if (!moved && dragDelta.getDistance() > viewConfig.touchSlop) moved = true
+
+                                val center =
+                                    slotPositions[startIndex] + dragDelta + Offset(cellSizePx / 2f, cellSizePx / 2f)
+                                var best = hoverIndex
+                                var bestDist = Float.MAX_VALUE
+                                for (i in slotPositions.indices) {
+                                    val c = slotPositions[i] + Offset(cellSizePx / 2f, cellSizePx / 2f)
+                                    val d = abs(center.x - c.x) + abs(center.y - c.y)
+                                    if (d < bestDist) {
+                                        bestDist = d
+                                        best = i
+                                    }
+                                }
+                                hoverIndex = best
+                            }
+
+                            change.consume()
+                        }
+
+                        scope.launch {
+                            delay(250)
+                            if (suppressClickToken == token) {
+                                suppressClickButtonId = null
+                            }
+                        }
+
+                        draggingButtonId = null
+                        pressedButtonId = null
+                        dragDelta = Offset.Zero
+
+                        if (!moved) return@awaitEachGesture
+
+                        val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
+                        val targetIndex = if (dropOver != -1) dropOver else hoverIndex
+                        if (targetIndex == startIndex) return@awaitEachGesture
+
+                        onMoveButton(
+                            startButton,
+                            targetIndex / matrixSize,
+                            targetIndex % matrixSize,
+                        )
                     }
-                    PanelButtonSettingBlock(
-                        buttonNumber = idx + 1,
-                        shortPressScenarioBlocks = shortScheduleBlocks,
-                        longPressScenarioBlock = longScheduleBlock,
-                        onAddShortPressScenario = onScenarioClick,
-                        onAddLongPressScenario = onScenarioClick,
-                        modifier = Modifier.fillMaxWidth(),
+                },
+        ) {
+            slotPositions.forEach { topLeft ->
+                Box(
+                    modifier = Modifier
+                        .size(cellSize)
+                        .offset { IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt()) }
+                        .border(
+                            width = 1.dp,
+                            color = PixsoColors.Color_Border_border_shade_8,
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .background(
+                            color = PixsoColors.Color_Bg_bg_surface,
+                            shape = RoundedCornerShape(8.dp),
+                        ),
+                )
+            }
+
+            matrixButtons.forEach { button ->
+                key(button.id) {
+                    val slotIndex = button.matrixRow * matrixSize + button.matrixCol
+                    val topLeft = slotPositions.getOrNull(slotIndex) ?: Offset.Zero
+                    val isDragging = button.id == draggingButtonId
+                    val isPressed = button.id == pressedButtonId || isDragging
+                    val animatedOffset by animateIntOffsetAsState(
+                        targetValue = IntOffset(topLeft.x.roundToInt(), topLeft.y.roundToInt()),
+                        animationSpec = tween(durationMillis = 220),
+                        label = "buttonMatrixOffset",
                     )
+
+                    Box(
+                        modifier = Modifier
+                            .size(cellSize)
+                            .offset {
+                                if (isDragging) {
+                                    IntOffset(
+                                        (topLeft.x + dragDelta.x).roundToInt(),
+                                        (topLeft.y + dragDelta.y).roundToInt(),
+                                    )
+                                } else {
+                                    animatedOffset
+                                }
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        PanelButtonWithSuppressedClick(
+                            button = button,
+                            buttonSize = buttonSize,
+                            isPressed = isPressed,
+                            suppressClick = suppressClickButtonId == button.id,
+                            onButtonClick = onButtonClick,
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun PanelButtonWithSuppressedClick(
+    button: ButtonEntity,
+    buttonSize: androidx.compose.ui.unit.Dp,
+    isPressed: Boolean,
+    suppressClick: Boolean,
+    onButtonClick: (buttonNumber: Int) -> Unit,
+) {
+    com.awada.synapse.components.PanelButton(
+        text = button.num.toString(),
+        variant = if (isPressed) com.awada.synapse.components.PanelButtonVariant.Active else com.awada.synapse.components.PanelButtonVariant.Def,
+        size = buttonSize,
+        onClick = if (suppressClick) {
+            null
+        } else {
+            { onButtonClick(button.num) }
+        },
+    )
 }
 

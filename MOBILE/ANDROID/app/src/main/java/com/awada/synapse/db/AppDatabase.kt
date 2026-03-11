@@ -22,7 +22,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ButtonPanelEntity::class,
         ButtonEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -536,6 +536,36 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE BUTTONS ADD COLUMN MATRIX_ROW INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE BUTTONS ADD COLUMN MATRIX_COL INTEGER NOT NULL DEFAULT 0")
+                db.execSQL(
+                    """
+                    UPDATE BUTTONS AS b1
+                    SET MATRIX_ROW = (
+                            SELECT COUNT(*)
+                            FROM BUTTONS AS b2
+                            WHERE b2.BUTTON_PANEL_ID = b1.BUTTON_PANEL_ID
+                              AND (b2.NUM < b1.NUM OR (b2.NUM = b1.NUM AND b2.ID < b1.ID))
+                        ) / 4,
+                        MATRIX_COL = (
+                            SELECT COUNT(*)
+                            FROM BUTTONS AS b2
+                            WHERE b2.BUTTON_PANEL_ID = b1.BUTTON_PANEL_ID
+                              AND (b2.NUM < b1.NUM OR (b2.NUM = b1.NUM AND b2.ID < b1.ID))
+                        ) % 4
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_BUTTONS_BUTTON_PANEL_ID_MATRIX_ROW_MATRIX_COL
+                    ON BUTTONS (BUTTON_PANEL_ID, MATRIX_ROW, MATRIX_COL)
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -557,7 +587,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_9_10,
                     MIGRATION_10_11,
                     MIGRATION_11_12,
-                    MIGRATION_12_13
+                    MIGRATION_12_13,
+                    MIGRATION_13_14
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

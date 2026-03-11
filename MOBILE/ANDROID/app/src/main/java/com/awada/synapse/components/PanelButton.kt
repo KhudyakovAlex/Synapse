@@ -48,6 +48,7 @@ fun PanelButton(
     size: Dp = 72.dp,
     tapToActiveHoldMs: Long? = null,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val scale = size.value / 72f
     val innerSize = 64.dp * scale
@@ -82,24 +83,29 @@ fun PanelButton(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
-    val enabled = onClick != null
-    val pressToActiveModifier = if (enabled && tapToActiveHoldMs != null) {
+    val enabled = onClick != null || onLongClick != null
+    val pressToActiveModifier = if (enabled && (tapToActiveHoldMs != null || onLongClick != null)) {
         Modifier.pointerInput(tapToActiveHoldMs) {
             detectTapGestures(
                 onPress = {
-                    releaseJob?.cancel()
-                    forceActive = true
-                    val released = tryAwaitRelease()
-                    if (released) {
-                        releaseJob = scope.launch {
-                            delay(tapToActiveHoldMs)
+                    if (tapToActiveHoldMs != null) {
+                        releaseJob?.cancel()
+                        forceActive = true
+                        val released = tryAwaitRelease()
+                        if (released) {
+                            releaseJob = scope.launch {
+                                delay(tapToActiveHoldMs)
+                                forceActive = false
+                            }
+                        } else {
                             forceActive = false
                         }
                     } else {
-                        forceActive = false
+                        tryAwaitRelease()
                     }
                 },
                 onTap = { onClick?.invoke() },
+                onLongPress = { onLongClick?.invoke() },
             )
         }
     } else if (enabled) {
