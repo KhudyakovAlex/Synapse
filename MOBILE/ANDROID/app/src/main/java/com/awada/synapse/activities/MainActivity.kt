@@ -68,6 +68,7 @@ import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.ButtonEntity
 import com.awada.synapse.db.BrightSensorEntity
 import com.awada.synapse.db.ButtonPanelEntity
 import com.awada.synapse.db.ControllerEntity
@@ -645,6 +646,7 @@ private fun MainContent() {
                     }
                     AppScreen.Panel -> {
                         PageButtonPanel(
+                            buttonPanelId = selectedButtonPanelId,
                             onBackClick = { currentScreen = buttonPanelBackTarget },
                             onSettingsClick = {
                                 systemSettingsBackTarget = AppScreen.Panel
@@ -708,15 +710,27 @@ private fun MainContent() {
                                             )
                                         }
                                     }
+                                    val buttonDao = db.buttonDao()
                                     db.buttonPanelDao().apply {
                                         repeat(2) { idx ->
-                                            insert(
+                                            val buttonPanelId = insert(
                                                 ButtonPanelEntity(
                                                     controllerId = controllerId,
                                                     roomId = null,
                                                     name = "Кнопочная панель ${idx + 1}",
                                                     gridPos = 8 + idx
                                                 )
+                                            )
+                                            val nextButtonId = buttonDao.getNextId()
+                                            buttonDao.insertAll(
+                                                List(4) { buttonIdx ->
+                                                    ButtonEntity(
+                                                        id = nextButtonId + buttonIdx,
+                                                        num = buttonIdx + 1,
+                                                        buttonPanelId = buttonPanelId,
+                                                        daliInst = ButtonEntity.UNASSIGNED_DALI_INST
+                                                    )
+                                                }
                                             )
                                         }
                                     }

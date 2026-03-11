@@ -296,7 +296,10 @@ fun PageRoom(
             keysToDelete.forEach { key ->
                 when (key.type) {
                     DeviceType.Luminaire -> db.luminaireDao().deleteById(key.id)
-                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(key.id)
+                    DeviceType.ButtonPanel -> {
+                        db.buttonDao().deleteAllForPanel(key.id)
+                        db.buttonPanelDao().deleteById(key.id)
+                    }
                     DeviceType.PresSensor -> db.presSensorDao().deleteById(key.id)
                     DeviceType.BrightSensor -> db.brightSensorDao().deleteById(key.id)
                 }

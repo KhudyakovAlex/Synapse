@@ -211,6 +211,7 @@ fun PageLocations(
                         pressedId = -1
                         scope.launch {
                             val dao = db.controllerDao()
+                            db.buttonDao().deleteAllForController(id)
                             dao.deleteById(id)
                             remaining.forEachIndexed { index, controller ->
                                 dao.setGridPos(controller.id, index)

@@ -19,9 +19,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         LuminaireSceneEntity::class,
         PresSensorEntity::class,
         BrightSensorEntity::class,
-        ButtonPanelEntity::class
+        ButtonPanelEntity::class,
+        ButtonEntity::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -35,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun presSensorDao(): PresSensorDao
     abstract fun brightSensorDao(): BrightSensorDao
     abstract fun buttonPanelDao(): ButtonPanelDao
+    abstract fun buttonDao(): ButtonDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -486,6 +488,54 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS BUTTONS (
+                        ID INTEGER PRIMARY KEY NOT NULL,
+                        NUM INTEGER NOT NULL,
+                        BUTTON_PANEL_ID INTEGER NOT NULL DEFAULT -1,
+                        DALI_INST INTEGER NOT NULL DEFAULT -1,
+                        CHECK(ID BETWEEN 0 AND 511),
+                        CHECK(BUTTON_PANEL_ID >= -1),
+                        CHECK(DALI_INST >= -1)
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BUTTONS_BUTTON_PANEL_ID ON BUTTONS (BUTTON_PANEL_ID)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_BUTTONS_BUTTON_PANEL_ID_NUM ON BUTTONS (BUTTON_PANEL_ID, NUM)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BUTTONS_DALI_INST ON BUTTONS (DALI_INST)")
+                db.execSQL(
+                    """
+                    INSERT OR IGNORE INTO BUTTONS (ID, NUM, BUTTON_PANEL_ID, DALI_INST)
+                    SELECT
+                        panels.PANEL_ORDER * 4 + nums.BUTTON_OFFSET,
+                        nums.BUTTON_OFFSET + 1,
+                        panels.PANEL_ID,
+                        -1
+                    FROM (
+                        SELECT
+                            bp1.ID AS PANEL_ID,
+                            (
+                                SELECT COUNT(*)
+                                FROM BUTTON_PANELS bp2
+                                WHERE bp2.ID < bp1.ID
+                            ) AS PANEL_ORDER
+                        FROM BUTTON_PANELS bp1
+                    ) panels
+                    CROSS JOIN (
+                        SELECT 0 AS BUTTON_OFFSET
+                        UNION ALL SELECT 1
+                        UNION ALL SELECT 2
+                        UNION ALL SELECT 3
+                    ) nums
+                    WHERE panels.PANEL_ORDER * 4 + nums.BUTTON_OFFSET <= 511
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -506,7 +556,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_8_9,
                     MIGRATION_9_10,
                     MIGRATION_10_11,
-                    MIGRATION_11_12
+                    MIGRATION_11_12,
+                    MIGRATION_12_13
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }
