@@ -17,15 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.awada.synapse.R
-import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.TextField
-import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.db.AppDatabase
-import com.awada.synapse.db.RoomEntity
-import com.awada.synapse.db.displayName
-import com.awada.synapse.ui.theme.LabelLarge
-import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.launch
 
@@ -43,15 +36,11 @@ fun PageSensorBrightSettings(
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
-    var roomId by remember { mutableStateOf<Int?>(null) }
-    var rooms by remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
 
     LaunchedEffect(sensorId) {
         val id = sensorId ?: return@LaunchedEffect
         val e = db.brightSensorDao().getById(id) ?: return@LaunchedEffect
         name = e.name
-        roomId = e.roomId
-        rooms = db.roomDao().getAllOrdered(e.controllerId)
     }
 
     fun saveAndBack() {
@@ -59,7 +48,6 @@ fun PageSensorBrightSettings(
             val id = sensorId
             if (id != null) {
                 db.brightSensorDao().setName(id = id, name = name)
-                db.brightSensorDao().moveToRoom(id = id, roomId = roomId)
             }
             onBackClick()
         }
@@ -88,25 +76,6 @@ fun PageSensorBrightSettings(
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
-            // 2. Помещение
-            val roomDropdownItems = listOf(DropdownItem(id = -1, text = "Вне помещений")) +
-                rooms.map { DropdownItem(id = it.id, text = it.displayName()) }
-            
-            TextFieldForList(
-                value = roomId ?: -1,
-                onValueChange = { selectedId ->
-                    roomId = if (selectedId == -1) null else selectedId
-                },
-                icon = R.drawable.ic_chevron_down,
-                label = "Помещение",
-                placeholder = "Выберите помещение",
-                enabled = true,
-                dropdownItems = roomDropdownItems
-            )
-
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
         }
     }
 }

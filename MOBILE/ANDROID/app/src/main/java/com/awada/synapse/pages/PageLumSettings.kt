@@ -26,8 +26,6 @@ import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.LuminaireTypeEntity
-import com.awada.synapse.db.RoomEntity
-import com.awada.synapse.db.displayName
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
@@ -50,8 +48,6 @@ fun PageLumSettings(
     var iconId by remember { mutableIntStateOf(300) }
     var name by remember { mutableStateOf("") }
     var typeId by remember { mutableIntStateOf(LuminaireTypeEntity.TYPE_DIMMABLE) }
-    var roomId by remember { mutableStateOf<Int?>(null) }
-    var rooms by remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
     var luminaireTypes by remember { mutableStateOf<List<LuminaireTypeEntity>>(emptyList()) }
 
     LaunchedEffect(luminaireId) {
@@ -60,8 +56,6 @@ fun PageLumSettings(
         name = e.name
         iconId = e.icoNum
         typeId = e.typeId
-        roomId = e.roomId
-        rooms = db.roomDao().getAllOrdered(e.controllerId)
         luminaireTypes = db.luminaireTypeDao().getAllOrdered()
     }
 
@@ -70,7 +64,6 @@ fun PageLumSettings(
             val id = luminaireId
             if (id != null) {
                 db.luminaireDao().setNameIconAndType(id = id, name = name, icoNum = iconId, typeId = typeId)
-                db.luminaireDao().moveToRoom(id = id, roomId = roomId)
             }
             onBackClick()
         }
@@ -120,25 +113,7 @@ fun PageLumSettings(
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
-            // 2. Помещение
-            val roomDropdownItems = listOf(DropdownItem(id = -1, text = "Вне помещений")) +
-                rooms.map { DropdownItem(id = it.id, text = it.displayName()) }
-            
-            TextFieldForList(
-                value = roomId ?: -1,
-                onValueChange = { selectedId ->
-                    roomId = if (selectedId == -1) null else selectedId
-                },
-                icon = R.drawable.ic_chevron_down,
-                label = "Помещение",
-                placeholder = "Выберите помещение",
-                enabled = true,
-                dropdownItems = roomDropdownItems
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
-            // 3. Тип
+            // 2. Тип
             val typeDropdownItems = luminaireTypes.map { DropdownItem(id = it.id, text = it.name) }
 
             TextFieldForList(
@@ -153,7 +128,7 @@ fun PageLumSettings(
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
-            // 4. Иконка
+            // 3. Иконка
             Column(
                 verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)
             ) {

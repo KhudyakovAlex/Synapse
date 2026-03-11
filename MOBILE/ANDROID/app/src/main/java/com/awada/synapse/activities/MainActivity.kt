@@ -573,12 +573,6 @@ private fun MainContent() {
                                 appearingLocationRoomId = roomId
                                 currentScreen = AppScreen.LocationDetails
                             },
-                            onGroupClick = { groupId ->
-                                val controllerId = selectedLocation?.controllerId ?: return@PageLocationSettings
-                                selectedGroup = GroupState(controllerId = controllerId, groupId = groupId)
-                                groupBackTarget = AppScreen.LocationSettings
-                                currentScreen = AppScreen.GroupDetails
-                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }

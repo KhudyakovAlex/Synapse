@@ -617,7 +617,7 @@ fun PageLocation(
                             GroupLinksOverlay(
                                 circleBoundsInRootByKey = visibleCircleBoundsByKey,
                                 groupIdByKey = groupIdByKey,
-                                visible = draggingKey == null,
+                                visible = true,
                                 modifier = Modifier.matchParentSize()
                             )
                             ReorderableKeyGrid(

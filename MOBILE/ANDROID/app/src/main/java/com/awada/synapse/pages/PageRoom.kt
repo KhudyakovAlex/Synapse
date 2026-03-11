@@ -87,6 +87,9 @@ fun PageRoom(
     var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteTitle by remember { mutableStateOf("") }
+    var pendingDropSourceKey by remember { mutableStateOf<DeviceKey?>(null) }
+    var pendingDropTargetKey by remember { mutableStateOf<DeviceKey?>(null) }
+    var pendingNoFreeGroupTooltip by remember { mutableStateOf(false) }
     var locallyHiddenKeys by remember { mutableStateOf<Set<DeviceKey>>(emptySet()) }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
     val deviceCircleBoundsByKey = remember { mutableStateMapOf<DeviceKey, Rect>() }
@@ -122,6 +125,101 @@ fun PageRoom(
                 .getAllForGroup(controllerId, groupId)
                 .forEach { add(DeviceKey(DeviceType.BrightSensor, it.id)) }
         }.distinct()
+
+    fun supportsGrouping(key: DeviceKey): Boolean =
+        when (key.type) {
+            DeviceType.Luminaire, DeviceType.BrightSensor -> true
+            DeviceType.ButtonPanel, DeviceType.PresSensor -> false
+        }
+
+    suspend fun findEmptyGroupId(): Int? {
+        val usedGroupIds =
+            buildSet {
+                db.luminaireDao()
+                    .getAllForController(controllerId)
+                    .mapNotNullTo(this) { it.groupId }
+                db.brightSensorDao()
+                    .getAllForController(controllerId)
+                    .mapNotNullTo(this) { it.groupId }
+            }
+        return (0..15).firstOrNull { it !in usedGroupIds }
+    }
+
+    fun moveKeyWithinGrid(sourceKey: DeviceKey, targetKey: DeviceKey) {
+        val currentKeys = orderedKeysState.value
+        val from = currentKeys.indexOf(sourceKey)
+        val to = currentKeys.indexOf(targetKey)
+        if (from == -1 || to == -1 || from == to) return
+        val newList = currentKeys.toMutableList()
+        val movedKey = newList.removeAt(from)
+        newList.add(to.coerceIn(0, newList.size), movedKey)
+        orderedKeysState.value = newList
+        scope.launch {
+            newList.forEachIndexed { index, k ->
+                when (k.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                    DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                    DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                }
+            }
+        }
+    }
+
+    fun insertKeyAfterTarget(sourceKey: DeviceKey, targetKey: DeviceKey) {
+        val newList = orderedKeysState.value.toMutableList()
+        newList.remove(sourceKey)
+        val targetIndex = newList.indexOf(targetKey)
+        val insertIndex =
+            if (targetIndex == -1) {
+                newList.size
+            } else {
+                (targetIndex + 1).coerceAtMost(newList.size)
+            }
+        newList.add(insertIndex, sourceKey)
+        orderedKeysState.value = newList
+        scope.launch {
+            newList.forEachIndexed { index, k ->
+                when (k.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                    DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                    DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                }
+            }
+        }
+    }
+
+    fun insertKeyAfterLastVisibleGroupMember(
+        sourceKey: DeviceKey,
+        groupId: Int,
+        fallbackTargetKey: DeviceKey
+    ) {
+        val newList = orderedKeysState.value.toMutableList()
+        newList.remove(sourceKey)
+        val lastGroupIndex = newList.indexOfLast { groupIdForKey(it) == groupId }
+        val fallbackIndex = newList.indexOf(fallbackTargetKey)
+        val insertAfterIndex =
+            if (lastGroupIndex != -1) lastGroupIndex else fallbackIndex
+        val insertIndex =
+            if (insertAfterIndex == -1) {
+                newList.size
+            } else {
+                (insertAfterIndex + 1).coerceAtMost(newList.size)
+            }
+        newList.add(insertIndex, sourceKey)
+        orderedKeysState.value = newList
+        scope.launch {
+            newList.forEachIndexed { index, k ->
+                when (k.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                    DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                    DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                }
+            }
+        }
+    }
 
     fun moveKeysOutOfRoom(keysToMove: List<DeviceKey>) {
         locallyHiddenKeys = locallyHiddenKeys + keysToMove
@@ -427,7 +525,7 @@ fun PageRoom(
                         GroupLinksOverlay(
                             circleBoundsInRootByKey = visibleCircleBoundsByKey,
                             groupIdByKey = groupIdByKey,
-                            visible = draggingKey == null,
+                            visible = true,
                             modifier = Modifier.matchParentSize()
                         )
                         ReorderableKeyGrid(
@@ -436,11 +534,27 @@ fun PageRoom(
                             rowSpacing = 0.dp,
                             draggingKey = draggingKey,
                             pressedKey = pressedKey,
-                            modalVisible = pendingDeleteKey != null,
+                            modalVisible =
+                                pendingDeleteKey != null ||
+                                    pendingDropSourceKey != null ||
+                                    pendingNoFreeGroupTooltip,
                             onDraggingKeyChange = { draggingKey = it },
                             onPressedKeyChange = { pressedKey = it },
                             onKeysChange = { orderedKeysState.value = it },
                             onCommitOrder = { commitOrder(it) },
+                            onDropOverKey = { draggedKey, targetKey ->
+                                if (
+                                    groupIdForKey(draggedKey) == null &&
+                                    supportsGrouping(draggedKey) &&
+                                    supportsGrouping(targetKey)
+                                ) {
+                                    pendingDropSourceKey = draggedKey
+                                    pendingDropTargetKey = targetKey
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
                             onRequestDelete = { k ->
                                 pendingDeleteKey = k
                                 pendingDeleteTitle = visibleInfoByKey[k]?.titleForDelete.orEmpty()
@@ -456,6 +570,7 @@ fun PageRoom(
                             }
                         )
                     }
+
                 }
             }
         }
@@ -530,6 +645,83 @@ fun PageRoom(
                             pressedKey = null
                         }
                     }
+                }
+            )
+        }
+
+        if (pendingDropSourceKey != null && pendingDropTargetKey != null) {
+            val sourceKey = pendingDropSourceKey!!
+            val targetKey = pendingDropTargetKey!!
+            Tooltip(
+                text = null,
+                primaryButtonText = "Переместить",
+                tertiaryButtonText = "Сгруппировать",
+                secondaryButtonText = "Отмена",
+                onResult = { res ->
+                    when (res) {
+                        TooltipResult.Primary -> {
+                            pendingDropSourceKey = null
+                            pendingDropTargetKey = null
+                            moveKeyWithinGrid(sourceKey, targetKey)
+                        }
+                        TooltipResult.Tertiary -> {
+                            pendingDropSourceKey = null
+                            pendingDropTargetKey = null
+                            scope.launch {
+                                val targetGroupId = groupIdForKey(targetKey)
+                                if (targetGroupId != null) {
+                                    when (sourceKey.type) {
+                                        DeviceType.Luminaire ->
+                                            db.luminaireDao().moveToGroup(sourceKey.id, targetGroupId)
+                                        DeviceType.BrightSensor ->
+                                            db.brightSensorDao().moveToGroup(sourceKey.id, targetGroupId)
+                                        DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                                    }
+                                    insertKeyAfterLastVisibleGroupMember(
+                                        sourceKey = sourceKey,
+                                        groupId = targetGroupId,
+                                        fallbackTargetKey = targetKey
+                                    )
+                                } else {
+                                    val emptyGroupId = findEmptyGroupId()
+                                    if (emptyGroupId == null) {
+                                        pendingNoFreeGroupTooltip = true
+                                        return@launch
+                                    }
+                                    when (targetKey.type) {
+                                        DeviceType.Luminaire ->
+                                            db.luminaireDao().moveToGroup(targetKey.id, emptyGroupId)
+                                        DeviceType.BrightSensor ->
+                                            db.brightSensorDao().moveToGroup(targetKey.id, emptyGroupId)
+                                        DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                                    }
+                                    when (sourceKey.type) {
+                                        DeviceType.Luminaire ->
+                                            db.luminaireDao().moveToGroup(sourceKey.id, emptyGroupId)
+                                        DeviceType.BrightSensor ->
+                                            db.brightSensorDao().moveToGroup(sourceKey.id, emptyGroupId)
+                                        DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                                    }
+                                    insertKeyAfterTarget(sourceKey, targetKey)
+                                }
+                            }
+                        }
+                        else -> {
+                            pendingDropSourceKey = null
+                            pendingDropTargetKey = null
+                        }
+                    }
+                }
+            )
+        }
+
+        if (pendingNoFreeGroupTooltip) {
+            Tooltip(
+                text = "Нет свободной группы",
+                primaryButtonText = "Ок",
+                secondaryButtonText = "Отмена",
+                onResult = {
+                    pendingNoFreeGroupTooltip = false
                 }
             )
         }

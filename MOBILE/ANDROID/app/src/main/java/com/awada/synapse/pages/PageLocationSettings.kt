@@ -1,13 +1,8 @@
 package com.awada.synapse.pages
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.SecondaryButton
@@ -33,7 +26,6 @@ import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.db.defaultRoomName
-import com.awada.synapse.ui.theme.ButtonMedium
 import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
@@ -48,7 +40,6 @@ fun PageLocationSettings(
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,
     onRoomAdded: ((roomId: Int) -> Unit)? = null,
-    onGroupClick: ((groupId: Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -199,32 +190,6 @@ fun PageLocationSettings(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-
-                Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)) {
-                    Text(
-                        text = "Группы светильников",
-                        style = LabelLarge,
-                        color = PixsoColors.Color_Text_text_3_level,
-                        modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)
-                    )
-
-                    (0..15).chunked(4).forEach { rowGroups ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)
-                        ) {
-                            rowGroups.forEach { groupId ->
-                                GroupGridButton(
-                                    text = "${groupId + 1}",
-                                    onClick = { onGroupClick?.invoke(groupId) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
                 SecondaryButton(
@@ -235,47 +200,6 @@ fun PageLocationSettings(
             }
         }
 
-    }
-}
-
-@Composable
-private fun GroupGridButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val backgroundColor = if (isPressed) {
-        PixsoColors.Color_State_secondary_pressed
-    } else {
-        PixsoColors.Color_State_secondary
-    }
-
-    Box(
-        modifier = modifier
-            .height(44.dp)
-            .clip(RoundedCornerShape(PixsoDimens.Radius_Radius_M))
-            .background(backgroundColor)
-            .border(
-                BorderStroke(PixsoDimens.Stroke_S, PixsoColors.Color_Border_border_primary),
-                RoundedCornerShape(PixsoDimens.Radius_Radius_M)
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            style = ButtonMedium,
-            color = PixsoColors.Color_State_on_secondary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.offset { IntOffset(0, -2) }
-        )
     }
 }
 
