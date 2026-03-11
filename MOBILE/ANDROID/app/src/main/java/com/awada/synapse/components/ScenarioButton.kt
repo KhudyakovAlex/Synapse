@@ -60,11 +60,16 @@ fun ScenarioButton(
             .then(modifier)
             .defaultMinSize(minWidth = PixsoDimens.Numeric_80, minHeight = PixsoDimens.Numeric_44)
             .clip(containerShape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled && onClick != null,
-                onClick = { onClick?.invoke() },
+            .then(
+                if (enabled && onClick != null) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onClick,
+                    )
+                } else {
+                    Modifier
+                }
             )
             .padding(horizontal = PixsoDimens.Numeric_8, vertical = PixsoDimens.Numeric_8),
         contentAlignment = Alignment.Center,

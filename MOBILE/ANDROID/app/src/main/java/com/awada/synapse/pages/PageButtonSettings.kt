@@ -435,6 +435,7 @@ private fun ScenarioSummaryBlock(
 
     ScenarioBlock(
         scenarios = scenarios,
+        onClick = { onScenarioClick(scenarioId) },
         clickEnabled = clickEnabled,
         highlighted = highlighted,
         modifier = modifier.then(
@@ -561,7 +562,6 @@ private fun ReorderableScenarioSetList(
                         val dropOver = slotRects.indexOfFirst { it.contains(lastPos) }
                         val to = if (dropOver != -1) dropOver else hoverIndex
                         if (to == from) {
-                            onRequestDelete(startItem.id)
                             return@awaitEachGesture
                         }
 

@@ -609,10 +609,16 @@ private fun ScenarioActionCard(
         objectItems.isEmpty() && action.objectTypeId == OBJECT_TYPE_LUMINAIRE -> "Нет светильников"
         else -> "Не выбрано"
     }
+    val objectTypeTitle = objectTypeItems.firstOrNull { it.id == action.objectTypeId?.toLong() }?.text
     val objectTitle = objectItems.firstOrNull { it.id == action.objectId }?.text
     val changeValueTitle = valueItems.firstOrNull { it.id == action.changeValueId?.toLong() }?.text
-    val actionTitle = if (!objectTitle.isNullOrBlank() && !changeValueTitle.isNullOrBlank()) {
-        "$objectTitle - $changeValueTitle"
+    val titlePrefix = if (action.objectTypeId == OBJECT_TYPE_LOCATION) {
+        objectTypeTitle
+    } else {
+        objectTitle
+    }
+    val actionTitle = if (!titlePrefix.isNullOrBlank() && !changeValueTitle.isNullOrBlank()) {
+        "$titlePrefix - $changeValueTitle"
     } else {
         "Действие"
     }

@@ -48,7 +48,11 @@ fun ScenarioBlock(
         verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_0),
     ) {
         scenarios.forEach { scenario ->
-            val itemOnClick = if (clickEnabled) (onClick ?: scenario.onClick) else null
+            val itemOnClick = when {
+                !clickEnabled -> null
+                onClick != null -> null
+                else -> scenario.onClick
+            }
             ScenarioButton(
                 text = scenario.text,
                 onClick = itemOnClick,
