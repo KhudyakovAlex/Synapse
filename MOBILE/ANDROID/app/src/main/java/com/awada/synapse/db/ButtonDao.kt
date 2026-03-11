@@ -12,6 +12,16 @@ abstract class ButtonDao {
         """
         SELECT * FROM BUTTONS
         WHERE BUTTON_PANEL_ID = :buttonPanelId
+          AND NUM = :buttonNumber
+        LIMIT 1
+        """
+    )
+    abstract fun observeByPanelAndNumber(buttonPanelId: Long, buttonNumber: Int): Flow<ButtonEntity?>
+
+    @Query(
+        """
+        SELECT * FROM BUTTONS
+        WHERE BUTTON_PANEL_ID = :buttonPanelId
         ORDER BY NUM ASC, ID ASC
         """
     )
@@ -25,6 +35,15 @@ abstract class ButtonDao {
         """
     )
     abstract suspend fun getAllForPanel(buttonPanelId: Long): List<ButtonEntity>
+
+    @Query(
+        """
+        UPDATE BUTTONS
+        SET LONG_PRESS_SCENARIO_ID = :scenarioId
+        WHERE ID = :id
+        """
+    )
+    abstract suspend fun setLongPressScenarioId(id: Int, scenarioId: Long?)
 
     @Query("SELECT COALESCE(MAX(ID), -1) + 1 FROM BUTTONS")
     abstract suspend fun getNextId(): Int

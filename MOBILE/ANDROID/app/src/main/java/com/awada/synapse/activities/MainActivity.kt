@@ -154,6 +154,7 @@ private fun MainContent() {
     var selectedLuminaireId by remember { mutableStateOf<Long?>(null) }
     var selectedButtonPanelId by remember { mutableStateOf<Long?>(null) }
     var selectedButtonNumber by remember { mutableStateOf<Int?>(null) }
+    var selectedScenarioId by remember { mutableStateOf<Long?>(null) }
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
@@ -646,9 +647,11 @@ private fun MainContent() {
                     }
                     AppScreen.ButtonSettings -> {
                         PageButtonSettings(
+                            buttonPanelId = selectedButtonPanelId,
                             buttonNumber = selectedButtonNumber,
                             onBackClick = { currentScreen = buttonSettingsBackTarget },
-                            onScenarioClick = {
+                            onScenarioClick = { scenarioId ->
+                                selectedScenarioId = scenarioId
                                 scenarioBackTarget = AppScreen.ButtonSettings
                                 currentScreen = AppScreen.Scenario
                             },
@@ -657,6 +660,7 @@ private fun MainContent() {
                     }
                     AppScreen.Scenario -> {
                         PageScenario(
+                            scenarioId = selectedScenarioId,
                             onBackClick = { currentScreen = scenarioBackTarget },
                             modifier = Modifier.fillMaxSize(),
                         )

@@ -55,6 +55,7 @@ fun PageSchedulePoint(
 
     if (showScenario) {
         PageScenario(
+            scenarioId = null,
             onBackClick = { showScenario = false },
             modifier = modifier.fillMaxSize(),
         )

@@ -7,43 +7,71 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.ScheduleScenario
-import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.ScenarioBlock
+import com.awada.synapse.components.SecondaryButton
+import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.ScenarioEntity
+import com.awada.synapse.db.ScenarioSetEntity
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
-import androidx.compose.material3.Text
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 @Composable
 fun PageButtonSettings(
+    buttonPanelId: Long?,
     buttonNumber: Int?,
     onBackClick: () -> Unit,
-    onScenarioClick: () -> Unit,
+    onScenarioClick: (scenarioId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     val resolvedButtonNumber = buttonNumber ?: 1
-    val shortPressScenarioBlocks = if (resolvedButtonNumber == 1) {
+
+    val button by remember(db, buttonPanelId, resolvedButtonNumber) {
+        if (buttonPanelId == null) {
+            flowOf(null)
+        } else {
+            db.buttonDao().observeByPanelAndNumber(buttonPanelId, resolvedButtonNumber)
+        }
+    }.collectAsState(initial = null)
+
+    val shortPressScenarios by remember(db, button?.id) {
+        val buttonId = button?.id
+        if (buttonId == null) {
+            flowOf(emptyList())
+        } else {
+            db.scenarioSetDao().observeAllForButton(buttonId)
+        }
+    }.collectAsState(initial = emptyList())
+
+    val shortPressScenarioBlocks = shortPressScenarios.map { scenarioSet ->
         listOf(
-            listOf(
-                ScheduleScenario(text = "Кухня – Вкл", onClick = onScenarioClick),
-                ScheduleScenario(
-                    text = "Моя любимая спаленка - темп. света 4500K",
-                    onClick = onScenarioClick,
-                ),
-            ),
-            listOf(ScheduleScenario(text = "Гостиная – Выкл", onClick = onScenarioClick)),
+            ScheduleScenario(
+                text = "Сценарий ${scenarioSet.scenarioId}",
+                onClick = { onScenarioClick(scenarioSet.scenarioId) },
+            )
         )
-    } else {
-        emptyList()
     }
-    val longPressScenarioBlock = if (resolvedButtonNumber == 1) {
-        listOf(ScheduleScenario(text = "Спальня – Сцена 2", onClick = onScenarioClick))
-    } else {
-        null
+    val longPressScenarioBlock = button?.longPressScenarioId?.let { scenarioId ->
+        listOf(
+            ScheduleScenario(
+                text = "Сценарий $scenarioId",
+                onClick = { onScenarioClick(scenarioId) },
+            )
+        )
     }
 
     BackHandler(onBack = onBackClick)
@@ -63,7 +91,21 @@ fun PageButtonSettings(
             ScenarioSection(
                 title = "Короткое нажатие\n(сценарии ниже будут перебираться по очереди)",
                 scenarioBlocks = shortPressScenarioBlocks,
-                onAdd = onScenarioClick,
+                onAdd = {
+                    val buttonId = button?.id ?: return@ScenarioSection
+                    scope.launch {
+                        val scenarioId = db.scenarioDao().insert(ScenarioEntity())
+                        val position = db.scenarioSetDao().getNextPositionForButton(buttonId)
+                        db.scenarioSetDao().insert(
+                            ScenarioSetEntity(
+                                buttonId = buttonId,
+                                position = position,
+                                scenarioId = scenarioId,
+                            )
+                        )
+                        onScenarioClick(scenarioId)
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_8))
@@ -71,7 +113,20 @@ fun PageButtonSettings(
             ScenarioSectionSingle(
                 title = "Длинное нажатие\n(плавное изменение к сценарию)",
                 scenarioBlock = longPressScenarioBlock,
-                onAdd = onScenarioClick,
+                onAdd = {
+                    val buttonId = button?.id ?: return@ScenarioSectionSingle
+                    scope.launch {
+                        val existingScenarioId = button?.longPressScenarioId
+                        val scenarioId = if (existingScenarioId != null) {
+                            existingScenarioId
+                        } else {
+                            db.scenarioDao().insert(ScenarioEntity()).also {
+                                db.buttonDao().setLongPressScenarioId(buttonId, it)
+                            }
+                        }
+                        onScenarioClick(scenarioId)
+                    }
+                },
             )
         }
     }

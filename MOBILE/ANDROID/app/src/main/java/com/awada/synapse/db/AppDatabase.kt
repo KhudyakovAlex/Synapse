@@ -20,9 +20,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         PresSensorEntity::class,
         BrightSensorEntity::class,
         ButtonPanelEntity::class,
-        ButtonEntity::class
+        ButtonEntity::class,
+        ScenarioEntity::class,
+        ActionEntity::class,
+        ScenarioSetEntity::class
     ],
-    version = 14,
+    version = 16,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,6 +40,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun brightSensorDao(): BrightSensorDao
     abstract fun buttonPanelDao(): ButtonPanelDao
     abstract fun buttonDao(): ButtonDao
+    abstract fun scenarioDao(): ScenarioDao
+    abstract fun actionDao(): ActionDao
+    abstract fun scenarioSetDao(): ScenarioSetDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -566,6 +572,65 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS SCENARIOS (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ACTIONS (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        SCENARIO_ID INTEGER NOT NULL,
+                        POSITION INTEGER NOT NULL DEFAULT 0,
+                        WHERE_ID INTEGER,
+                        WHAT_ID INTEGER,
+                        VALUE_ID INTEGER,
+                        FOREIGN KEY (SCENARIO_ID) REFERENCES SCENARIOS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ACTIONS_SCENARIO_ID ON ACTIONS (SCENARIO_ID)")
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_ACTIONS_SCENARIO_ID_POSITION
+                    ON ACTIONS (SCENARIO_ID, POSITION)
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS SCENARIO_SET (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        BUTTON_ID INTEGER NOT NULL,
+                        POSITION INTEGER NOT NULL DEFAULT 0,
+                        SCENARIO_ID INTEGER NOT NULL,
+                        FOREIGN KEY (BUTTON_ID) REFERENCES BUTTONS(ID) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY (SCENARIO_ID) REFERENCES SCENARIOS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_SCENARIO_SET_BUTTON_ID ON SCENARIO_SET (BUTTON_ID)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_SCENARIO_SET_SCENARIO_ID ON SCENARIO_SET (SCENARIO_ID)")
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_SCENARIO_SET_BUTTON_ID_POSITION
+                    ON SCENARIO_SET (BUTTON_ID, POSITION)
+                    """.trimIndent()
+                )
+            }
+        }
+
+        private val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE BUTTONS ADD COLUMN LONG_PRESS_SCENARIO_ID INTEGER")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_BUTTONS_LONG_PRESS_SCENARIO_ID ON BUTTONS (LONG_PRESS_SCENARIO_ID)")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -588,7 +653,9 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_10_11,
                     MIGRATION_11_12,
                     MIGRATION_12_13,
-                    MIGRATION_13_14
+                    MIGRATION_13_14,
+                    MIGRATION_14_15,
+                    MIGRATION_15_16
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }
