@@ -1,6 +1,7 @@
 package com.awada.synapse.pages
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.TextField
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.ButtonDao
 import com.awada.synapse.db.ButtonEntity
 import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
@@ -137,7 +140,8 @@ fun PageButtonPanelSettings(
                             )
                             if (emptyIndex == null) return@launch
 
-                            db.buttonDao().moveToOccupiedMatrixPosition(
+                            moveToOccupiedMatrixPosition(
+                                buttonDao = db.buttonDao(),
                                 draggedId = draggedButton.id,
                                 targetId = targetButton.id,
                                 targetRow = row,
@@ -176,10 +180,28 @@ private fun ButtonMatrixEditor(
     var dragDelta by remember { mutableStateOf(Offset.Zero) }
     var suppressClickButtonId by remember { mutableStateOf<Int?>(null) }
     var suppressClickToken by remember { mutableIntStateOf(0) }
+    var settlingButtonId by remember { mutableStateOf<Int?>(null) }
+    var settlingStartOffset by remember { mutableStateOf(Offset.Zero) }
+    var settlingTargetOffset by remember { mutableStateOf(Offset.Zero) }
+    var settlingToken by remember { mutableIntStateOf(0) }
+    val settlingProgress by animateFloatAsState(
+        targetValue = if (settlingButtonId != null) 1f else 0f,
+        animationSpec = tween(durationMillis = 220),
+        label = "buttonMatrixSettlingProgress",
+    )
 
     LaunchedEffect(draggingButtonId) {
         if (draggingButtonId == null) {
             dragDelta = Offset.Zero
+        }
+    }
+
+    LaunchedEffect(settlingToken) {
+        if (settlingButtonId != null) {
+            delay(220)
+            settlingButtonId = null
+            settlingStartOffset = Offset.Zero
+            settlingTargetOffset = Offset.Zero
         }
     }
 
@@ -288,6 +310,11 @@ private fun ButtonMatrixEditor(
                         val targetIndex = if (dropOver != -1) dropOver else hoverIndex
                         if (targetIndex == startIndex) return@awaitEachGesture
 
+                        settlingStartOffset = slotPositions[startIndex] + dragDelta
+                        settlingTargetOffset = slotPositions[targetIndex]
+                        settlingButtonId = startButton.id
+                        settlingToken += 1
+
                         onMoveButton(
                             startButton,
                             targetIndex / matrixSize,
@@ -334,6 +361,16 @@ private fun ButtonMatrixEditor(
                                     IntOffset(
                                         (topLeft.x + dragDelta.x).roundToInt(),
                                         (topLeft.y + dragDelta.y).roundToInt(),
+                                    )
+                                } else if (button.id == settlingButtonId) {
+                                    val settlingOffset = lerp(
+                                        settlingStartOffset,
+                                        settlingTargetOffset,
+                                        settlingProgress,
+                                    )
+                                    IntOffset(
+                                        settlingOffset.x.roundToInt(),
+                                        settlingOffset.y.roundToInt(),
                                     )
                                 } else {
                                     animatedOffset
@@ -396,5 +433,31 @@ private fun findNextEmptyMatrixIndex(
     }
 
     return null
+}
+
+private suspend fun moveToOccupiedMatrixPosition(
+    buttonDao: ButtonDao,
+    draggedId: Int,
+    targetId: Int,
+    targetRow: Int,
+    targetCol: Int,
+    emptyRow: Int,
+    emptyCol: Int,
+) {
+    buttonDao.setMatrixPosition(
+        id = draggedId,
+        matrixRow = -1,
+        matrixCol = -1,
+    )
+    buttonDao.setMatrixPosition(
+        id = targetId,
+        matrixRow = emptyRow,
+        matrixCol = emptyCol,
+    )
+    buttonDao.setMatrixPosition(
+        id = draggedId,
+        matrixRow = targetRow,
+        matrixCol = targetCol,
+    )
 }
 

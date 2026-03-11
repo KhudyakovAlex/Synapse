@@ -4,11 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ButtonDao {
+abstract class ButtonDao {
     @Query(
         """
         SELECT * FROM BUTTONS
@@ -16,7 +15,7 @@ interface ButtonDao {
         ORDER BY NUM ASC, ID ASC
         """
     )
-    fun observeAllForPanel(buttonPanelId: Long): Flow<List<ButtonEntity>>
+    abstract fun observeAllForPanel(buttonPanelId: Long): Flow<List<ButtonEntity>>
 
     @Query(
         """
@@ -25,10 +24,10 @@ interface ButtonDao {
         ORDER BY NUM ASC, ID ASC
         """
     )
-    suspend fun getAllForPanel(buttonPanelId: Long): List<ButtonEntity>
+    abstract suspend fun getAllForPanel(buttonPanelId: Long): List<ButtonEntity>
 
     @Query("SELECT COALESCE(MAX(ID), -1) + 1 FROM BUTTONS")
-    suspend fun getNextId(): Int
+    abstract suspend fun getNextId(): Int
 
     @Query(
         """
@@ -38,7 +37,7 @@ interface ButtonDao {
         WHERE ID = :id
         """
     )
-    suspend fun setMatrixPosition(id: Int, matrixRow: Int, matrixCol: Int)
+    abstract suspend fun setMatrixPosition(id: Int, matrixRow: Int, matrixCol: Int)
 
     @Query(
         """
@@ -56,7 +55,7 @@ interface ButtonDao {
         WHERE ID IN (:firstId, :secondId)
         """
     )
-    suspend fun swapMatrixPositions(
+    abstract suspend fun swapMatrixPositions(
         firstId: Int,
         firstRow: Int,
         firstCol: Int,
@@ -65,42 +64,14 @@ interface ButtonDao {
         secondCol: Int,
     )
 
-    @Transaction
-    suspend fun moveToOccupiedMatrixPosition(
-        draggedId: Int,
-        targetId: Int,
-        targetRow: Int,
-        targetCol: Int,
-        emptyRow: Int,
-        emptyCol: Int,
-    ) {
-        // Use a temporary off-grid slot to avoid violating the unique matrix-position index
-        // when the nearest empty slot is the dragged button's original position.
-        setMatrixPosition(
-            id = draggedId,
-            matrixRow = -1,
-            matrixCol = -1,
-        )
-        setMatrixPosition(
-            id = targetId,
-            matrixRow = emptyRow,
-            matrixCol = emptyCol,
-        )
-        setMatrixPosition(
-            id = draggedId,
-            matrixRow = targetRow,
-            matrixCol = targetCol,
-        )
-    }
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insert(entity: ButtonEntity)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(entity: ButtonEntity)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertAll(entities: List<ButtonEntity>)
+    abstract suspend fun insertAll(entities: List<ButtonEntity>)
 
     @Query("DELETE FROM BUTTONS WHERE BUTTON_PANEL_ID = :buttonPanelId")
-    suspend fun deleteAllForPanel(buttonPanelId: Long)
+    abstract suspend fun deleteAllForPanel(buttonPanelId: Long)
 
     @Query(
         """
@@ -110,5 +81,5 @@ interface ButtonDao {
         )
         """
     )
-    suspend fun deleteAllForController(controllerId: Int)
+    abstract suspend fun deleteAllForController(controllerId: Int)
 }

@@ -1,21 +1,17 @@
 package com.awada.synapse.pages
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.PanelButton
 import com.awada.synapse.components.PanelButtonVariant
@@ -50,8 +46,10 @@ fun PageButtonPanel(
         }
     }.collectAsState(initial = emptyList())
 
-    val visibleButtons = buttons.sortedBy { it.num }.take(8)
-    val buttonRows = visibleButtons.chunked(2)
+    val visibleButtons = buttons
+        .filter { it.matrixRow in 0 until ButtonEntity.MATRIX_SIZE && it.matrixCol in 0 until ButtonEntity.MATRIX_SIZE }
+        .sortedBy { it.num }
+        .take(8)
 
     PageContainer(
         title = buttonPanelOrNull?.name?.ifBlank { "Кнопочная панель" } ?: "Кнопочная панель",
@@ -66,52 +64,38 @@ fun PageButtonPanel(
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            val buttonSize = 108.dp
-            val gap = 4.dp
-            val gridWidth = buttonSize * 2 + gap
+            val buttonSize = 96.dp
+            val gap = 2.dp
+            val minRow = visibleButtons.minOfOrNull { it.matrixRow } ?: 0
+            val maxRow = visibleButtons.maxOfOrNull { it.matrixRow } ?: 0
+            val minCol = visibleButtons.minOfOrNull { it.matrixCol } ?: 0
+            val maxCol = visibleButtons.maxOfOrNull { it.matrixCol } ?: 0
+            val rowSpan = (maxRow - minRow + 1).coerceAtLeast(1)
+            val colSpan = (maxCol - minCol + 1).coerceAtLeast(1)
+            val contentWidth = buttonSize * colSpan.toFloat() + gap * (colSpan - 1).toFloat()
+            val contentHeight = buttonSize * rowSpan.toFloat() + gap * (rowSpan - 1).toFloat()
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(gap),
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Box(
+                modifier = Modifier
+                    .size(width = contentWidth, height = contentHeight),
+                contentAlignment = Alignment.TopStart,
             ) {
-                buttonRows.forEach { rowButtons ->
-                    ButtonPanelRow(
-                        buttons = rowButtons,
-                        buttonSize = buttonSize,
-                        gap = gap,
-                        gridWidth = gridWidth,
-                        onButtonLongClick = onButtonLongClick,
+                visibleButtons.forEach { button ->
+                    val xOffset = (buttonSize + gap) * (button.matrixCol - minCol).toFloat()
+                    val yOffset = (buttonSize + gap) * (button.matrixRow - minRow).toFloat()
+                    PanelButton(
+                        text = button.num.toString(),
+                        variant = PanelButtonVariant.Def,
+                        size = buttonSize,
+                        tapToActiveHoldMs = 1000L,
+                        onClick = {},
+                        onLongClick = { onButtonLongClick(button.num) },
+                        modifier = Modifier.offset {
+                            IntOffset(xOffset.roundToPx(), yOffset.roundToPx())
+                        },
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ButtonPanelRow(
-    buttons: List<ButtonEntity>,
-    buttonSize: Dp,
-    gap: Dp,
-    gridWidth: Dp,
-    onButtonLongClick: (buttonNumber: Int) -> Unit,
-) {
-    Row(
-        modifier = Modifier.width(gridWidth),
-        horizontalArrangement = Arrangement.spacedBy(gap),
-    ) {
-        buttons.forEach { button ->
-            PanelButton(
-                text = button.num.toString(),
-                variant = PanelButtonVariant.Def,
-                size = buttonSize,
-                tapToActiveHoldMs = 1000L,
-                onClick = {},
-                onLongClick = { onButtonLongClick(button.num) },
-            )
-        }
-        repeat(2 - buttons.size) {
-            Spacer(modifier = Modifier.size(buttonSize))
         }
     }
 }
