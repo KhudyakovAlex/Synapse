@@ -32,8 +32,8 @@ import androidx.compose.ui.res.painterResource
 
 @Immutable
 data class ScenarioPointField(
-    val value: Int?,
-    val onValueChange: (Int) -> Unit,
+    val value: Long?,
+    val onValueChange: (Long) -> Unit,
     val placeholder: String = "",
     val enabled: Boolean = true,
     val dropdownItems: List<DropdownItem> = emptyList(),
@@ -44,9 +44,10 @@ fun ScenarioPoint(
     title: String,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    whereField: ScenarioPointField,
-    whatField: ScenarioPointField,
-    valueField: ScenarioPointField,
+    objectTypeField: ScenarioPointField,
+    objectField: ScenarioPointField?,
+    changeTypeField: ScenarioPointField,
+    changeValueField: ScenarioPointField,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     backgroundColor: Color = PixsoColors.Color_Bg_bg_surface,
@@ -109,33 +110,45 @@ fun ScenarioPoint(
                 verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_20),
             ) {
                 TextFieldForList(
-                    value = whereField.value,
-                    onValueChange = whereField.onValueChange,
+                    value = objectTypeField.value,
+                    onValueChange = objectTypeField.onValueChange,
                     icon = R.drawable.ic_chevron_down,
-                    label = "Где меняем",
-                    placeholder = whereField.placeholder,
-                    enabled = whereField.enabled,
-                    dropdownItems = whereField.dropdownItems,
+                    label = "Тип объекта",
+                    placeholder = objectTypeField.placeholder,
+                    enabled = objectTypeField.enabled,
+                    dropdownItems = objectTypeField.dropdownItems,
+                )
+
+                objectField?.let { field ->
+                    TextFieldForList(
+                        value = field.value,
+                        onValueChange = field.onValueChange,
+                        icon = R.drawable.ic_chevron_down,
+                        label = "Объект",
+                        placeholder = field.placeholder,
+                        enabled = field.enabled,
+                        dropdownItems = field.dropdownItems,
+                    )
+                }
+
+                TextFieldForList(
+                    value = changeTypeField.value,
+                    onValueChange = changeTypeField.onValueChange,
+                    icon = R.drawable.ic_chevron_down,
+                    label = "Изменение",
+                    placeholder = changeTypeField.placeholder,
+                    enabled = changeTypeField.enabled,
+                    dropdownItems = changeTypeField.dropdownItems,
                 )
 
                 TextFieldForList(
-                    value = whatField.value,
-                    onValueChange = whatField.onValueChange,
+                    value = changeValueField.value,
+                    onValueChange = changeValueField.onValueChange,
                     icon = R.drawable.ic_chevron_down,
-                    label = "Что меняем",
-                    placeholder = whatField.placeholder,
-                    enabled = whatField.enabled,
-                    dropdownItems = whatField.dropdownItems,
-                )
-
-                TextFieldForList(
-                    value = valueField.value,
-                    onValueChange = valueField.onValueChange,
-                    icon = R.drawable.ic_chevron_down,
-                    label = "Значение",
-                    placeholder = valueField.placeholder,
-                    enabled = valueField.enabled,
-                    dropdownItems = valueField.dropdownItems,
+                    label = "Значение изменения",
+                    placeholder = changeValueField.placeholder,
+                    enabled = changeValueField.enabled,
+                    dropdownItems = changeValueField.dropdownItems,
                 )
             }
         }

@@ -661,6 +661,7 @@ private fun MainContent() {
                     AppScreen.Scenario -> {
                         PageScenario(
                             scenarioId = selectedScenarioId,
+                            buttonPanelId = selectedButtonPanelId,
                             onBackClick = { currentScreen = scenarioBackTarget },
                             modifier = Modifier.fillMaxSize(),
                         )

@@ -32,12 +32,15 @@ data class ActionEntity(
     @ColumnInfo(name = "POSITION", defaultValue = "0")
     val position: Int = 0,
 
-    @ColumnInfo(name = "WHERE_ID")
-    val whereId: Int? = null,
+    @ColumnInfo(name = "OBJECT_TYPE_ID")
+    val objectTypeId: Int? = null,
 
-    @ColumnInfo(name = "WHAT_ID")
-    val whatId: Int? = null,
+    @ColumnInfo(name = "OBJECT_ID")
+    val objectId: Long? = null,
 
-    @ColumnInfo(name = "VALUE_ID")
-    val valueId: Int? = null,
+    @ColumnInfo(name = "CHANGE_TYPE_ID")
+    val changeTypeId: Int? = null,
+
+    @ColumnInfo(name = "CHANGE_VALUE_ID")
+    val changeValueId: Int? = null,
 )

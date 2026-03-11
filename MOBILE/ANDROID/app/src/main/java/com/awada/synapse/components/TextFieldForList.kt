@@ -55,14 +55,14 @@ import com.awada.synapse.ui.theme.PixsoDimens
  */
 @Immutable
 data class DropdownItem(
-    val id: Int,
+    val id: Long,
     val text: String
 )
 
 @Composable
 fun TextFieldForList(
-    value: Int?,
-    onValueChange: (Int) -> Unit,
+    value: Long?,
+    onValueChange: (Long) -> Unit,
     @DrawableRes icon: Int,
     modifier: Modifier = Modifier,
     label: String = "",

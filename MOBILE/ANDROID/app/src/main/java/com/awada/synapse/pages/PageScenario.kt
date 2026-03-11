@@ -50,6 +50,9 @@ import com.awada.synapse.components.vibrateStrongClick
 import com.awada.synapse.db.ActionDao
 import com.awada.synapse.db.ActionEntity
 import com.awada.synapse.db.AppDatabase
+import com.awada.synapse.db.GroupEntity
+import com.awada.synapse.db.LuminaireEntity
+import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlin.math.abs
@@ -57,9 +60,18 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+private const val OBJECT_TYPE_LOCATION = 1
+private const val OBJECT_TYPE_ROOM = 2
+private const val OBJECT_TYPE_GROUP = 3
+private const val OBJECT_TYPE_LUMINAIRE = 4
+
+private const val CHANGE_TYPE_SCENE = 1
+private const val CHANGE_TYPE_AUTO = 2
+
 @Composable
 fun PageScenario(
     scenarioId: Long?,
+    buttonPanelId: Long?,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,11 +79,36 @@ fun PageScenario(
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
+    val buttonPanel by remember(db, buttonPanelId) {
+        if (buttonPanelId == null) {
+            flowOf(null)
+        } else {
+            db.buttonPanelDao().observeById(buttonPanelId)
+        }
+    }.collectAsState(initial = null)
+    val controllerId = buttonPanel?.controllerId
     val actions by remember(db, scenarioId) {
         if (scenarioId == null) {
             flowOf(emptyList())
         } else {
             db.actionDao().observeAllForScenario(scenarioId)
+        }
+    }.collectAsState(initial = emptyList())
+    val rooms by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf(emptyList())
+        } else {
+            db.roomDao().observeAll(controllerId)
+        }
+    }.collectAsState(initial = emptyList())
+    val groups by remember(db) {
+        db.groupDao().observeAll()
+    }.collectAsState(initial = emptyList())
+    val luminaires by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf(emptyList())
+        } else {
+            db.luminaireDao().observeAllForController(controllerId)
         }
     }.collectAsState(initial = emptyList())
     val expandedStates = remember { mutableStateMapOf<Long, Boolean>() }
@@ -81,29 +118,33 @@ fun PageScenario(
     var pendingDeleteActionId by remember { mutableStateOf<Long?>(null) }
     var dragDelta by remember { mutableStateOf(Offset.Zero) }
 
-    val whereItems = remember {
+    val objectTypeItems = remember {
         listOf(
-            DropdownItem(1, "Гостиная"),
-            DropdownItem(2, "Кухня"),
-            DropdownItem(3, "Спальня"),
+            DropdownItem(OBJECT_TYPE_LOCATION.toLong(), "Вся локация"),
+            DropdownItem(OBJECT_TYPE_ROOM.toLong(), "Помещение"),
+            DropdownItem(OBJECT_TYPE_GROUP.toLong(), "Группа"),
+            DropdownItem(OBJECT_TYPE_LUMINAIRE.toLong(), "Светильник"),
         )
     }
-    val whatItems = remember {
+    val changeTypeItems = remember {
         listOf(
-            DropdownItem(1, "Выключить"),
-            DropdownItem(2, "Включить"),
-            DropdownItem(3, "Яркость"),
-            DropdownItem(4, "Сцена"),
+            DropdownItem(CHANGE_TYPE_SCENE.toLong(), "Включение световой сцены"),
+            DropdownItem(CHANGE_TYPE_AUTO.toLong(), "Управление АВТО"),
         )
     }
-    val valueItems = remember {
+    val sceneValueItems = remember {
         listOf(
-            DropdownItem(0, "0"),
-            DropdownItem(1, "1"),
-            DropdownItem(25, "25"),
-            DropdownItem(50, "50"),
-            DropdownItem(75, "75"),
-            DropdownItem(100, "100"),
+            DropdownItem(0, "Сцена Выкл"),
+            DropdownItem(1, "Сцена 1"),
+            DropdownItem(2, "Сцена 2"),
+            DropdownItem(3, "Сцена 3"),
+            DropdownItem(4, "Сцена Вкл"),
+        )
+    }
+    val autoValueItems = remember {
+        listOf(
+            DropdownItem(0, "Выключить"),
+            DropdownItem(1, "Включить"),
         )
     }
 
@@ -134,9 +175,13 @@ fun PageScenario(
                 actionHeights = actionHeights,
                 expandedStates = expandedStates,
                 dragDelta = dragDelta,
-                whereItems = whereItems,
-                whatItems = whatItems,
-                valueItems = valueItems,
+                rooms = rooms,
+                groups = groups,
+                luminaires = luminaires,
+                objectTypeItems = objectTypeItems,
+                changeTypeItems = changeTypeItems,
+                sceneValueItems = sceneValueItems,
+                autoValueItems = autoValueItems,
                 onDragStart = { actionId ->
                     draggingActionId = actionId
                     pressedActionId = actionId
@@ -155,19 +200,34 @@ fun PageScenario(
                         persistActionOrder(db.actionDao(), reordered)
                     }
                 },
-                onWhereChange = { action, value ->
+                onObjectTypeChange = { action, value ->
                     scope.launch {
-                        db.actionDao().update(action.copy(whereId = value))
+                        db.actionDao().update(
+                            action.copy(
+                                objectTypeId = value?.toInt(),
+                                objectId = null,
+                            )
+                        )
                     }
                 },
-                onWhatChange = { action, value ->
+                onObjectChange = { action, value ->
                     scope.launch {
-                        db.actionDao().update(action.copy(whatId = value))
+                        db.actionDao().update(action.copy(objectId = value))
                     }
                 },
-                onValueChange = { action, value ->
+                onChangeTypeChange = { action, value ->
                     scope.launch {
-                        db.actionDao().update(action.copy(valueId = value))
+                        db.actionDao().update(
+                            action.copy(
+                                changeTypeId = value?.toInt(),
+                                changeValueId = null,
+                            )
+                        )
+                    }
+                },
+                onChangeValueChange = { action, value ->
+                    scope.launch {
+                        db.actionDao().update(action.copy(changeValueId = value?.toInt()))
                     }
                 },
                 isPressed = { actionId -> actionId == pressedActionId },
@@ -229,18 +289,23 @@ private fun ReorderableScenarioActionsList(
     actionHeights: MutableMap<Long, Int>,
     expandedStates: MutableMap<Long, Boolean>,
     dragDelta: Offset,
-    whereItems: List<DropdownItem>,
-    whatItems: List<DropdownItem>,
-    valueItems: List<DropdownItem>,
+    rooms: List<RoomEntity>,
+    groups: List<GroupEntity>,
+    luminaires: List<LuminaireEntity>,
+    objectTypeItems: List<DropdownItem>,
+    changeTypeItems: List<DropdownItem>,
+    sceneValueItems: List<DropdownItem>,
+    autoValueItems: List<DropdownItem>,
     onDragStart: (Long) -> Unit,
     onDragDeltaChange: (Offset) -> Unit,
     onDragEnd: () -> Unit,
     onRequestDelete: (Long) -> Unit,
     onClearPressed: () -> Unit,
     onMove: (List<ActionEntity>) -> Unit,
-    onWhereChange: (ActionEntity, Int) -> Unit,
-    onWhatChange: (ActionEntity, Int) -> Unit,
-    onValueChange: (ActionEntity, Int) -> Unit,
+    onObjectTypeChange: (ActionEntity, Long?) -> Unit,
+    onObjectChange: (ActionEntity, Long?) -> Unit,
+    onChangeTypeChange: (ActionEntity, Long?) -> Unit,
+    onChangeValueChange: (ActionEntity, Long?) -> Unit,
     isPressed: (Long) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -248,7 +313,7 @@ private fun ReorderableScenarioActionsList(
     val density = LocalDensity.current
     val viewConfig = LocalViewConfiguration.current
     val spacingPx = with(density) { PixsoDimens.Numeric_12.toPx() }
-    val fallbackHeightPx = with(density) { 188.dp.toPx() }
+    val fallbackHeightPx = with(density) { 248.dp.toPx() }
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val widthPx = with(density) { maxWidth.toPx() }
@@ -381,13 +446,18 @@ private fun ReorderableScenarioActionsList(
                         ScenarioActionCard(
                             action = action,
                             expanded = expandedStates[action.id] ?: false,
-                            whereItems = whereItems,
-                            whatItems = whatItems,
-                            valueItems = valueItems,
+                            rooms = rooms,
+                            groups = groups,
+                            luminaires = luminaires,
+                            objectTypeItems = objectTypeItems,
+                            changeTypeItems = changeTypeItems,
+                            sceneValueItems = sceneValueItems,
+                            autoValueItems = autoValueItems,
                             onExpandedChange = { expandedStates[action.id] = it },
-                            onWhereChange = { onWhereChange(action, it) },
-                            onWhatChange = { onWhatChange(action, it) },
-                            onValueChange = { onValueChange(action, it) },
+                            onObjectTypeChange = { onObjectTypeChange(action, it) },
+                            onObjectChange = { onObjectChange(action, it) },
+                            onChangeTypeChange = { onChangeTypeChange(action, it) },
+                            onChangeValueChange = { onChangeValueChange(action, it) },
                             modifier = Modifier.fillMaxWidth(),
                             onMeasured = { actionHeights[action.id] = it },
                             isPressed = isPressed(action.id),
@@ -402,13 +472,18 @@ private fun ReorderableScenarioActionsList(
                 ScenarioActionCard(
                     action = draggedAction,
                     expanded = expandedStates[draggedAction.id] ?: false,
-                    whereItems = whereItems,
-                    whatItems = whatItems,
-                    valueItems = valueItems,
+                    rooms = rooms,
+                    groups = groups,
+                    luminaires = luminaires,
+                    objectTypeItems = objectTypeItems,
+                    changeTypeItems = changeTypeItems,
+                    sceneValueItems = sceneValueItems,
+                    autoValueItems = autoValueItems,
                     onExpandedChange = { expandedStates[draggedAction.id] = it },
-                    onWhereChange = { onWhereChange(draggedAction, it) },
-                    onWhatChange = { onWhatChange(draggedAction, it) },
-                    onValueChange = { onValueChange(draggedAction, it) },
+                    onObjectTypeChange = { onObjectTypeChange(draggedAction, it) },
+                    onObjectChange = { onObjectChange(draggedAction, it) },
+                    onChangeTypeChange = { onChangeTypeChange(draggedAction, it) },
+                    onChangeValueChange = { onChangeValueChange(draggedAction, it) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .offset { IntOffset(0, (slotTops[draggedIndex] + dragDelta.y).roundToInt()) }
@@ -425,17 +500,57 @@ private fun ReorderableScenarioActionsList(
 private fun ScenarioActionCard(
     action: ActionEntity,
     expanded: Boolean,
-    whereItems: List<DropdownItem>,
-    whatItems: List<DropdownItem>,
-    valueItems: List<DropdownItem>,
+    rooms: List<RoomEntity>,
+    groups: List<GroupEntity>,
+    luminaires: List<LuminaireEntity>,
+    objectTypeItems: List<DropdownItem>,
+    changeTypeItems: List<DropdownItem>,
+    sceneValueItems: List<DropdownItem>,
+    autoValueItems: List<DropdownItem>,
     onExpandedChange: (Boolean) -> Unit,
-    onWhereChange: (Int) -> Unit,
-    onWhatChange: (Int) -> Unit,
-    onValueChange: (Int) -> Unit,
+    onObjectTypeChange: (Long) -> Unit,
+    onObjectChange: (Long) -> Unit,
+    onChangeTypeChange: (Long) -> Unit,
+    onChangeValueChange: (Long) -> Unit,
     onMeasured: (Int) -> Unit,
     isPressed: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val roomNames = remember(rooms) {
+        rooms.associate { it.id to it.name.ifBlank { "Помещение ${it.id + 1}" } }
+    }
+    val objectItems = remember(action.objectTypeId, rooms, groups, luminaires) {
+        when (action.objectTypeId) {
+            OBJECT_TYPE_ROOM -> {
+                rooms.map { DropdownItem(it.id.toLong(), it.name.ifBlank { "Помещение ${it.id + 1}" }) }
+            }
+            OBJECT_TYPE_GROUP -> {
+                groups.map { DropdownItem(it.id.toLong(), it.name.ifBlank { "Группа ${it.id + 1}" }) }
+            }
+            OBJECT_TYPE_LUMINAIRE -> {
+                luminaires.map { luminaire ->
+                    val roomTitle = roomNames[luminaire.roomId] ?: "Без помещения"
+                    val luminaireTitle = luminaire.name.ifBlank { "Светильник ${luminaire.id}" }
+                    DropdownItem(luminaire.id, "$roomTitle / $luminaireTitle")
+                }
+            }
+            else -> emptyList()
+        }
+    }
+    val valueItems = when (action.changeTypeId) {
+        CHANGE_TYPE_SCENE -> sceneValueItems
+        CHANGE_TYPE_AUTO -> autoValueItems
+        else -> emptyList()
+    }
+    val showObjectField = action.objectTypeId != OBJECT_TYPE_LOCATION
+    val objectPlaceholder = when {
+        action.objectTypeId == null -> "Сначала выберите тип объекта"
+        objectItems.isEmpty() && action.objectTypeId == OBJECT_TYPE_ROOM -> "Нет помещений"
+        objectItems.isEmpty() && action.objectTypeId == OBJECT_TYPE_GROUP -> "Нет групп"
+        objectItems.isEmpty() && action.objectTypeId == OBJECT_TYPE_LUMINAIRE -> "Нет светильников"
+        else -> "Не выбрано"
+    }
+
     Box(
         modifier = modifier.then(
             Modifier.graphicsLayer {
@@ -450,22 +565,38 @@ private fun ScenarioActionCard(
             title = "Действие",
             expanded = expanded,
             onExpandedChange = onExpandedChange,
-            whereField = ScenarioPointField(
-                value = action.whereId,
-                onValueChange = onWhereChange,
+            objectTypeField = ScenarioPointField(
+                value = action.objectTypeId?.toLong(),
+                onValueChange = onObjectTypeChange,
                 placeholder = "Не выбрано",
-                dropdownItems = whereItems,
+                dropdownItems = objectTypeItems,
             ),
-            whatField = ScenarioPointField(
-                value = action.whatId,
-                onValueChange = onWhatChange,
+            objectField = if (showObjectField) {
+                ScenarioPointField(
+                    value = action.objectId,
+                    onValueChange = onObjectChange,
+                    placeholder = objectPlaceholder,
+                    enabled = action.objectTypeId != null && objectItems.isNotEmpty(),
+                    dropdownItems = objectItems,
+                )
+            } else {
+                null
+            },
+            changeTypeField = ScenarioPointField(
+                value = action.changeTypeId?.toLong(),
+                onValueChange = onChangeTypeChange,
                 placeholder = "Не выбрано",
-                dropdownItems = whatItems,
+                dropdownItems = changeTypeItems,
             ),
-            valueField = ScenarioPointField(
-                value = action.valueId,
-                onValueChange = onValueChange,
-                placeholder = "Не выбрано",
+            changeValueField = ScenarioPointField(
+                value = action.changeValueId?.toLong(),
+                onValueChange = onChangeValueChange,
+                placeholder = when {
+                    action.changeTypeId == null -> "Сначала выберите изменение"
+                    valueItems.isEmpty() -> "Нет значений"
+                    else -> "Не выбрано"
+                },
+                enabled = action.changeTypeId != null && valueItems.isNotEmpty(),
                 dropdownItems = valueItems,
             ),
             modifier = Modifier

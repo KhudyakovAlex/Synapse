@@ -25,7 +25,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ActionEntity::class,
         ScenarioSetEntity::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -631,6 +631,56 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ACTIONS_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        SCENARIO_ID INTEGER NOT NULL,
+                        POSITION INTEGER NOT NULL DEFAULT 0,
+                        OBJECT_TYPE_ID INTEGER,
+                        OBJECT_ID INTEGER,
+                        CHANGE_TYPE_ID INTEGER,
+                        CHANGE_VALUE_ID INTEGER,
+                        FOREIGN KEY (SCENARIO_ID) REFERENCES SCENARIOS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO ACTIONS_NEW (
+                        ID,
+                        SCENARIO_ID,
+                        POSITION,
+                        OBJECT_TYPE_ID,
+                        OBJECT_ID,
+                        CHANGE_TYPE_ID,
+                        CHANGE_VALUE_ID
+                    )
+                    SELECT
+                        ID,
+                        SCENARIO_ID,
+                        POSITION,
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL
+                    FROM ACTIONS
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE ACTIONS")
+                db.execSQL("ALTER TABLE ACTIONS_NEW RENAME TO ACTIONS")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ACTIONS_SCENARIO_ID ON ACTIONS (SCENARIO_ID)")
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_ACTIONS_SCENARIO_ID_POSITION
+                    ON ACTIONS (SCENARIO_ID, POSITION)
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -655,7 +705,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_12_13,
                     MIGRATION_13_14,
                     MIGRATION_14_15,
-                    MIGRATION_15_16
+                    MIGRATION_15_16,
+                    MIGRATION_16_17
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

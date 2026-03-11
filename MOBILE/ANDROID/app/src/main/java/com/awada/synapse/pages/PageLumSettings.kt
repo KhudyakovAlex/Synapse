@@ -114,11 +114,11 @@ fun PageLumSettings(
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
             
             // 2. Тип
-            val typeDropdownItems = luminaireTypes.map { DropdownItem(id = it.id, text = it.name) }
+            val typeDropdownItems = luminaireTypes.map { DropdownItem(id = it.id.toLong(), text = it.name) }
 
             TextFieldForList(
-                value = typeId,
-                onValueChange = { selectedId -> typeId = selectedId },
+                value = typeId.toLong(),
+                onValueChange = { selectedId -> typeId = selectedId.toInt() },
                 icon = R.drawable.ic_chevron_down,
                 label = "Тип",
                 placeholder = "Выберите тип",
