@@ -551,10 +551,14 @@ private fun MainContent() {
                         }
                     }
                     AppScreen.AddDevices -> {
-                        PageAddDevices(
-                            onBackClick = { currentScreen = AppScreen.GroupDetails },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        val group = selectedGroup
+                        if (group != null) {
+                            PageAddDevices(
+                                controllerId = group.controllerId,
+                                onBackClick = { currentScreen = AppScreen.GroupDetails },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                     AppScreen.RoomSettings -> {
                         PageRoomSettings(
