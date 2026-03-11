@@ -503,9 +503,7 @@ fun PageRoom(
                         }
                         TooltipResult.Tertiary -> {
                             if (groupId != null) {
-                                scope.launch {
-                                    removeKeysFromGroup(controllerGroupKeys(groupId))
-                                }
+                                removeKeysFromGroup(listOf(keyToDelete))
                             } else {
                                 moveKeysOutOfRoom(listOf(keyToDelete))
                             }

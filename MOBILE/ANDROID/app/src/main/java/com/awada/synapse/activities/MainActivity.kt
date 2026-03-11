@@ -64,7 +64,6 @@ import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSensorBrightSettings
 import com.awada.synapse.pages.PageSensorPressSettings
 import com.awada.synapse.pages.PageSettings
-import com.awada.synapse.pages.PageAddDevices
 import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
@@ -108,7 +107,6 @@ enum class AppScreen {
     LocationDetails,
     RoomDetails,
     GroupDetails,
-    AddDevices,
     RoomSettings,
     LocationSettings,
     Lum,
@@ -327,7 +325,6 @@ private fun MainContent() {
             AppScreen.SensorPressSettings, AppScreen.SensorBrightSettings, AppScreen.ButtonPanelSettings -> currentScreen = systemSettingsBackTarget
             AppScreen.Scenario -> currentScreen = scenarioBackTarget
             AppScreen.Panel -> currentScreen = buttonPanelBackTarget
-            AppScreen.AddDevices -> currentScreen = AppScreen.GroupDetails
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
             }
@@ -535,7 +532,6 @@ private fun MainContent() {
                                 controllerId = group.controllerId,
                                 groupId = group.groupId,
                                 onBackClick = { currentScreen = groupBackTarget },
-                                onAddClick = { currentScreen = AppScreen.AddDevices },
                                 onLumClick = { luminaireId ->
                                     selectedLuminaireId = luminaireId
                                     lumBackTarget = AppScreen.GroupDetails
@@ -546,17 +542,6 @@ private fun MainContent() {
                                     systemSettingsBackTarget = AppScreen.GroupDetails
                                     currentScreen = AppScreen.SensorBrightSettings
                                 },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                    AppScreen.AddDevices -> {
-                        val group = selectedGroup
-                        if (group != null) {
-                            PageAddDevices(
-                                controllerId = group.controllerId,
-                                groupId = group.groupId,
-                                onBackClick = { currentScreen = AppScreen.GroupDetails },
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

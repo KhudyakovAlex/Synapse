@@ -35,7 +35,6 @@ fun PageGroup(
     controllerId: Int,
     groupId: Int,
     onBackClick: () -> Unit,
-    onAddClick: () -> Unit,
     onLumClick: (luminaireId: Long) -> Unit,
     onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
     modifier: Modifier = Modifier
@@ -69,8 +68,6 @@ fun PageGroup(
         PageContainer(
             title = groupOrNull?.displayName() ?: defaultGroupName(groupId),
             onBackClick = onBackClick,
-            onSettingsClick = onAddClick,
-            actionIconResId = com.awada.synapse.R.drawable.system_add,
             isScrollable = true,
             modifier = Modifier.fillMaxSize()
         ) {

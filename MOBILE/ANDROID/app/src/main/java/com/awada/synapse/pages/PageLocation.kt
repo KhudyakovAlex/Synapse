@@ -734,14 +734,10 @@ fun PageLocation(
                             pendingDeleteTitle = ""
                             pressedKey = null
                             scope.launch {
-                                groupId?.let { gid ->
-                                    controllerGroupKeys(gid).forEach { key ->
-                                        when (key.type) {
-                                            DeviceType.Luminaire -> db.luminaireDao().moveToGroup(key.id, null)
-                                            DeviceType.BrightSensor -> db.brightSensorDao().moveToGroup(key.id, null)
-                                            DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
-                                        }
-                                    }
+                                when (keyToDelete.type) {
+                                    DeviceType.Luminaire -> db.luminaireDao().moveToGroup(keyToDelete.id, null)
+                                    DeviceType.BrightSensor -> db.brightSensorDao().moveToGroup(keyToDelete.id, null)
+                                    DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
                                 }
                             }
                         }

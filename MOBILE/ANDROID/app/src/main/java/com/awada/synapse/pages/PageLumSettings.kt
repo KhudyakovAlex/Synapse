@@ -20,12 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.R
 import com.awada.synapse.components.IconSelectButton
+import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.TextField
 import com.awada.synapse.components.TextFieldForList
-import com.awada.synapse.components.DropdownItem
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
-import com.awada.synapse.db.GroupEntity
 import com.awada.synapse.db.LuminaireTypeEntity
 import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.db.displayName
@@ -52,10 +51,7 @@ fun PageLumSettings(
     var name by remember { mutableStateOf("") }
     var typeId by remember { mutableIntStateOf(LuminaireTypeEntity.TYPE_DIMMABLE) }
     var roomId by remember { mutableStateOf<Int?>(null) }
-    var groupId by remember { mutableStateOf<Int?>(null) }
-    var controllerId by remember { mutableStateOf<Int?>(null) }
     var rooms by remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
-    var groups by remember { mutableStateOf<List<GroupEntity>>(emptyList()) }
     var luminaireTypes by remember { mutableStateOf<List<LuminaireTypeEntity>>(emptyList()) }
 
     LaunchedEffect(luminaireId) {
@@ -65,10 +61,7 @@ fun PageLumSettings(
         iconId = e.icoNum
         typeId = e.typeId
         roomId = e.roomId
-        groupId = e.groupId
-        controllerId = e.controllerId
         rooms = db.roomDao().getAllOrdered(e.controllerId)
-        groups = db.groupDao().getAllOrdered()
         luminaireTypes = db.luminaireTypeDao().getAllOrdered()
     }
 
@@ -78,7 +71,6 @@ fun PageLumSettings(
             if (id != null) {
                 db.luminaireDao().setNameIconAndType(id = id, name = name, icoNum = iconId, typeId = typeId)
                 db.luminaireDao().moveToRoom(id = id, roomId = roomId)
-                db.luminaireDao().moveToGroup(id = id, groupId = groupId)
             }
             onBackClick()
         }
@@ -146,25 +138,7 @@ fun PageLumSettings(
             
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
-            // 3. Группа
-            val groupDropdownItems = listOf(DropdownItem(id = -1, text = "Вне групп")) +
-                groups.map { DropdownItem(id = it.id, text = it.displayName()) }
-
-            TextFieldForList(
-                value = groupId ?: -1,
-                onValueChange = { selectedId ->
-                    groupId = if (selectedId == -1) null else selectedId
-                },
-                icon = R.drawable.ic_chevron_down,
-                label = "Группа",
-                placeholder = "Выберите группу",
-                enabled = true,
-                dropdownItems = groupDropdownItems
-            )
-            
-            Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
-            
-            // 4. Тип
+            // 3. Тип
             val typeDropdownItems = luminaireTypes.map { DropdownItem(id = it.id, text = it.name) }
 
             TextFieldForList(
@@ -179,7 +153,7 @@ fun PageLumSettings(
 
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
 
-            // 5. Иконка
+            // 4. Иконка
             Column(
                 verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)
             ) {
