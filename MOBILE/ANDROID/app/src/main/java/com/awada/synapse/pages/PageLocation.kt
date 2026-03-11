@@ -119,6 +119,7 @@ fun PageLocation(
     var pendingDropSourceKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDropTargetKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingNoFreeGroupTooltip by remember { mutableStateOf(false) }
+    var locallyHiddenKeys by remember { mutableStateOf<Set<DeviceKey>>(emptySet()) }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
     val orderedRoomsState = remember { mutableStateOf<List<RoomEntity>>(emptyList()) }
     var draggingRoomId by remember { mutableIntStateOf(-1) }
@@ -461,9 +462,14 @@ fun PageLocation(
                                 )
                             }
                         }
+                        val visibleInfoByKey = infoByKey.filterKeys { it !in locallyHiddenKeys }
+
+                        LaunchedEffect(infoByKey.keys) {
+                            locallyHiddenKeys = locallyHiddenKeys.intersect(infoByKey.keys)
+                        }
 
                         val initialOrder: List<DeviceKey> =
-                            infoByKey.values
+                            visibleInfoByKey.values
                                 .sortedWith(
                                     compareBy<DeviceInfo> { it.gridPos }
                                         .thenBy { it.key.type.ordinal }
@@ -543,7 +549,7 @@ fun PageLocation(
 
                         fun moveDeviceToRoom(key: DeviceKey, roomId: Int) {
                             val groupedKeysToMove =
-                                infoByKey[key]
+                                visibleInfoByKey[key]
                                     ?.groupId
                                     ?.let { groupId ->
                                         buildList {
@@ -559,12 +565,13 @@ fun PageLocation(
                             val keysToMove =
                                 (if (groupedKeysToMove.isEmpty()) listOf(key) else groupedKeysToMove)
                                     .distinct()
+                            locallyHiddenKeys = locallyHiddenKeys + keysToMove
                             val remainingKeys = orderedKeysState.value.filter { it !in keysToMove }
                             orderedKeysState.value = remainingKeys
                             draggingKey = null
                             pressedKey = null
                             scope.launch {
-                                val groupId = infoByKey[key]?.groupId
+                                val groupId = visibleInfoByKey[key]?.groupId
                                 if (groupId != null && controllerId != null) {
                                     db.luminaireDao()
                                         .getAllForGroup(controllerId, groupId)
@@ -591,12 +598,16 @@ fun PageLocation(
                             }
                         }
 
-                        val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
-                        val groupIdByKey: Map<DeviceKey, Int?> = infoByKey.values.associate { it.key to it.groupId }
+                        val orderedKeys = orderedKeysState.value.filter { it in visibleInfoByKey }
+                        val visibleKeys = orderedKeys.toSet()
+                        val visibleCircleBoundsByKey =
+                            deviceCircleBoundsByKey.filterKeys { it in visibleKeys }
+                        val groupIdByKey: Map<DeviceKey, Int?> =
+                            orderedKeys.associateWith { visibleInfoByKey[it]?.groupId }
                         val dimmedKeys =
                             if (draggingKey == null) {
                                 groupLinkCoveredKeysInRoot(
-                                    circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                    circleBoundsInRootByKey = visibleCircleBoundsByKey,
                                     groupIdByKey = groupIdByKey
                                 )
                             } else {
@@ -604,7 +615,7 @@ fun PageLocation(
                             }
                         Box(modifier = Modifier.fillMaxWidth()) {
                             GroupLinksOverlay(
-                                circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                circleBoundsInRootByKey = visibleCircleBoundsByKey,
                                 groupIdByKey = groupIdByKey,
                                 visible = draggingKey == null,
                                 modifier = Modifier.matchParentSize()
@@ -653,11 +664,11 @@ fun PageLocation(
                                 },
                                 onRequestDelete = { k ->
                                     pendingDeleteKey = k
-                                    pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
+                                    pendingDeleteTitle = visibleInfoByKey[k]?.titleForDelete.orEmpty()
                                 },
                                 itemHeight = 128.dp,
                                 itemContent = { k, isPressed, suppressClick, m ->
-                                    infoByKey[k]?.content?.invoke(
+                                    visibleInfoByKey[k]?.content?.invoke(
                                         isPressed,
                                         suppressClick,
                                         if (k in dimmedKeys) dimmedCircleAlpha else 1f,
@@ -685,6 +696,9 @@ fun PageLocation(
                     when (res) {
                         TooltipResult.Primary -> {
                             val keysToDelete = groupId?.let(::visibleGroupKeys).orEmpty()
+                            locallyHiddenKeys =
+                                locallyHiddenKeys +
+                                    (if (keysToDelete.isEmpty()) listOf(keyToDelete) else keysToDelete)
                             val remaining =
                                 orderedKeysState.value.filter {
                                     it !in if (keysToDelete.isEmpty()) listOf(keyToDelete) else keysToDelete

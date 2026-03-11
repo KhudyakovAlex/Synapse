@@ -87,6 +87,7 @@ fun PageRoom(
     var pressedKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteKey by remember { mutableStateOf<DeviceKey?>(null) }
     var pendingDeleteTitle by remember { mutableStateOf("") }
+    var locallyHiddenKeys by remember { mutableStateOf<Set<DeviceKey>>(emptySet()) }
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
     val deviceCircleBoundsByKey = remember { mutableStateMapOf<DeviceKey, Rect>() }
 
@@ -120,6 +121,7 @@ fun PageRoom(
         }.distinct()
 
     fun moveKeysOutOfRoom(keysToMove: List<DeviceKey>) {
+        locallyHiddenKeys = locallyHiddenKeys + keysToMove
         val remaining = orderedKeysState.value.filter { it !in keysToMove }
         orderedKeysState.value = remaining
         pendingDeleteKey = null
@@ -146,6 +148,7 @@ fun PageRoom(
     }
 
     fun deleteKeys(keysToDelete: List<DeviceKey>) {
+        locallyHiddenKeys = locallyHiddenKeys + keysToDelete
         val remaining = orderedKeysState.value.filter { it !in keysToDelete }
         orderedKeysState.value = remaining
         pendingDeleteKey = null
@@ -331,9 +334,14 @@ fun PageRoom(
                             )
                         }
                     }
+                    val visibleInfoByKey = infoByKey.filterKeys { it !in locallyHiddenKeys }
+
+                    LaunchedEffect(infoByKey.keys) {
+                        locallyHiddenKeys = locallyHiddenKeys.intersect(infoByKey.keys)
+                    }
 
                     val initialOrder: List<DeviceKey> =
-                        infoByKey.values
+                        visibleInfoByKey.values
                             .sortedWith(
                                 compareBy<DeviceInfo> { it.gridPos }
                                     .thenBy { it.key.type.ordinal }
@@ -360,12 +368,16 @@ fun PageRoom(
                         }
                     }
 
-                    val orderedKeys = orderedKeysState.value.filter { it in infoByKey }
-                    val groupIdByKey: Map<DeviceKey, Int?> = infoByKey.values.associate { it.key to it.groupId }
+                    val orderedKeys = orderedKeysState.value.filter { it in visibleInfoByKey }
+                    val visibleKeys = orderedKeys.toSet()
+                    val visibleCircleBoundsByKey =
+                        deviceCircleBoundsByKey.filterKeys { it in visibleKeys }
+                    val groupIdByKey: Map<DeviceKey, Int?> =
+                        orderedKeys.associateWith { visibleInfoByKey[it]?.groupId }
                     val dimmedKeys =
                         if (draggingKey == null) {
                             groupLinkCoveredKeysInRoot(
-                                circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                circleBoundsInRootByKey = visibleCircleBoundsByKey,
                                 groupIdByKey = groupIdByKey
                             )
                         } else {
@@ -373,7 +385,7 @@ fun PageRoom(
                         }
                     Box(modifier = Modifier.fillMaxWidth()) {
                         GroupLinksOverlay(
-                            circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                            circleBoundsInRootByKey = visibleCircleBoundsByKey,
                             groupIdByKey = groupIdByKey,
                             visible = draggingKey == null,
                             modifier = Modifier.matchParentSize()
@@ -391,11 +403,11 @@ fun PageRoom(
                             onCommitOrder = { commitOrder(it) },
                             onRequestDelete = { k ->
                                 pendingDeleteKey = k
-                                pendingDeleteTitle = infoByKey[k]?.titleForDelete.orEmpty()
+                                pendingDeleteTitle = visibleInfoByKey[k]?.titleForDelete.orEmpty()
                             },
                             itemHeight = 128.dp,
                             itemContent = { k, isPressed, suppressClick, m ->
-                                infoByKey[k]?.content?.invoke(
+                                visibleInfoByKey[k]?.content?.invoke(
                                     isPressed,
                                     suppressClick,
                                     if (k in dimmedKeys) dimmedCircleAlpha else 1f,
