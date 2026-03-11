@@ -6,9 +6,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -708,31 +710,16 @@ private fun LongPressDeleteScenarioSummary(
     onRequestDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier.pointerInput(scenarioId) {
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
-                down.consume()
+    val interactionSource = remember { MutableInteractionSource() }
 
-                var moved = false
-                while (true) {
-                    val event = awaitPointerEvent()
-                    val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.first()
-                    if (!change.pressed) {
-                        change.consume()
-                        break
-                    }
-                    if (change.position != change.previousPosition) {
-                        moved = true
-                    }
-                    change.consume()
-                }
-                if (!moved) {
-                    onRequestDelete()
-                }
-            }
-        }
+    Box(
+        modifier = modifier.combinedClickable(
+            interactionSource = interactionSource,
+            indication = null,
+            enabled = !suppressClick,
+            onClick = { onScenarioClick(scenarioId) },
+            onLongClick = onRequestDelete,
+        )
     ) {
         ScenarioSummaryBlock(
             scenarioId = scenarioId,
@@ -740,7 +727,7 @@ private fun LongPressDeleteScenarioSummary(
             groups = groups,
             luminaires = luminaires,
             onScenarioClick = onScenarioClick,
-            clickEnabled = !suppressClick,
+            clickEnabled = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
