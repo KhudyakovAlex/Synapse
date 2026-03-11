@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.awada.synapse.R
 import com.awada.synapse.components.AppBar
 import com.awada.synapse.ui.theme.PixsoColors
 
@@ -31,6 +33,7 @@ fun PageContainer(
     title: String,
     onBackClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
+    @DrawableRes actionIconResId: Int = R.drawable.ic_settings,
     isScrollable: Boolean = true,
     bottomSpacerHeightOverride: androidx.compose.ui.unit.Dp? = null,
     modifier: Modifier = Modifier,
@@ -46,6 +49,7 @@ fun PageContainer(
             title = title,
             onBackClick = onBackClick,
             onSettingsClick = onSettingsClick,
+            actionIconResId = actionIconResId,
             modifier = Modifier.fillMaxWidth()
         )
 

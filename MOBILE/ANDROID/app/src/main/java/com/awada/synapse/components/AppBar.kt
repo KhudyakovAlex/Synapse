@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,13 +36,14 @@ import com.awada.synapse.ui.theme.PixsoColors
  * 
  * @param title The text to display in the center.
  * @param onBackClick If not null, shows a back button that triggers this callback.
- * @param onSettingsClick If not null, shows a settings button that triggers this callback.
+ * @param onSettingsClick If not null, shows a right-side action button that triggers this callback.
  */
 @Composable
 fun AppBar(
     title: String,
     onBackClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
+    @DrawableRes actionIconResId: Int = R.drawable.ic_settings,
     modifier: Modifier = Modifier
 ) {
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -106,13 +108,13 @@ fun AppBar(
                 }
             }
 
-            // Right slot: Settings button
+            // Right slot: action button
             if (onSettingsClick != null) {
                 Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
-                            contentDescription = "Settings",
+                            imageVector = ImageVector.vectorResource(id = actionIconResId),
+                            contentDescription = if (actionIconResId == R.drawable.ic_settings) "Settings" else "Action",
                             modifier = Modifier.size(32.dp),
                             tint = PixsoColors.Color_Text_text_1_level
                         )
