@@ -712,18 +712,19 @@ private fun MainContent() {
                                     }
                                     val buttonDao = db.buttonDao()
                                     db.buttonPanelDao().apply {
-                                        repeat(2) { idx ->
+                                        val initialButtonCounts = listOf(1, 2, 4, 6, 8)
+                                        initialButtonCounts.forEachIndexed { idx, buttonCount ->
                                             val buttonPanelId = insert(
                                                 ButtonPanelEntity(
                                                     controllerId = controllerId,
                                                     roomId = null,
-                                                    name = "Кнопочная панель ${idx + 1}",
+                                                    name = "Кнопочная панель ${buttonCount}",
                                                     gridPos = 8 + idx
                                                 )
                                             )
                                             val nextButtonId = buttonDao.getNextId()
                                             buttonDao.insertAll(
-                                                List(4) { buttonIdx ->
+                                                List(buttonCount) { buttonIdx ->
                                                     ButtonEntity(
                                                         id = nextButtonId + buttonIdx,
                                                         num = buttonIdx + 1,
@@ -739,7 +740,7 @@ private fun MainContent() {
                                             controllerId = controllerId,
                                             roomId = null,
                                             name = "Датчик присутствия",
-                                            gridPos = 10
+                                            gridPos = 13
                                         )
                                     )
                                     db.brightSensorDao().insert(
@@ -747,7 +748,7 @@ private fun MainContent() {
                                             controllerId = controllerId,
                                             roomId = null,
                                             name = "Датчик освещенности",
-                                            gridPos = 11
+                                            gridPos = 14
                                         )
                                     )
                                     appearingLocationId = controllerId
