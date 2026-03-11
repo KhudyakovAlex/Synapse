@@ -27,6 +27,7 @@ import com.awada.synapse.ui.theme.PixsoDimens
 enum class TooltipResult {
     Primary,    // Primary button clicked
     Tertiary,   // Middle optional button clicked
+    Quaternary, // Additional optional button clicked
     Secondary,  // Secondary button clicked
     Dismissed   // Dismissed by tapping outside
 }
@@ -36,7 +37,7 @@ object TooltipOverlayState {
 }
 
 /**
- * Modal tooltip dialog with text and optional buttons.
+ * Modal tooltip dialog with optional text and buttons.
  * 
  * Features:
  * - Centered on screen
@@ -51,7 +52,7 @@ object TooltipOverlayState {
  * - Padding: 20/24dp
  * - Buttons spacing: 12dp (vertical), 16dp (horizontal)
  * 
- * @param text Main text content
+ * @param text Optional text content
  * @param onResult Callback with result (Primary/Secondary/Dismissed)
  * @param primaryButtonText Primary button text (right button, required)
  * @param secondaryButtonText Optional secondary button text (left button)
@@ -59,12 +60,13 @@ object TooltipOverlayState {
  */
 @Composable
 fun Tooltip(
-    text: String,
+    text: String? = null,
     primaryButtonText: String,
     onResult: (TooltipResult) -> Unit,
     modifier: Modifier = Modifier,
     secondaryButtonText: String? = null,
-    tertiaryButtonText: String? = null
+    tertiaryButtonText: String? = null,
+    quaternaryButtonText: String? = null
 ) {
     DisposableEffect(Unit) {
         TooltipOverlayState.isVisible = true
@@ -99,57 +101,66 @@ fun Tooltip(
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Text content
-            Text(
-                text = text,
-                style = BodyLarge,
-                color = PixsoColors.Color_Text_text_1_level,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (!text.isNullOrBlank()) {
+                Text(
+                    text = text,
+                    style = BodyLarge,
+                    color = PixsoColors.Color_Text_text_1_level,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            if (tertiaryButtonText != null) {
+            if (tertiaryButtonText != null || quaternaryButtonText != null || text.isNullOrBlank()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp),
+                        .padding(top = if (text.isNullOrBlank()) 0.dp else 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.End
                 ) {
+                    PrimaryButton(
+                        text = primaryButtonText,
+                        onClick = { onResult(TooltipResult.Primary) }
+                    )
+
+                    tertiaryButtonText?.let {
+                        PrimaryButton(
+                            text = it,
+                            onClick = { onResult(TooltipResult.Tertiary) }
+                        )
+                    }
+
+                    quaternaryButtonText?.let {
+                        PrimaryButton(
+                            text = it,
+                            onClick = { onResult(TooltipResult.Quaternary) }
+                        )
+                    }
+
                     secondaryButtonText?.let {
                         SecondaryButton(
                             text = it,
                             onClick = { onResult(TooltipResult.Secondary) }
                         )
                     }
-
-                    SecondaryButton(
-                        text = tertiaryButtonText,
-                        onClick = { onResult(TooltipResult.Tertiary) }
-                    )
-
-                    PrimaryButton(
-                        text = primaryButtonText,
-                        onClick = { onResult(TooltipResult.Primary) }
-                    )
                 }
             } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp), // Additional 4dp for total 16dp spacing
+                        .padding(top = if (text.isNullOrBlank()) 0.dp else 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
                 ) {
+                    PrimaryButton(
+                        text = primaryButtonText,
+                        onClick = { onResult(TooltipResult.Primary) }
+                    )
                     secondaryButtonText?.let {
                         SecondaryButton(
                             text = it,
                             onClick = { onResult(TooltipResult.Secondary) }
                         )
                     }
-
-                    PrimaryButton(
-                        text = primaryButtonText,
-                        onClick = { onResult(TooltipResult.Primary) }
-                    )
                 }
             }
         }

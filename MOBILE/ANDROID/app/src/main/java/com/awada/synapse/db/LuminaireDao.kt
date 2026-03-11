@@ -33,6 +33,16 @@ interface LuminaireDao {
         """
         SELECT * FROM LUMINAIRES
         WHERE CONTROLLER_ID = :controllerId
+          AND GROUP_ID = :groupId
+        ORDER BY GRID_POS ASC, ID ASC
+        """
+    )
+    suspend fun getAllForGroup(controllerId: Int, groupId: Int): List<LuminaireEntity>
+
+    @Query(
+        """
+        SELECT * FROM LUMINAIRES
+        WHERE CONTROLLER_ID = :controllerId
         ORDER BY GRID_POS ASC, ID ASC
         """
     )

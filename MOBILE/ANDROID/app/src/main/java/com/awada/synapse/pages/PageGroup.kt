@@ -257,7 +257,7 @@ fun PageGroup(
                                 }
                             }
                         }
-                        TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                        else -> {
                             pressedKey = null
                             pendingRemoveKey = null
                             pendingRemoveTitle = ""

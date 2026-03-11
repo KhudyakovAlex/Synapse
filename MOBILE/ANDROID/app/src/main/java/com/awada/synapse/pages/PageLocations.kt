@@ -217,7 +217,7 @@ fun PageLocations(
                             }
                         }
                     }
-                    TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                    else -> {
                         pendingDeleteId = -1
                         pressedId = -1
                     }

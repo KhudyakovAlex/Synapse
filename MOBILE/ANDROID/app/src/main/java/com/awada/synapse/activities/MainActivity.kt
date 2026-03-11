@@ -1081,7 +1081,7 @@ private fun MainContent() {
                                 }
                             }
                         }
-                        TooltipResult.Secondary, TooltipResult.Tertiary, TooltipResult.Dismissed -> {
+                        TooltipResult.Secondary, TooltipResult.Tertiary, TooltipResult.Quaternary, TooltipResult.Dismissed -> {
                             pendingSaveSceneNum = null
                         }
                     }

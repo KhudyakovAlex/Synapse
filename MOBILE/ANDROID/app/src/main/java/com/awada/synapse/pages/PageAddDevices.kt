@@ -153,7 +153,7 @@ fun PageAddDevices(
                         }
                     }
 
-                    TooltipResult.Tertiary, TooltipResult.Secondary, TooltipResult.Dismissed -> {
+                    else -> {
                         pendingAddDevice = null
                     }
                 }

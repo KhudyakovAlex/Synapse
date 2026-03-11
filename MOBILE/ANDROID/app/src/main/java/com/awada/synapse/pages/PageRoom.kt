@@ -90,6 +90,102 @@ fun PageRoom(
     val orderedKeysState = remember { mutableStateOf<List<DeviceKey>>(emptyList()) }
     val deviceCircleBoundsByKey = remember { mutableStateMapOf<DeviceKey, Rect>() }
 
+    fun groupIdForKey(key: DeviceKey): Int? =
+        when (key.type) {
+            DeviceType.Luminaire -> luminairesOrNull?.firstOrNull { it.id == key.id }?.groupId
+            DeviceType.BrightSensor -> brightSensorsOrNull?.firstOrNull { it.id == key.id }?.groupId
+            DeviceType.ButtonPanel, DeviceType.PresSensor -> null
+        }
+
+    fun groupedKeysFor(groupId: Int): List<DeviceKey> =
+        buildList {
+            luminairesOrNull
+                .orEmpty()
+                .filter { it.groupId == groupId }
+                .forEach { add(DeviceKey(DeviceType.Luminaire, it.id)) }
+            brightSensorsOrNull
+                .orEmpty()
+                .filter { it.groupId == groupId }
+                .forEach { add(DeviceKey(DeviceType.BrightSensor, it.id)) }
+        }.distinct()
+
+    suspend fun controllerGroupKeys(groupId: Int): List<DeviceKey> =
+        buildList {
+            db.luminaireDao()
+                .getAllForGroup(controllerId, groupId)
+                .forEach { add(DeviceKey(DeviceType.Luminaire, it.id)) }
+            db.brightSensorDao()
+                .getAllForGroup(controllerId, groupId)
+                .forEach { add(DeviceKey(DeviceType.BrightSensor, it.id)) }
+        }.distinct()
+
+    fun moveKeysOutOfRoom(keysToMove: List<DeviceKey>) {
+        val remaining = orderedKeysState.value.filter { it !in keysToMove }
+        orderedKeysState.value = remaining
+        pendingDeleteKey = null
+        pendingDeleteTitle = ""
+        pressedKey = null
+        scope.launch {
+            keysToMove.forEach { key ->
+                when (key.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().moveToRoom(key.id, null)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().moveToRoom(key.id, null)
+                    DeviceType.PresSensor -> db.presSensorDao().moveToRoom(key.id, null)
+                    DeviceType.BrightSensor -> db.brightSensorDao().moveToRoom(key.id, null)
+                }
+            }
+            remaining.forEachIndexed { index, k ->
+                when (k.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                    DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                    DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                }
+            }
+        }
+    }
+
+    fun deleteKeys(keysToDelete: List<DeviceKey>) {
+        val remaining = orderedKeysState.value.filter { it !in keysToDelete }
+        orderedKeysState.value = remaining
+        pendingDeleteKey = null
+        pendingDeleteTitle = ""
+        pressedKey = null
+        scope.launch {
+            keysToDelete.forEach { key ->
+                when (key.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().deleteById(key.id)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(key.id)
+                    DeviceType.PresSensor -> db.presSensorDao().deleteById(key.id)
+                    DeviceType.BrightSensor -> db.brightSensorDao().deleteById(key.id)
+                }
+            }
+            remaining.forEachIndexed { index, k ->
+                when (k.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                    DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                    DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                    DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                }
+            }
+        }
+    }
+
+    fun removeKeysFromGroup(keysToUpdate: List<DeviceKey>) {
+        pendingDeleteKey = null
+        pendingDeleteTitle = ""
+        pressedKey = null
+        scope.launch {
+            keysToUpdate.forEach { key ->
+                when (key.type) {
+                    DeviceType.Luminaire -> db.luminaireDao().moveToGroup(key.id, null)
+                    DeviceType.BrightSensor -> db.brightSensorDao().moveToGroup(key.id, null)
+                    DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                }
+            }
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         PageContainer(
             title = roomTitle,
@@ -314,60 +410,65 @@ fun PageRoom(
 
         if (pendingDeleteKey != null) {
             val keyToDelete = pendingDeleteKey!!
-            val text = if (pendingDeleteTitle.isNotBlank()) {
-                "Что сделать с устройством «$pendingDeleteTitle»?"
-            } else {
-                "Что сделать с устройством?"
-            }
+            val groupId = groupIdForKey(keyToDelete)
+            val isGrouped = groupId != null
             Tooltip(
-                text = text,
-                primaryButtonText = "Удалить",
-                tertiaryButtonText = "Вынести из помещения",
+                text = null,
+                primaryButtonText = "Удалить устройство",
+                tertiaryButtonText = if (isGrouped) "Убрать устройство из группы" else "Убрать из помещения",
+                quaternaryButtonText = if (isGrouped) "Убрать группу из помещения" else null,
                 secondaryButtonText = "Отмена",
                 onResult = { res ->
                     when (res) {
                         TooltipResult.Primary -> {
-                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
-                            orderedKeysState.value = remaining
-                            pendingDeleteKey = null
-                            pendingDeleteTitle = ""
-                            pressedKey = null
-                            scope.launch {
-                                when (keyToDelete.type) {
-                                    DeviceType.Luminaire -> db.luminaireDao().deleteById(keyToDelete.id)
-                                    DeviceType.ButtonPanel -> db.buttonPanelDao().deleteById(keyToDelete.id)
-                                    DeviceType.PresSensor -> db.presSensorDao().deleteById(keyToDelete.id)
-                                    DeviceType.BrightSensor -> db.brightSensorDao().deleteById(keyToDelete.id)
-                                }
-                                remaining.forEachIndexed { index, k ->
-                                    when (k.type) {
-                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
-                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
-                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
-                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                            if (groupId != null) {
+                                val visibleKeys = groupedKeysFor(groupId)
+                                val remaining = orderedKeysState.value.filter { it !in visibleKeys }
+                                orderedKeysState.value = remaining
+                                pendingDeleteKey = null
+                                pendingDeleteTitle = ""
+                                pressedKey = null
+                                scope.launch {
+                                    controllerGroupKeys(groupId).forEach { key ->
+                                        when (key.type) {
+                                            DeviceType.Luminaire -> db.luminaireDao().deleteById(key.id)
+                                            DeviceType.BrightSensor -> db.brightSensorDao().deleteById(key.id)
+                                            DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                                        }
+                                    }
+                                    remaining.forEachIndexed { index, k ->
+                                        when (k.type) {
+                                            DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
+                                            DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
+                                            DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
+                                            DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                                        }
                                     }
                                 }
+                            } else {
+                                deleteKeys(listOf(keyToDelete))
                             }
                         }
                         TooltipResult.Tertiary -> {
-                            val remaining = orderedKeysState.value.filter { it != keyToDelete }
-                            orderedKeysState.value = remaining
-                            pendingDeleteKey = null
-                            pendingDeleteTitle = ""
-                            pressedKey = null
-                            scope.launch {
-                                when (keyToDelete.type) {
-                                    DeviceType.Luminaire -> db.luminaireDao().moveToRoom(keyToDelete.id, null)
-                                    DeviceType.ButtonPanel -> db.buttonPanelDao().moveToRoom(keyToDelete.id, null)
-                                    DeviceType.PresSensor -> db.presSensorDao().moveToRoom(keyToDelete.id, null)
-                                    DeviceType.BrightSensor -> db.brightSensorDao().moveToRoom(keyToDelete.id, null)
+                            if (groupId != null) {
+                                scope.launch {
+                                    removeKeysFromGroup(controllerGroupKeys(groupId))
                                 }
-                                remaining.forEachIndexed { index, k ->
-                                    when (k.type) {
-                                        DeviceType.Luminaire -> db.luminaireDao().setGridPos(k.id, index)
-                                        DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(k.id, index)
-                                        DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
-                                        DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
+                            } else {
+                                moveKeysOutOfRoom(listOf(keyToDelete))
+                            }
+                        }
+                        TooltipResult.Quaternary -> {
+                            if (groupId != null) {
+                                val visibleKeys = groupedKeysFor(groupId)
+                                moveKeysOutOfRoom(visibleKeys)
+                                scope.launch {
+                                    controllerGroupKeys(groupId).forEach { key ->
+                                        when (key.type) {
+                                            DeviceType.Luminaire -> db.luminaireDao().moveToRoom(key.id, null)
+                                            DeviceType.BrightSensor -> db.brightSensorDao().moveToRoom(key.id, null)
+                                            DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
+                                        }
                                     }
                                 }
                             }
