@@ -110,6 +110,9 @@ fun PageRoom(
                 .forEach { add(DeviceKey(DeviceType.BrightSensor, it.id)) }
         }.distinct()
 
+    fun groupedKeysInCurrentOrder(groupId: Int): List<DeviceKey> =
+        orderedKeysState.value.filter { groupIdForKey(it) == groupId }
+
     suspend fun controllerGroupKeys(groupId: Int): List<DeviceKey> =
         buildList {
             db.luminaireDao()
@@ -143,6 +146,43 @@ fun PageRoom(
                     DeviceType.PresSensor -> db.presSensorDao().setGridPos(k.id, index)
                     DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(k.id, index)
                 }
+            }
+        }
+    }
+
+    suspend fun appendKeysToLocationEnd(keysToAppend: List<DeviceKey>) {
+        val rootKeys =
+            buildList {
+                db.luminaireDao()
+                    .getAllOrdered(controllerId, roomId = null)
+                    .forEach { add(DeviceKey(DeviceType.Luminaire, it.id) to it.gridPos) }
+                db.buttonPanelDao()
+                    .getAllOrdered(controllerId, roomId = null)
+                    .forEach { add(DeviceKey(DeviceType.ButtonPanel, it.id) to it.gridPos) }
+                db.presSensorDao()
+                    .getAllOrdered(controllerId, roomId = null)
+                    .forEach { add(DeviceKey(DeviceType.PresSensor, it.id) to it.gridPos) }
+                db.brightSensorDao()
+                    .getAllOrdered(controllerId, roomId = null)
+                    .forEach { add(DeviceKey(DeviceType.BrightSensor, it.id) to it.gridPos) }
+            }
+                .sortedWith(
+                    compareBy<Pair<DeviceKey, Int>> { it.second }
+                        .thenBy { it.first.type.ordinal }
+                        .thenBy { it.first.id }
+                )
+                .map { it.first }
+
+        val finalKeys =
+            rootKeys.filter { it !in keysToAppend } +
+                keysToAppend.distinct()
+
+        finalKeys.forEachIndexed { index, key ->
+            when (key.type) {
+                DeviceType.Luminaire -> db.luminaireDao().setGridPos(key.id, index)
+                DeviceType.ButtonPanel -> db.buttonPanelDao().setGridPos(key.id, index)
+                DeviceType.PresSensor -> db.presSensorDao().setGridPos(key.id, index)
+                DeviceType.BrightSensor -> db.brightSensorDao().setGridPos(key.id, index)
             }
         }
     }
@@ -472,7 +512,7 @@ fun PageRoom(
                         }
                         TooltipResult.Quaternary -> {
                             if (groupId != null) {
-                                val visibleKeys = groupedKeysFor(groupId)
+                                val visibleKeys = groupedKeysInCurrentOrder(groupId)
                                 moveKeysOutOfRoom(visibleKeys)
                                 scope.launch {
                                     controllerGroupKeys(groupId).forEach { key ->
@@ -482,6 +522,7 @@ fun PageRoom(
                                             DeviceType.ButtonPanel, DeviceType.PresSensor -> Unit
                                         }
                                     }
+                                    appendKeysToLocationEnd(visibleKeys)
                                 }
                             }
                         }
