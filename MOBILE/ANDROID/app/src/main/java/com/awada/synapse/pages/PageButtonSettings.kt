@@ -61,7 +61,7 @@ fun PageButtonSettings(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ScenarioSection(
-                title = "Короткое нажатие",
+                title = "Короткое нажатие\n(сценарии ниже будут перебираться по очереди)",
                 scenarioBlocks = shortPressScenarioBlocks,
                 onAdd = onScenarioClick,
             )
@@ -69,7 +69,7 @@ fun PageButtonSettings(
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_8))
 
             ScenarioSectionSingle(
-                title = "Длинное нажатие",
+                title = "Длинное нажатие\n(плавное изменение к сценарию)",
                 scenarioBlock = longPressScenarioBlock,
                 onAdd = onScenarioClick,
             )
