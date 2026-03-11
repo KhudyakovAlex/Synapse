@@ -90,128 +90,136 @@ fun PageGroup(
                         val content: @Composable (Boolean, Boolean, Modifier) -> Unit
                     )
 
-                    val iconSize = 82.dp
-                    val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
-                        luminaires!!.forEach { e ->
-                            val icon = iconResId(
-                                context = context,
-                                iconId = e.icoNum,
-                                fallback = com.awada.synapse.R.drawable.luminaire_300_default
-                            )
-                            val key = DeviceKey(DeviceType.Luminaire, e.id)
-                            put(
-                                key,
-                                DeviceInfo(
-                                    key = key,
-                                    gridPos = e.gridPos,
-                                    titleForRemove = e.name.ifBlank { "Светильник" },
-                                    onClick = { onLumClick(e.id) },
-                                    content = { isPressed: Boolean, isClickPressed: Boolean, m: Modifier ->
-                                        Lum(
-                                            title = e.name.ifBlank { "Светильник" },
-                                            iconSize = iconSize,
-                                            brightnessPercent = e.bright,
-                                            typeId = e.typeId,
-                                            hue = e.hue,
-                                            saturation = e.saturation,
-                                            temperature = e.temperature,
-                                            iconResId = icon,
-                                            forcePressed = isPressed,
-                                            forceSecondaryPressed = isClickPressed,
-                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
-                                            onClick = null,
-                                            modifier = m
-                                        )
-                                    }
-                                )
-                            )
-                        }
-                        brightSensors!!.forEach { e ->
-                            val key = DeviceKey(DeviceType.BrightSensor, e.id)
-                            put(
-                                key,
-                                DeviceInfo(
-                                    key = key,
-                                    gridPos = e.gridPos,
-                                    titleForRemove = e.name.ifBlank { "Сенсор яркости" },
-                                    onClick = { onSensorBrightSettingsClick(e.id) },
-                                    content = { isPressed: Boolean, isClickPressed: Boolean, m: Modifier ->
-                                        BrightSensor(
-                                            title = e.name.ifBlank { "Сенсор\nяркости" },
-                                            iconSize = iconSize,
-                                            forcePressed = isPressed,
-                                            forceSecondaryPressed = isClickPressed,
-                                            onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
-                                            onClick = null,
-                                            modifier = m
-                                        )
-                                    }
-                                )
-                            )
-                        }
-                    }
+                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                        val columnSpacing = 16.dp
+                        val rowSpacing = 4.dp
+                        val columns = 4
+                        val itemWidth = (maxWidth - columnSpacing * (columns - 1)) / columns.toFloat()
+                        val itemHeight = itemWidth
+                        val iconSize = (itemWidth * 0.78f).coerceIn(56.dp, 82.dp)
 
-                    val orderedKeys = infoByKey.values
-                        .sortedWith(
-                            compareBy<DeviceInfo> { it.gridPos }
-                                .thenBy { it.key.type.ordinal }
-                                .thenBy { it.key.id }
-                        )
-                        .map { it.key }
-                    val groupIdByKey = orderedKeys.associateWith { groupId }
+                        val infoByKey: Map<DeviceKey, DeviceInfo> = buildMap {
+                            luminaires!!.forEach { e ->
+                                val icon = iconResId(
+                                    context = context,
+                                    iconId = e.icoNum,
+                                    fallback = com.awada.synapse.R.drawable.luminaire_300_default
+                                )
+                                val key = DeviceKey(DeviceType.Luminaire, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForRemove = e.name.ifBlank { "Светильник" },
+                                        onClick = { onLumClick(e.id) },
+                                        content = { isPressed: Boolean, isClickPressed: Boolean, m: Modifier ->
+                                            Lum(
+                                                title = e.name.ifBlank { "Светильник" },
+                                                iconSize = iconSize,
+                                                brightnessPercent = e.bright,
+                                                typeId = e.typeId,
+                                                hue = e.hue,
+                                                saturation = e.saturation,
+                                                temperature = e.temperature,
+                                                iconResId = icon,
+                                                forcePressed = isPressed,
+                                                forceSecondaryPressed = isClickPressed,
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                onClick = null,
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                            brightSensors!!.forEach { e ->
+                                val key = DeviceKey(DeviceType.BrightSensor, e.id)
+                                put(
+                                    key,
+                                    DeviceInfo(
+                                        key = key,
+                                        gridPos = e.gridPos,
+                                        titleForRemove = e.name.ifBlank { "Сенсор яркости" },
+                                        onClick = { onSensorBrightSettingsClick(e.id) },
+                                        content = { isPressed: Boolean, isClickPressed: Boolean, m: Modifier ->
+                                            BrightSensor(
+                                                title = e.name.ifBlank { "Сенсор\nяркости" },
+                                                iconSize = iconSize,
+                                                forcePressed = isPressed,
+                                                forceSecondaryPressed = isClickPressed,
+                                                onCircleBoundsInRoot = { r -> deviceCircleBoundsByKey[key] = r },
+                                                onClick = null,
+                                                modifier = m
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        }
 
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        GroupLinksOverlay(
-                            circleBoundsInRootByKey = deviceCircleBoundsByKey,
-                            groupIdByKey = groupIdByKey,
-                            visible = true,
-                            modifier = Modifier.matchParentSize()
-                        )
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            orderedKeys.chunked(4).forEach { rowKeys ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    rowKeys.forEach { key ->
-                                        val info = infoByKey[key]
-                                        if (info != null) {
-                                            val interactionSource = remember { MutableInteractionSource() }
-                                            val isClickPressed by interactionSource.collectIsPressedAsState()
-                                            Box(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(128.dp)
-                                                    .combinedClickable(
-                                                        interactionSource = interactionSource,
-                                                        indication = null,
-                                                        onClick = info.onClick,
-                                                        onLongClick = {
-                                                            pressedKey = key
-                                                            pendingRemoveKey = key
-                                                            pendingRemoveTitle = info.titleForRemove
-                                                        }
-                                                    ),
-                                                contentAlignment = androidx.compose.ui.Alignment.Center
-                                            ) {
-                                                info.content(
-                                                    key == pressedKey,
-                                                    isClickPressed && key != pressedKey,
-                                                    Modifier
-                                                )
+                        val orderedKeys = infoByKey.values
+                            .sortedWith(
+                                compareBy<DeviceInfo> { it.gridPos }
+                                    .thenBy { it.key.type.ordinal }
+                                    .thenBy { it.key.id }
+                            )
+                            .map { it.key }
+                        val groupIdByKey = orderedKeys.associateWith { groupId }
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            GroupLinksOverlay(
+                                circleBoundsInRootByKey = deviceCircleBoundsByKey,
+                                groupIdByKey = groupIdByKey,
+                                visible = true,
+                                modifier = Modifier.matchParentSize()
+                            )
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(rowSpacing)
+                            ) {
+                                orderedKeys.chunked(columns).forEach { rowKeys ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(columnSpacing)
+                                    ) {
+                                        rowKeys.forEach { key ->
+                                            val info = infoByKey[key]
+                                            if (info != null) {
+                                                val interactionSource = remember { MutableInteractionSource() }
+                                                val isClickPressed by interactionSource.collectIsPressedAsState()
+                                                Box(
+                                                    modifier = Modifier
+                                                        .width(itemWidth)
+                                                        .height(itemHeight)
+                                                        .combinedClickable(
+                                                            interactionSource = interactionSource,
+                                                            indication = null,
+                                                            onClick = info.onClick,
+                                                            onLongClick = {
+                                                                pressedKey = key
+                                                                pendingRemoveKey = key
+                                                                pendingRemoveTitle = info.titleForRemove
+                                                            }
+                                                        ),
+                                                    contentAlignment = androidx.compose.ui.Alignment.Center
+                                                ) {
+                                                    info.content(
+                                                        key == pressedKey,
+                                                        isClickPressed && key != pressedKey,
+                                                        Modifier
+                                                    )
+                                                }
                                             }
                                         }
-                                    }
 
-                                    repeat(4 - rowKeys.size) {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .height(128.dp)
-                                        )
+                                        repeat(columns - rowKeys.size) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(itemWidth)
+                                                    .height(itemHeight)
+                                            )
+                                        }
                                     }
                                 }
                             }

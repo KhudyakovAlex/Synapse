@@ -203,7 +203,7 @@ fun PageLocationSettings(
 
                 Column(verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_8)) {
                     Text(
-                        text = "Группы",
+                        text = "Группы светильников",
                         style = LabelLarge,
                         color = PixsoColors.Color_Text_text_3_level,
                         modifier = Modifier.padding(horizontal = PixsoDimens.Numeric_12)

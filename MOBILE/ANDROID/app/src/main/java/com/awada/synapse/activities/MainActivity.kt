@@ -152,16 +152,6 @@ private fun MainContent() {
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
-    // Show LumControlLayer on Lum + aggregate lighting pages (collapsed by default except Lum).
-    val isLumControlVisible by remember {
-        derivedStateOf {
-            currentScreen == AppScreen.Lum ||
-                currentScreen == AppScreen.LocationDetails ||
-                currentScreen == AppScreen.RoomDetails ||
-                currentScreen == AppScreen.GroupDetails
-        }
-    }
-
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
     var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
@@ -315,6 +305,18 @@ private fun MainContent() {
             }
         }
     }
+    // Hide group lighting controls when the group has no luminaires.
+    val isLumControlVisible by remember {
+        derivedStateOf {
+            when (currentScreen) {
+                AppScreen.Lum,
+                AppScreen.LocationDetails,
+                AppScreen.RoomDetails -> true
+                AppScreen.GroupDetails -> lumControlLuminaires.isNotEmpty()
+                else -> false
+            }
+        }
+    }
 
     // Handle system back button
     BackHandler {
@@ -402,7 +404,8 @@ private fun MainContent() {
             label = "ScreenNavigation"
         ) { screen ->
             val isLumControlVisibleForScreen = when (screen) {
-                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails, AppScreen.GroupDetails -> true
+                AppScreen.Lum, AppScreen.LocationDetails, AppScreen.RoomDetails -> true
+                AppScreen.GroupDetails -> lumControlLuminaires.isNotEmpty()
                 else -> false
             }
             val bottomOverlayInsetForScreen = maxOf(
