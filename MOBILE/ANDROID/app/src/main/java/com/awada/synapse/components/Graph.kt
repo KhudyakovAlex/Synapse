@@ -5,17 +5,18 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -23,6 +24,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Density
@@ -35,6 +37,8 @@ import kotlin.math.hypot
 import kotlin.math.roundToInt
 
 private const val MINUTES_PER_DAY = 24 * 60
+private const val TIME_STEP_MINUTES = 5
+private const val VIRTUAL_POINT_ID = Long.MIN_VALUE
 
 @Immutable
 data class GraphPoint(
@@ -60,6 +64,16 @@ private data class ChartMetrics(
     val height: Float get() = bottom - top
 }
 
+private data class PointRenderInfo(
+    val point: InternalGraphPoint,
+    val center: Offset,
+    val radius: Float,
+    val valueLayout: TextLayoutResult,
+    val timeLayout: TextLayoutResult,
+    val valueBaseTop: Float,
+    val timeBaseTop: Float,
+)
+
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun Graph(
@@ -74,11 +88,9 @@ fun Graph(
     }
     val latestPoints = rememberUpdatedState(normalizedPoints)
     val latestOnPointsChange = rememberUpdatedState(onPointsChange)
+    var activePointId by remember { mutableStateOf<Long?>(null) }
     val renderedPoints = remember(normalizedPoints) {
         buildRenderedPoints(normalizedPoints)
-    }
-    val timeLabels = remember {
-        listOf("00:00", "06:00", "12:00", "18:00", "24:00")
     }
     val textMeasurer = rememberTextMeasurer()
 
@@ -95,6 +107,7 @@ fun Graph(
                         pointsProvider = { latestPoints.value },
                         valueRange = valueRange,
                         onPointsChange = { latestOnPointsChange.value(it) },
+                        onActivePointChange = { activePointId = it },
                     )
                 }
         ) {
@@ -102,7 +115,9 @@ fun Graph(
             val horizontalFractions = listOf(0f, 0.5f, 1f)
             val verticalFractions = listOf(0f, 0.25f, 0.5f, 0.75f, 1f)
             val lineStroke = 3.dp.toPx()
-            val labelGap = 6.dp.toPx()
+            val labelGap = 10.dp.toPx()
+            val timeGap = 10.dp.toPx()
+            val labelStackGap = 6.dp.toPx()
 
             horizontalFractions.forEach { fraction ->
                 val y = metrics.top + metrics.height * fraction
@@ -143,53 +158,85 @@ fun Graph(
                 )
             )
 
-            renderedPoints.forEach { point ->
+            val pointInfos = renderedPoints.map { point ->
                 val center = point.toOffset(metrics = metrics, valueRange = valueRange)
-                val pointRadius = if (point.isVirtual || point.minuteOfDay == 0) {
+                val isActive = activePointId == point.id
+                val basePointRadius = if (point.isVirtual || point.minuteOfDay == 0) {
                     7.dp.toPx()
                 } else {
                     6.dp.toPx()
+                }
+                val pointRadius = if (isActive) {
+                    basePointRadius * 2f
+                } else {
+                    basePointRadius
                 }
                 val labelText = valueFormatter(point.value)
                 val labelLayout = textMeasurer.measure(
                     text = labelText,
                     style = LabelLarge.copy(color = PixsoColors.Color_Text_text_1_level),
                 )
-                val labelX = (center.x - labelLayout.size.width / 2f)
-                    .coerceIn(0f, size.width - labelLayout.size.width)
-                val labelY = (center.y - pointRadius - labelLayout.size.height - labelGap)
-                    .coerceAtLeast(0f)
-
-                drawText(
-                    textLayoutResult = labelLayout,
-                    topLeft = Offset(labelX, labelY),
+                val timeText = if (point.isVirtual) {
+                    "24:00"
+                } else {
+                    formatTimeLabel(point.minuteOfDay)
+                }
+                val timeLayout = textMeasurer.measure(
+                    text = timeText,
+                    style = LabelLarge.copy(color = PixsoColors.Color_Text_text_3_level),
                 )
+                val gapMultiplier = if (isActive) 3f else 1f
+
+                PointRenderInfo(
+                    point = point,
+                    center = center,
+                    radius = pointRadius,
+                    valueLayout = labelLayout,
+                    timeLayout = timeLayout,
+                    valueBaseTop = (center.y - pointRadius - labelLayout.size.height - labelGap * gapMultiplier)
+                        .coerceAtLeast(0f),
+                    timeBaseTop = (center.y + pointRadius + timeGap * gapMultiplier)
+                        .coerceAtMost(size.height - timeLayout.size.height.toFloat()),
+                )
+            }
+
+            val valuePositions = placeLabelsAbove(
+                infos = pointInfos,
+                canvasWidth = size.width,
+                spacing = labelStackGap,
+            )
+            val timePositions = placeLabelsBelow(
+                infos = pointInfos,
+                canvasWidth = size.width,
+                canvasHeight = size.height,
+                spacing = labelStackGap,
+            )
+
+            pointInfos.forEach { info ->
+                valuePositions[info.point.id]?.let { topLeft ->
+                    drawText(
+                        textLayoutResult = info.valueLayout,
+                        topLeft = topLeft,
+                    )
+                }
+
+                timePositions[info.point.id]?.let { topLeft ->
+                    drawText(
+                        textLayoutResult = info.timeLayout,
+                        topLeft = topLeft,
+                    )
+                }
 
                 drawCircle(
                     color = PixsoColors.Color_Bg_bg_surface,
-                    radius = pointRadius,
-                    center = center,
+                    radius = info.radius,
+                    center = info.center,
                 )
                 drawCircle(
                     color = PixsoColors.Color_State_primary,
-                    radius = pointRadius,
-                    center = center,
+                    radius = info.radius,
+                    center = info.center,
                     style = Stroke(width = 2.dp.toPx())
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            timeLabels.forEach { label ->
-                Text(
-                    text = label,
-                    style = LabelLarge,
-                    color = PixsoColors.Color_Text_text_3_level,
                 )
             }
         }
@@ -200,6 +247,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
     pointsProvider: () -> List<InternalGraphPoint>,
     valueRange: IntRange,
     onPointsChange: (List<GraphPoint>) -> Unit,
+    onActivePointChange: (Long?) -> Unit,
 ) {
     val metrics = chartMetrics(width = size.width.toFloat(), height = size.height.toFloat())
     val pointHitRadius = 16.dp.toPx()
@@ -222,6 +270,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
         )
 
         if (pointHit != null) {
+            onActivePointChange(pointHit.id)
             val pointId = pointHit.id
             val isBoundaryPoint = pointHit.minuteOfDay == 0 || pointHit.isVirtual
             var isDrag = false
@@ -240,6 +289,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
                                 .map(InternalGraphPoint::toExternal)
                         )
                     }
+                    onActivePointChange(null)
                     break
                 }
 
@@ -290,13 +340,17 @@ private suspend fun PointerInputScope.handleGraphGestures(
         ) ?: return@awaitEachGesture
 
         workingPoints = (workingPoints + insertedPoint).sortedBy(InternalGraphPoint::minuteOfDay)
+        onActivePointChange(insertedPoint.id)
         onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
 
         while (true) {
             val event = awaitPointerEvent(pass = PointerEventPass.Initial)
             val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
             change?.consume()
-            if (change == null || !change.pressed) break
+            if (change == null || !change.pressed) {
+                onActivePointChange(null)
+                break
+            }
 
             workingPoints = movePoint(
                 points = workingPoints,
@@ -321,7 +375,10 @@ private fun movePoint(
 ): List<InternalGraphPoint> {
     if (isVirtualPoint) {
         val boundaryPoint = points.firstOrNull { it.minuteOfDay == 0 } ?: return points
-        val updatedValue = yToValue(position.y, metrics, valueRange)
+        val updatedValue = snapValueToStep(
+            value = yToValue(position.y, metrics, valueRange),
+            valueRange = valueRange,
+        )
         return points.map { point ->
             if (point.id == boundaryPoint.id) {
                 point.copy(value = updatedValue)
@@ -349,9 +406,16 @@ private fun movePoint(
     val updatedMinute = if (point.minuteOfDay == 0) {
         0
     } else {
-        xToMinute(position.x, metrics).coerceIn(minMinute, maxMinute)
+        snapMinuteToStep(
+            minute = xToMinute(position.x, metrics),
+            minAllowed = minMinute,
+            maxAllowed = maxMinute,
+        )
     }
-    val updatedValue = yToValue(position.y, metrics, valueRange)
+    val updatedValue = snapValueToStep(
+        value = yToValue(position.y, metrics, valueRange),
+        valueRange = valueRange,
+    )
     val updatedPoint = point.copy(minuteOfDay = updatedMinute, value = updatedValue)
 
     return points
@@ -373,8 +437,15 @@ private fun createPointOnSegment(
     val maxMinute = end.minuteOfDay - 1
     if (minMinute > maxMinute) return null
 
-    val minute = xToMinute(position.x, metrics).coerceIn(minMinute, maxMinute)
-    val value = yToValue(position.y, metrics, valueRange)
+    val minute = snapMinuteToStep(
+        minute = xToMinute(position.x, metrics),
+        minAllowed = minMinute,
+        maxAllowed = maxMinute,
+    )
+    val value = snapValueToStep(
+        value = yToValue(position.y, metrics, valueRange),
+        valueRange = valueRange,
+    )
     val nextId = nextTemporaryInternalId(points)
 
     return InternalGraphPoint(
@@ -446,7 +517,7 @@ private fun distanceToSegment(
 private fun buildRenderedPoints(points: List<InternalGraphPoint>): List<InternalGraphPoint> {
     val boundaryValue = points.firstOrNull { it.minuteOfDay == 0 }?.value ?: points.firstOrNull()?.value ?: 0
     return points + InternalGraphPoint(
-        id = Long.MIN_VALUE,
+        id = VIRTUAL_POINT_ID,
         minuteOfDay = MINUTES_PER_DAY,
         value = boundaryValue,
         isVirtual = true,
@@ -460,11 +531,11 @@ private fun normalizePoints(
     val uniqueByMinute = linkedMapOf<Int, InternalGraphPoint>()
 
     points.forEach { point ->
-        val minuteOfDay = timeToMinuteOfDay(point.time)
+        val minuteOfDay = snapMinuteToStep(timeToMinuteOfDay(point.time))
         uniqueByMinute[minuteOfDay] = InternalGraphPoint(
             id = point.id,
             minuteOfDay = minuteOfDay,
-            value = point.value.coerceIn(valueRange.first, valueRange.last),
+            value = snapValueToStep(point.value, valueRange),
         )
     }
 
@@ -472,7 +543,7 @@ private fun normalizePoints(
         uniqueByMinute[0] = InternalGraphPoint(
             id = nextTemporaryExternalId(points),
             minuteOfDay = 0,
-            value = valueRange.first,
+            value = defaultGraphValueForRange(valueRange),
         )
     }
 
@@ -509,8 +580,8 @@ private fun InternalGraphPoint.toOffset(
 
 private fun Density.chartMetrics(width: Float, height: Float): ChartMetrics {
     val horizontalPadding = 10.dp.toPx()
-    val topPadding = 28.dp.toPx()
-    val bottomPadding = 16.dp.toPx()
+    val topPadding = 56.dp.toPx()
+    val bottomPadding = 52.dp.toPx()
     return ChartMetrics(
         left = horizontalPadding,
         top = topPadding,
@@ -560,4 +631,129 @@ private fun minuteOfDayToTime(minuteOfDay: Int): String {
     val hours = clampedMinute / 60
     val minutes = clampedMinute % 60
     return "%02d%02d".format(hours, minutes)
+}
+
+private fun formatTimeLabel(minuteOfDay: Int): String {
+    val clampedMinute = minuteOfDay.coerceIn(0, MINUTES_PER_DAY)
+    val hours = clampedMinute / 60
+    val minutes = clampedMinute % 60
+    return "%02d:%02d".format(hours, minutes)
+}
+
+private fun snapMinuteToStep(
+    minute: Int,
+    minAllowed: Int = 0,
+    maxAllowed: Int = MINUTES_PER_DAY - 1,
+): Int {
+    val safeMin = minAllowed.coerceIn(0, MINUTES_PER_DAY - 1)
+    val safeMax = maxAllowed.coerceIn(safeMin, MINUTES_PER_DAY - 1)
+    val firstStep = ((safeMin + TIME_STEP_MINUTES - 1) / TIME_STEP_MINUTES) * TIME_STEP_MINUTES
+    val lastStep = (safeMax / TIME_STEP_MINUTES) * TIME_STEP_MINUTES
+    if (firstStep > lastStep) {
+        return minute.coerceIn(safeMin, safeMax)
+    }
+
+    val snapped = ((minute.toFloat() / TIME_STEP_MINUTES).roundToInt() * TIME_STEP_MINUTES)
+        .coerceIn(firstStep, lastStep)
+    return snapped
+}
+
+private fun snapValueToStep(
+    value: Int,
+    valueRange: IntRange,
+): Int {
+    val step = valueStepForRange(valueRange)
+    val normalized = ((value - valueRange.first).toFloat() / step).roundToInt() * step
+    return (valueRange.first + normalized).coerceIn(valueRange.first, valueRange.last)
+}
+
+private fun valueStepForRange(valueRange: IntRange): Int {
+    return if (valueRange.first >= 3000) 100 else 5
+}
+
+private fun defaultGraphValueForRange(valueRange: IntRange): Int {
+    return if (valueRange.first >= 3000) 4000 else 0
+}
+
+private fun placeLabelsAbove(
+    infos: List<PointRenderInfo>,
+    canvasWidth: Float,
+    spacing: Float,
+): Map<Long, Offset> {
+    val result = linkedMapOf<Long, Offset>()
+    val placedRects = mutableListOf<Rect>()
+
+    infos.sortedBy { it.center.x }.forEach { info ->
+        val left = (info.center.x - info.valueLayout.size.width / 2f)
+            .coerceIn(0f, canvasWidth - info.valueLayout.size.width)
+        var top = info.valueBaseTop
+
+        while (true) {
+            val rect = Rect(
+                left = left,
+                top = top,
+                right = left + info.valueLayout.size.width,
+                bottom = top + info.valueLayout.size.height,
+            )
+            val overlapping = placedRects.filter { it.overlaps(rect) }
+            if (overlapping.isEmpty()) {
+                result[info.point.id] = Offset(left, top)
+                placedRects += rect
+                break
+            }
+
+            val nextTop = (overlapping.minOf { it.top } - info.valueLayout.size.height - spacing)
+                .coerceAtLeast(0f)
+            if (abs(nextTop - top) < 0.5f) {
+                result[info.point.id] = Offset(left, top)
+                placedRects += rect
+                break
+            }
+            top = nextTop
+        }
+    }
+
+    return result
+}
+
+private fun placeLabelsBelow(
+    infos: List<PointRenderInfo>,
+    canvasWidth: Float,
+    canvasHeight: Float,
+    spacing: Float,
+): Map<Long, Offset> {
+    val result = linkedMapOf<Long, Offset>()
+    val placedRects = mutableListOf<Rect>()
+
+    infos.sortedBy { it.center.x }.forEach { info ->
+        val left = (info.center.x - info.timeLayout.size.width / 2f)
+            .coerceIn(0f, canvasWidth - info.timeLayout.size.width)
+        var top = info.timeBaseTop
+
+        while (true) {
+            val rect = Rect(
+                left = left,
+                top = top,
+                right = left + info.timeLayout.size.width,
+                bottom = top + info.timeLayout.size.height,
+            )
+            val overlapping = placedRects.filter { it.overlaps(rect) }
+            if (overlapping.isEmpty()) {
+                result[info.point.id] = Offset(left, top)
+                placedRects += rect
+                break
+            }
+
+            val nextTop = (overlapping.maxOf { it.bottom } + spacing)
+                .coerceAtMost(canvasHeight - info.timeLayout.size.height.toFloat())
+            if (abs(nextTop - top) < 0.5f) {
+                result[info.point.id] = Offset(left, top)
+                placedRects += rect
+                break
+            }
+            top = nextTop
+        }
+    }
+
+    return result
 }

@@ -31,6 +31,7 @@ import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 private const val OBJECT_TYPE_LOCATION = 1
 private const val OBJECT_TYPE_ROOM = 2
@@ -53,7 +54,7 @@ fun PageGraph(
     var objectTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
     var objectId by remember(graphId) { mutableStateOf<Long?>(null) }
     var changeTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
-    var graphPoints by remember(graphId) { mutableStateOf(defaultGraphPoints()) }
+    var graphPoints by remember(graphId) { mutableStateOf(defaultGraphPoints(null)) }
     val rooms by remember(db, controllerId) {
         if (controllerId == null) {
             flowOf(emptyList())
@@ -124,10 +125,10 @@ fun PageGraph(
         val resolvedObjectId = if (objectTypeId == OBJECT_TYPE_LOCATION) null else objectId
         val normalizedPoints = normalizeGraphPoints(
             points = graphPoints,
-            valueRange = graphValueRange,
+            changeTypeId = changeTypeId,
         )
         val hasCustomPoints = normalizedPoints.size > 1 ||
-            normalizedPoints.firstOrNull()?.value != graphValueRange.first
+            normalizedPoints.firstOrNull()?.value != defaultGraphValueForChangeType(changeTypeId)
         val shouldPersist = graphId != null ||
             objectTypeId != null ||
             changeTypeId != null ||
@@ -168,7 +169,7 @@ fun PageGraph(
             objectTypeId = null
             objectId = null
             changeTypeId = null
-            graphPoints = defaultGraphPoints()
+            graphPoints = defaultGraphPoints(null)
             return@LaunchedEffect
         }
 
@@ -189,7 +190,7 @@ fun PageGraph(
             .let { loadedPoints ->
                 normalizeGraphPoints(
                     points = loadedPoints,
-                    valueRange = valueRange,
+                    changeTypeId = graph.changeTypeId,
                 )
             }
     }
@@ -235,11 +236,20 @@ fun PageGraph(
             TextFieldForList(
                 value = changeTypeId?.toLong(),
                 onValueChange = { value ->
-                    changeTypeId = value.toInt()
-                    graphPoints = normalizeGraphPoints(
+                    val newChangeTypeId = value.toInt()
+                    val shouldResetDefaultPoint = graphId == null && isDefaultOnlyGraphPoints(
                         points = graphPoints,
-                        valueRange = valueRangeForChangeType(changeTypeId),
+                        changeTypeId = changeTypeId,
                     )
+                    changeTypeId = value.toInt()
+                    graphPoints = if (shouldResetDefaultPoint) {
+                        defaultGraphPoints(newChangeTypeId)
+                    } else {
+                        normalizeGraphPoints(
+                            points = graphPoints,
+                            changeTypeId = newChangeTypeId,
+                        )
+                    }
                 },
                 icon = R.drawable.ic_chevron_down,
                 label = "Что меняем",
@@ -260,7 +270,7 @@ fun PageGraph(
                     onPointsChange = { updatedPoints ->
                         graphPoints = normalizeGraphPoints(
                             points = updatedPoints,
-                            valueRange = graphValueRange,
+                            changeTypeId = changeTypeId,
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -286,28 +296,29 @@ private fun valueRangeForChangeType(changeTypeId: Int?): IntRange {
     }
 }
 
-private fun defaultGraphPoints(): List<GraphPoint> {
+private fun defaultGraphPoints(changeTypeId: Int?): List<GraphPoint> {
     return listOf(
         GraphPoint(
             id = -1L,
             time = "0000",
-            value = 0,
+            value = defaultGraphValueForChangeType(changeTypeId),
         )
     )
 }
 
 private fun normalizeGraphPoints(
     points: List<GraphPoint>,
-    valueRange: IntRange,
+    changeTypeId: Int?,
 ): List<GraphPoint> {
+    val valueRange = valueRangeForChangeType(changeTypeId)
     val uniqueByMinute = linkedMapOf<Int, GraphPoint>()
 
     points.forEach { point ->
-        val minute = timeToMinuteOfDay(point.time)
+        val minute = snapMinuteToFiveMinutes(timeToMinuteOfDay(point.time))
         uniqueByMinute[minute] = GraphPoint(
             id = point.id,
             time = minuteOfDayToTime(minute),
-            value = point.value.coerceIn(valueRange.first, valueRange.last),
+            value = snapValueForRange(point.value, valueRange),
         )
     }
 
@@ -316,7 +327,7 @@ private fun normalizeGraphPoints(
         uniqueByMinute[0] = GraphPoint(
             id = temporaryId,
             time = "0000",
-            value = valueRange.first,
+            value = defaultGraphValueForChangeType(changeTypeId),
         )
     }
 
@@ -338,4 +349,33 @@ private fun minuteOfDayToTime(minuteOfDay: Int): String {
     val hours = clamped / 60
     val minutes = clamped % 60
     return "%02d%02d".format(hours, minutes)
+}
+
+private fun snapMinuteToFiveMinutes(minuteOfDay: Int): Int {
+    val clampedMinute = minuteOfDay.coerceIn(0, 23 * 60 + 59)
+    return ((clampedMinute.toFloat() / 5f).roundToInt() * 5)
+        .coerceIn(0, 23 * 60 + 55)
+}
+
+private fun snapValueForRange(value: Int, valueRange: IntRange): Int {
+    val step = if (valueRange.first >= 3000) 100 else 5
+    val snapped = valueRange.first +
+        (((value - valueRange.first).toFloat() / step).roundToInt() * step)
+    return snapped.coerceIn(valueRange.first, valueRange.last)
+}
+
+private fun defaultGraphValueForChangeType(changeTypeId: Int?): Int {
+    return when (changeTypeId) {
+        CHANGE_TYPE_TEMPERATURE -> 4000
+        else -> 0
+    }
+}
+
+private fun isDefaultOnlyGraphPoints(
+    points: List<GraphPoint>,
+    changeTypeId: Int?,
+): Boolean {
+    return points.size == 1 &&
+        points.firstOrNull()?.time == "0000" &&
+        points.firstOrNull()?.value == defaultGraphValueForChangeType(changeTypeId)
 }
