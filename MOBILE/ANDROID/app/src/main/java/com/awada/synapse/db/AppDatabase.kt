@@ -24,9 +24,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ScenarioEntity::class,
         ActionEntity::class,
         ScenarioSetEntity::class,
-        EventEntity::class
+        EventEntity::class,
+        GraphEntity::class
     ],
-    version = 18,
+    version = 21,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -45,6 +46,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun actionDao(): ActionDao
     abstract fun scenarioSetDao(): ScenarioSetDao
     abstract fun eventDao(): EventDao
+    abstract fun graphDao(): GraphDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -714,6 +716,56 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE CONTROLLERS ADD COLUMN IS_GRAPHS INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        private val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS GRAPHS (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
+        private val MIGRATION_20_21 = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS GRAPHS_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER,
+                        OBJECT_TYPE_ID INTEGER,
+                        OBJECT_ID INTEGER,
+                        CHANGE_TYPE_ID INTEGER,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO GRAPHS_NEW (
+                        ID
+                    )
+                    SELECT
+                        ID
+                    FROM GRAPHS
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE GRAPHS")
+                db.execSQL("ALTER TABLE GRAPHS_NEW RENAME TO GRAPHS")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_GRAPHS_CONTROLLER_ID ON GRAPHS (CONTROLLER_ID)")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -740,7 +792,10 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_14_15,
                     MIGRATION_15_16,
                     MIGRATION_16_17,
-                    MIGRATION_17_18
+                    MIGRATION_17_18,
+                    MIGRATION_18_19,
+                    MIGRATION_19_20,
+                    MIGRATION_20_21
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

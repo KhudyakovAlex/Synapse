@@ -49,9 +49,11 @@ fun PageLocationSettings(
     var showIconSelect by remember { mutableStateOf(false) }
     var showChangePassword by remember { mutableStateOf(false) }
     var showSchedule by remember { mutableStateOf(false) }
+    var showGraphs by remember { mutableStateOf(false) }
     var draftName by remember { mutableStateOf("") }
     var draftIconId by remember { mutableIntStateOf(100) }
     var draftIsSchedule by remember { mutableStateOf(false) }
+    var draftIsGraphs by remember { mutableStateOf(false) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(controllerId) {
@@ -62,6 +64,7 @@ fun PageLocationSettings(
             draftName = c.name
             draftIconId = c.icoNum
             draftIsSchedule = c.isSchedule
+            draftIsGraphs = c.isGraphs
             loadedForId = controllerId
         }
     }
@@ -97,6 +100,15 @@ fun PageLocationSettings(
         return
     }
 
+    if (showGraphs) {
+        PageGraphs(
+            controllerId = controllerId,
+            onBackClick = { showGraphs = false },
+            modifier = modifier.fillMaxSize()
+        )
+        return
+    }
+
     val iconRes = iconResId(context, draftIconId)
     val roomsOrNull by remember(db, controllerId) {
         if (controllerId == null) {
@@ -122,6 +134,7 @@ fun PageLocationSettings(
                             name = draftName,
                             icoNum = draftIconId,
                             isSchedule = draftIsSchedule,
+                            isGraphs = draftIsGraphs,
                         )
                     )
                 }
@@ -168,11 +181,22 @@ fun PageLocationSettings(
 
                 Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
 
-                ScheduleCard(
+                FeatureSettingsCard(
+                    title = "Расписание",
                     isEnabled = draftIsSchedule,
                     onEnabledChange = { draftIsSchedule = it },
                     modifier = Modifier.fillMaxWidth(),
                     onConfigureClick = { showSchedule = true }
+                )
+
+                Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
+
+                FeatureSettingsCard(
+                    title = "Графики",
+                    isEnabled = draftIsGraphs,
+                    onEnabledChange = { draftIsGraphs = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    onConfigureClick = { showGraphs = true }
                 )
 
                 Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
@@ -195,6 +219,7 @@ fun PageLocationSettings(
                                         name = draftName,
                                         icoNum = draftIconId,
                                         isSchedule = draftIsSchedule,
+                                        isGraphs = draftIsGraphs,
                                     )
                                 )
                             }
@@ -227,7 +252,8 @@ fun PageLocationSettings(
 }
 
 @Composable
-private fun ScheduleCard(
+private fun FeatureSettingsCard(
+    title: String,
     isEnabled: Boolean,
     onEnabledChange: (Boolean) -> Unit,
     onConfigureClick: () -> Unit,
@@ -246,7 +272,7 @@ private fun ScheduleCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             androidx.compose.material3.Text(
-                text = "Расписание",
+                text = title,
                 style = HeadlineExtraSmall,
                 color = PixsoColors.Color_Text_text_1_level
             )

@@ -19,6 +19,9 @@ data class ControllerEntity(
     @ColumnInfo(name = "IS_SCHEDULE", defaultValue = "0")
     val isSchedule: Boolean = false,
 
+    @ColumnInfo(name = "IS_GRAPHS", defaultValue = "0")
+    val isGraphs: Boolean = false,
+
     @ColumnInfo(name = "IS_AUTO", defaultValue = "0")
     val isAuto: Boolean = false,
 
