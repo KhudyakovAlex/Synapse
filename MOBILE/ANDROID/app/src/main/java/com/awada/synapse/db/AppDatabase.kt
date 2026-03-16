@@ -25,9 +25,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ActionEntity::class,
         ScenarioSetEntity::class,
         EventEntity::class,
-        GraphEntity::class
+        GraphEntity::class,
+        GraphPointEntity::class
     ],
-    version = 21,
+    version = 22,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -47,6 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun scenarioSetDao(): ScenarioSetDao
     abstract fun eventDao(): EventDao
     abstract fun graphDao(): GraphDao
+    abstract fun graphPointDao(): GraphPointDao
 
     companion object {
         private const val DB_NAME = "synapse.db"
@@ -766,6 +768,29 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_21_22 = object : Migration(21, 22) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS GRAPH_POINTS (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        GRAPH_ID INTEGER NOT NULL,
+                        TIME TEXT NOT NULL DEFAULT '',
+                        VALUE INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (GRAPH_ID) REFERENCES GRAPHS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_GRAPH_POINTS_GRAPH_ID ON GRAPH_POINTS (GRAPH_ID)")
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_GRAPH_POINTS_GRAPH_ID_TIME
+                    ON GRAPH_POINTS (GRAPH_ID, TIME)
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -795,7 +820,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_17_18,
                     MIGRATION_18_19,
                     MIGRATION_19_20,
-                    MIGRATION_20_21
+                    MIGRATION_20_21,
+                    MIGRATION_21_22
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

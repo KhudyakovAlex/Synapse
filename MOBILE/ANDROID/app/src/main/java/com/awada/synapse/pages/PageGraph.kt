@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,9 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.awada.synapse.R
 import com.awada.synapse.components.DropdownItem
+import com.awada.synapse.components.Graph
+import com.awada.synapse.components.GraphPoint
 import com.awada.synapse.components.TextFieldForList
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.GraphEntity
+import com.awada.synapse.db.GraphPointEntity
+import com.awada.synapse.ui.theme.BodyMedium
+import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -47,6 +53,7 @@ fun PageGraph(
     var objectTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
     var objectId by remember(graphId) { mutableStateOf<Long?>(null) }
     var changeTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
+    var graphPoints by remember(graphId) { mutableStateOf(defaultGraphPoints()) }
     val rooms by remember(db, controllerId) {
         if (controllerId == null) {
             flowOf(emptyList())
@@ -107,6 +114,7 @@ fun PageGraph(
         objectItems.isEmpty() && objectTypeId == OBJECT_TYPE_LUMINAIRE -> "Нет светильников"
         else -> "Не выбрано"
     }
+    val graphValueRange = valueRangeForChangeType(changeTypeId)
     val saveAndBack: () -> Unit = saveAndBack@{
         val resolvedControllerId = controllerId
         if (resolvedControllerId == null) {
@@ -114,7 +122,16 @@ fun PageGraph(
             return@saveAndBack
         }
         val resolvedObjectId = if (objectTypeId == OBJECT_TYPE_LOCATION) null else objectId
-        val shouldPersist = graphId != null || objectTypeId != null || changeTypeId != null
+        val normalizedPoints = normalizeGraphPoints(
+            points = graphPoints,
+            valueRange = graphValueRange,
+        )
+        val hasCustomPoints = normalizedPoints.size > 1 ||
+            normalizedPoints.firstOrNull()?.value != graphValueRange.first
+        val shouldPersist = graphId != null ||
+            objectTypeId != null ||
+            changeTypeId != null ||
+            hasCustomPoints
 
         scope.launch {
             if (shouldPersist) {
@@ -125,10 +142,21 @@ fun PageGraph(
                     objectId = resolvedObjectId,
                     changeTypeId = changeTypeId,
                 )
-                if (graphId == null) {
+                val persistedGraphId = if (graphId == null) {
                     db.graphDao().insert(entity)
                 } else {
                     db.graphDao().update(entity)
+                    graphId
+                }
+                db.graphPointDao().deleteAllForGraph(persistedGraphId)
+                normalizedPoints.forEach { point ->
+                    db.graphPointDao().insert(
+                        GraphPointEntity(
+                            graphId = persistedGraphId,
+                            time = point.time,
+                            value = point.value,
+                        )
+                    )
                 }
             }
             onBackClick()
@@ -140,6 +168,7 @@ fun PageGraph(
             objectTypeId = null
             objectId = null
             changeTypeId = null
+            graphPoints = defaultGraphPoints()
             return@LaunchedEffect
         }
 
@@ -147,6 +176,22 @@ fun PageGraph(
         objectTypeId = graph.objectTypeId
         objectId = graph.objectId
         changeTypeId = graph.changeTypeId
+        val valueRange = valueRangeForChangeType(graph.changeTypeId)
+        graphPoints = db.graphPointDao()
+            .getAllForGraph(graphId)
+            .map { point ->
+                GraphPoint(
+                    id = point.id,
+                    time = point.time,
+                    value = point.value,
+                )
+            }
+            .let { loadedPoints ->
+                normalizeGraphPoints(
+                    points = loadedPoints,
+                    valueRange = valueRange,
+                )
+            }
     }
 
     BackHandler { saveAndBack() }
@@ -189,14 +234,108 @@ fun PageGraph(
 
             TextFieldForList(
                 value = changeTypeId?.toLong(),
-                onValueChange = { value -> changeTypeId = value.toInt() },
+                onValueChange = { value ->
+                    changeTypeId = value.toInt()
+                    graphPoints = normalizeGraphPoints(
+                        points = graphPoints,
+                        valueRange = valueRangeForChangeType(changeTypeId),
+                    )
+                },
                 icon = R.drawable.ic_chevron_down,
                 label = "Что меняем",
                 placeholder = "Не выбрано",
                 dropdownItems = changeTypeItems,
             )
 
+            if (changeTypeId != null) {
+                Graph(
+                    points = graphPoints,
+                    valueRange = graphValueRange,
+                    valueFormatter = { value ->
+                        when (changeTypeId) {
+                            CHANGE_TYPE_TEMPERATURE -> "${value}K"
+                            else -> "$value%"
+                        }
+                    },
+                    onPointsChange = { updatedPoints ->
+                        graphPoints = normalizeGraphPoints(
+                            points = updatedPoints,
+                            valueRange = graphValueRange,
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                Text(
+                    text = "Чтобы настроить график, сначала выберите, что именно меняем.",
+                    style = BodyMedium,
+                    color = PixsoColors.Color_Text_text_3_level,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16))
         }
     }
+}
+
+private fun valueRangeForChangeType(changeTypeId: Int?): IntRange {
+    return when (changeTypeId) {
+        CHANGE_TYPE_TEMPERATURE -> 3000..5000
+        else -> 0..100
+    }
+}
+
+private fun defaultGraphPoints(): List<GraphPoint> {
+    return listOf(
+        GraphPoint(
+            id = -1L,
+            time = "0000",
+            value = 0,
+        )
+    )
+}
+
+private fun normalizeGraphPoints(
+    points: List<GraphPoint>,
+    valueRange: IntRange,
+): List<GraphPoint> {
+    val uniqueByMinute = linkedMapOf<Int, GraphPoint>()
+
+    points.forEach { point ->
+        val minute = timeToMinuteOfDay(point.time)
+        uniqueByMinute[minute] = GraphPoint(
+            id = point.id,
+            time = minuteOfDayToTime(minute),
+            value = point.value.coerceIn(valueRange.first, valueRange.last),
+        )
+    }
+
+    if (0 !in uniqueByMinute) {
+        val temporaryId = (points.minOfOrNull(GraphPoint::id) ?: 0L).coerceAtMost(0L) - 1L
+        uniqueByMinute[0] = GraphPoint(
+            id = temporaryId,
+            time = "0000",
+            value = valueRange.first,
+        )
+    }
+
+    return uniqueByMinute
+        .toSortedMap()
+        .values
+        .toList()
+}
+
+private fun timeToMinuteOfDay(raw: String): Int {
+    val digits = raw.filter(Char::isDigit).padEnd(4, '0').take(4)
+    val hours = digits.substring(0, 2).toIntOrNull()?.coerceIn(0, 23) ?: 0
+    val minutes = digits.substring(2, 4).toIntOrNull()?.coerceIn(0, 59) ?: 0
+    return hours * 60 + minutes
+}
+
+private fun minuteOfDayToTime(minuteOfDay: Int): String {
+    val clamped = minuteOfDay.coerceIn(0, 23 * 60 + 59)
+    val hours = clamped / 60
+    val minutes = clamped % 60
+    return "%02d%02d".format(hours, minutes)
 }
