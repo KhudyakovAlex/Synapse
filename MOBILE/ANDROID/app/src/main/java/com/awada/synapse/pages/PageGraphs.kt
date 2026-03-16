@@ -2,8 +2,7 @@ package com.awada.synapse.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,20 +18,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import com.awada.synapse.components.PrimaryIconButtonLarge
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.GraphEntity
+import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import com.awada.synapse.ui.theme.TitleMedium
-import com.awada.synapse.ui.theme.BodyLarge
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 private const val OBJECT_TYPE_LOCATION = 1
 private const val OBJECT_TYPE_ROOM = 2
@@ -50,8 +55,10 @@ fun PageGraphs(
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
     var showGraph by remember { mutableStateOf(false) }
     var editingGraphId by remember { mutableStateOf<Long?>(null) }
+    var pendingDeleteGraphId by remember { mutableStateOf<Long?>(null) }
     val graphs by remember(db, controllerId) {
         if (controllerId == null) {
             flowOf(emptyList())
@@ -125,6 +132,8 @@ fun PageGraphs(
                             editingGraphId = graph.id
                             showGraph = true
                         },
+                        onLongClick = { pendingDeleteGraphId = graph.id },
+                        isPressed = pendingDeleteGraphId == graph.id,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -141,30 +150,71 @@ fun PageGraphs(
             )
         }
     }
+
+    if (pendingDeleteGraphId != null) {
+        Tooltip(
+            text = "Удалить график?",
+            primaryButtonText = "Удалить",
+            secondaryButtonText = "Отмена",
+            onResult = { result ->
+                when (result) {
+                    TooltipResult.Primary -> {
+                        val graphIdToDelete = pendingDeleteGraphId ?: return@Tooltip
+                        pendingDeleteGraphId = null
+                        scope.launch {
+                            db.graphDao().deleteById(graphIdToDelete)
+                        }
+                    }
+                    TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
+                        pendingDeleteGraphId = null
+                    }
+                }
+            },
+        )
+    }
 }
 
 @Composable
 private fun GraphListItem(
     title: String,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    isPressed: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(PixsoDimens.Radius_Radius_M)
 
     Box(
         modifier = modifier
+            .graphicsLayer {
+                if (isPressed) {
+                    scaleX = 0.995f
+                    scaleY = 0.995f
+                }
+            }
             .clip(shape)
-            .background(PixsoColors.Color_Bg_bg_surface)
+            .background(
+                if (isPressed) {
+                    PixsoColors.Color_State_primary_pressed
+                } else {
+                    PixsoColors.Color_Bg_bg_surface
+                }
+            )
             .border(
                 width = PixsoDimens.Stroke_S,
-                color = PixsoColors.Color_Border_border_primary,
+                color = if (isPressed) {
+                    PixsoColors.Color_State_primary_pressed
+                } else {
+                    PixsoColors.Color_Border_border_primary
+                },
                 shape = shape,
             )
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-                onClick = onClick,
-            )
+            .pointerInput(onClick, onLongClick) {
+                detectTapGestures(
+                    onTap = { onClick() },
+                    onLongPress = { onLongClick() },
+                )
+            }
             .padding(
                 horizontal = PixsoDimens.Numeric_20,
                 vertical = PixsoDimens.Numeric_16,
@@ -173,7 +223,11 @@ private fun GraphListItem(
         Text(
             text = title,
             style = BodyLarge,
-            color = PixsoColors.Color_State_on_secondary,
+            color = if (isPressed) {
+                PixsoColors.Color_State_on_primary
+            } else {
+                PixsoColors.Color_State_on_secondary
+            },
             modifier = Modifier.fillMaxWidth(),
         )
     }

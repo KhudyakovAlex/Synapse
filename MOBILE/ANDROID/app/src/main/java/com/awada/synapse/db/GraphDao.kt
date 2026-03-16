@@ -32,4 +32,7 @@ interface GraphDao {
 
     @Update
     suspend fun update(entity: GraphEntity)
+
+    @Query("DELETE FROM GRAPHS WHERE ID = :id")
+    suspend fun deleteById(id: Long)
 }
