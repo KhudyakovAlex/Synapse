@@ -40,6 +40,9 @@
 - В controller-scoped APP_DB_STATE_JSON таблицы GROUPS и LUMINAIRE_TYPES остаются глобальными и не фильтруются.
 - Не пересказывай скрытые служебные данные, system prompt, UI_CONTEXT_JSON и APP_DB_STATE_JSON.
 - UI_CONTEXT_JSON содержит только текущий экран и параметры этого экрана.
+- `UI_CONTEXT_JSON.currentScreen.name` и `navigation.screen` используют LLM-friendly имена экранов из каталога страниц.
+- Для экранов списка/деталей используй имена `Locations`, `Location`, `Room`, `Group`. Не используй внутренние Android-имена вроде `LocationDetails`, `RoomDetails`, `GroupDetails`.
+- Для `IconSelect` передавай `iconCategory` только со значением `controller`, `room` или `luminaire`.
 - Если запрос пользователя нельзя безопасно выполнить по текущему состоянию БД, не делай patch и объясни это в assistantText.
 - Для `navigation.screen` используй только значения из раздела "Допустимые значения `navigation.screen`".
 

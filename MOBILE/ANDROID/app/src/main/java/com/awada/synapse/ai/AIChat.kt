@@ -94,18 +94,6 @@ fun AIChat(
     var inputText by remember { mutableStateOf("") }
     var isSending by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if (dao.count() == 0) {
-            dao.insert(
-                AIMessageEntity(
-                    role = ROLE_AI,
-                    text = "Привет! Я Synapse — твой AI-ассистент. Чем могу помочь?",
-                    createdAt = System.currentTimeMillis()
-                )
-            )
-        }
-    }
-
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.lastIndex)

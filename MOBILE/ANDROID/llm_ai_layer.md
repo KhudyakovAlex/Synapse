@@ -93,11 +93,14 @@ AI(
 - System prompt хранится в `app/src/main/assets/llm_system_prompt.md`
 - Загружается через `ai/LLMSystemPromptLoader.kt`
 - В prompt динамически подставляется полный каталог страниц из Kotlin-метаданных `Page...`
-- Для `navigation.screen` в prompt отдельно перечисляются только реальные поддерживаемые `AppScreen`
+- Для `navigation.screen` и `UI_CONTEXT_JSON.currentScreen.name` используются LLM-friendly имена экранов из каталога страниц
+- Для экранов списка/деталей LLM видит имена `Locations`, `Location`, `Room`, `Group`, а не внутренние `LocationDetails`, `RoomDetails`, `GroupDetails`
 - Если asset недоступен, используется fallback-текст в коде
 
 ### Кто собирает запрос
 - Основная orchestration-логика находится в `ai/LLMOrchestrator.kt`
+- При холодном старте приложения `AI_MESSAGES` очищается в `MainActivity`
+- Стартовое приветственное сообщение в пустой чат больше не подмешивается
 - В `AIChat` при Send:
   - сообщение пользователя сразу пишется в `AI_MESSAGES`
   - затем вызывается `LLMOrchestrator.processUserMessage(...)`
@@ -127,7 +130,7 @@ AI(
 ### Как определяется controller scope
 `LLMOrchestrator` пытается вычислить `controllerId` по `currentScreen.params`:
 - напрямую из `controllerId`, если он есть у текущего экрана
-- либо через выбранные сущности (`luminaire`, `buttonPanel`, `presSensor`, `brightSensor`, `scenario`)
+- либо через выбранные сущности (`luminaire`, `buttonPanel`, `presSensor`, `brightSensor`, `scenario`, `graph`, `event`)
 
 ### Что попадает в controller-scoped `APP_DB_STATE_JSON`
 - `CONTROLLERS`: ровно 1 запись
@@ -193,6 +196,13 @@ AI(
 }
 ```
 
+`screen` должен использовать LLM-friendly имена экранов:
+- `Locations`, `Location`, `Room`, `Group`
+- а также прямые имена остальных экранов: `RoomSettings`, `LocationSettings`, `Lum`, `Search`, `Settings`, `LumSettings`, `SensorPressSettings`, `SensorBrightSettings`, `ButtonPanelSettings`, `ButtonSettings`, `Scenario`, `Panel`, `Password`, `ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`
+
+Для `IconSelect`:
+- `iconCategory` допускает только `controller`, `room`, `luminaire`
+
 ### Как это применяется
 - `assistantText`:
   - показывается пользователю в чате
@@ -202,7 +212,8 @@ AI(
   - разрешены только whitelist-таблицы/колонки
   - только `UPDATE` существующих строк, без `INSERT/DELETE`
 - `navigation`:
-  - маппится в `AppScreen` и `selected...` state в `MainActivity`
+  - сначала переводится из LLM-friendly `screen` в внутренний `AppScreen`
+  - затем маппится в `selected...` state в `MainActivity`
   - поддерживает переходы как на основные экраны, так и на бывшие вложенные страницы (`ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`)
 
 ### Fallback
