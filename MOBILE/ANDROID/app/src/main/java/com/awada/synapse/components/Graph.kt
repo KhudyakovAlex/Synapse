@@ -137,15 +137,25 @@ fun Graph(
 
             horizontalFractions.forEach { fraction ->
                 val y = metrics.top + metrics.height * fraction
+                val gridStartX = minuteToX(
+                    minuteOfDay = 0,
+                    metrics = metrics,
+                    viewport = viewport,
+                )
+                val gridEndX = minuteToX(
+                    minuteOfDay = MINUTES_PER_DAY,
+                    metrics = metrics,
+                    viewport = viewport,
+                )
                 drawLine(
                     color = Color.White,
-                    start = Offset(metrics.left, y),
-                    end = Offset(metrics.right, y),
+                    start = Offset(gridStartX, y),
+                    end = Offset(gridEndX, y),
                     strokeWidth = 1.dp.toPx(),
                 )
             }
 
-            visibleTimeGridMinutes(viewport).forEach { minute ->
+            allTimeGridMinutes().forEach { minute ->
                 val x = minuteToX(
                     minuteOfDay = minute,
                     metrics = metrics,
@@ -770,18 +780,10 @@ private fun xToMinute(
         .coerceIn(0, MINUTES_PER_DAY)
 }
 
-private fun visibleTimeGridMinutes(viewport: TimeViewport): List<Int> {
-    val firstVisibleMinute = viewport.startMinute.toInt().coerceAtLeast(0)
-    val lastVisibleMinute = viewport.endMinute.toInt().coerceAtMost(MINUTES_PER_DAY)
-    val firstGridMinute = ((firstVisibleMinute + TIME_GRID_STEP_MINUTES - 1) / TIME_GRID_STEP_MINUTES) *
-        TIME_GRID_STEP_MINUTES
-    if (firstGridMinute > lastVisibleMinute) {
-        return emptyList()
-    }
-
+private fun allTimeGridMinutes(): List<Int> {
     return buildList {
-        var minute = firstGridMinute
-        while (minute <= lastVisibleMinute) {
+        var minute = 0
+        while (minute <= MINUTES_PER_DAY) {
             add(minute)
             minute += TIME_GRID_STEP_MINUTES
         }
