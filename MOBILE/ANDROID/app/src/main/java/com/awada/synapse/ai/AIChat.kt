@@ -249,6 +249,7 @@ fun AIChat(
                                     val result = withContext(Dispatchers.IO) {
                                         runCatching {
                                             LLMOrchestrator.processUserMessage(
+                                                context = context.applicationContext,
                                                 db = db,
                                                 history = recent,
                                                 uiContext = uiContext

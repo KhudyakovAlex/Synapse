@@ -1,5 +1,6 @@
 package com.awada.synapse.ai
 
+import android.content.Context
 import androidx.room.withTransaction
 import com.awada.synapse.db.AIMessageEntity
 import com.awada.synapse.db.AppDatabase
@@ -9,6 +10,7 @@ import kotlinx.serialization.json.Json
 
 private const val ROLE_USER = "USER"
 private const val ROLE_AI = "AI"
+private const val SYSTEM_PROMPT_ASSET_PATH = "llm_system_prompt.md"
 
 object LLMOrchestrator {
     private val json = Json {
@@ -37,7 +39,7 @@ object LLMOrchestrator {
         "Password"
     )
 
-    private val systemPrompt = """
+    private val fallbackSystemPrompt = """
         Ты Synapse AI, управляющий Android-приложением Synapse.
         Всегда возвращай только один JSON-объект без markdown, без пояснений и без тройных кавычек.
         Формат ответа:
@@ -78,13 +80,16 @@ object LLMOrchestrator {
     """.trimIndent()
 
     suspend fun processUserMessage(
+        context: Context,
         db: AppDatabase,
         history: List<AIMessageEntity>,
         uiContext: LLMUiContext
     ): LLMConversationResult {
         val appStateJson = AppStateExporter.exportAsJson(db)
+        val systemPrompt = loadSystemPrompt(context)
         LLMDebugLog.log("LLM orchestrator: appStateChars=${appStateJson.length}")
         val messages = buildMessages(
+            systemPrompt = systemPrompt,
             history = history,
             uiContext = uiContext,
             appStateJson = appStateJson
@@ -110,6 +115,7 @@ object LLMOrchestrator {
     }
 
     private fun buildMessages(
+        systemPrompt: String,
         history: List<AIMessageEntity>,
         uiContext: LLMUiContext,
         appStateJson: String
@@ -144,5 +150,15 @@ object LLMOrchestrator {
             )
             LLMStructuredReply(assistantText = rawReply.trim())
         }
+    }
+
+    private fun loadSystemPrompt(context: Context): String {
+        return runCatching {
+            context.assets.open(SYSTEM_PROMPT_ASSET_PATH).bufferedReader().use { it.readText().trim() }
+        }.onFailure { t ->
+            LLMDebugLog.log(
+                "LLM orchestrator: prompt asset fallback type=${t::class.java.simpleName} msg=${t.message ?: "null"}"
+            )
+        }.getOrDefault(fallbackSystemPrompt)
     }
 }
