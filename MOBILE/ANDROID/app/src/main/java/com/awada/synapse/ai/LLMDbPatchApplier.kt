@@ -63,7 +63,7 @@ object LLMDbPatchApplier {
         ),
         "SCENARIOS" to TablePatchSpec(
             keyColumns = setOf("ID"),
-            mutableColumns = emptySet()
+            mutableColumns = setOf("CONTROLLER_ID")
         ),
         "ACTIONS" to TablePatchSpec(
             keyColumns = setOf("ID"),

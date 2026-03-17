@@ -87,7 +87,14 @@ fun PageScenario(
             db.buttonPanelDao().observeById(buttonPanelId)
         }
     }.collectAsState(initial = null)
-    val resolvedControllerId = controllerId ?: buttonPanel?.controllerId
+    val scenario by remember(db, scenarioId) {
+        if (scenarioId == null) {
+            flowOf(null)
+        } else {
+            db.scenarioDao().observeById(scenarioId)
+        }
+    }.collectAsState(initial = null)
+    val resolvedControllerId = controllerId ?: buttonPanel?.controllerId ?: scenario?.controllerId
     val actions by remember(db, scenarioId) {
         if (scenarioId == null) {
             flowOf(emptyList())

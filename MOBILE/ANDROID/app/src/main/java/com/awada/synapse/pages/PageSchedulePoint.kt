@@ -168,7 +168,8 @@ fun PageSchedulePoint(
     val openScenarioEditor: () -> Unit = {
         scope.launch {
             val resolvedScenarioId = if (scenarioId == EventEntity.NO_SCENARIO_ID) {
-                db.scenarioDao().insert(ScenarioEntity())
+                val resolvedControllerId = controllerId ?: return@launch
+                db.scenarioDao().insert(ScenarioEntity(controllerId = resolvedControllerId))
             } else {
                 scenarioId
             }

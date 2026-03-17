@@ -196,8 +196,11 @@ fun PageButtonSettings(
                 },
                 onAdd = {
                     val buttonId = button?.id ?: return@ScenarioSection
+                    val resolvedControllerId = controllerId ?: return@ScenarioSection
                     scope.launch {
-                        val scenarioId = db.scenarioDao().insert(ScenarioEntity())
+                        val scenarioId = db.scenarioDao().insert(
+                            ScenarioEntity(controllerId = resolvedControllerId)
+                        )
                         val position = db.scenarioSetDao().getNextPositionForButton(buttonId)
                         db.scenarioSetDao().insert(
                             ScenarioSetEntity(
@@ -235,12 +238,15 @@ fun PageButtonSettings(
                 },
                 onAdd = {
                     val buttonId = button?.id ?: return@ScenarioSectionSingle
+                    val resolvedControllerId = controllerId ?: return@ScenarioSectionSingle
                     scope.launch {
                         val existingScenarioId = button?.longPressScenarioId
                         val scenarioId = if (existingScenarioId != null) {
                             existingScenarioId
                         } else {
-                            db.scenarioDao().insert(ScenarioEntity()).also {
+                            db.scenarioDao().insert(
+                                ScenarioEntity(controllerId = resolvedControllerId)
+                            ).also {
                                 db.buttonDao().setLongPressScenarioId(buttonId, it)
                             }
                         }

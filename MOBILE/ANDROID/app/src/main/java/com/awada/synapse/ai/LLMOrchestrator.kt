@@ -26,14 +26,18 @@ object LLMOrchestrator {
         uiContext: LLMUiContext,
         traceId: String? = null
     ): LLMConversationResult {
-        val appStateJson = AppStateExporter.exportAsJson(db)
+        val scopedControllerId = resolveScopedControllerId(db, uiContext)
+        val appStateJson = AppStateExporter.exportAsJson(db, controllerId = scopedControllerId)
         val uiContextJson = json.encodeToString(uiContext)
         val systemPrompt = loadSystemPrompt(context)
-        LLMDebugLog.log("LLM orchestrator: appStateChars=${appStateJson.length}")
+        LLMDebugLog.log(
+            "LLM orchestrator: controllerScope=${scopedControllerId ?: "all"} appStateChars=${appStateJson.length}"
+        )
         Logdog.i(
             message = "LLM hidden context",
             traceId = traceId,
             fields = mapOf(
+                "controllerScopeId" to scopedControllerId,
                 "uiContextChars" to uiContextJson.length,
                 "appStateChars" to appStateJson.length,
             ),
@@ -85,11 +89,6 @@ object LLMOrchestrator {
                     kind = "json",
                     name = "llm-structured-response.json",
                     content = normalizedReplyJson
-                ),
-                Logdog.Attachment(
-                    kind = "md",
-                    name = "llm-assistant-text.md",
-                    content = assistantText.ifBlank { "(empty)" }
                 )
             )
         )
@@ -139,5 +138,19 @@ object LLMOrchestrator {
 
     private fun loadSystemPrompt(context: Context): String {
         return com.awada.synapse.ai.loadSystemPrompt(context)
+    }
+
+    private suspend fun resolveScopedControllerId(
+        db: AppDatabase,
+        uiContext: LLMUiContext
+    ): Int? {
+        return uiContext.selectedLocationControllerId
+            ?: uiContext.selectedRoomControllerId
+            ?: uiContext.selectedGroupControllerId
+            ?: uiContext.selectedLuminaireId?.let { db.luminaireDao().getById(it)?.controllerId }
+            ?: uiContext.selectedButtonPanelId?.let { db.buttonPanelDao().getById(it)?.controllerId }
+            ?: uiContext.selectedPresSensorId?.let { db.presSensorDao().getById(it)?.controllerId }
+            ?: uiContext.selectedBrightSensorId?.let { db.brightSensorDao().getById(it)?.controllerId }
+            ?: uiContext.selectedScenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
     }
 }

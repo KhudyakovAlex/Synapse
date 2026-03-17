@@ -28,7 +28,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         GraphEntity::class,
         GraphPointEntity::class
     ],
-    version = 22,
+    version = 23,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -791,6 +791,59 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_22_23 = object : Migration(22, 23) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS SCENARIOS_NEW (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        CONTROLLER_ID INTEGER,
+                        FOREIGN KEY (CONTROLLER_ID) REFERENCES CONTROLLERS(ID) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO SCENARIOS_NEW (ID, CONTROLLER_ID)
+                    SELECT
+                        s.ID,
+                        CASE
+                            WHEN s.ID = ${ScenarioEntity.PLACEHOLDER_ID} THEN NULL
+                            ELSE COALESCE(
+                                (
+                                    SELECT e.CONTROLLER_ID
+                                    FROM EVENTS e
+                                    WHERE e.SCENARIO_ID = s.ID
+                                    LIMIT 1
+                                ),
+                                (
+                                    SELECT bp.CONTROLLER_ID
+                                    FROM SCENARIO_SET ss
+                                    JOIN BUTTONS b ON b.ID = ss.BUTTON_ID
+                                    JOIN BUTTON_PANELS bp ON bp.ID = b.BUTTON_PANEL_ID
+                                    WHERE ss.SCENARIO_ID = s.ID
+                                    LIMIT 1
+                                ),
+                                (
+                                    SELECT bp.CONTROLLER_ID
+                                    FROM BUTTONS b
+                                    JOIN BUTTON_PANELS bp ON bp.ID = b.BUTTON_PANEL_ID
+                                    WHERE b.LONG_PRESS_SCENARIO_ID = s.ID
+                                    LIMIT 1
+                                ),
+                                NULL
+                            )
+                        END
+                    FROM SCENARIOS s
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE SCENARIOS")
+                db.execSQL("ALTER TABLE SCENARIOS_NEW RENAME TO SCENARIOS")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_SCENARIOS_CONTROLLER_ID ON SCENARIOS (CONTROLLER_ID)")
+                insertScenarioPlaceholder(db)
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -821,7 +874,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_18_19,
                     MIGRATION_19_20,
                     MIGRATION_20_21,
-                    MIGRATION_21_22
+                    MIGRATION_21_22,
+                    MIGRATION_22_23
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }
