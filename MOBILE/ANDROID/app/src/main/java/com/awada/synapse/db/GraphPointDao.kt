@@ -21,6 +21,15 @@ interface GraphPointDao {
     @Query(
         """
         SELECT * FROM GRAPH_POINTS
+        WHERE GRAPH_ID IN (:graphIds)
+        ORDER BY GRAPH_ID ASC, TIME ASC, ID ASC
+        """
+    )
+    fun observeAllForGraphs(graphIds: List<Long>): Flow<List<GraphPointEntity>>
+
+    @Query(
+        """
+        SELECT * FROM GRAPH_POINTS
         WHERE GRAPH_ID = :graphId
         ORDER BY TIME ASC, ID ASC
         """

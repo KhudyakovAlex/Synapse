@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import com.awada.synapse.components.GraphPoint
+import com.awada.synapse.components.GraphPreview
 import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
@@ -37,6 +39,7 @@ import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import com.awada.synapse.ui.theme.TitleMedium
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 private const val OBJECT_TYPE_LOCATION = 1
@@ -66,6 +69,27 @@ fun PageGraphs(
             db.graphDao().observeAllForController(controllerId)
         }
     }.collectAsState(initial = emptyList())
+    val graphPointsByGraphId by remember(db, graphs) {
+        if (graphs.isEmpty()) {
+            flowOf<Map<Long, List<GraphPoint>>>(emptyMap())
+        } else {
+            db.graphPointDao()
+                .observeAllForGraphs(graphs.map(GraphEntity::id))
+                .map { points ->
+                    points
+                        .groupBy { it.graphId }
+                        .mapValues { (_, graphPoints) ->
+                            graphPoints.map { point ->
+                                GraphPoint(
+                                    id = point.id,
+                                    time = point.time,
+                                    value = point.value,
+                                )
+                            }
+                        }
+                }
+        }
+    }.collectAsState(initial = emptyMap())
     val rooms by remember(db, controllerId) {
         if (controllerId == null) {
             flowOf(emptyList())
@@ -128,6 +152,8 @@ fun PageGraphs(
                             groups = groups,
                             luminaires = luminaires,
                         ),
+                        previewPoints = graphPointsByGraphId[graph.id].orEmpty(),
+                        previewValueRange = valueRangeForGraphChangeType(graph.changeTypeId),
                         onClick = {
                             editingGraphId = graph.id
                             showGraph = true
@@ -177,6 +203,8 @@ fun PageGraphs(
 @Composable
 private fun GraphListItem(
     title: String,
+    previewPoints: List<GraphPoint>,
+    previewValueRange: IntRange,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     isPressed: Boolean,
@@ -220,16 +248,26 @@ private fun GraphListItem(
                 vertical = PixsoDimens.Numeric_16,
             ),
     ) {
-        Text(
-            text = title,
-            style = BodyLarge,
-            color = if (isPressed) {
-                PixsoColors.Color_State_on_primary
-            } else {
-                PixsoColors.Color_State_on_secondary
-            },
+        Column(
             modifier = Modifier.fillMaxWidth(),
-        )
+            verticalArrangement = Arrangement.spacedBy(PixsoDimens.Numeric_12),
+        ) {
+            Text(
+                text = title,
+                style = BodyLarge,
+                color = if (isPressed) {
+                    PixsoColors.Color_State_on_primary
+                } else {
+                    PixsoColors.Color_State_on_secondary
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            GraphPreview(
+                points = previewPoints,
+                valueRange = previewValueRange,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
@@ -269,5 +307,12 @@ private fun buildGraphTitle(
         "$objectTitle - $changeTitle"
     } else {
         "График"
+    }
+}
+
+private fun valueRangeForGraphChangeType(changeTypeId: Int?): IntRange {
+    return when (changeTypeId) {
+        CHANGE_TYPE_TEMPERATURE -> 3000..5000
+        else -> 0..100
     }
 }
