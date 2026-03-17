@@ -26,6 +26,14 @@ import kotlinx.coroutines.launch
  * Brightness sensor settings page.
  * Configure brightness sensor parameters.
  */
+/** Экран настройки датчика освещенности. */
+internal val PageSensorBrightSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSensorBrightSettings",
+    screenName = "SensorBrightSettings",
+    titleRu = "Настройки датчика освещенности",
+    description = "Позволяет изменить название и параметры выбранного датчика освещенности."
+)
+
 @Composable
 fun PageSensorBrightSettings(
     sensorId: Long?,

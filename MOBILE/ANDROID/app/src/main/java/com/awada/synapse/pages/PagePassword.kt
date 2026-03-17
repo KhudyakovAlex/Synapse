@@ -18,14 +18,14 @@ import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Password entry page with PIN code input.
- * 4-digit PIN code with numeric keyboard.
- * 
- * @param correctPassword The correct 4-digit password to verify against
- * @param onPasswordCorrect Callback when password is entered correctly
- * @param onBackClick Callback for back button
- */
+/** Экран ввода PIN-кода для продолжения подключения или доступа к защищенному действию. */
+internal val PagePasswordLlmDescriptor = LLMPageDescriptor(
+    fileName = "PagePassword",
+    screenName = "Password",
+    titleRu = "Пароль",
+    description = "Показывает ввод PIN-кода и проверяет пароль перед переходом к следующему действию."
+)
+
 @Composable
 fun PagePassword(
     correctPassword: String,

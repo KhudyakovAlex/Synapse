@@ -38,6 +38,13 @@ private const val OBJECT_TYPE_ROOM = 2
 private const val OBJECT_TYPE_GROUP = 3
 private const val OBJECT_TYPE_LUMINAIRE = 4
 
+/** Вложенная страница редактирования одного графика. */
+internal val PageGraphLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageGraph",
+    titleRu = "График",
+    description = "Позволяет редактировать один график, его точки и параметры применения к объектам."
+)
+
 private const val CHANGE_TYPE_BRIGHTNESS = 1
 private const val CHANGE_TYPE_TEMPERATURE = 2
 

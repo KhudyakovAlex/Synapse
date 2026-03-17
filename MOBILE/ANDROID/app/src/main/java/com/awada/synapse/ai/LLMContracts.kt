@@ -15,29 +15,37 @@ data class LLMChatMessage(
 @Serializable
 data class LLMUiContext(
     @SerialName("currentScreen")
-    val currentScreen: String,
-    @SerialName("selectedLocationControllerId")
-    val selectedLocationControllerId: Int? = null,
-    @SerialName("selectedRoomControllerId")
-    val selectedRoomControllerId: Int? = null,
-    @SerialName("selectedRoomId")
-    val selectedRoomId: Int? = null,
-    @SerialName("selectedGroupControllerId")
-    val selectedGroupControllerId: Int? = null,
-    @SerialName("selectedGroupId")
-    val selectedGroupId: Int? = null,
-    @SerialName("selectedLuminaireId")
-    val selectedLuminaireId: Long? = null,
-    @SerialName("selectedButtonPanelId")
-    val selectedButtonPanelId: Long? = null,
-    @SerialName("selectedButtonNumber")
-    val selectedButtonNumber: Int? = null,
-    @SerialName("selectedScenarioId")
-    val selectedScenarioId: Long? = null,
-    @SerialName("selectedPresSensorId")
-    val selectedPresSensorId: Long? = null,
-    @SerialName("selectedBrightSensorId")
-    val selectedBrightSensorId: Long? = null
+    val currentScreen: LLMCurrentScreenContext
+)
+
+@Serializable
+data class LLMCurrentScreenContext(
+    @SerialName("name")
+    val name: String,
+    @SerialName("params")
+    val params: LLMCurrentScreenParams = LLMCurrentScreenParams()
+)
+
+@Serializable
+data class LLMCurrentScreenParams(
+    @SerialName("controllerId")
+    val controllerId: Int? = null,
+    @SerialName("roomId")
+    val roomId: Int? = null,
+    @SerialName("groupId")
+    val groupId: Int? = null,
+    @SerialName("luminaireId")
+    val luminaireId: Long? = null,
+    @SerialName("buttonPanelId")
+    val buttonPanelId: Long? = null,
+    @SerialName("buttonNumber")
+    val buttonNumber: Int? = null,
+    @SerialName("scenarioId")
+    val scenarioId: Long? = null,
+    @SerialName("presSensorId")
+    val presSensorId: Long? = null,
+    @SerialName("brightSensorId")
+    val brightSensorId: Long? = null
 )
 
 @Serializable

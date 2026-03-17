@@ -32,6 +32,13 @@ import com.awada.synapse.ui.theme.TitleMedium
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+/** Вложенная страница списка расписаний контроллера. */
+internal val PageScheduleLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSchedule",
+    titleRu = "Расписание",
+    description = "Показывает список событий расписания выбранного контроллера и позволяет открыть точку расписания."
+)
+
 @Composable
 fun PageSchedule(
     controllerId: Int?,

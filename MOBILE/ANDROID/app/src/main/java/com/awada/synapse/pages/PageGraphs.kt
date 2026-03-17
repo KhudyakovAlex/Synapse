@@ -50,6 +50,13 @@ private const val OBJECT_TYPE_LUMINAIRE = 4
 private const val CHANGE_TYPE_BRIGHTNESS = 1
 private const val CHANGE_TYPE_TEMPERATURE = 2
 
+/** Вложенная страница списка графиков и перехода к редактированию отдельного графика. */
+internal val PageGraphsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageGraphs",
+    titleRu = "Графики",
+    description = "Показывает список графиков выбранного контроллера и позволяет открыть или создать график."
+)
+
 @Composable
 fun PageGraphs(
     controllerId: Int? = null,

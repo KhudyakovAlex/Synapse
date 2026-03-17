@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
+import com.awada.synapse.ai.LLMCurrentScreenContext
+import com.awada.synapse.ai.LLMCurrentScreenParams
 import com.awada.synapse.ai.LLMNavigationCommand
 import com.awada.synapse.ai.LLMUiContext
 import com.awada.synapse.ai.loadSystemPrompt
@@ -198,19 +200,61 @@ private fun MainContent() {
             iconId = room.icoNum
         )
     }
+    val llmCurrentScreenParams = when (currentScreen) {
+        AppScreen.Location -> LLMCurrentScreenParams()
+        AppScreen.LocationDetails -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId
+        )
+        AppScreen.RoomDetails -> LLMCurrentScreenParams(
+            controllerId = selectedRoom?.controllerId,
+            roomId = selectedRoom?.roomId
+        )
+        AppScreen.GroupDetails -> LLMCurrentScreenParams(
+            controllerId = selectedGroup?.controllerId,
+            groupId = selectedGroup?.groupId
+        )
+        AppScreen.RoomSettings -> LLMCurrentScreenParams(
+            controllerId = selectedRoom?.controllerId,
+            roomId = selectedRoom?.roomId
+        )
+        AppScreen.LocationSettings -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId
+        )
+        AppScreen.Lum -> LLMCurrentScreenParams(
+            luminaireId = selectedLuminaireId
+        )
+        AppScreen.Search -> LLMCurrentScreenParams()
+        AppScreen.Settings -> LLMCurrentScreenParams()
+        AppScreen.LumSettings -> LLMCurrentScreenParams(
+            luminaireId = selectedLuminaireId
+        )
+        AppScreen.SensorPressSettings -> LLMCurrentScreenParams(
+            presSensorId = selectedPresSensorId
+        )
+        AppScreen.SensorBrightSettings -> LLMCurrentScreenParams(
+            brightSensorId = selectedBrightSensorId
+        )
+        AppScreen.ButtonPanelSettings -> LLMCurrentScreenParams(
+            buttonPanelId = selectedButtonPanelId
+        )
+        AppScreen.ButtonSettings -> LLMCurrentScreenParams(
+            buttonPanelId = selectedButtonPanelId,
+            buttonNumber = selectedButtonNumber
+        )
+        AppScreen.Scenario -> LLMCurrentScreenParams(
+            buttonPanelId = selectedButtonPanelId,
+            scenarioId = selectedScenarioId
+        )
+        AppScreen.Panel -> LLMCurrentScreenParams(
+            buttonPanelId = selectedButtonPanelId
+        )
+        AppScreen.Password -> LLMCurrentScreenParams()
+    }
     val llmUiContext = LLMUiContext(
-        currentScreen = currentScreen.name,
-        selectedLocationControllerId = selectedLocation?.controllerId,
-        selectedRoomControllerId = selectedRoom?.controllerId,
-        selectedRoomId = selectedRoom?.roomId,
-        selectedGroupControllerId = selectedGroup?.controllerId,
-        selectedGroupId = selectedGroup?.groupId,
-        selectedLuminaireId = selectedLuminaireId,
-        selectedButtonPanelId = selectedButtonPanelId,
-        selectedButtonNumber = selectedButtonNumber,
-        selectedScenarioId = selectedScenarioId,
-        selectedPresSensorId = selectedPresSensorId,
-        selectedBrightSensorId = selectedBrightSensorId
+        currentScreen = LLMCurrentScreenContext(
+            name = currentScreen.name,
+            params = llmCurrentScreenParams
+        )
     )
     val selectedLuminaireOrNull by remember(db, selectedLuminaireId) {
         if (selectedLuminaireId == null) {

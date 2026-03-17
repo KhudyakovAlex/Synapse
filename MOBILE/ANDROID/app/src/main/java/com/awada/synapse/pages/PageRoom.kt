@@ -41,6 +41,14 @@ import kotlinx.coroutines.launch
  * Page for a single room (within a location).
  * Displays devices (luminaires, sensors, button panels) from the database for this room.
  */
+/** Экран помещения с устройствами и дочерними переходами внутри выбранного контроллера. */
+internal val PageRoomLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageRoom",
+    screenName = "RoomDetails",
+    titleRu = "Помещение",
+    description = "Показывает выбранное помещение и позволяет открыть его группы, светильники, датчики и кнопочные панели."
+)
+
 @Composable
 fun PageRoom(
     roomTitle: String,

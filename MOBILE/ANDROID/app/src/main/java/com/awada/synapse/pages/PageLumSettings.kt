@@ -35,6 +35,14 @@ import kotlinx.coroutines.launch
  * Luminaire settings page.
  * Configure luminaire parameters.
  */
+/** Экран настройки параметров выбранного светильника. */
+internal val PageLumSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageLumSettings",
+    screenName = "LumSettings",
+    titleRu = "Настройки светильника",
+    description = "Позволяет изменить основные настройки выбранного светильника."
+)
+
 @Composable
 fun PageLumSettings(
     luminaireId: Long?,

@@ -25,14 +25,13 @@ import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 
-/**
- * Page for icon selection from specific category.
- * 
- * @param category Icon category name (controller, location, luminaire)
- * @param currentIconId Currently selected icon ID
- * @param onIconSelected Callback when user selects an icon
- * @param onBackClick Callback for back button
- */
+/** Вложенная страница выбора иконки из каталога. */
+internal val PageIconSelectLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageIconSelect",
+    titleRu = "Выбор иконки",
+    description = "Позволяет выбрать иконку нужной категории для локации, помещения или светильника."
+)
+
 @Composable
 fun PageIconSelect(
     category: String,

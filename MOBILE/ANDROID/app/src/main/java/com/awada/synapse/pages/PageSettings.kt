@@ -15,10 +15,14 @@ import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.ui.theme.PixsoDimens
 import com.awada.synapse.ui.theme.TitleMedium
 
-/**
- * Settings page.
- * Allows user to configure app settings.
- */
+/** Экран общих настроек приложения. */
+internal val PageSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSettings",
+    screenName = "Settings",
+    titleRu = "Настройки",
+    description = "Показывает общие настройки приложения и позволяет перейти к поиску контроллера."
+)
+
 @Composable
 fun PageSettings(
     onBackClick: () -> Unit,

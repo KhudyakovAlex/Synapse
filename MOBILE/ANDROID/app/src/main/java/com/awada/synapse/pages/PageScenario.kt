@@ -68,6 +68,14 @@ private const val OBJECT_TYPE_LUMINAIRE = 4
 private const val CHANGE_TYPE_SCENE = 1
 private const val CHANGE_TYPE_AUTO = 2
 
+/** Экран просмотра и редактирования выбранного сценария. */
+internal val PageScenarioLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageScenario",
+    screenName = "Scenario",
+    titleRu = "Сценарий",
+    description = "Позволяет редактировать выбранный сценарий, его действия и порядок выполнения."
+)
+
 @Composable
 fun PageScenario(
     scenarioId: Long?,

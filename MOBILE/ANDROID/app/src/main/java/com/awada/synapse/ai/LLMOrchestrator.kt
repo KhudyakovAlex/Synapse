@@ -144,13 +144,12 @@ object LLMOrchestrator {
         db: AppDatabase,
         uiContext: LLMUiContext
     ): Int? {
-        return uiContext.selectedLocationControllerId
-            ?: uiContext.selectedRoomControllerId
-            ?: uiContext.selectedGroupControllerId
-            ?: uiContext.selectedLuminaireId?.let { db.luminaireDao().getById(it)?.controllerId }
-            ?: uiContext.selectedButtonPanelId?.let { db.buttonPanelDao().getById(it)?.controllerId }
-            ?: uiContext.selectedPresSensorId?.let { db.presSensorDao().getById(it)?.controllerId }
-            ?: uiContext.selectedBrightSensorId?.let { db.brightSensorDao().getById(it)?.controllerId }
-            ?: uiContext.selectedScenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
+        val params = uiContext.currentScreen.params
+        return params.controllerId
+            ?: params.luminaireId?.let { db.luminaireDao().getById(it)?.controllerId }
+            ?: params.buttonPanelId?.let { db.buttonPanelDao().getById(it)?.controllerId }
+            ?: params.presSensorId?.let { db.presSensorDao().getById(it)?.controllerId }
+            ?: params.brightSensorId?.let { db.brightSensorDao().getById(it)?.controllerId }
+            ?: params.scenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
     }
 }

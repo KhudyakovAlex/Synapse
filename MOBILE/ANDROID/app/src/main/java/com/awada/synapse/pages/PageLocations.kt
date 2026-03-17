@@ -32,9 +32,14 @@ import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-/**
- * Locations list page (plural).
- */
+/** Стартовый экран со списком локаций, переходом в настройки и поиском контроллера. */
+internal val PageLocationsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageLocations",
+    screenName = "Location",
+    titleRu = "Локации",
+    description = "Показывает список локаций и позволяет открыть детали локации, настройки приложения или поиск контроллера."
+)
+
 @Composable
 fun PageLocations(
     onSettingsClick: () -> Unit,

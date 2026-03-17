@@ -49,6 +49,13 @@ import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+/** Вложенная страница создания или редактирования точки расписания. */
+internal val PageSchedulePointLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSchedulePoint",
+    titleRu = "Точка расписания",
+    description = "Позволяет задать время, дни недели и сценарий для отдельного события расписания."
+)
+
 @Composable
 fun PageSchedulePoint(
     controllerId: Int?,

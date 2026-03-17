@@ -19,6 +19,14 @@ import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.ButtonEntity
 import kotlinx.coroutines.flow.flowOf
 
+/** Экран выбранной кнопочной панели с кнопками и переходами к их настройке. */
+internal val PageButtonPanelLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageButtonPanel",
+    screenName = "Panel",
+    titleRu = "Кнопочная панель",
+    description = "Показывает выбранную кнопочную панель и позволяет перейти к настройкам панели и отдельных кнопок."
+)
+
 @Composable
 fun PageButtonPanel(
     buttonPanelId: Long?,

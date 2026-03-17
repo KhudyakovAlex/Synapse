@@ -16,11 +16,13 @@ import com.awada.synapse.ui.theme.HeadlineExtraSmall
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.delay
 
-/**
- * Password change page.
- *
- * @param onBackClick Callback for back button
- */
+/** Вложенная страница смены PIN-кода контроллера. */
+internal val PageChangePasswordLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageChangePassword",
+    titleRu = "Смена пароля",
+    description = "Позволяет ввести текущий PIN-код и задать новый пароль контроллера."
+)
+
 @Composable
 fun PageChangePassword(
     onBackClick: () -> Unit,

@@ -92,6 +92,8 @@ AI(
 ### Откуда берётся system prompt
 - System prompt хранится в `app/src/main/assets/llm_system_prompt.md`
 - Загружается через `ai/LLMSystemPromptLoader.kt`
+- В prompt динамически подставляется полный каталог страниц из Kotlin-метаданных `Page...`
+- Для `navigation.screen` в prompt отдельно перечисляются только реальные поддерживаемые `AppScreen`
 - Если asset недоступен, используется fallback-текст в коде
 
 ### Кто собирает запрос
@@ -104,7 +106,7 @@ AI(
 ### Что уходит в LLM
 В модель уходят `messages`:
 - `system`: markdown system prompt
-- `system`: `UI_CONTEXT_JSON`
+- `system`: `UI_CONTEXT_JSON` с текущим экраном и параметрами только этого экрана
 - `system`: `APP_DB_STATE_JSON`
 - история видимых сообщений `USER/AI`
 
@@ -123,10 +125,8 @@ AI(
 - Если controller scope определить нельзя, отправляется полный state приложения
 
 ### Как определяется controller scope
-`LLMOrchestrator` пытается вычислить `controllerId` по текущему `LLMUiContext`:
-- `selectedLocationControllerId`
-- `selectedRoomControllerId`
-- `selectedGroupControllerId`
+`LLMOrchestrator` пытается вычислить `controllerId` по `currentScreen.params`:
+- напрямую из `controllerId`, если он есть у текущего экрана
 - либо через выбранные сущности (`luminaire`, `buttonPanel`, `presSensor`, `brightSensor`, `scenario`)
 
 ### Что попадает в controller-scoped `APP_DB_STATE_JSON`

@@ -16,10 +16,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.LumIndicatorsBlock
 
-/**
- * Page for individual luminaire control.
- * For now it's an empty placeholder screen.
- */
+/** Экран управления отдельным светильником. */
+internal val PageLumLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageLum",
+    screenName = "Lum",
+    titleRu = "Светильник",
+    description = "Позволяет управлять выбранным светильником, его яркостью, температурой и сценами."
+)
+
 @Composable
 fun PageLum(
     onBackClick: () -> Unit,

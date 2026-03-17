@@ -74,6 +74,14 @@ private const val BUTTON_SETTINGS_OBJECT_TYPE_ROOM = 2
 private const val BUTTON_SETTINGS_OBJECT_TYPE_GROUP = 3
 private const val BUTTON_SETTINGS_OBJECT_TYPE_LUMINAIRE = 4
 
+/** Экран настройки конкретной кнопки кнопочной панели и связанных сценариев. */
+internal val PageButtonSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageButtonSettings",
+    screenName = "ButtonSettings",
+    titleRu = "Настройки кнопки",
+    description = "Позволяет настраивать выбранную кнопку панели, ее действия и переходить к сценариям."
+)
+
 @Composable
 fun PageButtonSettings(
     buttonPanelId: Long?,

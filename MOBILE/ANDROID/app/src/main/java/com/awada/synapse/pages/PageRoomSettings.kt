@@ -32,6 +32,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+/** Экран изменения имени и иконки выбранного помещения. */
+internal val PageRoomSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageRoomSettings",
+    screenName = "RoomSettings",
+    titleRu = "Настройки помещения",
+    description = "Позволяет редактировать название и иконку выбранного помещения."
+)
+
 @Composable
 fun PageRoomSettings(
     controllerId: Int? = null,

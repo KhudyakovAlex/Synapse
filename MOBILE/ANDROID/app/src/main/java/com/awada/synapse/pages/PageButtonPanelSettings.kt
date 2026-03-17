@@ -56,6 +56,14 @@ import kotlin.math.roundToInt
  * Button panel settings page.
  * Placeholder: duplicated structure from sensor settings.
  */
+/** Экран настройки кнопочной панели и перехода к отдельным кнопкам. */
+internal val PageButtonPanelSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageButtonPanelSettings",
+    screenName = "ButtonPanelSettings",
+    titleRu = "Настройки кнопочной панели",
+    description = "Позволяет изменить параметры выбранной кнопочной панели и открыть настройки отдельных кнопок."
+)
+
 @Composable
 fun PageButtonPanelSettings(
     buttonPanelId: Long?,

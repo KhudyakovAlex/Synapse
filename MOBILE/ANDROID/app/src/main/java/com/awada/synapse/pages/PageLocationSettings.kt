@@ -34,6 +34,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+/** Экран изменения параметров выбранной локации и перехода к смене пароля. */
+internal val PageLocationSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageLocationSettings",
+    screenName = "LocationSettings",
+    titleRu = "Настройки локации",
+    description = "Позволяет редактировать основные параметры локации и перейти к управлению паролем контроллера."
+)
+
 @Composable
 fun PageLocationSettings(
     controllerId: Int?,

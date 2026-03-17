@@ -26,6 +26,14 @@ import kotlinx.coroutines.launch
  * Press sensor settings page.
  * Configure press sensor parameters.
  */
+/** Экран настройки датчика присутствия. */
+internal val PageSensorPressSettingsLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSensorPressSettings",
+    screenName = "SensorPressSettings",
+    titleRu = "Настройки датчика присутствия",
+    description = "Позволяет изменить название и параметры выбранного датчика присутствия."
+)
+
 @Composable
 fun PageSensorPressSettings(
     sensorId: Long?,

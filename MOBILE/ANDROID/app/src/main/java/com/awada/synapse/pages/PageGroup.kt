@@ -30,6 +30,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+/** Экран группы с составом группы и быстрыми переходами к связанным устройствам. */
+internal val PageGroupLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageGroup",
+    screenName = "GroupDetails",
+    titleRu = "Группа",
+    description = "Показывает выбранную группу и позволяет перейти к светильникам и датчикам освещенности этой группы."
+)
+
 @Composable
 fun PageGroup(
     controllerId: Int,

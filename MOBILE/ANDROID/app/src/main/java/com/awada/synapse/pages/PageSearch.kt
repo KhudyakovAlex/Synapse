@@ -16,6 +16,14 @@ import com.awada.synapse.ui.theme.BodyLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import kotlinx.coroutines.delay
 
+/** Экран поиска и добавления контроллера в приложение. */
+internal val PageSearchLlmDescriptor = LLMPageDescriptor(
+    fileName = "PageSearch",
+    screenName = "Search",
+    titleRu = "Поиск контроллера",
+    description = "Запускает поиск контроллера поблизости и ведет пользователя к следующему шагу подключения."
+)
+
 @Composable
 fun PageSearch(
     onBackClick: () -> Unit,
