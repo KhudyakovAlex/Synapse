@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 /** Стартовый экран со списком локаций, переходом в настройки и поиском контроллера. */
 internal val PageLocationsLlmDescriptor = LLMPageDescriptor(
     fileName = "PageLocations",
-    screenName = "Location",
+    screenName = "Locations",
     titleRu = "Локации",
     description = "Показывает список локаций и позволяет открыть детали локации, настройки приложения или поиск контроллера."
 )

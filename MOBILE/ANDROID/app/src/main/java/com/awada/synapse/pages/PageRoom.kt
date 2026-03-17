@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 /** Экран помещения с устройствами и дочерними переходами внутри выбранного контроллера. */
 internal val PageRoomLlmDescriptor = LLMPageDescriptor(
     fileName = "PageRoom",
-    screenName = "RoomDetails",
+    screenName = "Room",
     titleRu = "Помещение",
     description = "Показывает выбранное помещение и позволяет открыть его группы, светильники, датчики и кнопочные панели."
 )

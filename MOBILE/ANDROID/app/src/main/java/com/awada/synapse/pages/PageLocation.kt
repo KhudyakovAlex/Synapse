@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 /** Экран локации с комнатами, группами, устройствами и системными сущностями выбранного контроллера. */
 internal val PageLocationLlmDescriptor = LLMPageDescriptor(
     fileName = "PageLocation",
-    screenName = "LocationDetails",
+    screenName = "Location",
     titleRu = "Локация",
     description = "Показывает содержимое выбранной локации и даёт переходы в комнаты, группы, светильники, датчики и кнопочные панели."
 )

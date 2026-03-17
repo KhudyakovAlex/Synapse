@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 /** Экран группы с составом группы и быстрыми переходами к связанным устройствам. */
 internal val PageGroupLlmDescriptor = LLMPageDescriptor(
     fileName = "PageGroup",
-    screenName = "GroupDetails",
+    screenName = "Group",
     titleRu = "Группа",
     description = "Показывает выбранную группу и позволяет перейти к светильникам и датчикам освещенности этой группы."
 )

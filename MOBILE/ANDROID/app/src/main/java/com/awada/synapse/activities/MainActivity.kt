@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
@@ -116,9 +117,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(PixsoColors.Color_Bg_bg_elevated.toArgb())
         )
-        setContent {
-            SynapseTheme {
-                MainContent()
+        lifecycleScope.launch {
+            if (savedInstanceState == null) {
+                AppDatabase.getInstance(applicationContext).aiMessageDao().clear()
+            }
+            setContent {
+                SynapseTheme {
+                    MainContent()
+                }
             }
         }
     }
@@ -148,6 +154,23 @@ enum class AppScreen {
     Graphs,
     Graph,
     IconSelect
+}
+
+private val AppScreen.llmScreenName: String
+    get() = when (this) {
+        AppScreen.Location -> "Locations"
+        AppScreen.LocationDetails -> "Location"
+        AppScreen.RoomDetails -> "Room"
+        AppScreen.GroupDetails -> "Group"
+        else -> name
+    }
+
+private fun llmScreenToAppScreen(screenName: String): AppScreen? = when (screenName) {
+    "Locations", AppScreen.Location.name -> AppScreen.Location
+    "Location", AppScreen.LocationDetails.name -> AppScreen.LocationDetails
+    "Room", AppScreen.RoomDetails.name -> AppScreen.RoomDetails
+    "Group", AppScreen.GroupDetails.name -> AppScreen.GroupDetails
+    else -> AppScreen.entries.firstOrNull { it.name == screenName }
 }
 
 @Composable
@@ -318,7 +341,7 @@ private fun MainContent() {
     }
     val llmUiContext = LLMUiContext(
         currentScreen = LLMCurrentScreenContext(
-            name = currentScreen.name,
+            name = currentScreen.llmScreenName,
             params = llmCurrentScreenParams
         )
     )
@@ -1296,51 +1319,51 @@ private fun MainContent() {
             uiContext = llmUiContext,
             onNavigationCommand = { command: LLMNavigationCommand ->
                 scope.launch {
-                    when (command.screen) {
-                        AppScreen.Location.name -> {
+                    when (llmScreenToAppScreen(command.screen)) {
+                        AppScreen.Location -> {
                             currentScreen = AppScreen.Location
                         }
-                        AppScreen.LocationDetails.name -> {
+                        AppScreen.LocationDetails -> {
                             val controllerId = command.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
                             selectedLocation = location
                             currentScreen = AppScreen.LocationDetails
                         }
-                        AppScreen.RoomDetails.name -> {
+                        AppScreen.RoomDetails -> {
                             val controllerId = command.controllerId ?: return@launch
                             val roomId = command.roomId ?: return@launch
                             val room = loadRoomState(controllerId, roomId) ?: return@launch
                             selectedRoom = room
                             currentScreen = AppScreen.RoomDetails
                         }
-                        AppScreen.GroupDetails.name -> {
+                        AppScreen.GroupDetails -> {
                             val controllerId = command.controllerId ?: return@launch
                             val groupId = command.groupId ?: return@launch
                             if (db.groupDao().getById(groupId) == null) return@launch
                             selectedGroup = GroupState(controllerId = controllerId, groupId = groupId)
                             currentScreen = AppScreen.GroupDetails
                         }
-                        AppScreen.LocationSettings.name -> {
+                        AppScreen.LocationSettings -> {
                             val controllerId = command.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
                             selectedLocation = location
                             currentScreen = AppScreen.LocationSettings
                         }
-                        AppScreen.ChangePassword.name -> {
+                        AppScreen.ChangePassword -> {
                             val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
                             selectedLocation = location
                             changePasswordBackTarget = AppScreen.LocationSettings
                             currentScreen = AppScreen.ChangePassword
                         }
-                        AppScreen.Schedule.name -> {
+                        AppScreen.Schedule -> {
                             val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
                             selectedLocation = location
                             scheduleBackTarget = AppScreen.LocationSettings
                             currentScreen = AppScreen.Schedule
                         }
-                        AppScreen.SchedulePoint.name -> {
+                        AppScreen.SchedulePoint -> {
                             val eventId = command.eventId
                             val resolvedControllerId = command.controllerId
                                 ?: eventId?.let { db.eventDao().getById(it)?.controllerId }
@@ -1353,14 +1376,14 @@ private fun MainContent() {
                             schedulePointBackTarget = AppScreen.Schedule
                             currentScreen = AppScreen.SchedulePoint
                         }
-                        AppScreen.Graphs.name -> {
+                        AppScreen.Graphs -> {
                             val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
                             selectedLocation = location
                             graphsBackTarget = AppScreen.LocationSettings
                             currentScreen = AppScreen.Graphs
                         }
-                        AppScreen.Graph.name -> {
+                        AppScreen.Graph -> {
                             val graphId = command.graphId
                             val resolvedControllerId = command.controllerId
                                 ?: graphId?.let { db.graphDao().getById(it)?.controllerId }
@@ -1373,7 +1396,7 @@ private fun MainContent() {
                             graphBackTarget = AppScreen.Graphs
                             currentScreen = AppScreen.Graph
                         }
-                        AppScreen.RoomSettings.name -> {
+                        AppScreen.RoomSettings -> {
                             val controllerId = command.controllerId ?: return@launch
                             val roomId = command.roomId ?: return@launch
                             val room = loadRoomState(controllerId, roomId) ?: return@launch
@@ -1381,7 +1404,7 @@ private fun MainContent() {
                             roomSettingsBackTarget = AppScreen.RoomDetails
                             currentScreen = AppScreen.RoomSettings
                         }
-                        AppScreen.Lum.name -> {
+                        AppScreen.Lum -> {
                             val luminaireId = command.luminaireId ?: return@launch
                             selectedLuminaireId = luminaireId
                             lumBackTarget = when {
@@ -1404,41 +1427,41 @@ private fun MainContent() {
                             }
                             currentScreen = AppScreen.Lum
                         }
-                        AppScreen.LumSettings.name -> {
+                        AppScreen.LumSettings -> {
                             val luminaireId = command.luminaireId ?: return@launch
                             selectedLuminaireId = luminaireId
                             settingsLumBackTarget = AppScreen.Lum
                             currentScreen = AppScreen.LumSettings
                         }
-                        AppScreen.SensorPressSettings.name -> {
+                        AppScreen.SensorPressSettings -> {
                             val sensorId = command.presSensorId ?: return@launch
                             if (db.presSensorDao().getById(sensorId) == null) return@launch
                             selectedPresSensorId = sensorId
                             systemSettingsBackTarget = currentScreen
                             currentScreen = AppScreen.SensorPressSettings
                         }
-                        AppScreen.SensorBrightSettings.name -> {
+                        AppScreen.SensorBrightSettings -> {
                             val sensorId = command.brightSensorId ?: return@launch
                             if (db.brightSensorDao().getById(sensorId) == null) return@launch
                             selectedBrightSensorId = sensorId
                             systemSettingsBackTarget = currentScreen
                             currentScreen = AppScreen.SensorBrightSettings
                         }
-                        AppScreen.Panel.name -> {
+                        AppScreen.Panel -> {
                             val buttonPanelId = command.buttonPanelId ?: return@launch
                             if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
                             selectedButtonPanelId = buttonPanelId
                             buttonPanelBackTarget = currentScreen
                             currentScreen = AppScreen.Panel
                         }
-                        AppScreen.ButtonPanelSettings.name -> {
+                        AppScreen.ButtonPanelSettings -> {
                             val buttonPanelId = command.buttonPanelId ?: return@launch
                             if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
                             selectedButtonPanelId = buttonPanelId
                             systemSettingsBackTarget = AppScreen.Panel
                             currentScreen = AppScreen.ButtonPanelSettings
                         }
-                        AppScreen.ButtonSettings.name -> {
+                        AppScreen.ButtonSettings -> {
                             val buttonPanelId = command.buttonPanelId ?: return@launch
                             val buttonNumber = command.buttonNumber ?: return@launch
                             if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
@@ -1447,22 +1470,22 @@ private fun MainContent() {
                             buttonSettingsBackTarget = AppScreen.Panel
                             currentScreen = AppScreen.ButtonSettings
                         }
-                        AppScreen.Scenario.name -> {
+                        AppScreen.Scenario -> {
                             val scenarioId = command.scenarioId ?: return@launch
                             selectedScenarioId = scenarioId
                             scenarioBackTarget = currentScreen
                             currentScreen = AppScreen.Scenario
                         }
-                        AppScreen.Search.name -> {
+                        AppScreen.Search -> {
                             currentScreen = AppScreen.Search
                         }
-                        AppScreen.Settings.name -> {
+                        AppScreen.Settings -> {
                             currentScreen = AppScreen.Settings
                         }
-                        AppScreen.Password.name -> {
+                        AppScreen.Password -> {
                             currentScreen = AppScreen.Password
                         }
-                        AppScreen.IconSelect.name -> {
+                        AppScreen.IconSelect -> {
                             when (command.iconCategory) {
                                 "controller" -> {
                                     val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
@@ -1494,6 +1517,7 @@ private fun MainContent() {
                                 }
                             }
                         }
+                        null -> Unit
                     }
                 }
             },
