@@ -41,6 +41,7 @@ private const val OBJECT_TYPE_LUMINAIRE = 4
 /** Вложенная страница редактирования одного графика. */
 internal val PageGraphLlmDescriptor = LLMPageDescriptor(
     fileName = "PageGraph",
+    screenName = "Graph",
     titleRu = "График",
     description = "Позволяет редактировать один график, его точки и параметры применения к объектам."
 )

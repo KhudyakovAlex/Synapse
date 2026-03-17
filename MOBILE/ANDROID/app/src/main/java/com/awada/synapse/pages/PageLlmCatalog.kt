@@ -41,7 +41,7 @@ fun buildLlmPageCatalogMarkdown(): String = buildString {
     appendLine("Допустимые значения `navigation.screen`:")
     appendLine(navigationScreens)
     appendLine()
-    appendLine("Все страницы и вложенные подэкраны:")
+    appendLine("Все страницы приложения:")
     LlmPageCatalog.forEach { page ->
         val navigationNote = page.screenName?.let { " screen=`$it`." } ?: " Вложенная страница без прямого значения `navigation.screen`."
         appendLine("- `${page.fileName}` - ${page.titleRu}. ${page.description}$navigationNote")

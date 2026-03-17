@@ -185,7 +185,10 @@ AI(
     "brightSensorId": 6,
     "buttonPanelId": 7,
     "buttonNumber": 2,
-    "scenarioId": 8
+    "scenarioId": 8,
+    "graphId": 9,
+    "eventId": 10,
+    "iconCategory": "controller"
   }
 }
 ```
@@ -200,6 +203,7 @@ AI(
   - только `UPDATE` существующих строк, без `INSERT/DELETE`
 - `navigation`:
   - маппится в `AppScreen` и `selected...` state в `MainActivity`
+  - поддерживает переходы как на основные экраны, так и на бывшие вложенные страницы (`ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`)
 
 ### Fallback
 - Если JSON не распарсился, raw-ответ модели превращается в `assistantText`

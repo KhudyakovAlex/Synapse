@@ -53,6 +53,7 @@ private const val CHANGE_TYPE_TEMPERATURE = 2
 /** Вложенная страница списка графиков и перехода к редактированию отдельного графика. */
 internal val PageGraphsLlmDescriptor = LLMPageDescriptor(
     fileName = "PageGraphs",
+    screenName = "Graphs",
     titleRu = "Графики",
     description = "Показывает список графиков выбранного контроллера и позволяет открыть или создать график."
 )

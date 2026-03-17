@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 /** Вложенная страница смены PIN-кода контроллера. */
 internal val PageChangePasswordLlmDescriptor = LLMPageDescriptor(
     fileName = "PageChangePassword",
+    screenName = "ChangePassword",
     titleRu = "Смена пароля",
     description = "Позволяет ввести текущий PIN-код и задать новый пароль контроллера."
 )

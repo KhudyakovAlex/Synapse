@@ -28,6 +28,7 @@ import com.awada.synapse.ui.theme.PixsoColors
 /** Вложенная страница выбора иконки из каталога. */
 internal val PageIconSelectLlmDescriptor = LLMPageDescriptor(
     fileName = "PageIconSelect",
+    screenName = "IconSelect",
     titleRu = "Выбор иконки",
     description = "Позволяет выбрать иконку нужной категории для локации, помещения или светильника."
 )

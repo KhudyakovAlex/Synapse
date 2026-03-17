@@ -52,6 +52,7 @@ import kotlinx.coroutines.launch
 /** Вложенная страница создания или редактирования точки расписания. */
 internal val PageSchedulePointLlmDescriptor = LLMPageDescriptor(
     fileName = "PageSchedulePoint",
+    screenName = "SchedulePoint",
     titleRu = "Точка расписания",
     description = "Позволяет задать время, дни недели и сценарий для отдельного события расписания."
 )

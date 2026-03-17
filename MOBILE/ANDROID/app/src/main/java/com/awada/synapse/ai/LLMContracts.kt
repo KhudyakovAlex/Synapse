@@ -45,7 +45,15 @@ data class LLMCurrentScreenParams(
     @SerialName("presSensorId")
     val presSensorId: Long? = null,
     @SerialName("brightSensorId")
-    val brightSensorId: Long? = null
+    val brightSensorId: Long? = null,
+    @SerialName("graphId")
+    val graphId: Long? = null,
+    @SerialName("eventId")
+    val eventId: Long? = null,
+    @SerialName("iconCategory")
+    val iconCategory: String? = null,
+    @SerialName("currentIconId")
+    val currentIconId: Int? = null
 )
 
 @Serializable
@@ -95,7 +103,13 @@ data class LLMNavigationCommand(
     @SerialName("buttonNumber")
     val buttonNumber: Int? = null,
     @SerialName("scenarioId")
-    val scenarioId: Long? = null
+    val scenarioId: Long? = null,
+    @SerialName("graphId")
+    val graphId: Long? = null,
+    @SerialName("eventId")
+    val eventId: Long? = null,
+    @SerialName("iconCategory")
+    val iconCategory: String? = null
 )
 
 data class LLMConversationResult(

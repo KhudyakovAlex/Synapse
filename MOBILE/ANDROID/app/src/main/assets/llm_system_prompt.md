@@ -23,7 +23,10 @@
     "brightSensorId": 6,
     "buttonPanelId": 7,
     "buttonNumber": 2,
-    "scenarioId": 8
+    "scenarioId": 8,
+    "graphId": 9,
+    "eventId": 10,
+    "iconCategory": "controller"
   }
 }
 

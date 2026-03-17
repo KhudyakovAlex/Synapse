@@ -53,6 +53,10 @@ import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.lumcontrol.LumControlLayer
 import com.awada.synapse.pages.LocalBottomOverlayInset
+import com.awada.synapse.pages.PageChangePassword
+import com.awada.synapse.pages.PageGraph
+import com.awada.synapse.pages.PageGraphs
+import com.awada.synapse.pages.PageIconSelect
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLumSettings
 import com.awada.synapse.pages.PageLocation
@@ -66,6 +70,8 @@ import com.awada.synapse.pages.PageButtonPanelSettings
 import com.awada.synapse.pages.PageRoom
 import com.awada.synapse.pages.PageRoomSettings
 import com.awada.synapse.pages.PageScenario
+import com.awada.synapse.pages.PageSchedule
+import com.awada.synapse.pages.PageSchedulePoint
 import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSensorBrightSettings
 import com.awada.synapse.pages.PageSensorPressSettings
@@ -135,7 +141,13 @@ enum class AppScreen {
     ButtonSettings,
     Scenario,
     Panel,
-    Password
+    Password,
+    ChangePassword,
+    Schedule,
+    SchedulePoint,
+    Graphs,
+    Graph,
+    IconSelect
 }
 
 @Composable
@@ -154,6 +166,12 @@ private fun MainContent() {
     var scenarioBackTarget by remember { mutableStateOf(AppScreen.Location) }
     var roomSettingsBackTarget by remember { mutableStateOf(AppScreen.RoomDetails) }
     var groupBackTarget by remember { mutableStateOf(AppScreen.LocationDetails) }
+    var changePasswordBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
+    var scheduleBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
+    var schedulePointBackTarget by remember { mutableStateOf(AppScreen.Schedule) }
+    var graphsBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
+    var graphBackTarget by remember { mutableStateOf(AppScreen.Graphs) }
+    var iconSelectBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
     var appearingLocationRoomId by remember { mutableStateOf<Int?>(null) }
     var appearingLocationId by remember { mutableStateOf<Int?>(null) }
     var selectedLocation by remember {
@@ -171,6 +189,10 @@ private fun MainContent() {
     var selectedScenarioId by remember { mutableStateOf<Long?>(null) }
     var selectedPresSensorId by remember { mutableStateOf<Long?>(null) }
     var selectedBrightSensorId by remember { mutableStateOf<Long?>(null) }
+    var selectedGraphId by remember { mutableStateOf<Long?>(null) }
+    var selectedEventId by remember { mutableStateOf<Long?>(null) }
+    var iconSelectCategory by remember { mutableStateOf<String?>(null) }
+    var iconSelectCurrentIconId by remember { mutableStateOf<Int?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
@@ -199,6 +221,26 @@ private fun MainContent() {
             title = room.name.ifBlank { "Помещение ${room.id + 1}" },
             iconId = room.icoNum
         )
+    }
+    suspend fun applySelectedIcon(iconCategory: String, iconId: Int) {
+        when (iconCategory) {
+            "controller" -> {
+                val controllerId = selectedLocation?.controllerId ?: return
+                val controller = db.controllerDao().getById(controllerId) ?: return
+                db.controllerDao().update(controller.copy(icoNum = iconId))
+                selectedLocation = loadLocationItem(controllerId)
+            }
+            "room" -> {
+                val room = selectedRoom ?: return
+                val entity = db.roomDao().getById(room.controllerId, room.roomId) ?: return
+                db.roomDao().update(entity.copy(icoNum = iconId))
+                selectedRoom = room.copy(iconId = iconId)
+            }
+            "luminaire" -> {
+                val luminaireId = selectedLuminaireId ?: return
+                db.luminaireDao().setIcoNum(luminaireId, iconId)
+            }
+        }
     }
     val llmCurrentScreenParams = when (currentScreen) {
         AppScreen.Location -> LLMCurrentScreenParams()
@@ -249,6 +291,30 @@ private fun MainContent() {
             buttonPanelId = selectedButtonPanelId
         )
         AppScreen.Password -> LLMCurrentScreenParams()
+        AppScreen.ChangePassword -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId
+        )
+        AppScreen.Schedule -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId ?: selectedRoom?.controllerId
+        )
+        AppScreen.SchedulePoint -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId ?: selectedRoom?.controllerId,
+            eventId = selectedEventId
+        )
+        AppScreen.Graphs -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId ?: selectedRoom?.controllerId
+        )
+        AppScreen.Graph -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId ?: selectedRoom?.controllerId,
+            graphId = selectedGraphId
+        )
+        AppScreen.IconSelect -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId ?: selectedRoom?.controllerId,
+            roomId = selectedRoom?.roomId,
+            luminaireId = selectedLuminaireId,
+            iconCategory = iconSelectCategory,
+            currentIconId = iconSelectCurrentIconId
+        )
     }
     val llmUiContext = LLMUiContext(
         currentScreen = LLMCurrentScreenContext(
@@ -419,6 +485,12 @@ private fun MainContent() {
             AppScreen.ButtonSettings -> currentScreen = buttonSettingsBackTarget
             AppScreen.Scenario -> currentScreen = scenarioBackTarget
             AppScreen.Panel -> currentScreen = buttonPanelBackTarget
+            AppScreen.ChangePassword -> currentScreen = changePasswordBackTarget
+            AppScreen.Schedule -> currentScreen = scheduleBackTarget
+            AppScreen.SchedulePoint -> currentScreen = schedulePointBackTarget
+            AppScreen.Graphs -> currentScreen = graphsBackTarget
+            AppScreen.Graph -> currentScreen = graphBackTarget
+            AppScreen.IconSelect -> currentScreen = iconSelectBackTarget
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
             }
@@ -667,6 +739,60 @@ private fun MainContent() {
                                 appearingLocationRoomId = roomId
                                 currentScreen = AppScreen.LocationDetails
                             },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.ChangePassword -> {
+                        PageChangePassword(
+                            onBackClick = { currentScreen = changePasswordBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Schedule -> {
+                        PageSchedule(
+                            controllerId = selectedLocation?.controllerId,
+                            onBackClick = { currentScreen = scheduleBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.SchedulePoint -> {
+                        PageSchedulePoint(
+                            controllerId = selectedLocation?.controllerId,
+                            eventId = selectedEventId,
+                            onBackClick = { currentScreen = schedulePointBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Graphs -> {
+                        PageGraphs(
+                            controllerId = selectedLocation?.controllerId,
+                            onBackClick = { currentScreen = graphsBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.Graph -> {
+                        PageGraph(
+                            controllerId = selectedLocation?.controllerId,
+                            graphId = selectedGraphId,
+                            onBackClick = { currentScreen = graphBackTarget },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.IconSelect -> {
+                        PageIconSelect(
+                            category = iconSelectCategory ?: "controller",
+                            currentIconId = iconSelectCurrentIconId ?: 100,
+                            onIconSelected = { iconId ->
+                                scope.launch {
+                                    applySelectedIcon(
+                                        iconCategory = iconSelectCategory ?: return@launch,
+                                        iconId = iconId
+                                    )
+                                    iconSelectCurrentIconId = iconId
+                                    currentScreen = iconSelectBackTarget
+                                }
+                            },
+                            onBackClick = { currentScreen = iconSelectBackTarget },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -1200,6 +1326,53 @@ private fun MainContent() {
                             selectedLocation = location
                             currentScreen = AppScreen.LocationSettings
                         }
+                        AppScreen.ChangePassword.name -> {
+                            val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            changePasswordBackTarget = AppScreen.LocationSettings
+                            currentScreen = AppScreen.ChangePassword
+                        }
+                        AppScreen.Schedule.name -> {
+                            val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            scheduleBackTarget = AppScreen.LocationSettings
+                            currentScreen = AppScreen.Schedule
+                        }
+                        AppScreen.SchedulePoint.name -> {
+                            val eventId = command.eventId
+                            val resolvedControllerId = command.controllerId
+                                ?: eventId?.let { db.eventDao().getById(it)?.controllerId }
+                                ?: selectedLocation?.controllerId
+                                ?: return@launch
+                            val location = loadLocationItem(resolvedControllerId) ?: return@launch
+                            selectedLocation = location
+                            selectedEventId = eventId
+                            scheduleBackTarget = AppScreen.LocationSettings
+                            schedulePointBackTarget = AppScreen.Schedule
+                            currentScreen = AppScreen.SchedulePoint
+                        }
+                        AppScreen.Graphs.name -> {
+                            val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            graphsBackTarget = AppScreen.LocationSettings
+                            currentScreen = AppScreen.Graphs
+                        }
+                        AppScreen.Graph.name -> {
+                            val graphId = command.graphId
+                            val resolvedControllerId = command.controllerId
+                                ?: graphId?.let { db.graphDao().getById(it)?.controllerId }
+                                ?: selectedLocation?.controllerId
+                                ?: return@launch
+                            val location = loadLocationItem(resolvedControllerId) ?: return@launch
+                            selectedLocation = location
+                            selectedGraphId = graphId
+                            graphsBackTarget = AppScreen.LocationSettings
+                            graphBackTarget = AppScreen.Graphs
+                            currentScreen = AppScreen.Graph
+                        }
                         AppScreen.RoomSettings.name -> {
                             val controllerId = command.controllerId ?: return@launch
                             val roomId = command.roomId ?: return@launch
@@ -1288,6 +1461,38 @@ private fun MainContent() {
                         }
                         AppScreen.Password.name -> {
                             currentScreen = AppScreen.Password
+                        }
+                        AppScreen.IconSelect.name -> {
+                            when (command.iconCategory) {
+                                "controller" -> {
+                                    val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
+                                    val controller = db.controllerDao().getById(controllerId) ?: return@launch
+                                    selectedLocation = loadLocationItem(controllerId)
+                                    iconSelectCategory = "controller"
+                                    iconSelectCurrentIconId = controller.icoNum
+                                    iconSelectBackTarget = AppScreen.LocationSettings
+                                    currentScreen = AppScreen.IconSelect
+                                }
+                                "room" -> {
+                                    val controllerId = command.controllerId ?: selectedRoom?.controllerId ?: return@launch
+                                    val roomId = command.roomId ?: selectedRoom?.roomId ?: return@launch
+                                    val room = loadRoomState(controllerId, roomId) ?: return@launch
+                                    selectedRoom = room
+                                    iconSelectCategory = "room"
+                                    iconSelectCurrentIconId = room.iconId
+                                    iconSelectBackTarget = AppScreen.RoomSettings
+                                    currentScreen = AppScreen.IconSelect
+                                }
+                                "luminaire" -> {
+                                    val luminaireId = command.luminaireId ?: selectedLuminaireId ?: return@launch
+                                    val luminaire = db.luminaireDao().getById(luminaireId) ?: return@launch
+                                    selectedLuminaireId = luminaireId
+                                    iconSelectCategory = "luminaire"
+                                    iconSelectCurrentIconId = luminaire.icoNum
+                                    iconSelectBackTarget = AppScreen.LumSettings
+                                    currentScreen = AppScreen.IconSelect
+                                }
+                            }
                         }
                     }
                 }

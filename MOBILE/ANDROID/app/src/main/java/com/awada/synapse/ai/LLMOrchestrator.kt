@@ -151,5 +151,7 @@ object LLMOrchestrator {
             ?: params.presSensorId?.let { db.presSensorDao().getById(it)?.controllerId }
             ?: params.brightSensorId?.let { db.brightSensorDao().getById(it)?.controllerId }
             ?: params.scenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
+            ?: params.graphId?.let { db.graphDao().getById(it)?.controllerId }
+            ?: params.eventId?.let { db.eventDao().getById(it)?.controllerId }
     }
 }
