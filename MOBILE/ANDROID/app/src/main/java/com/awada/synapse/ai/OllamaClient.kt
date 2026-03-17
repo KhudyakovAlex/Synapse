@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 object OllamaClient {
     private const val MODEL = "glm-4.7-flash:latest"
-    private const val URL = "http://10.10.1.184:11434/api/generate"
+    private const val URL = "http://10.10.1.184:11434/api/chat"
 
     private val http = OkHttpClient.Builder()
         // LLM can be slow; defaults are too aggressive for local models.
@@ -26,26 +26,47 @@ object OllamaClient {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     @Serializable
-    private data class GenerateRequest(
+    private data class ChatRequest(
         @SerialName("model") val model: String,
-        @SerialName("prompt") val prompt: String,
-        @SerialName("stream") val stream: Boolean
+        @SerialName("messages") val messages: List<LLMChatMessage>,
+        @SerialName("stream") val stream: Boolean,
+        @SerialName("format") val format: String? = null
     )
 
     @Serializable
-    private data class GenerateResponse(
-        @SerialName("response") val response: String? = null
+    private data class ChatResponseMessage(
+        @SerialName("role") val role: String? = null,
+        @SerialName("content") val content: String? = null
     )
 
-    fun generateText(prompt: String): String {
-        LLMDebugLog.log("Ollama generate: start model=$MODEL url=$URL promptChars=${prompt.length}")
-        val body = json.encodeToString(GenerateRequest(model = MODEL, prompt = prompt, stream = false))
-        val promptPreview = prompt
-            .replace("\r", "")
-            .replace("\n", "\\n")
-            .take(200)
-        if (promptPreview.isNotBlank()) {
-            LLMDebugLog.log("Ollama generate: promptPreview=\"$promptPreview\"")
+    @Serializable
+    private data class ChatResponse(
+        @SerialName("message") val message: ChatResponseMessage? = null
+    )
+
+    fun chat(messages: List<LLMChatMessage>, requireJson: Boolean = false): String {
+        val totalChars = messages.sumOf { it.content.length }
+        LLMDebugLog.log(
+            "Ollama chat: start model=$MODEL url=$URL messages=${messages.size} chars=$totalChars requireJson=$requireJson"
+        )
+        val body = json.encodeToString(
+            ChatRequest(
+                model = MODEL,
+                messages = messages,
+                stream = false,
+                format = if (requireJson) "json" else null
+            )
+        )
+        messages.takeLast(3).forEachIndexed { index, message ->
+            val preview = message.content
+                .replace("\r", "")
+                .replace("\n", "\\n")
+                .take(200)
+            if (preview.isNotBlank()) {
+                LLMDebugLog.log(
+                    "Ollama chat: message[$index] role=${message.role} preview=\"$preview\""
+                )
+            }
         }
         val req = Request.Builder()
             .url(URL)
@@ -57,27 +78,27 @@ object OllamaClient {
             http.newCall(req).execute().use { resp ->
                 val dtMs = System.currentTimeMillis() - t0
                 val raw = resp.body?.string().orEmpty()
-                LLMDebugLog.log("Ollama generate: http=${resp.code} ok=${resp.isSuccessful} dtMs=$dtMs rawChars=${raw.length}")
+                LLMDebugLog.log("Ollama chat: http=${resp.code} ok=${resp.isSuccessful} dtMs=$dtMs rawChars=${raw.length}")
 
                 if (!resp.isSuccessful) {
                     val rawPreview = raw.replace("\r", "").replace("\n", "\\n").take(200)
                     if (rawPreview.isNotBlank()) {
-                        LLMDebugLog.log("Ollama generate: httpErrorBodyPreview=\"$rawPreview\"")
+                        LLMDebugLog.log("Ollama chat: httpErrorBodyPreview=\"$rawPreview\"")
                     }
                     return "Ошибка Ollama HTTP ${resp.code}"
                 }
 
-                val parsed = runCatching { json.decodeFromString<GenerateResponse>(raw) }.getOrNull()
-                val text = (parsed?.response ?: raw).trim()
+                val parsed = runCatching { json.decodeFromString<ChatResponse>(raw) }.getOrNull()
+                val text = (parsed?.message?.content ?: raw).trim()
                 val preview = text.replace("\r", "").replace("\n", "\\n").take(200)
                 if (preview.isNotBlank()) {
-                    LLMDebugLog.log("Ollama generate: responsePreview=\"$preview\"")
+                    LLMDebugLog.log("Ollama chat: responsePreview=\"$preview\"")
                 }
                 return text
             }
         } catch (t: Throwable) {
             val dtMs = System.currentTimeMillis() - t0
-            LLMDebugLog.log("Ollama generate: exception dtMs=$dtMs type=${t::class.java.simpleName} msg=${t.message ?: "null"}")
+            LLMDebugLog.log("Ollama chat: exception dtMs=$dtMs type=${t::class.java.simpleName} msg=${t.message ?: "null"}")
             throw t
         }
     }

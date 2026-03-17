@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
+import com.awada.synapse.ai.LLMNavigationCommand
+import com.awada.synapse.ai.LLMUiContext
 import com.awada.synapse.components.TooltipOverlayState
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
@@ -169,6 +171,37 @@ private fun MainContent() {
         }
     }
     var aiBottomInsetDp by remember { mutableStateOf(0.dp) }
+    suspend fun loadLocationItem(controllerId: Int): com.awada.synapse.components.LocationItem? {
+        val controller = db.controllerDao().getById(controllerId) ?: return null
+        return com.awada.synapse.components.LocationItem(
+            title = controller.name.ifBlank { "Локация" },
+            iconResId = com.awada.synapse.components.iconResId(context, controller.icoNum),
+            controllerId = controller.id
+        )
+    }
+    suspend fun loadRoomState(controllerId: Int, roomId: Int): RoomState? {
+        val room = db.roomDao().getById(controllerId, roomId) ?: return null
+        return RoomState(
+            controllerId = room.controllerId,
+            roomId = room.id,
+            title = room.name.ifBlank { "Помещение ${room.id + 1}" },
+            iconId = room.icoNum
+        )
+    }
+    val llmUiContext = LLMUiContext(
+        currentScreen = currentScreen.name,
+        selectedLocationControllerId = selectedLocation?.controllerId,
+        selectedRoomControllerId = selectedRoom?.controllerId,
+        selectedRoomId = selectedRoom?.roomId,
+        selectedGroupControllerId = selectedGroup?.controllerId,
+        selectedGroupId = selectedGroup?.groupId,
+        selectedLuminaireId = selectedLuminaireId,
+        selectedButtonPanelId = selectedButtonPanelId,
+        selectedButtonNumber = selectedButtonNumber,
+        selectedScenarioId = selectedScenarioId,
+        selectedPresSensorId = selectedPresSensorId,
+        selectedBrightSensorId = selectedBrightSensorId
+    )
     val selectedLuminaireOrNull by remember(db, selectedLuminaireId) {
         if (selectedLuminaireId == null) {
             flowOf<LuminaireEntity?>(null)
@@ -1080,6 +1113,131 @@ private fun MainContent() {
         
         AI(
             modifier = Modifier.fillMaxSize(),
+            uiContext = llmUiContext,
+            onNavigationCommand = { command: LLMNavigationCommand ->
+                scope.launch {
+                    when (command.screen) {
+                        AppScreen.Location.name -> {
+                            currentScreen = AppScreen.Location
+                        }
+                        AppScreen.LocationDetails.name -> {
+                            val controllerId = command.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            currentScreen = AppScreen.LocationDetails
+                        }
+                        AppScreen.RoomDetails.name -> {
+                            val controllerId = command.controllerId ?: return@launch
+                            val roomId = command.roomId ?: return@launch
+                            val room = loadRoomState(controllerId, roomId) ?: return@launch
+                            selectedRoom = room
+                            currentScreen = AppScreen.RoomDetails
+                        }
+                        AppScreen.GroupDetails.name -> {
+                            val controllerId = command.controllerId ?: return@launch
+                            val groupId = command.groupId ?: return@launch
+                            if (db.groupDao().getById(groupId) == null) return@launch
+                            selectedGroup = GroupState(controllerId = controllerId, groupId = groupId)
+                            currentScreen = AppScreen.GroupDetails
+                        }
+                        AppScreen.LocationSettings.name -> {
+                            val controllerId = command.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            currentScreen = AppScreen.LocationSettings
+                        }
+                        AppScreen.RoomSettings.name -> {
+                            val controllerId = command.controllerId ?: return@launch
+                            val roomId = command.roomId ?: return@launch
+                            val room = loadRoomState(controllerId, roomId) ?: return@launch
+                            selectedRoom = room
+                            roomSettingsBackTarget = AppScreen.RoomDetails
+                            currentScreen = AppScreen.RoomSettings
+                        }
+                        AppScreen.Lum.name -> {
+                            val luminaireId = command.luminaireId ?: return@launch
+                            selectedLuminaireId = luminaireId
+                            lumBackTarget = when {
+                                command.roomId != null && command.controllerId != null -> {
+                                    loadRoomState(command.controllerId, command.roomId)?.let { selectedRoom = it }
+                                    AppScreen.RoomDetails
+                                }
+                                command.groupId != null && command.controllerId != null -> {
+                                    selectedGroup = GroupState(
+                                        controllerId = command.controllerId,
+                                        groupId = command.groupId
+                                    )
+                                    AppScreen.GroupDetails
+                                }
+                                command.controllerId != null -> {
+                                    loadLocationItem(command.controllerId)?.let { selectedLocation = it }
+                                    AppScreen.LocationDetails
+                                }
+                                else -> currentScreen
+                            }
+                            currentScreen = AppScreen.Lum
+                        }
+                        AppScreen.LumSettings.name -> {
+                            val luminaireId = command.luminaireId ?: return@launch
+                            selectedLuminaireId = luminaireId
+                            settingsLumBackTarget = AppScreen.Lum
+                            currentScreen = AppScreen.LumSettings
+                        }
+                        AppScreen.SensorPressSettings.name -> {
+                            val sensorId = command.presSensorId ?: return@launch
+                            if (db.presSensorDao().getById(sensorId) == null) return@launch
+                            selectedPresSensorId = sensorId
+                            systemSettingsBackTarget = currentScreen
+                            currentScreen = AppScreen.SensorPressSettings
+                        }
+                        AppScreen.SensorBrightSettings.name -> {
+                            val sensorId = command.brightSensorId ?: return@launch
+                            if (db.brightSensorDao().getById(sensorId) == null) return@launch
+                            selectedBrightSensorId = sensorId
+                            systemSettingsBackTarget = currentScreen
+                            currentScreen = AppScreen.SensorBrightSettings
+                        }
+                        AppScreen.Panel.name -> {
+                            val buttonPanelId = command.buttonPanelId ?: return@launch
+                            if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
+                            selectedButtonPanelId = buttonPanelId
+                            buttonPanelBackTarget = currentScreen
+                            currentScreen = AppScreen.Panel
+                        }
+                        AppScreen.ButtonPanelSettings.name -> {
+                            val buttonPanelId = command.buttonPanelId ?: return@launch
+                            if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
+                            selectedButtonPanelId = buttonPanelId
+                            systemSettingsBackTarget = AppScreen.Panel
+                            currentScreen = AppScreen.ButtonPanelSettings
+                        }
+                        AppScreen.ButtonSettings.name -> {
+                            val buttonPanelId = command.buttonPanelId ?: return@launch
+                            val buttonNumber = command.buttonNumber ?: return@launch
+                            if (db.buttonPanelDao().getById(buttonPanelId) == null) return@launch
+                            selectedButtonPanelId = buttonPanelId
+                            selectedButtonNumber = buttonNumber
+                            buttonSettingsBackTarget = AppScreen.Panel
+                            currentScreen = AppScreen.ButtonSettings
+                        }
+                        AppScreen.Scenario.name -> {
+                            val scenarioId = command.scenarioId ?: return@launch
+                            selectedScenarioId = scenarioId
+                            scenarioBackTarget = currentScreen
+                            currentScreen = AppScreen.Scenario
+                        }
+                        AppScreen.Search.name -> {
+                            currentScreen = AppScreen.Search
+                        }
+                        AppScreen.Settings.name -> {
+                            currentScreen = AppScreen.Settings
+                        }
+                        AppScreen.Password.name -> {
+                            currentScreen = AppScreen.Password
+                        }
+                    }
+                }
+            },
             onMainPanelTopPxChanged = { aiPanelTopPx = it }
         )
 

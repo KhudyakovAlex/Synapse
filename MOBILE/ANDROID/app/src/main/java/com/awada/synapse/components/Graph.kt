@@ -41,6 +41,7 @@ import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 private const val MINUTES_PER_DAY = 24 * 60
 private const val TIME_STEP_MINUTES = 5
@@ -224,19 +225,15 @@ fun Graph(
                 )
             }
 
-            val path = Path()
-            renderedPoints.forEachIndexed { index, point ->
-                val offset = point.toOffset(
-                    metrics = metrics,
-                    valueRange = valueRange,
-                    viewport = viewport,
-                )
-                if (index == 0) {
-                    path.moveTo(offset.x, offset.y)
-                } else {
-                    path.lineTo(offset.x, offset.y)
+            val path = buildMonotoneCubicPath(
+                renderedPoints.map { point ->
+                    point.toOffset(
+                        metrics = metrics,
+                        valueRange = valueRange,
+                        viewport = viewport,
+                    )
                 }
-            }
+            )
 
             drawPath(
                 path = path,
@@ -743,6 +740,86 @@ private fun distanceToSegment(
         y = start.y + dy * clampedT,
     )
     return hypot(position.x - projection.x, position.y - projection.y)
+}
+
+private fun buildMonotoneCubicPath(points: List<Offset>): Path {
+    val path = Path()
+    val firstPoint = points.firstOrNull() ?: return path
+    path.moveTo(firstPoint.x, firstPoint.y)
+    if (points.size == 1) {
+        return path
+    }
+    if (points.size == 2) {
+        val secondPoint = points[1]
+        path.lineTo(secondPoint.x, secondPoint.y)
+        return path
+    }
+
+    val slopes = MutableList(points.lastIndex) { index ->
+        val start = points[index]
+        val end = points[index + 1]
+        val dx = end.x - start.x
+        if (abs(dx) < 0.001f) {
+            0f
+        } else {
+            (end.y - start.y) / dx
+        }
+    }
+    val tangents = MutableList(points.size) { 0f }
+    tangents[0] = slopes.first()
+    tangents[points.lastIndex] = slopes.last()
+
+    for (index in 1 until points.lastIndex) {
+        val previousSlope = slopes[index - 1]
+        val nextSlope = slopes[index]
+        tangents[index] = if (previousSlope == 0f || nextSlope == 0f || previousSlope * nextSlope < 0f) {
+            0f
+        } else {
+            (previousSlope + nextSlope) / 2f
+        }
+    }
+
+    for (index in slopes.indices) {
+        val slope = slopes[index]
+        if (abs(slope) < 0.001f) {
+            tangents[index] = 0f
+            tangents[index + 1] = 0f
+            continue
+        }
+
+        val alpha = tangents[index] / slope
+        val beta = tangents[index + 1] / slope
+        val scale = alpha * alpha + beta * beta
+        if (scale > 9f) {
+            val factor = 3f / sqrt(scale)
+            tangents[index] = factor * alpha * slope
+            tangents[index + 1] = factor * beta * slope
+        }
+    }
+
+    for (index in 0 until points.lastIndex) {
+        val start = points[index]
+        val end = points[index + 1]
+        val dx = end.x - start.x
+        val controlPoint1 = Offset(
+            x = start.x + dx / 3f,
+            y = start.y + tangents[index] * dx / 3f,
+        )
+        val controlPoint2 = Offset(
+            x = end.x - dx / 3f,
+            y = end.y - tangents[index + 1] * dx / 3f,
+        )
+        path.cubicTo(
+            x1 = controlPoint1.x,
+            y1 = controlPoint1.y,
+            x2 = controlPoint2.x,
+            y2 = controlPoint2.y,
+            x3 = end.x,
+            y3 = end.y,
+        )
+    }
+
+    return path
 }
 
 private fun buildRenderedPoints(points: List<InternalGraphPoint>): List<InternalGraphPoint> {

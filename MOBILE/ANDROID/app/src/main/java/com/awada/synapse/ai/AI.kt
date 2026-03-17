@@ -51,6 +51,8 @@ private const val SCRIM_MAX_ALPHA = 0.5f
 @Composable
 fun AI(
     modifier: Modifier = Modifier,
+    uiContext: LLMUiContext,
+    onNavigationCommand: (LLMNavigationCommand) -> Unit = {},
     onMainPanelTopPxChanged: ((Float) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -158,7 +160,9 @@ fun AI(
                             screenHeightPx = screenHeightPx,
                             expandedTopOffsetPx = expandedOffsetPx,
                             mainPanelHeightPx = with(density) { MAIN_PANEL_HEIGHT.toPx() },
-                            anchoredDraggableState = anchoredDraggableState
+                            anchoredDraggableState = anchoredDraggableState,
+                            uiContext = uiContext,
+                            onNavigationCommand = onNavigationCommand
                         )
                     }
                 }

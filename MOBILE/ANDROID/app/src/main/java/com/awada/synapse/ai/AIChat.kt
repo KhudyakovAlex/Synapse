@@ -72,45 +72,6 @@ private fun formatTime(timestampMs: Long): String {
         .format(TIME_FORMATTER)
 }
 
-private fun buildPrompt(history: List<AIMessageEntity>): String {
-    val sb = StringBuilder()
-    sb.appendLine("Ты Synapse — ассистент приложения. Отвечай по-русски, кратко и по делу.")
-    sb.appendLine()
-    var lastUserNormalized: String? = null
-    history.forEach { msg ->
-        when (msg.role) {
-            ROLE_USER -> {
-                val normalized = msg.text
-                    .trim()
-                    .asSequence()
-                    .filter { it.isLetterOrDigit() || it.isWhitespace() }
-                    .joinToString(separator = "")
-                    .replace(Regex("\\s+"), " ")
-                    .lowercase()
-                if (normalized.isNotEmpty() && normalized == lastUserNormalized) {
-                    return@forEach
-                }
-                sb.append("User: ").appendLine(msg.text)
-                lastUserNormalized = normalized
-            }
-            ROLE_AI -> {
-                lastUserNormalized = null
-                val t = msg.text.trimStart()
-                if (
-                    t.startsWith("Ошибка Ollama", ignoreCase = true) ||
-                    t.startsWith("Ошибка запроса к Ollama", ignoreCase = true)
-                ) {
-                    return@forEach
-                }
-                sb.append("Assistant: ").appendLine(msg.text)
-            }
-            else -> Unit
-        }
-    }
-    sb.append("Assistant:")
-    return sb.toString()
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AIChat(
@@ -119,7 +80,9 @@ fun AIChat(
     screenHeightPx: Float,
     expandedTopOffsetPx: Float,
     mainPanelHeightPx: Float,
-    anchoredDraggableState: AnchoredDraggableState<ChatState>
+    anchoredDraggableState: AnchoredDraggableState<ChatState>,
+    uiContext: LLMUiContext,
+    onNavigationCommand: (LLMNavigationCommand) -> Unit = {}
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -261,52 +224,69 @@ fun AIChat(
                             }
 
                             scope.launch {
-                                run {
-                                    val (userClipped, userTruncated) = clipForLogdog(text)
-                                    Logdog.i(
-                                        message = "USER:\n$userClipped",
-                                        traceId = traceId,
-                                        fields = mapOf(
-                                            "chars" to text.length,
-                                            "truncated" to userTruncated,
+                                try {
+                                    run {
+                                        val (userClipped, userTruncated) = clipForLogdog(text)
+                                        Logdog.i(
+                                            message = "USER:\n$userClipped",
+                                            traceId = traceId,
+                                            fields = mapOf<String, Any?>(
+                                                "chars" to text.length,
+                                                "truncated" to userTruncated,
+                                            )
+                                        )
+                                    }
+                                    val now = System.currentTimeMillis()
+                                    dao.insert(
+                                        AIMessageEntity(
+                                            role = ROLE_USER,
+                                            text = text,
+                                            createdAt = now
                                         )
                                     )
-                                }
-                                val now = System.currentTimeMillis()
-                                dao.insert(
-                                    AIMessageEntity(
-                                        role = ROLE_USER,
-                                        text = text,
-                                        createdAt = now
-                                    )
-                                )
 
-                                val recent = dao.getRecent(limit = 24).reversed()
-                                val prompt = buildPrompt(recent)
-                                val reply = withContext(Dispatchers.IO) {
-                                    runCatching { OllamaClient.generateText(prompt) }
-                                        .getOrElse { "Ошибка запроса к Ollama: ${it.message ?: "unknown"}" }
-                                }.trim()
+                                    val recent = dao.getRecent(limit = 24).reversed()
+                                    val result = withContext(Dispatchers.IO) {
+                                        runCatching {
+                                            LLMOrchestrator.processUserMessage(
+                                                db = db,
+                                                history = recent,
+                                                uiContext = uiContext
+                                            )
+                                        }.getOrElse {
+                                            LLMConversationResult(
+                                                assistantText = "Ошибка запроса к Ollama: ${it.message ?: "unknown"}"
+                                            )
+                                        }
+                                    }
+                                    val reply = result.assistantText.trim()
 
-                                run {
-                                    val (replyClipped, replyTruncated) = clipForLogdog(reply)
-                                    Logdog.i(
-                                        message = "LLM:\n$replyClipped",
-                                        traceId = traceId,
-                                        fields = mapOf(
-                                            "chars" to reply.length,
-                                            "truncated" to replyTruncated,
+                                    run {
+                                        val (replyClipped, replyTruncated) = clipForLogdog(reply)
+                                        Logdog.i(
+                                            message = "LLM:\n$replyClipped",
+                                            traceId = traceId,
+                                            fields = mapOf<String, Any?>(
+                                                "chars" to reply.length,
+                                                "truncated" to replyTruncated,
+                                                "navigationScreen" to result.navigation?.screen,
+                                            )
+                                        )
+                                    }
+                                    dao.insert(
+                                        AIMessageEntity(
+                                            role = ROLE_AI,
+                                            text = if (reply.isNotEmpty()) reply else "…",
+                                            createdAt = System.currentTimeMillis()
                                         )
                                     )
+                                    val navigation = result.navigation
+                                    if (navigation != null) {
+                                        onNavigationCommand(navigation)
+                                    }
+                                } finally {
+                                    isSending = false
                                 }
-                                dao.insert(
-                                    AIMessageEntity(
-                                        role = ROLE_AI,
-                                        text = if (reply.isNotEmpty()) reply else "…",
-                                        createdAt = System.currentTimeMillis()
-                                    )
-                                )
-                                isSending = false
                             }
                         }
                     )
