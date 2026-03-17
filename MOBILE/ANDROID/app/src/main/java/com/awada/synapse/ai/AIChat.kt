@@ -81,6 +81,8 @@ fun AIChat(
     expandedTopOffsetPx: Float,
     mainPanelHeightPx: Float,
     anchoredDraggableState: AnchoredDraggableState<ChatState>,
+    isSending: Boolean,
+    onSendingChange: (Boolean) -> Unit = {},
     uiContext: LLMUiContext,
     onNavigationCommand: (LLMNavigationCommand) -> Unit = {}
 ) {
@@ -92,7 +94,6 @@ fun AIChat(
 
     val messages by dao.observeAll().collectAsState(initial = emptyList())
     var inputText by remember { mutableStateOf("") }
-    var isSending by remember { mutableStateOf(false) }
 
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -201,7 +202,7 @@ fun AIChat(
                             val text = inputText.trim()
                             if (text.isEmpty() || isSending) return@InputBar
                             inputText = ""
-                            isSending = true
+                            onSendingChange(true)
                             val traceId = UUID.randomUUID().toString()
                             run {
                                 val preview = text
@@ -275,7 +276,7 @@ fun AIChat(
                                         onNavigationCommand(navigation)
                                     }
                                 } finally {
-                                    isSending = false
+                                    onSendingChange(false)
                                 }
                             }
                         }

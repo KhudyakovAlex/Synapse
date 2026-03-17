@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,6 +62,7 @@ fun AI(
     
     // Drag progress: 0 = collapsed, 1 = expanded
     var dragProgress by remember { mutableFloatStateOf(0f) }
+    var isSending by remember { mutableStateOf(false) }
     
     // Animated multiplier for AI toggle (smooth fade when AI is disabled)
     val aiMultiplier by animateFloatAsState(
@@ -161,6 +163,8 @@ fun AI(
                             expandedTopOffsetPx = expandedOffsetPx,
                             mainPanelHeightPx = with(density) { MAIN_PANEL_HEIGHT.toPx() },
                             anchoredDraggableState = anchoredDraggableState,
+                            isSending = isSending,
+                            onSendingChange = { isSending = it },
                             uiContext = uiContext,
                             onNavigationCommand = onNavigationCommand
                         )
@@ -175,7 +179,8 @@ fun AI(
                     .onGloballyPositioned { coords ->
                         onMainPanelTopPxChanged?.invoke(coords.boundsInRoot().top)
                     },
-                anchoredDraggableState = anchoredDraggableState
+                anchoredDraggableState = anchoredDraggableState,
+                isLoading = isSending
             )
         }
     }

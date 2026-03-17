@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,7 +40,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun AIMain(
     modifier: Modifier = Modifier,
-    anchoredDraggableState: AnchoredDraggableState<ChatState>
+    anchoredDraggableState: AnchoredDraggableState<ChatState>,
+    isLoading: Boolean = false
 ) {
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
@@ -91,12 +95,24 @@ fun AIMain(
             )
 
             // Center FAB button
-            FabButton(
-                state = if (isAIEnabled) FabState.Default else FabState.Disabled,
-                onClick = { /* TODO: Handle mic action */ },
-                icon = R.drawable.ic_microphone,
-                iconDisabled = R.drawable.ic_microphone_off
-            )
+            Box(
+                modifier = Modifier.size(72.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                FabButton(
+                    state = if (isAIEnabled) FabState.Default else FabState.Disabled,
+                    onClick = { /* TODO: Handle mic action */ },
+                    icon = R.drawable.ic_microphone,
+                    iconDisabled = R.drawable.ic_microphone_off
+                )
+                if (isAIEnabled && isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.requiredSize(88.dp),
+                        color = PixsoColors.Color_State_primary,
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
 
             // Right toggle - Volume on/off
             Toggle(
