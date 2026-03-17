@@ -224,6 +224,7 @@ private fun MainContent() {
     var aiPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
     var isAiChatExpanded by remember { mutableStateOf(false) }
     var aiChatCollapseRequestKey by remember { mutableStateOf(0) }
+    var connectedControllerId by remember { mutableStateOf<Int?>(null) }
     val lumBottomInsetDp by remember {
         derivedStateOf {
             if (!lumPanelTopPx.isFinite() || rootHeightPx <= 0f) return@derivedStateOf 0.dp
@@ -267,6 +268,24 @@ private fun MainContent() {
                 db.luminaireDao().setIcoNum(luminaireId, iconId)
             }
         }
+    }
+    suspend fun resolveControllerIdFromParams(params: LLMCurrentScreenParams): Int? {
+        return params.controllerId
+            ?: params.luminaireId?.let { db.luminaireDao().getById(it)?.controllerId }
+            ?: params.buttonPanelId?.let { db.buttonPanelDao().getById(it)?.controllerId }
+            ?: params.presSensorId?.let { db.presSensorDao().getById(it)?.controllerId }
+            ?: params.brightSensorId?.let { db.brightSensorDao().getById(it)?.controllerId }
+            ?: params.scenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
+            ?: params.graphId?.let { db.graphDao().getById(it)?.controllerId }
+            ?: params.eventId?.let { db.eventDao().getById(it)?.controllerId }
+    }
+    fun canOpenWhenDisconnected(screen: AppScreen): Boolean = when (screen) {
+        AppScreen.Location,
+        AppScreen.LocationDetails,
+        AppScreen.Search,
+        AppScreen.Settings,
+        AppScreen.Password -> true
+        else -> false
     }
     val llmCurrentScreenParams = when (currentScreen) {
         AppScreen.Location -> LLMCurrentScreenParams()
@@ -348,6 +367,20 @@ private fun MainContent() {
             params = llmCurrentScreenParams
         )
     )
+    LaunchedEffect(currentScreen, llmCurrentScreenParams) {
+        val resolvedControllerId = when (currentScreen) {
+            AppScreen.Location,
+            AppScreen.Search,
+            AppScreen.Settings,
+            AppScreen.Password -> null
+            else -> resolveControllerIdFromParams(llmCurrentScreenParams)
+        }
+        connectedControllerId = resolvedControllerId
+        db.controllerDao().clearConnections()
+        if (resolvedControllerId != null) {
+            db.controllerDao().setIsConnected(resolvedControllerId, true)
+        }
+    }
     val selectedLuminaireOrNull by remember(db, selectedLuminaireId) {
         if (selectedLuminaireId == null) {
             flowOf<LuminaireEntity?>(null)
@@ -1323,7 +1356,11 @@ private fun MainContent() {
             uiContext = llmUiContext,
             onNavigationCommand = { command: LLMNavigationCommand ->
                 scope.launch {
-                    when (llmScreenToAppScreen(command.screen)) {
+                    val targetScreen = llmScreenToAppScreen(command.screen) ?: return@launch
+                    if (connectedControllerId == null && !canOpenWhenDisconnected(targetScreen)) {
+                        return@launch
+                    }
+                    when (targetScreen) {
                         AppScreen.Location -> {
                             currentScreen = AppScreen.Location
                         }
@@ -1521,7 +1558,6 @@ private fun MainContent() {
                                 }
                             }
                         }
-                        null -> Unit
                     }
                 }
             },

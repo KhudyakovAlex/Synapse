@@ -16,30 +16,32 @@ object AppStateExporter {
     fun exportAsJson(db: AppDatabase, controllerId: Int? = null): String {
         val sqliteDb = db.openHelper.readableDatabase
         return if (controllerId == null) {
-            exportAllAsJson(sqliteDb)
+            exportControllersOverviewAsJson(sqliteDb)
         } else {
             exportControllerScopedAsJson(sqliteDb, controllerId)
         }
     }
 
-    private fun exportAllAsJson(sqliteDb: androidx.sqlite.db.SupportSQLiteDatabase): String {
+    private fun exportControllersOverviewAsJson(
+        sqliteDb: androidx.sqlite.db.SupportSQLiteDatabase
+    ): String {
         val tablesJson = JSONObject()
-        sqliteDb.query(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
-            ORDER BY name
-            """.trimIndent()
-        ).use { tablesCursor ->
-            while (tablesCursor.moveToNext()) {
-                val tableName = tablesCursor.getString(0)
-                if (tableName in EXCLUDED_TABLES) continue
-                tablesJson.put(tableName, readTable(sqliteDb, tableName))
-            }
-        }
+        tablesJson.put(
+            "CONTROLLERS",
+            readQuery(
+                sqliteDb,
+                "SELECT * FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC",
+                emptyList()
+            )
+        )
         return JSONObject()
             .put("tables", tablesJson)
+            .put(
+                "scope",
+                JSONObject()
+                    .put("controllerId", JSONObject.NULL)
+                    .put("mode", "controllers_overview")
+            )
             .toString()
     }
 

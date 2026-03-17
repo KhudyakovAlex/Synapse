@@ -36,6 +36,10 @@ data class ControllerEntity(
 
     @ColumnInfo(name = "TIMESTAMP", defaultValue = "0")
     val timestamp: Long = 0L,
+
+    @ColumnInfo(name = "IS_CONNECTED", defaultValue = "0")
+    val isConnected: Boolean = false,
+
     @ColumnInfo(name = "GRID_POS", defaultValue = "0")
     val gridPos: Int = 0
 )

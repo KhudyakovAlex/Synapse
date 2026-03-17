@@ -34,6 +34,12 @@ interface ControllerDao {
     @Query("UPDATE CONTROLLERS SET SCENE_NUM = :sceneNum WHERE ID = :id")
     suspend fun setSceneNum(id: Int, sceneNum: Int)
 
+    @Query("UPDATE CONTROLLERS SET IS_CONNECTED = 0")
+    suspend fun clearConnections()
+
+    @Query("UPDATE CONTROLLERS SET IS_CONNECTED = :isConnected WHERE ID = :id")
+    suspend fun setIsConnected(id: Int, isConnected: Boolean)
+
     @Query("SELECT * FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC")
     suspend fun getAllOrdered(): List<ControllerEntity>
 
