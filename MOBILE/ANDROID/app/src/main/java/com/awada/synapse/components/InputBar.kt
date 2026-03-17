@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.R
@@ -82,6 +84,9 @@ fun InputBar(
                     value = value,
                     onValueChange = onValueChange,
                     modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences
+                    ),
                     textStyle = MaterialTheme.typography.bodyLarge.merge(
                         TextStyle(color = PixsoColors.Color_Text_text_1_level)
                     ),

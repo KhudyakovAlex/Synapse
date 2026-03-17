@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.ui.theme.BodyLarge
@@ -73,6 +75,9 @@ fun TextField(
                 value = value,
                 onValueChange = onValueChange,
                 enabled = enabled,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences
+                ),
                 textStyle = BodyLarge.copy(
                     color = if (enabled) PixsoColors.Color_Text_text_1_level 
                            else PixsoColors.Color_State_on_disabled
