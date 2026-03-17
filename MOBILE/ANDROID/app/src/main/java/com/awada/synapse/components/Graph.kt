@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -25,6 +27,7 @@ import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
@@ -35,6 +38,7 @@ import com.awada.synapse.ui.theme.LabelLarge
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.hypot
 import kotlin.math.roundToInt
 
@@ -75,6 +79,11 @@ private data class TimeViewport(
     val duration: Float get() = endMinute - startMinute
 }
 
+private data class ViewportFlingRequest(
+    val viewport: TimeViewport,
+    val velocityMinutesPerSecond: Float,
+)
+
 private data class PointRenderInfo(
     val point: InternalGraphPoint,
     val center: Offset,
@@ -101,13 +110,58 @@ fun Graph(
     val latestPoints = rememberUpdatedState(normalizedPoints)
     val latestOnPointsChange = rememberUpdatedState(onPointsChange)
     var viewport by remember(viewportResetKey) { mutableStateOf(fullDayViewport()) }
+    var viewportFlingRequest by remember(viewportResetKey) { mutableStateOf<ViewportFlingRequest?>(null) }
     val latestViewport = rememberUpdatedState(viewport)
     val latestOnViewportChange = rememberUpdatedState<(TimeViewport) -> Unit> { viewport = it }
+    val latestOnViewportFlingChange =
+        rememberUpdatedState<(ViewportFlingRequest?) -> Unit> { viewportFlingRequest = it }
     var activePointId by remember { mutableStateOf<Long?>(null) }
     val renderedPoints = remember(normalizedPoints) {
         buildRenderedPoints(normalizedPoints)
     }
     val textMeasurer = rememberTextMeasurer()
+
+    LaunchedEffect(viewportFlingRequest) {
+        val request = viewportFlingRequest ?: return@LaunchedEffect
+        val maxStart = (MINUTES_PER_DAY.toFloat() - request.viewport.duration).coerceAtLeast(0f)
+        if (maxStart <= 0f || abs(request.velocityMinutesPerSecond) < 1f) {
+            if (viewportFlingRequest === request) {
+                viewportFlingRequest = null
+            }
+            return@LaunchedEffect
+        }
+
+        var currentStart = request.viewport.startMinute
+        var currentVelocity = request.velocityMinutesPerSecond
+        var lastFrameNanos = 0L
+
+        while (abs(currentVelocity) >= 1f) {
+            withFrameNanos { frameNanos ->
+                if (lastFrameNanos == 0L) {
+                    lastFrameNanos = frameNanos
+                    return@withFrameNanos
+                }
+
+                val dtSeconds = (frameNanos - lastFrameNanos) / 1_000_000_000f
+                lastFrameNanos = frameNanos
+
+                currentStart = (currentStart + currentVelocity * dtSeconds).coerceIn(0f, maxStart)
+                viewport = TimeViewport(
+                    startMinute = currentStart,
+                    endMinute = currentStart + request.viewport.duration,
+                )
+
+                currentVelocity *= exp(-4f * dtSeconds)
+                if (currentStart <= 0.1f || currentStart >= maxStart - 0.1f) {
+                    currentVelocity = 0f
+                }
+            }
+        }
+
+        if (viewportFlingRequest === request) {
+            viewportFlingRequest = null
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -124,6 +178,7 @@ fun Graph(
                         valueRange = valueRange,
                         onPointsChange = { latestOnPointsChange.value(it) },
                         onViewportChange = { latestOnViewportChange.value(it) },
+                        onViewportFlingChange = { latestOnViewportFlingChange.value(it) },
                         onActivePointChange = { activePointId = it },
                     )
                 }
@@ -285,6 +340,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
     valueRange: IntRange,
     onPointsChange: (List<GraphPoint>) -> Unit,
     onViewportChange: (TimeViewport) -> Unit,
+    onViewportFlingChange: (ViewportFlingRequest?) -> Unit,
     onActivePointChange: (Long?) -> Unit,
 ) {
     val metrics = chartMetrics(width = size.width.toFloat(), height = size.height.toFloat())
@@ -297,6 +353,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
             pass = PointerEventPass.Initial,
         )
         down.consume()
+        onViewportFlingChange(null)
         var workingPoints = pointsProvider()
         var workingViewport = viewportProvider()
         var renderedPoints = buildRenderedPoints(workingPoints)
@@ -377,6 +434,8 @@ private suspend fun PointerInputScope.handleGraphGestures(
         var insertedPointId: Long? = null
         var isPan = false
         val canPanFromDown = down.position.isInsideChart(metrics)
+        val velocityTracker = if (segmentIndex == null && canPanFromDown) VelocityTracker() else null
+        velocityTracker?.addPosition(down.uptimeMillis, down.position)
 
         while (true) {
             val event = awaitPointerEvent(pass = PointerEventPass.Initial)
@@ -395,6 +454,9 @@ private suspend fun PointerInputScope.handleGraphGestures(
             }
             val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
             change?.consume()
+            if (change != null) {
+                velocityTracker?.addPosition(change.uptimeMillis, change.position)
+            }
             if (segmentIndex == null) {
                 if (change != null && change.pressed && canPanFromDown) {
                     val totalDelta = change.position - down.position
@@ -418,7 +480,13 @@ private suspend fun PointerInputScope.handleGraphGestures(
                     }
                 }
                 if (change == null || !change.pressed) {
-                    if (!isPan && canPanFromDown) {
+                    if (isPan) {
+                        createViewportFlingRequest(
+                            viewport = workingViewport,
+                            velocityX = velocityTracker?.calculateVelocity()?.x ?: 0f,
+                            metrics = metrics,
+                        )?.let { onViewportFlingChange(it) }
+                    } else if (canPanFromDown) {
                         val updatedViewport = toggleViewportZoom(
                             viewport = workingViewport,
                             tapX = change?.position?.x ?: down.position.x,
@@ -918,6 +986,26 @@ private fun applyHorizontalPan(
     return TimeViewport(
         startMinute = targetStart,
         endMinute = targetEnd,
+    )
+}
+
+private fun createViewportFlingRequest(
+    viewport: TimeViewport,
+    velocityX: Float,
+    metrics: ChartMetrics,
+): ViewportFlingRequest? {
+    if (viewport.duration >= MINUTES_PER_DAY || abs(velocityX) < 80f) {
+        return null
+    }
+
+    val velocityMinutesPerSecond = -(velocityX / metrics.width) * viewport.duration
+    if (abs(velocityMinutesPerSecond) < 1f) {
+        return null
+    }
+
+    return ViewportFlingRequest(
+        viewport = viewport,
+        velocityMinutesPerSecond = velocityMinutesPerSecond,
     )
 }
 
