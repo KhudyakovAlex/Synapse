@@ -90,6 +90,7 @@ fun PageButtonSettings(
     onScenarioClick: (scenarioId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isAiChatExpanded = LocalAiChatExpanded.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
@@ -153,7 +154,7 @@ fun PageButtonSettings(
         }
     }
 
-    BackHandler(onBack = onBackClick)
+    BackHandler(enabled = !isAiChatExpanded, onBack = onBackClick)
 
     PageContainer(
         title = "Кнопка $resolvedButtonNumber",

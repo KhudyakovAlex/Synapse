@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -58,7 +59,9 @@ fun AI(
     modifier: Modifier = Modifier,
     uiContext: LLMUiContext,
     onNavigationCommand: (LLMNavigationCommand) -> Unit = {},
-    onMainPanelTopPxChanged: ((Float) -> Unit)? = null
+    onMainPanelTopPxChanged: ((Float) -> Unit)? = null,
+    onChatExpandedChange: (Boolean) -> Unit = {},
+    collapseRequestKey: Int = 0
 ) {
     val context = LocalContext.current
     val settingsRepository: SettingsRepository = remember { SettingsRepository(context) }
@@ -146,7 +149,19 @@ fun AI(
                 0f
             }
 
-            BackHandler(enabled = isAIEnabled && dragProgress > 0.01f) {
+            val isChatExpanded = isAIEnabled && dragProgress > 0.01f
+
+            LaunchedEffect(isChatExpanded) {
+                onChatExpandedChange(isChatExpanded)
+            }
+
+            LaunchedEffect(collapseRequestKey) {
+                if (collapseRequestKey > 0 && isChatExpanded) {
+                    anchoredDraggableState.animateTo(ChatState.Collapsed)
+                }
+            }
+
+            BackHandler(enabled = isChatExpanded) {
                 coroutineScope.launch {
                     anchoredDraggableState.animateTo(ChatState.Collapsed)
                 }

@@ -40,6 +40,7 @@ fun PageSensorBrightSettings(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isAiChatExpanded = LocalAiChatExpanded.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
@@ -61,7 +62,7 @@ fun PageSensorBrightSettings(
         }
     }
     
-    BackHandler { saveAndBack() }
+    BackHandler(enabled = !isAiChatExpanded) { saveAndBack() }
 
     PageContainer(
         title = "Настройки\nдатчика освещённости",

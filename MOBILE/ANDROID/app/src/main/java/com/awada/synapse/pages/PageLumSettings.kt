@@ -49,6 +49,7 @@ fun PageLumSettings(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isAiChatExpanded = LocalAiChatExpanded.current
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
@@ -77,7 +78,7 @@ fun PageLumSettings(
         }
     }
     
-    BackHandler {
+    BackHandler(enabled = !isAiChatExpanded) {
         if (showIconSelect) {
             showIconSelect = false
         } else {

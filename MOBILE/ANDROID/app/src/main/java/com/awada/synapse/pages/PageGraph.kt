@@ -56,6 +56,7 @@ fun PageGraph(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isAiChatExpanded = LocalAiChatExpanded.current
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
@@ -204,7 +205,7 @@ fun PageGraph(
             }
     }
 
-    BackHandler { saveAndBack() }
+    BackHandler(enabled = !isAiChatExpanded) { saveAndBack() }
 
     PageContainer(
         title = "График",

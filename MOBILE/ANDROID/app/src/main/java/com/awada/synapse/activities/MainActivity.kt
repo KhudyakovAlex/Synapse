@@ -77,6 +77,7 @@ import com.awada.synapse.pages.PageSearch
 import com.awada.synapse.pages.PageSensorBrightSettings
 import com.awada.synapse.pages.PageSensorPressSettings
 import com.awada.synapse.pages.PageSettings
+import com.awada.synapse.pages.LocalAiChatExpanded
 import com.awada.synapse.data.IconCatalogManager
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.SynapseTheme
@@ -166,7 +167,7 @@ private val AppScreen.llmScreenName: String
     }
 
 private fun llmScreenToAppScreen(screenName: String): AppScreen? = when (screenName) {
-    "Locations", AppScreen.Location.name -> AppScreen.Location
+    "Locations" -> AppScreen.Location
     "Location", AppScreen.LocationDetails.name -> AppScreen.LocationDetails
     "Room", AppScreen.RoomDetails.name -> AppScreen.RoomDetails
     "Group", AppScreen.GroupDetails.name -> AppScreen.GroupDetails
@@ -221,6 +222,8 @@ private fun MainContent() {
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
     var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
     var aiPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
+    var isAiChatExpanded by remember { mutableStateOf(false) }
+    var aiChatCollapseRequestKey by remember { mutableStateOf(0) }
     val lumBottomInsetDp by remember {
         derivedStateOf {
             if (!lumPanelTopPx.isFinite() || rootHeightPx <= 0f) return@derivedStateOf 0.dp
@@ -501,7 +504,7 @@ private fun MainContent() {
     }
 
     // Handle system back button
-    BackHandler {
+    BackHandler(enabled = !isAiChatExpanded) {
         when (currentScreen) {
             AppScreen.LumSettings -> currentScreen = settingsLumBackTarget
             AppScreen.SensorPressSettings, AppScreen.SensorBrightSettings, AppScreen.ButtonPanelSettings -> currentScreen = systemSettingsBackTarget
@@ -545,13 +548,14 @@ private fun MainContent() {
         }
     }
     
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned { coords ->
-                rootHeightPx = coords.size.height.toFloat()
-            }
-    ) {
+    CompositionLocalProvider(LocalAiChatExpanded provides isAiChatExpanded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .onGloballyPositioned { coords ->
+                    rootHeightPx = coords.size.height.toFloat()
+                }
+        ) {
         // Cache the smallest observed AI inset (collapsed panel). When AI expands, we
         // don't want pages to "jump" their layout based on the temporary expanded top.
         val aiInsetCandidateDp by remember {
@@ -1521,8 +1525,14 @@ private fun MainContent() {
                     }
                 }
             },
-            onMainPanelTopPxChanged = { aiPanelTopPx = it }
+            onMainPanelTopPxChanged = { aiPanelTopPx = it },
+            onChatExpandedChange = { isAiChatExpanded = it },
+            collapseRequestKey = aiChatCollapseRequestKey
         )
+
+        BackHandler(enabled = isAiChatExpanded) {
+            aiChatCollapseRequestKey += 1
+        }
 
         if (pendingSaveSceneNum != null) {
             val sceneNum = pendingSaveSceneNum!!
@@ -1551,6 +1561,7 @@ private fun MainContent() {
                     }
                 }
             )
+        }
         }
     }
 }
