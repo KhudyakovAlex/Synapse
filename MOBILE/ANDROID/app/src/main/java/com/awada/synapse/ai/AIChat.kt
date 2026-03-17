@@ -252,7 +252,8 @@ fun AIChat(
                                                 context = context.applicationContext,
                                                 db = db,
                                                 history = recent,
-                                                uiContext = uiContext
+                                                uiContext = uiContext,
+                                                traceId = traceId
                                             )
                                         }.getOrElse {
                                             LLMConversationResult(
