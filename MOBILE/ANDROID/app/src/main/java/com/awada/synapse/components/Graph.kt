@@ -152,7 +152,7 @@ fun Graph(
                     endMinute = currentStart + request.viewport.duration,
                 )
 
-                currentVelocity *= exp(-4f * dtSeconds)
+                currentVelocity *= exp(-7f * dtSeconds)
                 if (currentStart <= 0.1f || currentStart >= maxStart - 0.1f) {
                     currentVelocity = 0f
                 }
@@ -430,6 +430,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
         )
         var insertedPointId: Long? = null
         var isPan = false
+        var totalPanDeltaX = 0f
         val canPanFromDown = down.position.isInsideChart(metrics)
         val velocityTracker = if (segmentIndex == null && canPanFromDown) VelocityTracker() else null
         velocityTracker?.addPosition(down.uptimeMillis, down.position)
@@ -465,9 +466,11 @@ private suspend fun PointerInputScope.handleGraphGestures(
                     }
 
                     if (isPan) {
+                        val deltaX = change.position.x - change.previousPosition.x
+                        totalPanDeltaX += deltaX
                         val updatedViewport = applyHorizontalPan(
                             viewport = workingViewport,
-                            deltaX = change.position.x - change.previousPosition.x,
+                            deltaX = deltaX,
                             metrics = metrics,
                         )
                         if (updatedViewport != workingViewport) {
@@ -481,9 +484,13 @@ private suspend fun PointerInputScope.handleGraphGestures(
                         createViewportFlingRequest(
                             viewport = workingViewport,
                             velocityX = velocityTracker?.calculateVelocity()?.x ?: 0f,
+                            totalPanDeltaX = totalPanDeltaX,
                             metrics = metrics,
                         )?.let { onViewportFlingChange(it) }
-                    } else if (canPanFromDown) {
+                    } else if (
+                        canPanFromDown &&
+                        (change?.position?.minus(down.position)?.getDistance() ?: 0f) <= viewConfiguration.touchSlop
+                    ) {
                         val updatedViewport = toggleViewportZoom(
                             viewport = workingViewport,
                             tapX = change?.position?.x ?: down.position.x,
@@ -1069,14 +1076,24 @@ private fun applyHorizontalPan(
 private fun createViewportFlingRequest(
     viewport: TimeViewport,
     velocityX: Float,
+    totalPanDeltaX: Float,
     metrics: ChartMetrics,
 ): ViewportFlingRequest? {
-    if (viewport.duration >= MINUTES_PER_DAY || abs(velocityX) < 80f) {
+    if (
+        viewport.duration >= MINUTES_PER_DAY ||
+        abs(velocityX) < 80f ||
+        abs(totalPanDeltaX) < 8f
+    ) {
         return null
     }
 
-    val velocityMinutesPerSecond = -(velocityX / metrics.width) * viewport.duration
-    if (abs(velocityMinutesPerSecond) < 1f) {
+    val normalizedVelocityX = velocityX.coerceIn(-1800f, 1800f)
+    if (normalizedVelocityX * totalPanDeltaX < 0f) {
+        return null
+    }
+    val velocityMinutesPerSecond = (-(normalizedVelocityX / metrics.width) * viewport.duration * 0.2f)
+        .coerceIn(-240f, 240f)
+    if (abs(velocityMinutesPerSecond) < 20f) {
         return null
     }
 

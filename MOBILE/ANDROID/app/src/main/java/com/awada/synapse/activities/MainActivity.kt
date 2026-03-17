@@ -44,6 +44,7 @@ import com.awada.synapse.ai.AI
 import com.awada.synapse.ai.LLMDebugLog
 import com.awada.synapse.ai.LLMNavigationCommand
 import com.awada.synapse.ai.LLMUiContext
+import com.awada.synapse.ai.loadSystemPrompt
 import com.awada.synapse.components.TooltipOverlayState
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
@@ -87,12 +88,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LLMDebugLog.clearOnProcessStart()
+        val systemPromptMd = loadSystemPrompt(applicationContext)
         Logdog.i(
             message = "process_start",
             fields = mapOf(
                 "versionName" to com.awada.synapse.BuildConfig.VERSION_NAME,
                 "versionCode" to com.awada.synapse.BuildConfig.VERSION_CODE,
                 "debug" to com.awada.synapse.BuildConfig.DEBUG,
+                "systemPromptChars" to systemPromptMd.length,
+            ),
+            attachments = listOf(
+                Logdog.Attachment(
+                    kind = "md",
+                    name = "llm-system-prompt.md",
+                    content = systemPromptMd
+                )
             )
         )
         enableEdgeToEdge(

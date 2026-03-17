@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -24,19 +25,47 @@ object Logdog {
     private fun stringField(name: String, default: String): String =
         runCatching { BuildConfig::class.java.getField(name).get(null) as? String }.getOrDefault(default) ?: default
 
-    fun d(message: String, traceId: String? = null, fields: Map<String, Any?> = emptyMap()) =
-        send("debug", message, traceId, fields)
+    data class Attachment(
+        val kind: String,
+        val name: String,
+        val content: String
+    )
 
-    fun i(message: String, traceId: String? = null, fields: Map<String, Any?> = emptyMap()) =
-        send("info", message, traceId, fields)
+    fun d(
+        message: String,
+        traceId: String? = null,
+        fields: Map<String, Any?> = emptyMap(),
+        attachments: List<Attachment> = emptyList()
+    ) = send("debug", message, traceId, fields, attachments)
 
-    fun w(message: String, traceId: String? = null, fields: Map<String, Any?> = emptyMap()) =
-        send("warn", message, traceId, fields)
+    fun i(
+        message: String,
+        traceId: String? = null,
+        fields: Map<String, Any?> = emptyMap(),
+        attachments: List<Attachment> = emptyList()
+    ) = send("info", message, traceId, fields, attachments)
 
-    fun e(message: String, traceId: String? = null, fields: Map<String, Any?> = emptyMap()) =
-        send("error", message, traceId, fields)
+    fun w(
+        message: String,
+        traceId: String? = null,
+        fields: Map<String, Any?> = emptyMap(),
+        attachments: List<Attachment> = emptyList()
+    ) = send("warn", message, traceId, fields, attachments)
 
-    fun send(level: String, message: String, traceId: String? = null, fields: Map<String, Any?> = emptyMap()) {
+    fun e(
+        message: String,
+        traceId: String? = null,
+        fields: Map<String, Any?> = emptyMap(),
+        attachments: List<Attachment> = emptyList()
+    ) = send("error", message, traceId, fields, attachments)
+
+    fun send(
+        level: String,
+        message: String,
+        traceId: String? = null,
+        fields: Map<String, Any?> = emptyMap(),
+        attachments: List<Attachment> = emptyList()
+    ) {
         val enabled = boolField("LOGDOG_ENABLED", default = false)
         if (!enabled) return
 
@@ -53,6 +82,22 @@ object Logdog {
             put("message", message)
             traceId?.let { put("traceId", it) }
             if (fields.isNotEmpty()) put("fields", JSONObject(fields))
+            if (attachments.isNotEmpty()) {
+                put(
+                    "attachments",
+                    JSONArray().apply {
+                        attachments.forEach { attachment ->
+                            put(
+                                JSONObject().apply {
+                                    put("kind", attachment.kind)
+                                    put("name", attachment.name)
+                                    put("content", attachment.content)
+                                }
+                            )
+                        }
+                    }
+                )
+            }
         }.toString()
 
         val req = Request.Builder()
