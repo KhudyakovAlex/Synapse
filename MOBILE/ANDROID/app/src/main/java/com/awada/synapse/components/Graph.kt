@@ -17,9 +17,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -38,7 +40,9 @@ import kotlin.math.roundToInt
 
 private const val MINUTES_PER_DAY = 24 * 60
 private const val TIME_STEP_MINUTES = 5
+private const val TIME_GRID_STEP_MINUTES = 6 * 60
 private const val VIRTUAL_POINT_ID = Long.MIN_VALUE
+private const val MAX_HORIZONTAL_ZOOM = 3f
 
 @Immutable
 data class GraphPoint(
@@ -64,6 +68,13 @@ private data class ChartMetrics(
     val height: Float get() = bottom - top
 }
 
+private data class TimeViewport(
+    val startMinute: Float,
+    val endMinute: Float,
+) {
+    val duration: Float get() = endMinute - startMinute
+}
+
 private data class PointRenderInfo(
     val point: InternalGraphPoint,
     val center: Offset,
@@ -80,6 +91,7 @@ fun Graph(
     points: List<GraphPoint>,
     valueRange: IntRange,
     modifier: Modifier = Modifier,
+    viewportResetKey: Any? = Unit,
     valueFormatter: (Int) -> String = { it.toString() },
     onPointsChange: (List<GraphPoint>) -> Unit,
 ) {
@@ -88,6 +100,9 @@ fun Graph(
     }
     val latestPoints = rememberUpdatedState(normalizedPoints)
     val latestOnPointsChange = rememberUpdatedState(onPointsChange)
+    var viewport by remember(viewportResetKey) { mutableStateOf(fullDayViewport()) }
+    val latestViewport = rememberUpdatedState(viewport)
+    val latestOnViewportChange = rememberUpdatedState<(TimeViewport) -> Unit> { viewport = it }
     var activePointId by remember { mutableStateOf<Long?>(null) }
     val renderedPoints = remember(normalizedPoints) {
         buildRenderedPoints(normalizedPoints)
@@ -101,19 +116,20 @@ fun Graph(
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)
-                .pointerInput(valueRange) {
+                .height(288.dp)
+                .pointerInput(valueRange, viewportResetKey) {
                     handleGraphGestures(
                         pointsProvider = { latestPoints.value },
+                        viewportProvider = { latestViewport.value },
                         valueRange = valueRange,
                         onPointsChange = { latestOnPointsChange.value(it) },
+                        onViewportChange = { latestOnViewportChange.value(it) },
                         onActivePointChange = { activePointId = it },
                     )
                 }
         ) {
             val metrics = chartMetrics(width = size.width, height = size.height)
             val horizontalFractions = listOf(0f, 0.5f, 1f)
-            val verticalFractions = listOf(0f, 0.25f, 0.5f, 0.75f, 1f)
             val lineStroke = 3.dp.toPx()
             val labelGap = 10.dp.toPx()
             val timeGap = 10.dp.toPx()
@@ -122,17 +138,21 @@ fun Graph(
             horizontalFractions.forEach { fraction ->
                 val y = metrics.top + metrics.height * fraction
                 drawLine(
-                    color = PixsoColors.Color_Border_border_shade_4,
+                    color = Color.White,
                     start = Offset(metrics.left, y),
                     end = Offset(metrics.right, y),
                     strokeWidth = 1.dp.toPx(),
                 )
             }
 
-            verticalFractions.forEach { fraction ->
-                val x = metrics.left + metrics.width * fraction
+            visibleTimeGridMinutes(viewport).forEach { minute ->
+                val x = minuteToX(
+                    minuteOfDay = minute,
+                    metrics = metrics,
+                    viewport = viewport,
+                )
                 drawLine(
-                    color = PixsoColors.Color_Border_border_shade_4,
+                    color = Color.White,
                     start = Offset(x, metrics.top),
                     end = Offset(x, metrics.bottom),
                     strokeWidth = 1.dp.toPx(),
@@ -141,7 +161,11 @@ fun Graph(
 
             val path = Path()
             renderedPoints.forEachIndexed { index, point ->
-                val offset = point.toOffset(metrics = metrics, valueRange = valueRange)
+                val offset = point.toOffset(
+                    metrics = metrics,
+                    valueRange = valueRange,
+                    viewport = viewport,
+                )
                 if (index == 0) {
                     path.moveTo(offset.x, offset.y)
                 } else {
@@ -151,7 +175,7 @@ fun Graph(
 
             drawPath(
                 path = path,
-                color = PixsoColors.Color_State_primary,
+                color = PixsoColors.Color_Bg_bg_elevated,
                 style = Stroke(
                     width = lineStroke,
                     cap = StrokeCap.Round,
@@ -159,7 +183,11 @@ fun Graph(
             )
 
             val pointInfos = renderedPoints.map { point ->
-                val center = point.toOffset(metrics = metrics, valueRange = valueRange)
+                val center = point.toOffset(
+                    metrics = metrics,
+                    valueRange = valueRange,
+                    viewport = viewport,
+                )
                 val isActive = activePointId == point.id
                 val basePointRadius = if (point.isVirtual || point.minuteOfDay == 0) {
                     7.dp.toPx()
@@ -185,7 +213,8 @@ fun Graph(
                     text = timeText,
                     style = LabelLarge.copy(color = PixsoColors.Color_Text_text_3_level),
                 )
-                val gapMultiplier = if (isActive) 3f else 1f
+                val valueGapMultiplier = if (isActive) 3f else 1f
+                val timeGapMultiplier = if (isActive) 4f else 1f
 
                 PointRenderInfo(
                     point = point,
@@ -193,21 +222,18 @@ fun Graph(
                     radius = pointRadius,
                     valueLayout = labelLayout,
                     timeLayout = timeLayout,
-                    valueBaseTop = (center.y - pointRadius - labelLayout.size.height - labelGap * gapMultiplier)
+                    valueBaseTop = (center.y - pointRadius - labelLayout.size.height - labelGap * valueGapMultiplier)
                         .coerceAtLeast(0f),
-                    timeBaseTop = (center.y + pointRadius + timeGap * gapMultiplier)
+                    timeBaseTop = (center.y + pointRadius + timeGap * timeGapMultiplier)
                         .coerceAtMost(size.height - timeLayout.size.height.toFloat()),
                 )
             }
-
             val valuePositions = placeLabelsAbove(
                 infos = pointInfos,
-                canvasWidth = size.width,
                 spacing = labelStackGap,
             )
             val timePositions = placeLabelsBelow(
                 infos = pointInfos,
-                canvasWidth = size.width,
                 canvasHeight = size.height,
                 spacing = labelStackGap,
             )
@@ -233,7 +259,7 @@ fun Graph(
                     center = info.center,
                 )
                 drawCircle(
-                    color = PixsoColors.Color_State_primary,
+                    color = PixsoColors.Color_Bg_bg_elevated,
                     radius = info.radius,
                     center = info.center,
                     style = Stroke(width = 2.dp.toPx())
@@ -245,8 +271,10 @@ fun Graph(
 
 private suspend fun PointerInputScope.handleGraphGestures(
     pointsProvider: () -> List<InternalGraphPoint>,
+    viewportProvider: () -> TimeViewport,
     valueRange: IntRange,
     onPointsChange: (List<GraphPoint>) -> Unit,
+    onViewportChange: (TimeViewport) -> Unit,
     onActivePointChange: (Long?) -> Unit,
 ) {
     val metrics = chartMetrics(width = size.width.toFloat(), height = size.height.toFloat())
@@ -260,12 +288,14 @@ private suspend fun PointerInputScope.handleGraphGestures(
         )
         down.consume()
         var workingPoints = pointsProvider()
+        var workingViewport = viewportProvider()
         var renderedPoints = buildRenderedPoints(workingPoints)
         val pointHit = findPointHit(
             position = down.position,
             points = renderedPoints,
             metrics = metrics,
             valueRange = valueRange,
+            viewport = workingViewport,
             hitRadius = pointHitRadius,
         )
 
@@ -277,6 +307,19 @@ private suspend fun PointerInputScope.handleGraphGestures(
 
             while (true) {
                 val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                if (event.changes.count { it.pressed } >= 2) {
+                    onActivePointChange(null)
+                    zoomViewportWhilePressed(
+                        firstEvent = event,
+                        initialViewport = workingViewport,
+                        metrics = metrics,
+                        onViewportChange = {
+                            workingViewport = it
+                            onViewportChange(it)
+                        },
+                    )
+                    return@awaitEachGesture
+                }
                 val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
                 if (change == null) break
 
@@ -305,6 +348,7 @@ private suspend fun PointerInputScope.handleGraphGestures(
                         position = change.position,
                         valueRange = valueRange,
                         metrics = metrics,
+                        viewport = workingViewport,
                     )
                     onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
                 }
@@ -317,51 +361,156 @@ private suspend fun PointerInputScope.handleGraphGestures(
             points = renderedPoints,
             metrics = metrics,
             valueRange = valueRange,
+            viewport = workingViewport,
             maxDistance = segmentHitDistance,
         )
-
-        if (segmentIndex == null) {
-            while (true) {
-                val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
-                change?.consume()
-                if (change == null || !change.pressed) break
-            }
-            return@awaitEachGesture
-        }
-
-        val insertedPoint = createPointOnSegment(
-            position = down.position,
-            points = workingPoints,
-            renderedPoints = renderedPoints,
-            segmentIndex = segmentIndex,
-            valueRange = valueRange,
-            metrics = metrics,
-        ) ?: return@awaitEachGesture
-
-        workingPoints = (workingPoints + insertedPoint).sortedBy(InternalGraphPoint::minuteOfDay)
-        onActivePointChange(insertedPoint.id)
-        onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
+        var insertedPointId: Long? = null
+        var isPan = false
+        val canPanFromDown = down.position.isInsideChart(metrics)
 
         while (true) {
             val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+            if (event.changes.count { it.pressed } >= 2) {
+                onActivePointChange(null)
+                zoomViewportWhilePressed(
+                    firstEvent = event,
+                    initialViewport = workingViewport,
+                    metrics = metrics,
+                    onViewportChange = {
+                        workingViewport = it
+                        onViewportChange(it)
+                    },
+                )
+                return@awaitEachGesture
+            }
             val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
             change?.consume()
-            if (change == null || !change.pressed) {
+            if (segmentIndex == null) {
+                if (change != null && change.pressed && canPanFromDown) {
+                    val totalDelta = change.position - down.position
+                    if (!isPan &&
+                        totalDelta.getDistance() > viewConfiguration.touchSlop &&
+                        abs(totalDelta.x) > abs(totalDelta.y)
+                    ) {
+                        isPan = true
+                    }
+
+                    if (isPan) {
+                        val updatedViewport = applyHorizontalPan(
+                            viewport = workingViewport,
+                            deltaX = change.position.x - change.previousPosition.x,
+                            metrics = metrics,
+                        )
+                        if (updatedViewport != workingViewport) {
+                            workingViewport = updatedViewport
+                            onViewportChange(updatedViewport)
+                        }
+                    }
+                }
+                if (change == null || !change.pressed) {
+                    if (!isPan && canPanFromDown) {
+                        val updatedViewport = toggleViewportZoom(
+                            viewport = workingViewport,
+                            tapX = change?.position?.x ?: down.position.x,
+                            metrics = metrics,
+                        )
+                        if (updatedViewport != workingViewport) {
+                            workingViewport = updatedViewport
+                            onViewportChange(updatedViewport)
+                        }
+                    }
+                    onActivePointChange(null)
+                    break
+                }
+                continue
+            }
+
+            if (change == null) {
                 onActivePointChange(null)
                 break
             }
 
-            workingPoints = movePoint(
-                points = workingPoints,
-                pointId = insertedPoint.id,
-                isVirtualPoint = false,
-                position = change.position,
-                valueRange = valueRange,
-                metrics = metrics,
-            )
-            onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
+            val movedBeyondSlop = (change.position - down.position).getDistance() > viewConfiguration.touchSlop
+
+            if (!change.pressed) {
+                if (insertedPointId == null) {
+                    val insertedPoint = createPointOnSegment(
+                        position = change.position,
+                        points = workingPoints,
+                        renderedPoints = renderedPoints,
+                        segmentIndex = segmentIndex,
+                        valueRange = valueRange,
+                        metrics = metrics,
+                        viewport = workingViewport,
+                    )
+                    if (insertedPoint != null) {
+                        workingPoints = (workingPoints + insertedPoint).sortedBy(InternalGraphPoint::minuteOfDay)
+                        onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
+                    }
+                }
+                onActivePointChange(null)
+                break
+            }
+
+            if (movedBeyondSlop && insertedPointId == null) {
+                val insertedPoint = createPointOnSegment(
+                    position = change.position,
+                    points = workingPoints,
+                    renderedPoints = renderedPoints,
+                    segmentIndex = segmentIndex,
+                    valueRange = valueRange,
+                    metrics = metrics,
+                    viewport = workingViewport,
+                ) ?: break
+                workingPoints = (workingPoints + insertedPoint).sortedBy(InternalGraphPoint::minuteOfDay)
+                insertedPointId = insertedPoint.id
+                onActivePointChange(insertedPointId)
+                onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
+            }
+
+            if (insertedPointId != null) {
+                workingPoints = movePoint(
+                    points = workingPoints,
+                    pointId = insertedPointId,
+                    isVirtualPoint = false,
+                    position = change.position,
+                    valueRange = valueRange,
+                    metrics = metrics,
+                    viewport = workingViewport,
+                )
+                onPointsChange(workingPoints.map(InternalGraphPoint::toExternal))
+            }
         }
+    }
+}
+
+private suspend fun AwaitPointerEventScope.zoomViewportWhilePressed(
+    firstEvent: androidx.compose.ui.input.pointer.PointerEvent,
+    initialViewport: TimeViewport,
+    metrics: ChartMetrics,
+    onViewportChange: (TimeViewport) -> Unit,
+) {
+    var currentViewport = initialViewport
+    var event = firstEvent
+
+    while (true) {
+        val pressedChanges = event.changes.filter { it.pressed }
+        pressedChanges.forEach { it.consume() }
+        if (pressedChanges.size < 2) {
+            return
+        }
+
+        val updatedViewport = applyHorizontalZoom(
+            viewport = currentViewport,
+            changes = pressedChanges,
+            metrics = metrics,
+        )
+        if (updatedViewport != currentViewport) {
+            currentViewport = updatedViewport
+            onViewportChange(updatedViewport)
+        }
+
+        event = awaitPointerEvent(pass = PointerEventPass.Initial)
     }
 }
 
@@ -372,6 +521,7 @@ private fun movePoint(
     position: Offset,
     valueRange: IntRange,
     metrics: ChartMetrics,
+    viewport: TimeViewport,
 ): List<InternalGraphPoint> {
     if (isVirtualPoint) {
         val boundaryPoint = points.firstOrNull { it.minuteOfDay == 0 } ?: return points
@@ -407,7 +557,7 @@ private fun movePoint(
         0
     } else {
         snapMinuteToStep(
-            minute = xToMinute(position.x, metrics),
+            minute = xToMinute(position.x, metrics, viewport),
             minAllowed = minMinute,
             maxAllowed = maxMinute,
         )
@@ -430,6 +580,7 @@ private fun createPointOnSegment(
     segmentIndex: Int,
     valueRange: IntRange,
     metrics: ChartMetrics,
+    viewport: TimeViewport,
 ): InternalGraphPoint? {
     val start = renderedPoints.getOrNull(segmentIndex) ?: return null
     val end = renderedPoints.getOrNull(segmentIndex + 1) ?: return null
@@ -438,7 +589,7 @@ private fun createPointOnSegment(
     if (minMinute > maxMinute) return null
 
     val minute = snapMinuteToStep(
-        minute = xToMinute(position.x, metrics),
+        minute = xToMinute(position.x, metrics, viewport),
         minAllowed = minMinute,
         maxAllowed = maxMinute,
     )
@@ -460,12 +611,13 @@ private fun findPointHit(
     points: List<InternalGraphPoint>,
     metrics: ChartMetrics,
     valueRange: IntRange,
+    viewport: TimeViewport,
     hitRadius: Float,
 ): InternalGraphPoint? {
     return points
         .sortedByDescending(InternalGraphPoint::isVirtual)
         .firstOrNull { point ->
-        val offset = point.toOffset(metrics = metrics, valueRange = valueRange)
+        val offset = point.toOffset(metrics = metrics, valueRange = valueRange, viewport = viewport)
         (offset - position).getDistance() <= hitRadius
     }
 }
@@ -475,14 +627,15 @@ private fun findSegmentHit(
     points: List<InternalGraphPoint>,
     metrics: ChartMetrics,
     valueRange: IntRange,
+    viewport: TimeViewport,
     maxDistance: Float,
 ): Int? {
     var nearestIndex: Int? = null
     var nearestDistance = Float.MAX_VALUE
 
     for (index in 0 until points.lastIndex) {
-        val start = points[index].toOffset(metrics = metrics, valueRange = valueRange)
-        val end = points[index + 1].toOffset(metrics = metrics, valueRange = valueRange)
+        val start = points[index].toOffset(metrics = metrics, valueRange = valueRange, viewport = viewport)
+        val end = points[index + 1].toOffset(metrics = metrics, valueRange = valueRange, viewport = viewport)
         val distance = distanceToSegment(position = position, start = start, end = end)
         if (distance <= maxDistance && distance < nearestDistance) {
             nearestDistance = distance
@@ -571,9 +724,10 @@ private fun InternalGraphPoint.toExternal(): GraphPoint {
 private fun InternalGraphPoint.toOffset(
     metrics: ChartMetrics,
     valueRange: IntRange,
+    viewport: TimeViewport,
 ): Offset {
     return Offset(
-        x = minuteToX(minuteOfDay, metrics),
+        x = minuteToX(minuteOfDay, metrics, viewport),
         y = valueToY(value, metrics, valueRange),
     )
 }
@@ -581,7 +735,7 @@ private fun InternalGraphPoint.toOffset(
 private fun Density.chartMetrics(width: Float, height: Float): ChartMetrics {
     val horizontalPadding = 10.dp.toPx()
     val topPadding = 56.dp.toPx()
-    val bottomPadding = 52.dp.toPx()
+    val bottomPadding = 104.dp.toPx()
     return ChartMetrics(
         left = horizontalPadding,
         top = topPadding,
@@ -590,13 +744,48 @@ private fun Density.chartMetrics(width: Float, height: Float): ChartMetrics {
     )
 }
 
-private fun minuteToX(minuteOfDay: Int, metrics: ChartMetrics): Float {
-    return metrics.left + (minuteOfDay / MINUTES_PER_DAY.toFloat()) * metrics.width
+private fun fullDayViewport(): TimeViewport {
+    return TimeViewport(
+        startMinute = 0f,
+        endMinute = MINUTES_PER_DAY.toFloat(),
+    )
 }
 
-private fun xToMinute(x: Float, metrics: ChartMetrics): Int {
+private fun minuteToX(
+    minuteOfDay: Int,
+    metrics: ChartMetrics,
+    viewport: TimeViewport,
+): Float {
+    return metrics.left + ((minuteOfDay - viewport.startMinute) / viewport.duration) * metrics.width
+}
+
+private fun xToMinute(
+    x: Float,
+    metrics: ChartMetrics,
+    viewport: TimeViewport,
+): Int {
     val fraction = ((x - metrics.left) / metrics.width).coerceIn(0f, 1f)
-    return (fraction * MINUTES_PER_DAY).roundToInt().coerceIn(0, MINUTES_PER_DAY)
+    return (viewport.startMinute + fraction * viewport.duration)
+        .roundToInt()
+        .coerceIn(0, MINUTES_PER_DAY)
+}
+
+private fun visibleTimeGridMinutes(viewport: TimeViewport): List<Int> {
+    val firstVisibleMinute = viewport.startMinute.toInt().coerceAtLeast(0)
+    val lastVisibleMinute = viewport.endMinute.toInt().coerceAtMost(MINUTES_PER_DAY)
+    val firstGridMinute = ((firstVisibleMinute + TIME_GRID_STEP_MINUTES - 1) / TIME_GRID_STEP_MINUTES) *
+        TIME_GRID_STEP_MINUTES
+    if (firstGridMinute > lastVisibleMinute) {
+        return emptyList()
+    }
+
+    return buildList {
+        var minute = firstGridMinute
+        while (minute <= lastVisibleMinute) {
+            add(minute)
+            minute += TIME_GRID_STEP_MINUTES
+        }
+    }
 }
 
 private fun valueToY(
@@ -675,17 +864,115 @@ private fun defaultGraphValueForRange(valueRange: IntRange): Int {
     return if (valueRange.first >= 3000) 4000 else 0
 }
 
+private fun applyHorizontalZoom(
+    viewport: TimeViewport,
+    changes: List<androidx.compose.ui.input.pointer.PointerInputChange>,
+    metrics: ChartMetrics,
+): TimeViewport {
+    if (changes.size < 2) return viewport
+
+    val first = changes[0]
+    val second = changes[1]
+    val previousDistanceX = abs(first.previousPosition.x - second.previousPosition.x)
+    val currentDistanceX = abs(first.position.x - second.position.x)
+    if (previousDistanceX < 8f || currentDistanceX < 8f) {
+        return viewport
+    }
+
+    val zoomChange = currentDistanceX / previousDistanceX
+    if (!zoomChange.isFinite() || abs(zoomChange - 1f) < 0.01f) {
+        return viewport
+    }
+
+    val anchorX = (first.position.x + second.position.x) / 2f
+    val currentZoom = MINUTES_PER_DAY / viewport.duration
+    val targetZoom = (currentZoom * zoomChange).coerceIn(1f, MAX_HORIZONTAL_ZOOM)
+    return viewportForZoom(
+        currentViewport = viewport,
+        targetZoom = targetZoom,
+        anchorX = anchorX,
+        metrics = metrics,
+    )
+}
+
+private fun applyHorizontalPan(
+    viewport: TimeViewport,
+    deltaX: Float,
+    metrics: ChartMetrics,
+): TimeViewport {
+    if (abs(deltaX) < 0.5f || viewport.duration >= MINUTES_PER_DAY) {
+        return viewport
+    }
+
+    val deltaMinutes = (deltaX / metrics.width) * viewport.duration
+    val maxStart = (MINUTES_PER_DAY.toFloat() - viewport.duration).coerceAtLeast(0f)
+    val targetStart = (viewport.startMinute - deltaMinutes).coerceIn(0f, maxStart)
+    val targetEnd = targetStart + viewport.duration
+
+    if (abs(targetStart - viewport.startMinute) < 0.1f) {
+        return viewport
+    }
+
+    return TimeViewport(
+        startMinute = targetStart,
+        endMinute = targetEnd,
+    )
+}
+
+private fun toggleViewportZoom(
+    viewport: TimeViewport,
+    tapX: Float,
+    metrics: ChartMetrics,
+): TimeViewport {
+    val currentZoom = MINUTES_PER_DAY / viewport.duration
+    val targetZoom = if (currentZoom <= 1.01f) MAX_HORIZONTAL_ZOOM else 1f
+    return viewportForZoom(
+        currentViewport = viewport,
+        targetZoom = targetZoom,
+        anchorX = tapX,
+        metrics = metrics,
+    )
+}
+
+private fun viewportForZoom(
+    currentViewport: TimeViewport,
+    targetZoom: Float,
+    anchorX: Float,
+    metrics: ChartMetrics,
+): TimeViewport {
+    val normalizedTargetZoom = targetZoom.coerceIn(1f, MAX_HORIZONTAL_ZOOM)
+    val anchorFraction = ((anchorX - metrics.left) / metrics.width).coerceIn(0f, 1f)
+    val anchorMinute = currentViewport.startMinute + anchorFraction * currentViewport.duration
+    val targetDuration = MINUTES_PER_DAY / normalizedTargetZoom
+    val maxStart = (MINUTES_PER_DAY.toFloat() - targetDuration).coerceAtLeast(0f)
+    val targetStart = (anchorMinute - anchorFraction * targetDuration).coerceIn(0f, maxStart)
+    val targetEnd = targetStart + targetDuration
+
+    if (abs(targetStart - currentViewport.startMinute) < 0.1f &&
+        abs(targetEnd - currentViewport.endMinute) < 0.1f
+    ) {
+        return currentViewport
+    }
+
+    return TimeViewport(
+        startMinute = targetStart,
+        endMinute = targetEnd,
+    )
+}
+
+private fun Offset.isInsideChart(metrics: ChartMetrics): Boolean {
+    return x in metrics.left..metrics.right && y in metrics.top..metrics.bottom
+}
+
 private fun placeLabelsAbove(
     infos: List<PointRenderInfo>,
-    canvasWidth: Float,
     spacing: Float,
 ): Map<Long, Offset> {
     val result = linkedMapOf<Long, Offset>()
     val placedRects = mutableListOf<Rect>()
 
     infos.sortedBy { it.center.x }.forEach { info ->
-        val left = (info.center.x - info.valueLayout.size.width / 2f)
-            .coerceIn(0f, canvasWidth - info.valueLayout.size.width)
+        val left = info.center.x - info.valueLayout.size.width / 2f
         var top = info.valueBaseTop
 
         while (true) {
@@ -718,7 +1005,6 @@ private fun placeLabelsAbove(
 
 private fun placeLabelsBelow(
     infos: List<PointRenderInfo>,
-    canvasWidth: Float,
     canvasHeight: Float,
     spacing: Float,
 ): Map<Long, Offset> {
@@ -726,8 +1012,7 @@ private fun placeLabelsBelow(
     val placedRects = mutableListOf<Rect>()
 
     infos.sortedBy { it.center.x }.forEach { info ->
-        val left = (info.center.x - info.timeLayout.size.width / 2f)
-            .coerceIn(0f, canvasWidth - info.timeLayout.size.width)
+        val left = info.center.x - info.timeLayout.size.width / 2f
         var top = info.timeBaseTop
 
         while (true) {

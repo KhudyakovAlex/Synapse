@@ -51,6 +51,7 @@ fun PageGraph(
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
+    var graphViewportResetKey by remember { mutableStateOf(0) }
     var objectTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
     var objectId by remember(graphId) { mutableStateOf<Long?>(null) }
     var changeTypeId by remember(graphId) { mutableStateOf<Int?>(null) }
@@ -165,6 +166,7 @@ fun PageGraph(
     }
 
     LaunchedEffect(graphId) {
+        graphViewportResetKey += 1
         if (graphId == null) {
             objectTypeId = null
             objectId = null
@@ -177,7 +179,6 @@ fun PageGraph(
         objectTypeId = graph.objectTypeId
         objectId = graph.objectId
         changeTypeId = graph.changeTypeId
-        val valueRange = valueRangeForChangeType(graph.changeTypeId)
         graphPoints = db.graphPointDao()
             .getAllForGraph(graphId)
             .map { point ->
@@ -261,6 +262,7 @@ fun PageGraph(
                 Graph(
                     points = graphPoints,
                     valueRange = graphValueRange,
+                    viewportResetKey = graphViewportResetKey,
                     valueFormatter = { value ->
                         when (changeTypeId) {
                             CHANGE_TYPE_TEMPERATURE -> "${value}K"
