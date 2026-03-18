@@ -202,7 +202,7 @@ AI(
 
 `screen` должен использовать LLM-friendly имена экранов:
 - `Locations`, `Location`, `Room`, `Group`
-- а также прямые имена остальных экранов: `RoomSettings`, `LocationSettings`, `Lum`, `Search`, `Settings`, `LumSettings`, `SensorPressSettings`, `SensorBrightSettings`, `ButtonPanelSettings`, `ButtonSettings`, `Scenario`, `Panel`, `Password`, `ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`
+- а также прямые имена остальных экранов: `InitializeController`, `RoomSettings`, `LocationSettings`, `Lum`, `Search`, `Settings`, `LumSettings`, `SensorPressSettings`, `SensorBrightSettings`, `ButtonPanelSettings`, `ButtonSettings`, `Scenario`, `Panel`, `Password`, `ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`
 
 Для `IconSelect`:
 - `iconCategory` допускает только `controller`, `room`, `luminaire`
@@ -219,10 +219,12 @@ AI(
   - сначала переводится из LLM-friendly `screen` в внутренний `AppScreen`
   - затем маппится в `selected...` state в `MainActivity`
   - поддерживает переходы как на основные экраны, так и на бывшие вложенные страницы (`ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`)
+  - для `InitializeController` запускает экран инициализации контроллера по `controllerId`
 - `action`:
   - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
-  - сейчас поддерживается `deleteLocation`
-  - приложение показывает подтверждение и после согласия удаляет локацию штатным путем
+  - сейчас поддерживаются `deleteLocation` и `reinitializeController`
+  - для `deleteLocation` приложение показывает подтверждение и после согласия удаляет локацию штатным путем
+  - для `reinitializeController` приложение показывает подтверждение и после согласия запускает экран `InitializeController` со сбросом устройств/настроек
 
 ### Fallback
 - Если JSON не распарсился, raw-ответ модели превращается в `assistantText`

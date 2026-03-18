@@ -226,6 +226,8 @@ private fun MainContent() {
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
     var pendingDeleteLocationId by remember { mutableStateOf<Int?>(null) }
     var pendingDeleteLocationTitle by remember { mutableStateOf<String?>(null) }
+    var pendingReinitializeControllerId by remember { mutableStateOf<Int?>(null) }
+    var pendingReinitializeControllerTitle by remember { mutableStateOf<String?>(null) }
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
     var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
@@ -325,6 +327,24 @@ private fun MainContent() {
         iconSelectCategory = null
         iconSelectCurrentIconId = null
         currentScreen = AppScreen.Location
+    }
+    suspend fun hasAnyControllerDevices(controllerId: Int): Boolean {
+        return db.luminaireDao().observeCountForController(controllerId).first() +
+            db.buttonPanelDao().observeCountForController(controllerId).first() +
+            db.presSensorDao().observeCountForController(controllerId).first() +
+            db.brightSensorDao().observeCountForController(controllerId).first() > 0
+    }
+    suspend fun isControllerConnected(controllerId: Int): Boolean {
+        return db.controllerDao().getById(controllerId)?.isConnected == true
+    }
+    suspend fun startControllerReinitialization(controllerId: Int) {
+        val location = loadLocationItem(controllerId) ?: return
+        selectedLocation = location
+        pendingReinitializeControllerId = null
+        pendingReinitializeControllerTitle = null
+        shouldResetDevicesOnInitialization = true
+        controllerInitializationBackTarget = AppScreen.LocationDetails
+        currentScreen = AppScreen.InitializeController
     }
     fun canOpenWhenDisconnected(screen: AppScreen): Boolean = when (screen) {
         AppScreen.Location,
@@ -1368,6 +1388,15 @@ private fun MainContent() {
                         AppScreen.InitializeController -> {
                             val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
                             val location = loadLocationItem(controllerId) ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            if (hasAnyControllerDevices(controllerId)) {
+                                pendingReinitializeControllerId = controllerId
+                                pendingReinitializeControllerTitle = location.title
+                                return@launch
+                            }
                             selectedLocation = location
                             shouldResetDevicesOnInitialization = false
                             controllerInitializationBackTarget = AppScreen.LocationDetails
@@ -1573,6 +1602,16 @@ private fun MainContent() {
                             pendingDeleteLocationId = controllerId
                             pendingDeleteLocationTitle = controller.name.ifBlank { "Локация" }
                         }
+                        "reinitializeController" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            val controller = db.controllerDao().getById(controllerId) ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            pendingReinitializeControllerId = controllerId
+                            pendingReinitializeControllerTitle = controller.name.ifBlank { "Локация" }
+                        }
                     }
                 }
             },
@@ -1635,6 +1674,33 @@ private fun MainContent() {
                         TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
                             pendingDeleteLocationId = null
                             pendingDeleteLocationTitle = null
+                        }
+                    }
+                }
+            )
+        }
+        if (pendingReinitializeControllerId != null) {
+            val title = pendingReinitializeControllerTitle
+            val text = if (!title.isNullOrBlank()) {
+                "Переинициализировать контроллер локации «$title»? Все настройки будут сброшены"
+            } else {
+                "Переинициализировать контроллер? Все настройки будут сброшены"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Да",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            val controllerId = pendingReinitializeControllerId ?: return@Tooltip
+                            scope.launch {
+                                startControllerReinitialization(controllerId)
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
+                            pendingReinitializeControllerId = null
+                            pendingReinitializeControllerTitle = null
                         }
                     }
                 }

@@ -42,6 +42,7 @@ import com.awada.synapse.logdog.Logdog
 import com.awada.synapse.ui.theme.PixsoColors
 import com.awada.synapse.ui.theme.PixsoDimens
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -71,6 +72,47 @@ private fun formatTime(timestampMs: Long): String {
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(TIME_FORMATTER)
+}
+
+private suspend fun isControllerConnected(db: AppDatabase, controllerId: Int): Boolean {
+    return db.controllerDao().getById(controllerId)?.isConnected == true
+}
+
+private suspend fun hasAnyControllerDevices(db: AppDatabase, controllerId: Int): Boolean {
+    return db.luminaireDao().observeCountForController(controllerId).first() +
+        db.buttonPanelDao().observeCountForController(controllerId).first() +
+        db.presSensorDao().observeCountForController(controllerId).first() +
+        db.brightSensorDao().observeCountForController(controllerId).first() > 0
+}
+
+private suspend fun resolveVisibleAssistantText(
+    db: AppDatabase,
+    result: LLMConversationResult
+): String {
+    return when (result.action?.type) {
+        "deleteLocation" -> "Подтвердите удаление локации."
+        "reinitializeController" -> "Подтвердите переинициализацию контроллера."
+        else -> {
+            val navigation = result.navigation
+            if (navigation?.screen == "InitializeController") {
+                val controllerId = navigation.controllerId
+                if (controllerId != null) {
+                    when {
+                        !isControllerConnected(db, controllerId) ->
+                            "Сначала подключитесь к контроллеру этой локации."
+                        hasAnyControllerDevices(db, controllerId) ->
+                            "Подтвердите переинициализацию контроллера."
+                        else ->
+                            result.assistantText.trim()
+                    }
+                } else {
+                    result.assistantText.trim()
+                }
+            } else {
+                result.assistantText.trim()
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -266,7 +308,12 @@ fun AIChat(
                                             )
                                         }
                                     }
-                                    val reply = result.assistantText.trim()
+                                    val reply = withContext(Dispatchers.IO) {
+                                        resolveVisibleAssistantText(
+                                            db = db,
+                                            result = result
+                                        )
+                                    }.ifBlank { result.assistantText.trim() }
 
                                     run {
                                         val (replyClipped, replyTruncated) = clipForLogdog(reply)

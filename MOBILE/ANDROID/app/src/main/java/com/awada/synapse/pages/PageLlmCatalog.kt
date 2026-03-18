@@ -10,6 +10,7 @@ data class LLMPageDescriptor(
 internal val LlmPageCatalog: List<LLMPageDescriptor> = listOf(
     PageLocationsLlmDescriptor,
     PageLocationLlmDescriptor,
+    PageInitializeControllerLlmDescriptor,
     PageRoomLlmDescriptor,
     PageGroupLlmDescriptor,
     PageRoomSettingsLlmDescriptor,
