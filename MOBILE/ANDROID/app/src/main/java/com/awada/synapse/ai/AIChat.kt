@@ -96,9 +96,10 @@ fun AIChat(
     val messages by dao.observeAll().collectAsState(initial = emptyList())
     var inputText by remember { mutableStateOf("") }
 
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.lastIndex)
+    LaunchedEffect(messages.size, isSending) {
+        val lastIndex = messages.lastIndex + if (isSending) 1 else 0
+        if (lastIndex >= 0) {
+            listState.animateScrollToItem(lastIndex)
         }
     }
 
@@ -188,6 +189,11 @@ fun AIChat(
                         when (item.role) {
                             ROLE_AI -> UIMessageAI(text = item.text, time = time)
                             else -> UIMessageUser(text = item.text, time = time)
+                        }
+                    }
+                    if (isSending) {
+                        item(key = "llm_loading") {
+                            UIMessageAILoading()
                         }
                     }
                 }
