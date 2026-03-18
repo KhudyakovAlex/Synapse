@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit
 object OllamaClient {
     private const val MODEL = "glm-4.7-flash:latest"
     private const val URL = "http://10.10.1.184:11434/api/chat"
+    private const val TEMPERATURE = 0.1
 
     private val http = OkHttpClient.Builder()
         // LLM can be slow; defaults are too aggressive for local models.
@@ -26,11 +27,17 @@ object OllamaClient {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     @Serializable
+    private data class ChatOptions(
+        @SerialName("temperature") val temperature: Double? = null
+    )
+
+    @Serializable
     private data class ChatRequest(
         @SerialName("model") val model: String,
         @SerialName("messages") val messages: List<LLMChatMessage>,
         @SerialName("stream") val stream: Boolean,
-        @SerialName("format") val format: String? = null
+        @SerialName("format") val format: String? = null,
+        @SerialName("options") val options: ChatOptions? = null
     )
 
     @Serializable
@@ -47,14 +54,15 @@ object OllamaClient {
     fun chat(messages: List<LLMChatMessage>, requireJson: Boolean = false): String {
         val totalChars = messages.sumOf { it.content.length }
         LLMDebugLog.log(
-            "Ollama chat: start model=$MODEL url=$URL messages=${messages.size} chars=$totalChars requireJson=$requireJson"
+            "Ollama chat: start model=$MODEL url=$URL messages=${messages.size} chars=$totalChars requireJson=$requireJson temperature=$TEMPERATURE"
         )
         val body = json.encodeToString(
             ChatRequest(
                 model = MODEL,
                 messages = messages,
                 stream = false,
-                format = if (requireJson) "json" else null
+                format = if (requireJson) "json" else null,
+                options = ChatOptions(temperature = TEMPERATURE)
             )
         )
         messages.takeLast(3).forEachIndexed { index, message ->
