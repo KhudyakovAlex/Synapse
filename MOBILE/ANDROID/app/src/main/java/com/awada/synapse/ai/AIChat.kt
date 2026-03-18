@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -111,17 +112,25 @@ fun AIChat(
     // Convert main panel height to dp for padding calculations
     val mainPanelHeightDp = with(density) { mainPanelHeightPx.toDp() }
     
-    // Calculate keyboard offset: lift chat content when keyboard appears
+    // With adjustNothing the whole sheet stays fixed, so lift only the bottom area
+    // by the visible IME overlap above navigation bars.
     val imeBottomPx = WindowInsets.ime.getBottom(density)
-    val dragHandleHeightPx = with(density) { DRAG_HANDLE_HEIGHT.toPx() }
-    val extraOffsetPx = with(density) { 30.dp.toPx() }
-    val keyboardLiftPx = (imeBottomPx - mainPanelHeightPx * 2 - dragHandleHeightPx - extraOffsetPx).coerceAtLeast(0f)
+    val navigationBarsBottomPx = WindowInsets.navigationBars.getBottom(density).toFloat()
+    val imeOverlapDp = with(density) {
+        (imeBottomPx - navigationBarsBottomPx).coerceAtLeast(0f).toDp()
+    }
+    val inputBarBottomPadding = if (imeOverlapDp > mainPanelHeightDp) {
+        imeOverlapDp + 20.dp
+    } else {
+        mainPanelHeightDp + 20.dp
+    }
+    val messagesBottomPadding = inputBarBottomPadding + 4.dp + 56.dp + 16.dp
     
     Box(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset { IntOffset(0, (currentOffsetPx - keyboardLiftPx).roundToInt()) }
+                .offset { IntOffset(0, currentOffsetPx.roundToInt()) }
         ) {
             // Drag handle area - only this part can drag down to collapse
             Box(
@@ -166,7 +175,7 @@ fun AIChat(
                         .padding(
                             start = CHAT_HORIZONTAL_PADDING,
                             end = CHAT_HORIZONTAL_PADDING,
-                            bottom = mainPanelHeightDp + 24.dp + 56.dp + 16.dp // input bar position + input bar height + padding
+                            bottom = messagesBottomPadding
                         ),
                     state = listState
                 ) {
@@ -192,7 +201,7 @@ fun AIChat(
                             start = CHAT_HORIZONTAL_PADDING,
                             end = CHAT_HORIZONTAL_PADDING,
                             top = 16.dp,
-                            bottom = mainPanelHeightDp + 20.dp
+                            bottom = inputBarBottomPadding
                         )
                 ) {
                     InputBar(

@@ -111,9 +111,24 @@ fun AI(
                 .fillMaxSize()
                 .navigationBarsPadding()
         ) {
-            val screenHeightPx = with(density) { maxHeight.toPx() }
-            
-            val collapsedOffsetPx = with(density) { (maxHeight - MAIN_PANEL_HEIGHT - DRAG_HANDLE_HEIGHT).toPx() }
+            val currentScreenHeightPx = with(density) { maxHeight.toPx() }
+            var stableScreenHeightPx by remember { mutableFloatStateOf(0f) }
+
+            LaunchedEffect(currentScreenHeightPx) {
+                if (currentScreenHeightPx > stableScreenHeightPx) {
+                    stableScreenHeightPx = currentScreenHeightPx
+                }
+            }
+
+            val screenHeightPx = if (stableScreenHeightPx > 0f) {
+                stableScreenHeightPx
+            } else {
+                currentScreenHeightPx
+            }
+
+            val collapsedOffsetPx = with(density) {
+                screenHeightPx - MAIN_PANEL_HEIGHT.toPx() - DRAG_HANDLE_HEIGHT.toPx()
+            }
             val expandedOffsetPx = with(density) { EXPANDED_TOP_OFFSET.toPx() }
             
             val anchors = DraggableAnchors {
