@@ -131,9 +131,11 @@ fun AI(
                         easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)  // Slow end
                     ),
                     decayAnimationSpec = exponentialDecay(frictionMultiplier = 2f)
-                ).apply {
-                    updateAnchors(anchors)
-                }
+                )
+            }
+
+            LaunchedEffect(collapsedOffsetPx, expandedOffsetPx) {
+                anchoredDraggableState.updateAnchors(anchors)
             }
             
             val currentOffsetPx = try {
