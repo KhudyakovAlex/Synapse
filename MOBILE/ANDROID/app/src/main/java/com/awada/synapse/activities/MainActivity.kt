@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.awada.synapse.R
 import com.awada.synapse.ai.AI
+import com.awada.synapse.ai.LLMActionCommand
 import com.awada.synapse.ai.LLMDebugLog
 import com.awada.synapse.ai.LLMCurrentScreenContext
 import com.awada.synapse.ai.LLMCurrentScreenParams
@@ -223,6 +224,8 @@ private fun MainContent() {
     var iconSelectCategory by remember { mutableStateOf<String?>(null) }
     var iconSelectCurrentIconId by remember { mutableStateOf<Int?>(null) }
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
+    var pendingDeleteLocationId by remember { mutableStateOf<Int?>(null) }
+    var pendingDeleteLocationTitle by remember { mutableStateOf<String?>(null) }
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
     var rootHeightPx by remember { mutableFloatStateOf(0f) }
     var lumPanelTopPx by remember { mutableFloatStateOf(Float.NaN) }
@@ -283,6 +286,45 @@ private fun MainContent() {
             ?: params.scenarioId?.let { db.scenarioDao().getById(it)?.controllerId }
             ?: params.graphId?.let { db.graphDao().getById(it)?.controllerId }
             ?: params.eventId?.let { db.eventDao().getById(it)?.controllerId }
+    }
+    fun startFindControllerFlow() {
+        currentScreen = AppScreen.Search
+    }
+    suspend fun completeFoundControllerFlow() {
+        val dao = db.controllerDao()
+        val suffix = (System.currentTimeMillis() % 100_000_000)
+            .toString()
+            .padStart(8, '0')
+        val name = "SYN_$suffix"
+        val controllerId = dao.insertAtEnd(
+            ControllerEntity(
+                name = name,
+                password = "1234",
+                icoNum = 100
+            )
+        ).toInt()
+        appearingLocationId = controllerId
+        currentScreen = AppScreen.Location
+    }
+    suspend fun deleteLocationById(controllerId: Int) {
+        clearDevicesForController(db = db, controllerId = controllerId)
+        db.controllerDao().deleteById(controllerId)
+        pendingDeleteLocationId = null
+        pendingDeleteLocationTitle = null
+        selectedLocation = null
+        selectedRoom = null
+        selectedGroup = null
+        selectedLuminaireId = null
+        selectedButtonPanelId = null
+        selectedButtonNumber = null
+        selectedScenarioId = null
+        selectedPresSensorId = null
+        selectedBrightSensorId = null
+        selectedGraphId = null
+        selectedEventId = null
+        iconSelectCategory = null
+        iconSelectCurrentIconId = null
+        currentScreen = AppScreen.Location
     }
     fun canOpenWhenDisconnected(screen: AppScreen): Boolean = when (screen) {
         AppScreen.Location,
@@ -660,7 +702,7 @@ private fun MainContent() {
                                 selectedLocation = item
                                 currentScreen = AppScreen.LocationDetails
                             },
-                            onFindControllerClick = { currentScreen = AppScreen.Search },
+                            onFindControllerClick = { startFindControllerFlow() },
                             appearingLocationId = appearingLocationId,
                             onAppearingLocationConsumed = { controllerId ->
                                 if (appearingLocationId == controllerId) {
@@ -928,7 +970,7 @@ private fun MainContent() {
                     AppScreen.Settings -> {
                         PageSettings(
                             onBackClick = { currentScreen = AppScreen.Location },
-                            onFindControllerClick = { currentScreen = AppScreen.Search },
+                            onFindControllerClick = { startFindControllerFlow() },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -1007,22 +1049,7 @@ private fun MainContent() {
                             correctPassword = "1234", // TODO: Get from settings
                             onPasswordCorrect = {
                                 scope.launch {
-                                    val dao = db.controllerDao()
-                                    val suffix = (System.currentTimeMillis() % 100_000_000)
-                                        .toString()
-                                        .padStart(8, '0')
-                                    val name = "SYN_$suffix"
-                                    val nextPos = (dao.getMaxGridPos() ?: -1) + 1
-                                    val controllerId = dao.insert(
-                                        ControllerEntity(
-                                            name = name,
-                                            password = "1234",
-                                            icoNum = 100,
-                                            gridPos = nextPos
-                                        )
-                                    ).toInt()
-                                    appearingLocationId = controllerId
-                                    currentScreen = AppScreen.Location
+                                    completeFoundControllerFlow()
                                 }
                             },
                             onBackClick = { currentScreen = AppScreen.Location },
@@ -1494,7 +1521,7 @@ private fun MainContent() {
                             currentScreen = AppScreen.Scenario
                         }
                         AppScreen.Search -> {
-                            currentScreen = AppScreen.Search
+                            startFindControllerFlow()
                         }
                         AppScreen.Settings -> {
                             currentScreen = AppScreen.Settings
@@ -1537,6 +1564,18 @@ private fun MainContent() {
                     }
                 }
             },
+            onActionCommand = { action: LLMActionCommand ->
+                scope.launch {
+                    when (action.type) {
+                        "deleteLocation" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            val controller = db.controllerDao().getById(controllerId) ?: return@launch
+                            pendingDeleteLocationId = controllerId
+                            pendingDeleteLocationTitle = controller.name.ifBlank { "Локация" }
+                        }
+                    }
+                }
+            },
             onMainPanelTopPxChanged = { aiPanelTopPx = it },
             onChatExpandedChange = { isAiChatExpanded = it },
             collapseRequestKey = aiChatCollapseRequestKey
@@ -1569,6 +1608,33 @@ private fun MainContent() {
                         }
                         TooltipResult.Secondary, TooltipResult.Tertiary, TooltipResult.Quaternary, TooltipResult.Dismissed -> {
                             pendingSaveSceneNum = null
+                        }
+                    }
+                }
+            )
+        }
+        if (pendingDeleteLocationId != null) {
+            val title = pendingDeleteLocationTitle
+            val text = if (!title.isNullOrBlank()) {
+                "Удалить локацию «$title»?"
+            } else {
+                "Удалить локацию?"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            val controllerId = pendingDeleteLocationId ?: return@Tooltip
+                            scope.launch {
+                                deleteLocationById(controllerId)
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
+                            pendingDeleteLocationId = null
+                            pendingDeleteLocationTitle = null
                         }
                     }
                 }

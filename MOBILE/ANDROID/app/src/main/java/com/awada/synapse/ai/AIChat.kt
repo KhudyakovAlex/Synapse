@@ -85,7 +85,8 @@ fun AIChat(
     isSending: Boolean,
     onSendingChange: (Boolean) -> Unit = {},
     uiContext: LLMUiContext,
-    onNavigationCommand: (LLMNavigationCommand) -> Unit = {}
+    onNavigationCommand: (LLMNavigationCommand) -> Unit = {},
+    onActionCommand: (LLMActionCommand) -> Unit = {}
 ) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -261,7 +262,7 @@ fun AIChat(
                                             )
                                         }.getOrElse {
                                             LLMConversationResult(
-                                                assistantText = "Ошибка запроса к Ollama: ${it.message ?: "unknown"}"
+                                                assistantText = "Не удалось выполнить запрос: ${it.message ?: "unknown"}"
                                             )
                                         }
                                     }
@@ -276,6 +277,7 @@ fun AIChat(
                                                 "chars" to reply.length,
                                                 "truncated" to replyTruncated,
                                                 "navigationScreen" to result.navigation?.screen,
+                                                "actionType" to result.action?.type,
                                             )
                                         )
                                     }
@@ -289,6 +291,10 @@ fun AIChat(
                                     val navigation = result.navigation
                                     if (navigation != null) {
                                         onNavigationCommand(navigation)
+                                    }
+                                    val action = result.action
+                                    if (action != null) {
+                                        onActionCommand(action)
                                     }
                                 } finally {
                                     onSendingChange(false)

@@ -136,9 +136,7 @@ fun PageLocations(
                     onCommitOrder = { finalOrder ->
                         scope.launch {
                             val dao = db.controllerDao()
-                            finalOrder.forEachIndexed { index, controller ->
-                                dao.setGridPos(controller.id, index)
-                            }
+                            dao.replaceOrder(finalOrder.map { it.id })
                         }
                     },
                     onRequestDelete = { pendingDeleteId = it },
@@ -181,9 +179,7 @@ fun PageLocations(
                     onCommitOrder = { finalOrder ->
                         scope.launch {
                             val dao = db.controllerDao()
-                            finalOrder.forEachIndexed { index, controller ->
-                                dao.setGridPos(controller.id, index)
-                            }
+                            dao.replaceOrder(finalOrder.map { it.id })
                         }
                     },
                     onRequestDelete = { pendingDeleteId = it },
@@ -218,9 +214,6 @@ fun PageLocations(
                             val dao = db.controllerDao()
                             db.buttonDao().deleteAllForController(id)
                             dao.deleteById(id)
-                            remaining.forEachIndexed { index, controller ->
-                                dao.setGridPos(controller.id, index)
-                            }
                         }
                     }
                     else -> {

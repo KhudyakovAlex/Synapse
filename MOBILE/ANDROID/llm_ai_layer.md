@@ -192,6 +192,10 @@ AI(
     "graphId": 9,
     "eventId": 10,
     "iconCategory": "controller"
+  },
+  "action": {
+    "type": "deleteLocation",
+    "controllerId": 1
   }
 }
 ```
@@ -215,6 +219,10 @@ AI(
   - сначала переводится из LLM-friendly `screen` в внутренний `AppScreen`
   - затем маппится в `selected...` state в `MainActivity`
   - поддерживает переходы как на основные экраны, так и на бывшие вложенные страницы (`ChangePassword`, `Schedule`, `SchedulePoint`, `Graphs`, `Graph`, `IconSelect`)
+- `action`:
+  - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
+  - сейчас поддерживается `deleteLocation`
+  - приложение показывает подтверждение и после согласия удаляет локацию штатным путем
 
 ### Fallback
 - Если JSON не распарсился, raw-ответ модели превращается в `assistantText`

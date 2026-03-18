@@ -28,7 +28,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         GraphEntity::class,
         GraphPointEntity::class
     ],
-    version = 24,
+    version = 25,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -854,6 +854,24 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+        private val MIGRATION_24_25 = object : Migration(24, 25) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    UPDATE CONTROLLERS AS c1
+                    SET GRID_POS = (
+                        SELECT COUNT(*)
+                        FROM CONTROLLERS AS c2
+                        WHERE c2.GRID_POS < c1.GRID_POS
+                           OR (c2.GRID_POS = c1.GRID_POS AND c2.ID < c1.ID)
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_CONTROLLERS_GRID_POS ON CONTROLLERS (GRID_POS)"
+                )
+            }
+        }
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -887,7 +905,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_20_21,
                     MIGRATION_21_22,
                     MIGRATION_22_23,
-                    MIGRATION_23_24
+                    MIGRATION_23_24,
+                    MIGRATION_24_25
                 ).addCallback(SEED_LUMINAIRE_TYPES_CALLBACK).build()
                     .also { INSTANCE = it }
             }

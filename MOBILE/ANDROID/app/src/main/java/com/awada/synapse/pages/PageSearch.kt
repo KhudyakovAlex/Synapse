@@ -21,7 +21,7 @@ internal val PageSearchLlmDescriptor = LLMPageDescriptor(
     fileName = "PageSearch",
     screenName = "Search",
     titleRu = "Поиск контроллера",
-    description = "Запускает поиск контроллера поблизости и ведет пользователя к следующему шагу подключения."
+    description = "Запускает поиск контроллера поблизости для добавления новой локации, затем автоматически ведет на экран Password."
 )
 
 @Composable

@@ -63,7 +63,9 @@ data class LLMStructuredReply(
     @SerialName("dbPatch")
     val dbPatch: LLMDbPatch? = null,
     @SerialName("navigation")
-    val navigation: LLMNavigationCommand? = null
+    val navigation: LLMNavigationCommand? = null,
+    @SerialName("action")
+    val action: LLMActionCommand? = null
 )
 
 @Serializable
@@ -112,7 +114,16 @@ data class LLMNavigationCommand(
     val iconCategory: String? = null
 )
 
+@Serializable
+data class LLMActionCommand(
+    @SerialName("type")
+    val type: String,
+    @SerialName("controllerId")
+    val controllerId: Int? = null
+)
+
 data class LLMConversationResult(
     val assistantText: String,
-    val navigation: LLMNavigationCommand? = null
+    val navigation: LLMNavigationCommand? = null,
+    val action: LLMActionCommand? = null
 )

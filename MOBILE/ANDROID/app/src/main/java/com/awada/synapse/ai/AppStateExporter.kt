@@ -22,6 +22,17 @@ object AppStateExporter {
         }
     }
 
+    fun getConnectedControllerIds(db: AppDatabase): Set<Int> {
+        val sqliteDb = db.openHelper.readableDatabase
+        val connectedIds = mutableSetOf<Int>()
+        sqliteDb.query(SimpleSQLiteQuery("SELECT ID FROM CONTROLLERS WHERE IS_CONNECTED = 1")).use { cursor ->
+            while (cursor.moveToNext()) {
+                connectedIds += cursor.getInt(0)
+            }
+        }
+        return connectedIds
+    }
+
     private fun exportControllersOverviewAsJson(
         sqliteDb: androidx.sqlite.db.SupportSQLiteDatabase
     ): String {

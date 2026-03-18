@@ -1,9 +1,11 @@
 package com.awada.synapse.ai
 
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SimpleSQLiteQuery
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.intOrNull
 
 object LLMDbPatchApplier {
     private data class TablePatchSpec(
@@ -90,13 +92,23 @@ object LLMDbPatchApplier {
         )
     )
 
-    fun apply(sqliteDb: SupportSQLiteDatabase, patch: LLMDbPatch) {
+    fun apply(
+        sqliteDb: SupportSQLiteDatabase,
+        patch: LLMDbPatch,
+        connectedControllers: Set<Int> = emptySet(),
+        currentScreenName: String? = null
+    ) {
         patch.updates.forEach { update ->
-            applyUpdate(sqliteDb, update)
+            applyUpdate(sqliteDb, update, connectedControllers, currentScreenName)
         }
     }
 
-    private fun applyUpdate(sqliteDb: SupportSQLiteDatabase, update: LLMDbUpdate) {
+    private fun applyUpdate(
+        sqliteDb: SupportSQLiteDatabase,
+        update: LLMDbUpdate,
+        connectedControllers: Set<Int>,
+        currentScreenName: String?
+    ) {
         val tableName = update.table.uppercase()
         val spec = tableSpecs[tableName]
             ?: error("Unsupported LLM patch table: $tableName")
@@ -112,6 +124,28 @@ object LLMDbPatchApplier {
 
         if (valueEntries.isEmpty()) return
 
+        if (tableName == "CONTROLLERS") {
+            val controllerIdElement = update.where["ID"]
+            val controllerId = (controllerIdElement as? JsonPrimitive)?.intOrNull
+            val allowDisconnectedGridReorder = currentScreenName == "Locations" &&
+                valueEntries.all { (column, _) -> column == "GRID_POS" }
+            if (controllerId != null && controllerId !in connectedControllers && !allowDisconnectedGridReorder) {
+                error(
+                    "Cannot modify disconnected controller $controllerId. " +
+                        "Without entering the location, only GRID_POS can be changed on the Locations screen."
+                )
+            }
+
+            if (controllerId != null && valueEntries.any { (column, _) -> column == "GRID_POS" }) {
+                applyControllerUpdate(
+                    sqliteDb = sqliteDb,
+                    update = update,
+                    controllerId = controllerId
+                )
+                return
+            }
+        }
+
         val whereEntries = spec.keyColumns.map { column ->
             column to (update.where[column] ?: error("Missing where value for $column"))
         }
@@ -125,6 +159,64 @@ object LLMDbPatchApplier {
         }.toTypedArray()
 
         sqliteDb.execSQL(sql, bindArgs)
+    }
+
+    private fun applyControllerUpdate(
+        sqliteDb: SupportSQLiteDatabase,
+        update: LLMDbUpdate,
+        controllerId: Int
+    ) {
+        val gridPosEntry = update.values["GRID_POS"]
+        val targetGridPos = (gridPosEntry as? JsonPrimitive)?.intOrNull
+        val otherValueEntries = update.values.entries.filter { (column, _) -> column != "GRID_POS" }
+
+        if (otherValueEntries.isNotEmpty()) {
+            val setClause = otherValueEntries.joinToString(", ") { (column, _) -> "${quote(column)} = ?" }
+            val sql = "UPDATE ${quote("CONTROLLERS")} SET $setClause WHERE ${quote("ID")} = ?"
+            val bindArgs = buildList<Any?> {
+                otherValueEntries.forEach { (_, value) -> add(jsonElementToSqlValue(value)) }
+                add(controllerId)
+            }.toTypedArray()
+            sqliteDb.execSQL(sql, bindArgs)
+        }
+
+        if (targetGridPos != null) {
+            moveControllerToPosition(sqliteDb, controllerId, targetGridPos)
+        }
+    }
+
+    private fun moveControllerToPosition(
+        sqliteDb: SupportSQLiteDatabase,
+        controllerId: Int,
+        targetGridPos: Int
+    ) {
+        val orderedIds = mutableListOf<Int>()
+        sqliteDb.query(
+            SimpleSQLiteQuery("SELECT ID FROM CONTROLLERS ORDER BY GRID_POS ASC, ID ASC")
+        ).use { cursor ->
+            while (cursor.moveToNext()) {
+                orderedIds += cursor.getInt(0)
+            }
+        }
+
+        val fromIndex = orderedIds.indexOf(controllerId)
+        if (fromIndex == -1) return
+
+        val movedId = orderedIds.removeAt(fromIndex)
+        orderedIds.add(targetGridPos.coerceIn(0, orderedIds.size), movedId)
+
+        orderedIds.forEachIndexed { index, id ->
+            sqliteDb.execSQL(
+                "UPDATE ${quote("CONTROLLERS")} SET ${quote("GRID_POS")} = ? WHERE ${quote("ID")} = ?",
+                arrayOf(-(index + 1), id)
+            )
+        }
+        orderedIds.forEachIndexed { index, id ->
+            sqliteDb.execSQL(
+                "UPDATE ${quote("CONTROLLERS")} SET ${quote("GRID_POS")} = ? WHERE ${quote("ID")} = ?",
+                arrayOf(index, id)
+            )
+        }
     }
 
     private fun quote(identifier: String): String = "\"${identifier.replace("\"", "\"\"")}\""

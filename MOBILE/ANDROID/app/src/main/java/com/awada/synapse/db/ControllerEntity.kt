@@ -2,9 +2,15 @@ package com.awada.synapse.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "CONTROLLERS")
+@Entity(
+    tableName = "CONTROLLERS",
+    indices = [
+        Index(value = ["GRID_POS"], unique = true)
+    ]
+)
 data class ControllerEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID")

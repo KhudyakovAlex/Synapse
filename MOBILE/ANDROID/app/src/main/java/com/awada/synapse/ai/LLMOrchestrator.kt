@@ -64,9 +64,12 @@ object LLMOrchestrator {
         val structuredReply = parseStructuredReply(rawReply)
 
         db.withTransaction {
+            val connectedControllers = AppStateExporter.getConnectedControllerIds(db)
             LLMDbPatchApplier.apply(
                 sqliteDb = db.openHelper.writableDatabase,
-                patch = structuredReply.dbPatch ?: LLMDbPatch()
+                patch = structuredReply.dbPatch ?: LLMDbPatch(),
+                connectedControllers = connectedControllers,
+                currentScreenName = uiContext.currentScreen.name
             )
         }
 
@@ -83,6 +86,7 @@ object LLMOrchestrator {
                 "assistantTextChars" to assistantText.length,
                 "updateCount" to (normalizedReply.dbPatch?.updates?.size ?: 0),
                 "navigationScreen" to normalizedReply.navigation?.screen,
+                "actionType" to normalizedReply.action?.type,
             ),
             attachments = listOf(
                 Logdog.Attachment(
@@ -94,7 +98,8 @@ object LLMOrchestrator {
         )
         return LLMConversationResult(
             assistantText = assistantText,
-            navigation = structuredReply.navigation
+            navigation = structuredReply.navigation,
+            action = structuredReply.action
         )
     }
 

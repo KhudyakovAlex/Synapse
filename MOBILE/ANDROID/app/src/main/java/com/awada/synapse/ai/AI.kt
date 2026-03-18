@@ -59,6 +59,7 @@ fun AI(
     modifier: Modifier = Modifier,
     uiContext: LLMUiContext,
     onNavigationCommand: (LLMNavigationCommand) -> Unit = {},
+    onActionCommand: (LLMActionCommand) -> Unit = {},
     onMainPanelTopPxChanged: ((Float) -> Unit)? = null,
     onChatExpandedChange: (Boolean) -> Unit = {},
     collapseRequestKey: Int = 0
@@ -209,7 +210,8 @@ fun AI(
                             isSending = isSending,
                             onSendingChange = { isSending = it },
                             uiContext = uiContext,
-                            onNavigationCommand = onNavigationCommand
+                            onNavigationCommand = onNavigationCommand,
+                            onActionCommand = onActionCommand
                         )
                     }
                 }

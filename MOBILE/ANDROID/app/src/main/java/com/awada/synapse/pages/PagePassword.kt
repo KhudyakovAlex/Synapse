@@ -23,7 +23,7 @@ internal val PagePasswordLlmDescriptor = LLMPageDescriptor(
     fileName = "PagePassword",
     screenName = "Password",
     titleRu = "Пароль",
-    description = "Показывает ввод PIN-кода и проверяет пароль перед переходом к следующему действию."
+    description = "Показывает ввод PIN-кода для найденного контроллера; после верного PIN приложение добавляет новую локацию в список."
 )
 
 @Composable
