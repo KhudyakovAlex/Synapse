@@ -22,6 +22,8 @@ import com.awada.synapse.components.IconSelectButton
 import com.awada.synapse.components.SecondaryButton
 import com.awada.synapse.components.Switch
 import com.awada.synapse.components.TextField
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
@@ -48,6 +50,7 @@ fun PageLocationSettings(
     onBackClick: () -> Unit,
     onSaved: ((name: String, iconId: Int) -> Unit)? = null,
     onRoomAdded: ((roomId: Int) -> Unit)? = null,
+    onInitializeControllerClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -63,6 +66,7 @@ fun PageLocationSettings(
     var draftIsSchedule by remember { mutableStateOf(false) }
     var draftIsGraphs by remember { mutableStateOf(false) }
     var loadedForId by remember { mutableStateOf<Int?>(null) }
+    var showReinitializeTooltip by remember { mutableStateOf(false) }
 
     LaunchedEffect(controllerId) {
         if (controllerId == null) return@LaunchedEffect
@@ -128,6 +132,47 @@ fun PageLocationSettings(
         }
     }.collectAsState(initial = null)
     val rooms = roomsOrNull
+    val luminaireCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.luminaireDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+    val buttonPanelCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.buttonPanelDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+    val presSensorCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.presSensorDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+    val brightSensorCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.brightSensorDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+    val hasAnyControllerDevices =
+        (luminaireCountOrNull ?: 0) +
+            (buttonPanelCountOrNull ?: 0) +
+            (presSensorCountOrNull ?: 0) +
+            (brightSensorCountOrNull ?: 0) > 0
 
     val handleBackClick: () -> Unit = {
         val id = controllerId
@@ -253,7 +298,51 @@ fun PageLocationSettings(
                     onClick = { showChangePassword = true },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if (hasAnyControllerDevices) {
+                    Spacer(modifier = Modifier.height(PixsoDimens.Numeric_16 * 2))
+
+                    SecondaryButton(
+                        text = "Инициализировать контроллер",
+                        onClick = { showReinitializeTooltip = true },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
+        }
+
+        if (showReinitializeTooltip) {
+            Tooltip(
+                text = "Вы уверены, что хотите инициализировать контроллер заново? Все его настройки будут сброшены",
+                primaryButtonText = "Да",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            showReinitializeTooltip = false
+                            val cid = controllerId ?: return@Tooltip
+                            scope.launch {
+                                val currentController = db.controllerDao().getById(cid)
+                                if (currentController != null) {
+                                    db.controllerDao().update(
+                                        currentController.copy(
+                                            name = draftName,
+                                            icoNum = draftIconId,
+                                            isSchedule = draftIsSchedule,
+                                            isGraphs = draftIsGraphs,
+                                        )
+                                    )
+                                }
+                                onSaved?.invoke(draftName, draftIconId)
+                                onInitializeControllerClick?.invoke()
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Tertiary, TooltipResult.Quaternary, TooltipResult.Dismissed -> {
+                            showReinitializeTooltip = false
+                        }
+                    }
+                }
+            )
         }
 
     }

@@ -19,4 +19,7 @@ interface ScenarioDao {
 
     @Query("DELETE FROM SCENARIOS WHERE ID = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("DELETE FROM SCENARIOS WHERE CONTROLLER_ID = :controllerId")
+    suspend fun deleteAllForController(controllerId: Int)
 }

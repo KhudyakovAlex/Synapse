@@ -19,6 +19,9 @@ interface BrightSensorDao {
     )
     fun observeAll(controllerId: Int, roomId: Int?): Flow<List<BrightSensorEntity>>
 
+    @Query("SELECT COUNT(*) FROM BRIGHT_SENSORS WHERE CONTROLLER_ID = :controllerId")
+    fun observeCountForController(controllerId: Int): Flow<Int>
+
     @Query(
         """
         SELECT * FROM BRIGHT_SENSORS

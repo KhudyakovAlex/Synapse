@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,11 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.BrightSensor
 import com.awada.synapse.components.ButtonPanel
 import com.awada.synapse.components.LocationItem
 import com.awada.synapse.components.Lum
+import com.awada.synapse.components.PrimaryIconButtonLarge
 import com.awada.synapse.components.Tooltip
 import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.components.PresSensor
@@ -34,6 +37,8 @@ import com.awada.synapse.components.iconResId
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.db.RoomEntity
 import com.awada.synapse.ui.theme.PixsoColors
+import com.awada.synapse.ui.theme.PixsoDimens
+import com.awada.synapse.ui.theme.TitleMedium
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -60,6 +65,7 @@ fun PageLocation(
     onSensorPressSettingsClick: (sensorId: Long) -> Unit,
     onSensorBrightSettingsClick: (sensorId: Long) -> Unit,
     onButtonPanelClick: (buttonPanelId: Long) -> Unit,
+    onInitializeControllerClick: (() -> Unit)? = null,
     appearingRoomId: Int? = null,
     onAppearingRoomConsumed: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -115,6 +121,46 @@ fun PageLocation(
             db.brightSensorDao()
                 .observeAll(controllerId, roomId = null)
                 .map<List<com.awada.synapse.db.BrightSensorEntity>, List<com.awada.synapse.db.BrightSensorEntity>?> { it }
+        }
+    }.collectAsState(initial = null)
+
+    val luminaireCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.luminaireDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+
+    val buttonPanelCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.buttonPanelDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+
+    val presSensorCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.presSensorDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
+        }
+    }.collectAsState(initial = null)
+
+    val brightSensorCountOrNull by remember(db, controllerId) {
+        if (controllerId == null) {
+            flowOf<Int?>(0)
+        } else {
+            db.brightSensorDao()
+                .observeCountForController(controllerId)
+                .map<Int, Int?> { it }
         }
     }.collectAsState(initial = null)
 
@@ -305,10 +351,30 @@ fun PageLocation(
                     val panels = buttonPanelsOrNull
                     val pres = presSensorsOrNull
                     val bright = brightSensorsOrNull
+                    val luminaireCount = luminaireCountOrNull
+                    val buttonPanelCount = buttonPanelCountOrNull
+                    val presSensorCount = presSensorCountOrNull
+                    val brightSensorCount = brightSensorCountOrNull
 
                     // Prevent a brief "empty" flicker before first DB emission.
                     val ready =
-                        rooms != null && luminaires != null && panels != null && pres != null && bright != null
+                        rooms != null &&
+                            luminaires != null &&
+                            panels != null &&
+                            pres != null &&
+                            bright != null &&
+                            luminaireCount != null &&
+                            buttonPanelCount != null &&
+                            presSensorCount != null &&
+                            brightSensorCount != null
+                    val hasAnyControllerDevices =
+                        ready &&
+                            (
+                                luminaireCount!! +
+                                    buttonPanelCount!! +
+                                    presSensorCount!! +
+                                    brightSensorCount!!
+                                ) > 0
 
                     if (ready && showRooms) {
                         ReorderableRoomsGrid(
@@ -348,7 +414,29 @@ fun PageLocation(
                         )
                     }
 
-                    if (ready) {
+                    if (ready && !hasAnyControllerDevices) {
+                        androidx.compose.foundation.layout.Spacer(
+                            modifier = Modifier.height(PixsoDimens.Numeric_48)
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Нет устройств,\nподключенных к контроллеру",
+                                style = TitleMedium,
+                                color = PixsoColors.Color_Text_text_3_level,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        PrimaryIconButtonLarge(
+                            text = "Инициализировать контроллер",
+                            onClick = { onInitializeControllerClick?.invoke() },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (ready && hasAnyControllerDevices) {
                         data class DeviceInfo(
                             val key: DeviceKey,
                             val gridPos: Int,

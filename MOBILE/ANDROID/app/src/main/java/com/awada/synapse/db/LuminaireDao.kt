@@ -48,6 +48,9 @@ interface LuminaireDao {
     )
     fun observeAllForController(controllerId: Int): Flow<List<LuminaireEntity>>
 
+    @Query("SELECT COUNT(*) FROM LUMINAIRES WHERE CONTROLLER_ID = :controllerId")
+    fun observeCountForController(controllerId: Int): Flow<Int>
+
     @Query(
         """
         SELECT * FROM LUMINAIRES

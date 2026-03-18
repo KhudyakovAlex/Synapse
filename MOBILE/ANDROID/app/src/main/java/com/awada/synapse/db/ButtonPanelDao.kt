@@ -19,6 +19,9 @@ interface ButtonPanelDao {
     )
     fun observeAll(controllerId: Int, roomId: Int?): Flow<List<ButtonPanelEntity>>
 
+    @Query("SELECT COUNT(*) FROM BUTTON_PANELS WHERE CONTROLLER_ID = :controllerId")
+    fun observeCountForController(controllerId: Int): Flow<Int>
+
     @Query(
         """
         SELECT * FROM BUTTON_PANELS

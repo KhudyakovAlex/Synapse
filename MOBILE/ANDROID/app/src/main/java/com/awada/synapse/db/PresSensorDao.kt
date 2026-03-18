@@ -19,6 +19,9 @@ interface PresSensorDao {
     )
     fun observeAll(controllerId: Int, roomId: Int?): Flow<List<PresSensorEntity>>
 
+    @Query("SELECT COUNT(*) FROM PRES_SENSORS WHERE CONTROLLER_ID = :controllerId")
+    fun observeCountForController(controllerId: Int): Flow<Int>
+
     @Query(
         """
         SELECT * FROM PRES_SENSORS

@@ -58,6 +58,7 @@ import com.awada.synapse.pages.PageChangePassword
 import com.awada.synapse.pages.PageGraph
 import com.awada.synapse.pages.PageGraphs
 import com.awada.synapse.pages.PageIconSelect
+import com.awada.synapse.pages.PageInitializeController
 import com.awada.synapse.pages.PageLum
 import com.awada.synapse.pages.PageLumSettings
 import com.awada.synapse.pages.PageLocation
@@ -90,6 +91,7 @@ import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.LuminaireTypeEntity
 import com.awada.synapse.db.PresSensorEntity
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -134,6 +136,7 @@ class MainActivity : ComponentActivity() {
 enum class AppScreen {
     Location,
     LocationDetails,
+    InitializeController,
     RoomDetails,
     GroupDetails,
     RoomSettings,
@@ -196,6 +199,8 @@ private fun MainContent() {
     var graphsBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
     var graphBackTarget by remember { mutableStateOf(AppScreen.Graphs) }
     var iconSelectBackTarget by remember { mutableStateOf(AppScreen.LocationSettings) }
+    var controllerInitializationBackTarget by remember { mutableStateOf(AppScreen.LocationDetails) }
+    var shouldResetDevicesOnInitialization by remember { mutableStateOf(false) }
     var appearingLocationRoomId by remember { mutableStateOf<Int?>(null) }
     var appearingLocationId by remember { mutableStateOf<Int?>(null) }
     var selectedLocation by remember {
@@ -290,6 +295,9 @@ private fun MainContent() {
     val llmCurrentScreenParams = when (currentScreen) {
         AppScreen.Location -> LLMCurrentScreenParams()
         AppScreen.LocationDetails -> LLMCurrentScreenParams(
+            controllerId = selectedLocation?.controllerId
+        )
+        AppScreen.InitializeController -> LLMCurrentScreenParams(
             controllerId = selectedLocation?.controllerId
         )
         AppScreen.RoomDetails -> LLMCurrentScreenParams(
@@ -550,6 +558,10 @@ private fun MainContent() {
             AppScreen.Graphs -> currentScreen = graphsBackTarget
             AppScreen.Graph -> currentScreen = graphBackTarget
             AppScreen.IconSelect -> currentScreen = iconSelectBackTarget
+            AppScreen.InitializeController -> {
+                shouldResetDevicesOnInitialization = false
+                currentScreen = controllerInitializationBackTarget
+            }
             AppScreen.Lum, AppScreen.Search, AppScreen.Settings, AppScreen.Password -> {
                 currentScreen = if (currentScreen == AppScreen.Lum) lumBackTarget else AppScreen.Location
             }
@@ -704,6 +716,13 @@ private fun MainContent() {
                                 buttonPanelBackTarget = AppScreen.LocationDetails
                                 currentScreen = AppScreen.Panel
                             },
+                            onInitializeControllerClick = {
+                                if (loc.controllerId != null) {
+                                    shouldResetDevicesOnInitialization = false
+                                    controllerInitializationBackTarget = AppScreen.LocationDetails
+                                    currentScreen = AppScreen.InitializeController
+                                }
+                            },
                             appearingRoomId = appearingLocationRoomId,
                             onAppearingRoomConsumed = { roomId: Int ->
                                 if (appearingLocationRoomId == roomId) {
@@ -798,6 +817,34 @@ private fun MainContent() {
                             onRoomAdded = { roomId ->
                                 appearingLocationRoomId = roomId
                                 currentScreen = AppScreen.LocationDetails
+                            },
+                            onInitializeControllerClick = {
+                                if (selectedLocation?.controllerId != null) {
+                                    shouldResetDevicesOnInitialization = true
+                                    controllerInitializationBackTarget = AppScreen.LocationSettings
+                                    currentScreen = AppScreen.InitializeController
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    AppScreen.InitializeController -> {
+                        PageInitializeController(
+                            onBackClick = {
+                                shouldResetDevicesOnInitialization = false
+                                currentScreen = controllerInitializationBackTarget
+                            },
+                            onInitializationComplete = {
+                                scope.launch {
+                                    val controllerId = selectedLocation?.controllerId ?: return@launch
+                                    if (shouldResetDevicesOnInitialization) {
+                                        clearDevicesForController(db = db, controllerId = controllerId)
+                                    }
+                                    seedMockDevicesForController(db = db, controllerId = controllerId)
+                                    shouldResetDevicesOnInitialization = false
+                                    selectedLocation = loadLocationItem(controllerId)
+                                    currentScreen = AppScreen.LocationDetails
+                                }
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -974,85 +1021,6 @@ private fun MainContent() {
                                             gridPos = nextPos
                                         )
                                     ).toInt()
-
-                                    db.luminaireDao().apply {
-                                        val initialLuminaireTypes = listOf(
-                                            LuminaireTypeEntity.TYPE_ON_OFF,
-                                            LuminaireTypeEntity.TYPE_DIMMABLE,
-                                            LuminaireTypeEntity.TYPE_RGB,
-                                            LuminaireTypeEntity.TYPE_TW,
-                                            LuminaireTypeEntity.TYPE_ON_OFF,
-                                            LuminaireTypeEntity.TYPE_DIMMABLE,
-                                            LuminaireTypeEntity.TYPE_RGB,
-                                            LuminaireTypeEntity.TYPE_TW
-                                        )
-                                        initialLuminaireTypes.forEachIndexed { idx, typeId ->
-                                            val typeName = when (typeId) {
-                                                LuminaireTypeEntity.TYPE_ON_OFF -> "Вкл/выкл"
-                                                LuminaireTypeEntity.TYPE_DIMMABLE -> "Диммируемый"
-                                                LuminaireTypeEntity.TYPE_RGB -> "RGB"
-                                                LuminaireTypeEntity.TYPE_TW -> "TW"
-                                                else -> "Светильник"
-                                            }
-                                            insert(
-                                                LuminaireEntity(
-                                                    controllerId = controllerId,
-                                                    roomId = null,
-                                                    name = "$typeName ${idx + 1}",
-                                                    icoNum = 300,
-                                                    typeId = typeId,
-                                                    bright = 0,
-                                                    temperature = 0,
-                                                    saturation = 0,
-                                                    hue = 0,
-                                                    gridPos = idx
-                                                )
-                                            )
-                                        }
-                                    }
-                                    val buttonDao = db.buttonDao()
-                                    db.buttonPanelDao().apply {
-                                        val initialButtonCounts = listOf(1, 2, 4, 6, 8)
-                                        initialButtonCounts.forEachIndexed { idx, buttonCount ->
-                                            val buttonPanelId = insert(
-                                                ButtonPanelEntity(
-                                                    controllerId = controllerId,
-                                                    roomId = null,
-                                                    name = "Кнопочная панель ${buttonCount}",
-                                                    gridPos = 8 + idx
-                                                )
-                                            )
-                                            val nextButtonId = buttonDao.getNextId()
-                                            buttonDao.insertAll(
-                                                List(buttonCount) { buttonIdx ->
-                                                    ButtonEntity(
-                                                        id = nextButtonId + buttonIdx,
-                                                        num = buttonIdx + 1,
-                                                        buttonPanelId = buttonPanelId,
-                                                        daliInst = ButtonEntity.UNASSIGNED_DALI_INST,
-                                                        matrixRow = buttonIdx / ButtonEntity.MATRIX_SIZE,
-                                                        matrixCol = buttonIdx % ButtonEntity.MATRIX_SIZE,
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    }
-                                    db.presSensorDao().insert(
-                                        PresSensorEntity(
-                                            controllerId = controllerId,
-                                            roomId = null,
-                                            name = "Датчик присутствия",
-                                            gridPos = 13
-                                        )
-                                    )
-                                    db.brightSensorDao().insert(
-                                        BrightSensorEntity(
-                                            controllerId = controllerId,
-                                            roomId = null,
-                                            name = "Датчик освещенности",
-                                            gridPos = 14
-                                        )
-                                    )
                                     appearingLocationId = controllerId
                                     currentScreen = AppScreen.Location
                                 }
@@ -1370,6 +1338,14 @@ private fun MainContent() {
                             selectedLocation = location
                             currentScreen = AppScreen.LocationDetails
                         }
+                        AppScreen.InitializeController -> {
+                            val controllerId = command.controllerId ?: selectedLocation?.controllerId ?: return@launch
+                            val location = loadLocationItem(controllerId) ?: return@launch
+                            selectedLocation = location
+                            shouldResetDevicesOnInitialization = false
+                            controllerInitializationBackTarget = AppScreen.LocationDetails
+                            currentScreen = AppScreen.InitializeController
+                        }
                         AppScreen.RoomDetails -> {
                             val controllerId = command.controllerId ?: return@launch
                             val roomId = command.roomId ?: return@launch
@@ -1613,6 +1589,119 @@ private data class GroupState(
     val controllerId: Int,
     val groupId: Int
 )
+
+private suspend fun clearDevicesForController(
+    db: AppDatabase,
+    controllerId: Int
+) {
+    db.eventDao().deleteAllForController(controllerId)
+    db.graphDao().deleteAllForController(controllerId)
+    db.scenarioDao().deleteAllForController(controllerId)
+    db.buttonDao().deleteAllForController(controllerId)
+    db.buttonPanelDao().deleteAllForController(controllerId)
+    db.presSensorDao().deleteAllForController(controllerId)
+    db.brightSensorDao().deleteAllForController(controllerId)
+    db.luminaireDao().deleteAllForController(controllerId)
+    db.roomDao().deleteAllForController(controllerId)
+}
+
+private suspend fun seedMockDevicesForController(
+    db: AppDatabase,
+    controllerId: Int
+) {
+    val existingDeviceCount =
+        db.luminaireDao().observeCountForController(controllerId).first() +
+            db.buttonPanelDao().observeCountForController(controllerId).first() +
+            db.presSensorDao().observeCountForController(controllerId).first() +
+            db.brightSensorDao().observeCountForController(controllerId).first()
+    if (existingDeviceCount > 0) return
+
+    var nextGridPos = 0
+    val luminaireDao = db.luminaireDao()
+    val luminaireTypes = listOf(
+        LuminaireTypeEntity.TYPE_ON_OFF,
+        LuminaireTypeEntity.TYPE_ON_OFF,
+        LuminaireTypeEntity.TYPE_DIMMABLE,
+        LuminaireTypeEntity.TYPE_DIMMABLE,
+        LuminaireTypeEntity.TYPE_RGB,
+        LuminaireTypeEntity.TYPE_RGB,
+        LuminaireTypeEntity.TYPE_TW,
+        LuminaireTypeEntity.TYPE_TW
+    )
+    val luminaireTypeOccurrences = mutableMapOf<Int, Int>()
+    luminaireTypes.forEach { typeId ->
+        val occurrence = luminaireTypeOccurrences.getOrDefault(typeId, 0) + 1
+        luminaireTypeOccurrences[typeId] = occurrence
+        val typeName = when (typeId) {
+            LuminaireTypeEntity.TYPE_ON_OFF -> "Вкл/выкл"
+            LuminaireTypeEntity.TYPE_DIMMABLE -> "Диммируемый"
+            LuminaireTypeEntity.TYPE_RGB -> "RGB"
+            LuminaireTypeEntity.TYPE_TW -> "TW"
+            else -> "Светильник"
+        }
+        luminaireDao.insert(
+            LuminaireEntity(
+                controllerId = controllerId,
+                roomId = null,
+                name = "$typeName $occurrence",
+                icoNum = 300,
+                typeId = typeId,
+                bright = 0,
+                temperature = 0,
+                saturation = 0,
+                hue = 0,
+                gridPos = nextGridPos++
+            )
+        )
+    }
+
+    val buttonDao = db.buttonDao()
+    val buttonPanelDao = db.buttonPanelDao()
+    listOf(1, 2, 4, 6, 8).forEach { buttonCount ->
+        val buttonPanelId = buttonPanelDao.insert(
+            ButtonPanelEntity(
+                controllerId = controllerId,
+                roomId = null,
+                name = "Кнопочная панель $buttonCount",
+                gridPos = nextGridPos++
+            )
+        )
+        val nextButtonId = buttonDao.getNextId()
+        buttonDao.insertAll(
+            List(buttonCount) { buttonIdx ->
+                ButtonEntity(
+                    id = nextButtonId + buttonIdx,
+                    num = buttonIdx + 1,
+                    buttonPanelId = buttonPanelId,
+                    daliInst = ButtonEntity.UNASSIGNED_DALI_INST,
+                    matrixRow = buttonIdx / ButtonEntity.MATRIX_SIZE,
+                    matrixCol = buttonIdx % ButtonEntity.MATRIX_SIZE,
+                )
+            }
+        )
+    }
+
+    repeat(2) { index ->
+        db.presSensorDao().insert(
+            PresSensorEntity(
+                controllerId = controllerId,
+                roomId = null,
+                name = "Датчик присутствия ${index + 1}",
+                gridPos = nextGridPos++
+            )
+        )
+    }
+    repeat(2) { index ->
+        db.brightSensorDao().insert(
+            BrightSensorEntity(
+                controllerId = controllerId,
+                roomId = null,
+                name = "Датчик освещенности ${index + 1}",
+                gridPos = nextGridPos++
+            )
+        )
+    }
+}
 
 private suspend fun applySceneToLuminaires(
     db: AppDatabase,
