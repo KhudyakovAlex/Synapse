@@ -146,6 +146,20 @@ object LLMDbPatchApplier {
             }
         }
 
+        if (tableName == "ROOMS") {
+            val controllerId = (update.where["CONTROLLER_ID"] as? JsonPrimitive)?.intOrNull
+            val roomId = (update.where["ID"] as? JsonPrimitive)?.intOrNull
+            if (controllerId != null && roomId != null && valueEntries.any { (column, _) -> column == "GRID_POS" }) {
+                applyRoomUpdate(
+                    sqliteDb = sqliteDb,
+                    update = update,
+                    controllerId = controllerId,
+                    roomId = roomId
+                )
+                return
+            }
+        }
+
         val whereEntries = spec.keyColumns.map { column ->
             column to (update.where[column] ?: error("Missing where value for $column"))
         }
@@ -215,6 +229,69 @@ object LLMDbPatchApplier {
             sqliteDb.execSQL(
                 "UPDATE ${quote("CONTROLLERS")} SET ${quote("GRID_POS")} = ? WHERE ${quote("ID")} = ?",
                 arrayOf(index, id)
+            )
+        }
+    }
+
+    private fun applyRoomUpdate(
+        sqliteDb: SupportSQLiteDatabase,
+        update: LLMDbUpdate,
+        controllerId: Int,
+        roomId: Int
+    ) {
+        val gridPosEntry = update.values["GRID_POS"]
+        val targetGridPos = (gridPosEntry as? JsonPrimitive)?.intOrNull
+        val otherValueEntries = update.values.entries.filter { (column, _) -> column != "GRID_POS" }
+
+        if (otherValueEntries.isNotEmpty()) {
+            val setClause = otherValueEntries.joinToString(", ") { (column, _) -> "${quote(column)} = ?" }
+            val sql = "UPDATE ${quote("ROOMS")} SET $setClause WHERE ${quote("CONTROLLER_ID")} = ? AND ${quote("ID")} = ?"
+            val bindArgs = buildList<Any?> {
+                otherValueEntries.forEach { (_, value) -> add(jsonElementToSqlValue(value)) }
+                add(controllerId)
+                add(roomId)
+            }.toTypedArray()
+            sqliteDb.execSQL(sql, bindArgs)
+        }
+
+        if (targetGridPos != null) {
+            moveRoomToPosition(
+                sqliteDb = sqliteDb,
+                controllerId = controllerId,
+                roomId = roomId,
+                targetGridPos = targetGridPos
+            )
+        }
+    }
+
+    private fun moveRoomToPosition(
+        sqliteDb: SupportSQLiteDatabase,
+        controllerId: Int,
+        roomId: Int,
+        targetGridPos: Int
+    ) {
+        val orderedIds = mutableListOf<Int>()
+        sqliteDb.query(
+            SimpleSQLiteQuery(
+                "SELECT ID FROM ROOMS WHERE CONTROLLER_ID = ? ORDER BY GRID_POS ASC, ID ASC",
+                arrayOf(controllerId)
+            )
+        ).use { cursor ->
+            while (cursor.moveToNext()) {
+                orderedIds += cursor.getInt(0)
+            }
+        }
+
+        val fromIndex = orderedIds.indexOf(roomId)
+        if (fromIndex == -1) return
+
+        val movedId = orderedIds.removeAt(fromIndex)
+        orderedIds.add(targetGridPos.coerceIn(0, orderedIds.size), movedId)
+
+        orderedIds.forEachIndexed { index, id ->
+            sqliteDb.execSQL(
+                "UPDATE ${quote("ROOMS")} SET ${quote("GRID_POS")} = ? WHERE ${quote("CONTROLLER_ID")} = ? AND ${quote("ID")} = ?",
+                arrayOf(index, controllerId, id)
             )
         }
     }

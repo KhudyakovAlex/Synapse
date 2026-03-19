@@ -91,6 +91,8 @@ import com.awada.synapse.db.ControllerEntity
 import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.LuminaireTypeEntity
 import com.awada.synapse.db.PresSensorEntity
+import com.awada.synapse.db.RoomEntity
+import com.awada.synapse.db.defaultRoomName
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -226,6 +228,9 @@ private fun MainContent() {
     var pendingSaveSceneNum by remember { mutableStateOf<Int?>(null) }
     var pendingDeleteLocationId by remember { mutableStateOf<Int?>(null) }
     var pendingDeleteLocationTitle by remember { mutableStateOf<String?>(null) }
+    var pendingDeleteRoomControllerId by remember { mutableStateOf<Int?>(null) }
+    var pendingDeleteRoomIds by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var pendingDeleteRoomTitles by remember { mutableStateOf<List<String>>(emptyList()) }
     var pendingReinitializeControllerId by remember { mutableStateOf<Int?>(null) }
     var pendingReinitializeControllerTitle by remember { mutableStateOf<String?>(null) }
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
@@ -313,6 +318,9 @@ private fun MainContent() {
         db.controllerDao().deleteById(controllerId)
         pendingDeleteLocationId = null
         pendingDeleteLocationTitle = null
+        pendingDeleteRoomControllerId = null
+        pendingDeleteRoomIds = emptyList()
+        pendingDeleteRoomTitles = emptyList()
         selectedLocation = null
         selectedRoom = null
         selectedGroup = null
@@ -327,6 +335,64 @@ private fun MainContent() {
         iconSelectCategory = null
         iconSelectCurrentIconId = null
         currentScreen = AppScreen.Location
+    }
+    suspend fun createRoomsInController(
+        controllerId: Int,
+        roomNames: List<String> = emptyList(),
+        roomCount: Int? = null
+    ): Int {
+        val roomDao = db.roomDao()
+        val currentRooms = roomDao.getAllOrdered(controllerId)
+        val usedIds = currentRooms.asSequence().map { it.id }.toHashSet()
+        val freeIds = (0..15).filter { it !in usedIds }
+        val requestedNames = if (roomNames.isNotEmpty()) {
+            roomNames
+        } else {
+            List((roomCount ?: 1).coerceAtLeast(1)) { "" }
+        }
+        if (requestedNames.size > freeIds.size) return 0
+        var nextPos = (currentRooms.maxOfOrNull { it.gridPos } ?: -1) + 1
+        requestedNames.forEachIndexed { index, rawName ->
+            val newId = freeIds[index]
+            val storedName = rawName.trim().ifBlank { defaultRoomName(newId) }
+            roomDao.insert(
+                RoomEntity(
+                    controllerId = controllerId,
+                    id = newId,
+                    name = storedName,
+                    gridPos = nextPos++
+                )
+            )
+            appearingLocationRoomId = newId
+        }
+        return requestedNames.size
+    }
+    suspend fun deleteRoomsByIds(controllerId: Int, roomIds: List<Int>) {
+        val roomDao = db.roomDao()
+        val idsToDelete = roomIds.distinct()
+        idsToDelete.forEach { roomId ->
+            roomDao.deleteById(controllerId, roomId)
+        }
+        val remaining = roomDao.getAllOrdered(controllerId)
+        remaining.forEachIndexed { index, room ->
+            roomDao.setGridPos(controllerId, room.id, index)
+        }
+        pendingDeleteRoomControllerId = null
+        pendingDeleteRoomIds = emptyList()
+        pendingDeleteRoomTitles = emptyList()
+        val deletedSelectedRoom = selectedRoom?.controllerId == controllerId && selectedRoom?.roomId in idsToDelete
+        if (deletedSelectedRoom) {
+            selectedRoom = null
+            if (
+                currentScreen == AppScreen.RoomDetails ||
+                currentScreen == AppScreen.RoomSettings ||
+                (currentScreen == AppScreen.IconSelect && iconSelectCategory == "room")
+            ) {
+                iconSelectCategory = null
+                iconSelectCurrentIconId = null
+                currentScreen = AppScreen.LocationDetails
+            }
+        }
     }
     suspend fun hasAnyControllerDevices(controllerId: Int): Boolean {
         return db.luminaireDao().observeCountForController(controllerId).first() +
@@ -1602,6 +1668,61 @@ private fun MainContent() {
                             pendingDeleteLocationId = controllerId
                             pendingDeleteLocationTitle = controller.name.ifBlank { "Локация" }
                         }
+                        "createRoom" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val createdCount = createRoomsInController(
+                                controllerId = controllerId,
+                                roomNames = listOfNotNull(action.roomName)
+                            )
+                            if (createdCount == 0) {
+                                Toast.makeText(context, "В этой локации больше нельзя добавить помещение", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        "createRooms" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val createdCount = createRoomsInController(
+                                controllerId = controllerId,
+                                roomNames = action.roomNames,
+                                roomCount = action.roomCount
+                            )
+                            if (createdCount == 0) {
+                                Toast.makeText(context, "В этой локации нельзя добавить столько помещений", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        "deleteRoom" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            val roomId = action.roomId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val room = db.roomDao().getById(controllerId, roomId) ?: return@launch
+                            pendingDeleteRoomControllerId = controllerId
+                            pendingDeleteRoomIds = listOf(roomId)
+                            pendingDeleteRoomTitles = listOf(room.name.ifBlank { defaultRoomName(room.id) })
+                        }
+                        "deleteRooms" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val ids = action.roomIds.distinct()
+                            if (ids.isEmpty()) return@launch
+                            val rooms = ids.mapNotNull { roomId -> db.roomDao().getById(controllerId, roomId) }
+                            if (rooms.size != ids.size) return@launch
+                            pendingDeleteRoomControllerId = controllerId
+                            pendingDeleteRoomIds = rooms.map { it.id }
+                            pendingDeleteRoomTitles = rooms.map { it.name.ifBlank { defaultRoomName(it.id) } }
+                        }
                         "reinitializeController" -> {
                             val controllerId = action.controllerId ?: return@launch
                             val controller = db.controllerDao().getById(controllerId) ?: return@launch
@@ -1674,6 +1795,38 @@ private fun MainContent() {
                         TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
                             pendingDeleteLocationId = null
                             pendingDeleteLocationTitle = null
+                        }
+                    }
+                }
+            )
+        }
+        if (pendingDeleteRoomControllerId != null && pendingDeleteRoomIds.isNotEmpty()) {
+            val titles = pendingDeleteRoomTitles
+            val text = when {
+                titles.size == 1 && titles.firstOrNull()?.isNotBlank() == true ->
+                    "Удалить помещение «${titles.first()}»?"
+                titles.isNotEmpty() ->
+                    "Удалить помещения (${titles.size})?"
+                else ->
+                    "Удалить помещения?"
+            }
+            Tooltip(
+                text = text,
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            val controllerId = pendingDeleteRoomControllerId ?: return@Tooltip
+                            val roomIds = pendingDeleteRoomIds
+                            scope.launch {
+                                deleteRoomsByIds(controllerId, roomIds)
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
+                            pendingDeleteRoomControllerId = null
+                            pendingDeleteRoomIds = emptyList()
+                            pendingDeleteRoomTitles = emptyList()
                         }
                     }
                 }

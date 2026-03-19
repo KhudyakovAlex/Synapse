@@ -194,8 +194,13 @@ AI(
     "iconCategory": "controller"
   },
   "action": {
-    "type": "deleteLocation",
-    "controllerId": 1
+    "type": "deleteRooms",
+    "controllerId": 1,
+    "roomId": 2,
+    "roomIds": [2, 3],
+    "roomName": "Кухня",
+    "roomNames": ["Кухня", "Спальня"],
+    "roomCount": 2
   }
 }
 ```
@@ -215,6 +220,8 @@ AI(
   - применяется через `ai/LLMDbPatchApplier.kt`
   - разрешены только whitelist-таблицы/колонки
   - только `UPDATE` существующих строк, без `INSERT/DELETE`
+  - несколько изменений за один ответ делаются через несколько элементов в `dbPatch.updates`
+  - для `ROOMS.GRID_POS` приложение трактует patch как перестановку помещения в списке и само нормализует порядок остальных помещений
 - `navigation`:
   - сначала переводится из LLM-friendly `screen` в внутренний `AppScreen`
   - затем маппится в `selected...` state в `MainActivity`
@@ -222,8 +229,12 @@ AI(
   - для `InitializeController` запускает экран инициализации контроллера по `controllerId`
 - `action`:
   - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
-  - сейчас поддерживаются `deleteLocation` и `reinitializeController`
+  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`
   - для `deleteLocation` приложение показывает подтверждение и после согласия удаляет локацию штатным путем
+  - для `createRoom` приложение создаёт новое помещение в текущей подключённой локации; `roomName` опционален
+  - для `createRooms` приложение создаёт несколько помещений за один ответ; используются `roomNames` или `roomCount`
+  - для `deleteRoom` приложение показывает подтверждение и после согласия удаляет помещение и переупорядочивает оставшиеся комнаты
+  - для `deleteRooms` приложение показывает одно подтверждение и после согласия удаляет несколько помещений и переупорядочивает оставшиеся комнаты
   - для `reinitializeController` приложение показывает подтверждение и после согласия запускает экран `InitializeController` со сбросом устройств/настроек
 
 ### Fallback

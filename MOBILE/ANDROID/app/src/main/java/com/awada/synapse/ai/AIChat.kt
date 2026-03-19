@@ -91,6 +91,8 @@ private suspend fun resolveVisibleAssistantText(
 ): String {
     return when (result.action?.type) {
         "deleteLocation" -> "Подтвердите удаление локации."
+        "deleteRoom" -> "Подтвердите удаление помещения."
+        "deleteRooms" -> "Подтвердите удаление помещений."
         "reinitializeController" -> "Подтвердите переинициализацию контроллера."
         else -> {
             val navigation = result.navigation

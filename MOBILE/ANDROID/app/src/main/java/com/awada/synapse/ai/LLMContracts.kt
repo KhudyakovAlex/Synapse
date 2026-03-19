@@ -119,7 +119,17 @@ data class LLMActionCommand(
     @SerialName("type")
     val type: String,
     @SerialName("controllerId")
-    val controllerId: Int? = null
+    val controllerId: Int? = null,
+    @SerialName("roomId")
+    val roomId: Int? = null,
+    @SerialName("roomIds")
+    val roomIds: List<Int> = emptyList(),
+    @SerialName("roomName")
+    val roomName: String? = null,
+    @SerialName("roomNames")
+    val roomNames: List<String> = emptyList(),
+    @SerialName("roomCount")
+    val roomCount: Int? = null
 )
 
 data class LLMConversationResult(
