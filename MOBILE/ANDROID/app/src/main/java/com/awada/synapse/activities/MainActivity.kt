@@ -351,15 +351,18 @@ private fun MainContent() {
             List((roomCount ?: 1).coerceAtLeast(1)) { "" }
         }
         if (requestedNames.size > freeIds.size) return 0
+        val iconCatalog = IconCatalogManager.load(context)
         var nextPos = (currentRooms.maxOfOrNull { it.gridPos } ?: -1) + 1
         requestedNames.forEachIndexed { index, rawName ->
             val newId = freeIds[index]
             val storedName = rawName.trim().ifBlank { defaultRoomName(newId) }
+            val iconId = iconCatalog.suggestRoomIconIdByName(storedName) ?: 200
             roomDao.insert(
                 RoomEntity(
                     controllerId = controllerId,
                     id = newId,
                     name = storedName,
+                    icoNum = iconId,
                     gridPos = nextPos++
                 )
             )

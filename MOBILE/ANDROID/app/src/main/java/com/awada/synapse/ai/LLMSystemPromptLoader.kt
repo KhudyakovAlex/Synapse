@@ -97,6 +97,9 @@ private val FALLBACK_SYSTEM_PROMPT = """
     - Для пакетного добавления помещений используй action вида { "type": "createRooms", "controllerId": <id>, "roomNames": ["Кухня", "Спальня"] } или { "type": "createRooms", "controllerId": <id>, "roomCount": 3 }.
     - roomName передавай только если пользователь явно задал название; иначе не выдумывай его.
     - roomNames передавай только если пользователь явно задал названия; иначе используй roomCount.
+    - При createRoom и createRooms не передавай иконку отдельно: приложение само подберет ICO_NUM по названию помещения, а если совпадения нет, оставит дефолтную иконку 200.
+    - Для createRoom и createRooms не проси подтверждение в assistantText: эти действия выполняются сразу.
+    - Для createRoom и createRooms используй обычный короткий результат вроде "Добавила помещение." или "Добавила помещения.", а не просьбу подтвердить действие.
     - Удаление помещения не делается через dbPatch. Используй action вида { "type": "deleteRoom", "controllerId": <id>, "roomId": <id> }.
     - Для пакетного удаления помещений используй action вида { "type": "deleteRooms", "controllerId": <id>, "roomIds": [2, 3] }.
     - Для удаления помещения в assistantText явно проси подтверждение.
