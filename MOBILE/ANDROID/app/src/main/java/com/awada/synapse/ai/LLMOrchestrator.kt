@@ -11,6 +11,49 @@ import kotlinx.serialization.json.Json
 
 private const val ROLE_USER = "USER"
 private const val ROLE_AI = "AI"
+private val SUPPORTED_ACTION_TYPES = setOf(
+    "deleteLocation",
+    "reinitializeController",
+    "createRoom",
+    "createRooms",
+    "deleteRoom",
+    "deleteRooms",
+    "saveGraph",
+    "saveLuminaireScene",
+    "saveScheduleEvent",
+    "deleteScheduleEvent"
+)
+private val EFFECT_PREFIXES = listOf(
+    "готово",
+    "добавил",
+    "добавила",
+    "удалил",
+    "удалила",
+    "создал",
+    "создала",
+    "сохранил",
+    "сохранила",
+    "изменил",
+    "изменила",
+    "обновил",
+    "обновила",
+    "переименовал",
+    "переименовала",
+    "переместил",
+    "переместила",
+    "настроил",
+    "настроила",
+    "включил",
+    "включила",
+    "выключил",
+    "выключила",
+    "открыл",
+    "открыла",
+    "перешел",
+    "перешла",
+    "зашел",
+    "зашла"
+)
 
 object LLMOrchestrator {
     private val json = Json {
@@ -62,22 +105,19 @@ object LLMOrchestrator {
         )
         val rawReply = OllamaClient.chat(messages = messages, requireJson = true)
         val structuredReply = parseStructuredReply(rawReply)
+        val normalizedReply = normalizeStructuredReply(structuredReply)
 
         db.withTransaction {
             val connectedControllers = AppStateExporter.getConnectedControllerIds(db)
             LLMDbPatchApplier.apply(
                 sqliteDb = db.openHelper.writableDatabase,
-                patch = structuredReply.dbPatch ?: LLMDbPatch(),
+                patch = normalizedReply.dbPatch ?: LLMDbPatch(),
                 connectedControllers = connectedControllers,
                 currentScreenName = uiContext.currentScreen.name
             )
         }
 
-        val assistantText = structuredReply.assistantText.trim().ifBlank {
-            if (structuredReply.dbPatch?.updates?.isNotEmpty() == true) "Готово."
-            else "Не удалось получить понятный ответ."
-        }
-        val normalizedReply = structuredReply.copy(assistantText = assistantText)
+        val assistantText = normalizedReply.assistantText
         val normalizedReplyJson = json.encodeToString(normalizedReply)
         Logdog.i(
             message = "LLM structured response",
@@ -98,8 +138,8 @@ object LLMOrchestrator {
         )
         return LLMConversationResult(
             assistantText = assistantText,
-            navigation = structuredReply.navigation,
-            action = structuredReply.action
+            navigation = normalizedReply.navigation,
+            action = normalizedReply.action
         )
     }
 
@@ -139,6 +179,37 @@ object LLMOrchestrator {
             )
             LLMStructuredReply(assistantText = rawReply.trim())
         }
+    }
+
+    private fun normalizeStructuredReply(reply: LLMStructuredReply): LLMStructuredReply {
+        val normalizedAction = reply.action?.takeIf { it.type in SUPPORTED_ACTION_TYPES }
+        val hasDbPatch = reply.dbPatch?.updates?.isNotEmpty() == true
+        val hasNavigation = reply.navigation != null
+        val hasAction = normalizedAction != null
+        val hasEffect = hasDbPatch || hasNavigation || hasAction
+        val assistantText = reply.assistantText.trim()
+        val normalizedAssistantText = when {
+            assistantText.isBlank() && hasEffect -> "Готово."
+            !hasEffect && reply.action != null -> unsupportedRequestText()
+            !hasEffect && looksLikeEffectOrConfirmationText(assistantText) -> unsupportedRequestText()
+            assistantText.isBlank() -> "Не удалось получить понятный ответ."
+            else -> assistantText
+        }
+        return reply.copy(
+            assistantText = normalizedAssistantText,
+            action = normalizedAction
+        )
+    }
+
+    private fun looksLikeEffectOrConfirmationText(text: String): Boolean {
+        if (text.isBlank()) return false
+        val normalized = text.lowercase().trim()
+        if ("подтверд" in normalized) return true
+        return EFFECT_PREFIXES.any { normalized.startsWith(it) }
+    }
+
+    private fun unsupportedRequestText(): String {
+        return "Пока не умею выполнить такой запрос через AI в приложении."
     }
 
     private fun loadSystemPrompt(context: Context): String {
