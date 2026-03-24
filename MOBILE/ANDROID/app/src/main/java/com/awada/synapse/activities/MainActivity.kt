@@ -479,6 +479,48 @@ private fun MainContent() {
         }
         return persistedGraphId
     }
+    suspend fun saveLuminaireSceneFromLlm(
+        controllerId: Int,
+        sceneNum: Int,
+        sceneEntries: List<com.awada.synapse.ai.LLMSceneEntry>
+    ): Boolean {
+        val normalizedSceneNum = sceneNum.coerceIn(0, 4)
+        if (sceneEntries.isEmpty()) return false
+        sceneEntries.distinctBy { it.luminaireId }.forEach { entry ->
+            val luminaire = db.luminaireDao().getById(entry.luminaireId) ?: return false
+            if (luminaire.controllerId != controllerId) return false
+            val existing = db.luminaireSceneDao().getBySceneAndLuminaire(normalizedSceneNum, luminaire.id)
+            val fallback = defaultSceneStateFor(luminaire = luminaire, sceneNum = normalizedSceneNum)
+            val entity = when (luminaire.typeId) {
+                LuminaireTypeEntity.TYPE_RGB -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = normalizedSceneNum,
+                    luminaireId = luminaire.id,
+                    bright = (entry.bright ?: existing?.bright ?: fallback.bright).coerceIn(0, 100),
+                    temperature = null,
+                    saturation = (entry.saturation ?: existing?.saturation ?: fallback.saturation).coerceIn(0, 100),
+                    hue = (entry.hue ?: existing?.hue ?: fallback.hue).coerceIn(0, 359)
+                )
+                LuminaireTypeEntity.TYPE_TW -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = normalizedSceneNum,
+                    luminaireId = luminaire.id,
+                    bright = (entry.bright ?: existing?.bright ?: fallback.bright).coerceIn(0, 100),
+                    temperature = (entry.temperature ?: existing?.temperature ?: fallback.temperature).coerceIn(3000, 5000),
+                    saturation = null,
+                    hue = null
+                )
+                else -> com.awada.synapse.db.LuminaireSceneEntity(
+                    sceneNum = normalizedSceneNum,
+                    luminaireId = luminaire.id,
+                    bright = (entry.bright ?: existing?.bright ?: fallback.bright).coerceIn(0, 100),
+                    temperature = null,
+                    saturation = null,
+                    hue = null
+                )
+            }
+            db.luminaireSceneDao().upsert(entity)
+        }
+        return true
+    }
     suspend fun hasAnyControllerDevices(controllerId: Int): Boolean {
         return db.luminaireDao().observeCountForController(controllerId).first() +
             db.buttonPanelDao().observeCountForController(controllerId).first() +
@@ -1824,6 +1866,21 @@ private fun MainContent() {
                             )
                             if (savedGraphId == null) {
                                 Toast.makeText(context, "Не удалось сохранить график", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        "saveLuminaireScene" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val saved = saveLuminaireSceneFromLlm(
+                                controllerId = controllerId,
+                                sceneNum = action.sceneNum ?: return@launch,
+                                sceneEntries = action.sceneEntries
+                            )
+                            if (!saved) {
+                                Toast.makeText(context, "Не удалось сохранить сцену", Toast.LENGTH_SHORT).show()
                             }
                         }
                         "reinitializeController" -> {

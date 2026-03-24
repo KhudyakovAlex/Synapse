@@ -37,7 +37,7 @@ private val FALLBACK_SYSTEM_PROMPT = """
         "iconCategory": "controller"
       },
       "action": {
-        "type": "saveGraph",
+        "type": "saveLuminaireScene",
         "controllerId": 1,
         "roomId": 2,
         "roomIds": [2, 3],
@@ -51,6 +51,11 @@ private val FALLBACK_SYSTEM_PROMPT = """
         "graphPoints": [
           { "time": "0000", "value": 10 },
           { "time": "1830", "value": 80 }
+        ],
+        "sceneNum": 1,
+        "sceneEntries": [
+          { "luminaireId": 10, "bright": 80 },
+          { "luminaireId": 11, "bright": 60, "temperature": 4000 }
         ]
       }
     }
@@ -134,6 +139,14 @@ private val FALLBACK_SYSTEM_PROMPT = """
     - graphPoints[].time передавай в формате HHMM.
     - Для яркости используй значения 0..100, для температуры 3000..5000.
     - Для saveGraph не проси подтверждение в assistantText: график сохраняется сразу.
+
+    ## Световые сцены
+    - Не путай световые сцены с таблицей SCENARIOS.
+    - Если пользователь выбирает сцену для локации или помещения, используй dbPatch и меняй SCENE_NUM.
+    - Если пользователь настраивает содержимое сцены для светильников, используй action вида { "type": "saveLuminaireScene", "controllerId": <id>, "sceneNum": 1, "sceneEntries": [{ "luminaireId": 10, "bright": 80 }, { "luminaireId": 11, "bright": 60, "temperature": 4000 }] }.
+    - sceneNum должен быть в диапазоне 0..4.
+    - Для обычного светильника передавай bright, для TW - bright и temperature, для RGB - bright, saturation и hue.
+    - Для saveLuminaireScene не проси подтверждение в assistantText: сцена сохраняется сразу.
 
     ## Управление навигацией в интерфейсе
     - UI_CONTEXT_JSON содержит только текущий экран и параметры этого экрана.

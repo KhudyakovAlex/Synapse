@@ -139,7 +139,11 @@ data class LLMActionCommand(
     @SerialName("changeTypeId")
     val changeTypeId: Int? = null,
     @SerialName("graphPoints")
-    val graphPoints: List<LLMGraphPoint> = emptyList()
+    val graphPoints: List<LLMGraphPoint> = emptyList(),
+    @SerialName("sceneNum")
+    val sceneNum: Int? = null,
+    @SerialName("sceneEntries")
+    val sceneEntries: List<LLMSceneEntry> = emptyList()
 )
 
 @Serializable
@@ -148,6 +152,20 @@ data class LLMGraphPoint(
     val time: String,
     @SerialName("value")
     val value: Int
+)
+
+@Serializable
+data class LLMSceneEntry(
+    @SerialName("luminaireId")
+    val luminaireId: Long,
+    @SerialName("bright")
+    val bright: Int? = null,
+    @SerialName("temperature")
+    val temperature: Int? = null,
+    @SerialName("saturation")
+    val saturation: Int? = null,
+    @SerialName("hue")
+    val hue: Int? = null
 )
 
 data class LLMConversationResult(

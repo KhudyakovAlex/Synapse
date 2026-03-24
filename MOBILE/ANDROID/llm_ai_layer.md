@@ -194,7 +194,7 @@ AI(
     "iconCategory": "controller"
   },
   "action": {
-    "type": "saveGraph",
+    "type": "saveLuminaireScene",
     "controllerId": 1,
     "roomId": 2,
     "roomIds": [2, 3],
@@ -208,6 +208,11 @@ AI(
     "graphPoints": [
       { "time": "0000", "value": 10 },
       { "time": "1830", "value": 80 }
+    ],
+    "sceneNum": 1,
+    "sceneEntries": [
+      { "luminaireId": 10, "bright": 80 },
+      { "luminaireId": 11, "bright": 60, "temperature": 4000 }
     ]
   }
 }
@@ -237,7 +242,7 @@ AI(
   - для `InitializeController` запускает экран инициализации контроллера по `controllerId`
 - `action`:
   - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
-  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`, `saveGraph`
+  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`, `saveGraph`, `saveLuminaireScene`
   - для `deleteLocation` приложение показывает подтверждение и после согласия удаляет локацию штатным путем
   - для `createRoom` приложение создаёт новое помещение в текущей подключённой локации; `roomName` опционален
   - для `createRooms` приложение создаёт несколько помещений за один ответ; используются `roomNames` или `roomCount`
@@ -245,6 +250,7 @@ AI(
   - для `deleteRoom` приложение показывает подтверждение и после согласия удаляет помещение и переупорядочивает оставшиеся комнаты
   - для `deleteRooms` приложение показывает одно подтверждение и после согласия удаляет несколько помещений и переупорядочивает оставшиеся комнаты
   - для `saveGraph` приложение создаёт новый график или полностью перезаписывает существующий график вместе с точками
+  - для `saveLuminaireScene` приложение создаёт или обновляет записи в `LUMINAIRE_SCENES` для выбранной сцены и набора светильников
   - для `reinitializeController` приложение показывает подтверждение и после согласия запускает экран `InitializeController` со сбросом устройств/настроек
 
 ### Fallback
