@@ -88,6 +88,8 @@ import com.awada.synapse.db.ButtonEntity
 import com.awada.synapse.db.BrightSensorEntity
 import com.awada.synapse.db.ButtonPanelEntity
 import com.awada.synapse.db.ControllerEntity
+import com.awada.synapse.db.GraphEntity
+import com.awada.synapse.db.GraphPointEntity
 import com.awada.synapse.db.LuminaireEntity
 import com.awada.synapse.db.LuminaireTypeEntity
 import com.awada.synapse.db.PresSensorEntity
@@ -162,6 +164,14 @@ enum class AppScreen {
     Graph,
     IconSelect
 }
+
+private const val GRAPH_OBJECT_TYPE_LOCATION = 1
+private const val GRAPH_OBJECT_TYPE_ROOM = 2
+private const val GRAPH_OBJECT_TYPE_GROUP = 3
+private const val GRAPH_OBJECT_TYPE_LUMINAIRE = 4
+
+private const val GRAPH_CHANGE_TYPE_BRIGHTNESS = 1
+private const val GRAPH_CHANGE_TYPE_TEMPERATURE = 2
 
 private val AppScreen.llmScreenName: String
     get() = when (this) {
@@ -396,6 +406,78 @@ private fun MainContent() {
                 currentScreen = AppScreen.LocationDetails
             }
         }
+    }
+    suspend fun saveGraphFromLlm(
+        controllerId: Int,
+        graphId: Long?,
+        objectTypeId: Int,
+        objectId: Long?,
+        changeTypeId: Int,
+        graphPoints: List<com.awada.synapse.ai.LLMGraphPoint>
+    ): Long? {
+        val resolvedObjectId = when (objectTypeId) {
+            GRAPH_OBJECT_TYPE_LOCATION -> null
+            GRAPH_OBJECT_TYPE_ROOM -> {
+                val roomId = objectId?.toInt() ?: return null
+                if (db.roomDao().getById(controllerId, roomId) == null) return null
+                roomId.toLong()
+            }
+            GRAPH_OBJECT_TYPE_GROUP -> {
+                val groupId = objectId?.toInt() ?: return null
+                if (db.groupDao().getById(groupId) == null) return null
+                groupId.toLong()
+            }
+            GRAPH_OBJECT_TYPE_LUMINAIRE -> {
+                val luminaireId = objectId ?: return null
+                val luminaire = db.luminaireDao().getById(luminaireId) ?: return null
+                if (luminaire.controllerId != controllerId) return null
+                luminaireId
+            }
+            else -> return null
+        }
+
+        if (changeTypeId != GRAPH_CHANGE_TYPE_BRIGHTNESS && changeTypeId != GRAPH_CHANGE_TYPE_TEMPERATURE) {
+            return null
+        }
+
+        val normalizedPoints = normalizeLlmGraphPoints(
+            points = graphPoints,
+            changeTypeId = changeTypeId
+        )
+        val persistedGraphId = if (graphId == null) {
+            db.graphDao().insert(
+                GraphEntity(
+                    controllerId = controllerId,
+                    objectTypeId = objectTypeId,
+                    objectId = resolvedObjectId,
+                    changeTypeId = changeTypeId
+                )
+            )
+        } else {
+            val current = db.graphDao().getById(graphId) ?: return null
+            if (current.controllerId != controllerId) return null
+            db.graphDao().update(
+                current.copy(
+                    controllerId = controllerId,
+                    objectTypeId = objectTypeId,
+                    objectId = resolvedObjectId,
+                    changeTypeId = changeTypeId
+                )
+            )
+            graphId
+        }
+
+        db.graphPointDao().deleteAllForGraph(persistedGraphId)
+        normalizedPoints.forEach { point ->
+            db.graphPointDao().insert(
+                GraphPointEntity(
+                    graphId = persistedGraphId,
+                    time = point.time,
+                    value = point.value
+                )
+            )
+        }
+        return persistedGraphId
     }
     suspend fun hasAnyControllerDevices(controllerId: Int): Boolean {
         return db.luminaireDao().observeCountForController(controllerId).first() +
@@ -1726,6 +1808,24 @@ private fun MainContent() {
                             pendingDeleteRoomIds = rooms.map { it.id }
                             pendingDeleteRoomTitles = rooms.map { it.name.ifBlank { defaultRoomName(it.id) } }
                         }
+                        "saveGraph" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val savedGraphId = saveGraphFromLlm(
+                                controllerId = controllerId,
+                                graphId = action.graphId,
+                                objectTypeId = action.objectTypeId ?: return@launch,
+                                objectId = action.objectId,
+                                changeTypeId = action.changeTypeId ?: return@launch,
+                                graphPoints = action.graphPoints
+                            )
+                            if (savedGraphId == null) {
+                                Toast.makeText(context, "Не удалось сохранить график", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                         "reinitializeController" -> {
                             val controllerId = action.controllerId ?: return@launch
                             val controller = db.controllerDao().getById(controllerId) ?: return@launch
@@ -2091,6 +2191,75 @@ private fun sceneLabel(sceneNum: Int): String = when (sceneNum) {
     0 -> "«Выкл»"
     4 -> "«Вкл»"
     else -> "«$sceneNum»"
+}
+
+private fun normalizeLlmGraphPoints(
+    points: List<com.awada.synapse.ai.LLMGraphPoint>,
+    changeTypeId: Int?,
+): List<com.awada.synapse.ai.LLMGraphPoint> {
+    val valueRange = graphValueRangeForAction(changeTypeId)
+    val uniqueByMinute = linkedMapOf<Int, com.awada.synapse.ai.LLMGraphPoint>()
+
+    points.forEach { point ->
+        val minute = snapGraphMinuteToFiveMinutes(graphTimeToMinuteOfDay(point.time))
+        uniqueByMinute[minute] = com.awada.synapse.ai.LLMGraphPoint(
+            time = graphMinuteOfDayToTime(minute),
+            value = snapGraphValueForRange(point.value, valueRange)
+        )
+    }
+
+    if (0 !in uniqueByMinute) {
+        uniqueByMinute[0] = com.awada.synapse.ai.LLMGraphPoint(
+            time = "0000",
+            value = defaultGraphValueForAction(changeTypeId)
+        )
+    }
+
+    return uniqueByMinute
+        .toSortedMap()
+        .values
+        .toList()
+}
+
+private fun graphValueRangeForAction(changeTypeId: Int?): IntRange {
+    return when (changeTypeId) {
+        GRAPH_CHANGE_TYPE_TEMPERATURE -> 3000..5000
+        else -> 0..100
+    }
+}
+
+private fun defaultGraphValueForAction(changeTypeId: Int?): Int {
+    return when (changeTypeId) {
+        GRAPH_CHANGE_TYPE_TEMPERATURE -> 4000
+        else -> 0
+    }
+}
+
+private fun graphTimeToMinuteOfDay(raw: String): Int {
+    val digits = raw.filter(Char::isDigit).padEnd(4, '0').take(4)
+    val hours = digits.substring(0, 2).toIntOrNull()?.coerceIn(0, 23) ?: 0
+    val minutes = digits.substring(2, 4).toIntOrNull()?.coerceIn(0, 59) ?: 0
+    return hours * 60 + minutes
+}
+
+private fun graphMinuteOfDayToTime(minuteOfDay: Int): String {
+    val clamped = minuteOfDay.coerceIn(0, 23 * 60 + 59)
+    val hours = clamped / 60
+    val minutes = clamped % 60
+    return "%02d%02d".format(hours, minutes)
+}
+
+private fun snapGraphMinuteToFiveMinutes(minuteOfDay: Int): Int {
+    val clampedMinute = minuteOfDay.coerceIn(0, 23 * 60 + 59)
+    return ((clampedMinute.toFloat() / 5f).roundToInt() * 5)
+        .coerceIn(0, 23 * 60 + 55)
+}
+
+private fun snapGraphValueForRange(value: Int, valueRange: IntRange): Int {
+    val step = if (valueRange.first >= 3000) 100 else 5
+    val snapped = valueRange.first +
+        (((value - valueRange.first).toFloat() / step).roundToInt() * step)
+    return snapped.coerceIn(valueRange.first, valueRange.last)
 }
 
 private fun iconIdFromDrawableResId(context: Context, drawableResId: Int): Int? {

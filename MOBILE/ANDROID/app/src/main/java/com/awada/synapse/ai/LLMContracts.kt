@@ -129,7 +129,25 @@ data class LLMActionCommand(
     @SerialName("roomNames")
     val roomNames: List<String> = emptyList(),
     @SerialName("roomCount")
-    val roomCount: Int? = null
+    val roomCount: Int? = null,
+    @SerialName("graphId")
+    val graphId: Long? = null,
+    @SerialName("objectTypeId")
+    val objectTypeId: Int? = null,
+    @SerialName("objectId")
+    val objectId: Long? = null,
+    @SerialName("changeTypeId")
+    val changeTypeId: Int? = null,
+    @SerialName("graphPoints")
+    val graphPoints: List<LLMGraphPoint> = emptyList()
+)
+
+@Serializable
+data class LLMGraphPoint(
+    @SerialName("time")
+    val time: String,
+    @SerialName("value")
+    val value: Int
 )
 
 data class LLMConversationResult(

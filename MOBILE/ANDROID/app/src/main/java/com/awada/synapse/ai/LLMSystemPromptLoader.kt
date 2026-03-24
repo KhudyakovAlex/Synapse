@@ -37,13 +37,21 @@ private val FALLBACK_SYSTEM_PROMPT = """
         "iconCategory": "controller"
       },
       "action": {
-        "type": "deleteRooms",
+        "type": "saveGraph",
         "controllerId": 1,
         "roomId": 2,
         "roomIds": [2, 3],
         "roomName": "Кухня",
         "roomNames": ["Кухня", "Спальня"],
-        "roomCount": 2
+        "roomCount": 2,
+        "graphId": 9,
+        "objectTypeId": 2,
+        "objectId": 3,
+        "changeTypeId": 1,
+        "graphPoints": [
+          { "time": "0000", "value": 10 },
+          { "time": "1830", "value": 80 }
+        ]
       }
     }
 
@@ -114,6 +122,18 @@ private val FALLBACK_SYSTEM_PROMPT = """
     - Перемещение помещения в списке означает изменение только ROOMS.GRID_POS.
     - Если нужно переместить несколько помещений, верни несколько элементов в dbPatch.updates и меняй только целевые строки.
     - Не пересчитывай GRID_POS других помещений вручную: меняй только целевую строку.
+
+    ## Создание и редактирование графиков
+    - Создание графика и полное редактирование его точек не делаются через dbPatch.
+    - Для этого используй action вида { "type": "saveGraph", "controllerId": <id>, "graphId": 9, "objectTypeId": 2, "objectId": 3, "changeTypeId": 1, "graphPoints": [{ "time": "0000", "value": 10 }, { "time": "1830", "value": 80 }] }.
+    - Для нового графика не передавай graphId.
+    - Для редактирования существующего графика обязательно передавай graphId и полный итоговый список graphPoints.
+    - objectTypeId: 1 = вся локация, 2 = помещение, 3 = группа, 4 = светильник.
+    - Для objectTypeId = 1 не передавай objectId.
+    - changeTypeId: 1 = яркость, 2 = температура.
+    - graphPoints[].time передавай в формате HHMM.
+    - Для яркости используй значения 0..100, для температуры 3000..5000.
+    - Для saveGraph не проси подтверждение в assistantText: график сохраняется сразу.
 
     ## Управление навигацией в интерфейсе
     - UI_CONTEXT_JSON содержит только текущий экран и параметры этого экрана.

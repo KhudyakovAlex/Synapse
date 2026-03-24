@@ -194,13 +194,21 @@ AI(
     "iconCategory": "controller"
   },
   "action": {
-    "type": "deleteRooms",
+    "type": "saveGraph",
     "controllerId": 1,
     "roomId": 2,
     "roomIds": [2, 3],
     "roomName": "Кухня",
     "roomNames": ["Кухня", "Спальня"],
-    "roomCount": 2
+    "roomCount": 2,
+    "graphId": 9,
+    "objectTypeId": 2,
+    "objectId": 3,
+    "changeTypeId": 1,
+    "graphPoints": [
+      { "time": "0000", "value": 10 },
+      { "time": "1830", "value": 80 }
+    ]
   }
 }
 ```
@@ -229,13 +237,14 @@ AI(
   - для `InitializeController` запускает экран инициализации контроллера по `controllerId`
 - `action`:
   - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
-  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`
+  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`, `saveGraph`
   - для `deleteLocation` приложение показывает подтверждение и после согласия удаляет локацию штатным путем
   - для `createRoom` приложение создаёт новое помещение в текущей подключённой локации; `roomName` опционален
   - для `createRooms` приложение создаёт несколько помещений за один ответ; используются `roomNames` или `roomCount`
   - при создании помещений приложение автоматически пытается подобрать `ICO_NUM` по имени комнаты; если совпадения нет, остаётся дефолтная иконка `200`
   - для `deleteRoom` приложение показывает подтверждение и после согласия удаляет помещение и переупорядочивает оставшиеся комнаты
   - для `deleteRooms` приложение показывает одно подтверждение и после согласия удаляет несколько помещений и переупорядочивает оставшиеся комнаты
+  - для `saveGraph` приложение создаёт новый график или полностью перезаписывает существующий график вместе с точками
   - для `reinitializeController` приложение показывает подтверждение и после согласия запускает экран `InitializeController` со сбросом устройств/настроек
 
 ### Fallback
