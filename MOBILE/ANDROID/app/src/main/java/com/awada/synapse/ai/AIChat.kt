@@ -1,5 +1,7 @@
 package com.awada.synapse.ai
 
+import android.content.ClipData
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -36,6 +38,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.awada.synapse.components.InputBar
+import com.awada.synapse.components.Tooltip
+import com.awada.synapse.components.TooltipResult
 import com.awada.synapse.db.AIMessageEntity
 import com.awada.synapse.db.AppDatabase
 import com.awada.synapse.logdog.Logdog
@@ -65,6 +69,16 @@ private const val LOGDOG_MAX_TEXT_CHARS = 40_000
 private fun clipForLogdog(text: String, maxChars: Int = LOGDOG_MAX_TEXT_CHARS): Pair<String, Boolean> {
     if (text.length <= maxChars) return text to false
     return text.take(maxChars) to true
+}
+
+private fun appendClipboardText(current: String, addition: String): String {
+    if (current.isBlank()) return addition
+    if (addition.isBlank()) return current
+    return if (current.last().isWhitespace() || addition.first().isWhitespace()) {
+        current + addition
+    } else {
+        "$current $addition"
+    }
 }
 
 private fun formatTime(timestampMs: Long): String {
@@ -134,6 +148,9 @@ fun AIChat(
     onActionCommand: (LLMActionCommand) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val clipboardManager = remember(context) {
+        context.getSystemService(android.content.ClipboardManager::class.java)
+    }
     val db = remember { AppDatabase.getInstance(context) }
     val dao = remember { db.aiMessageDao() }
     val scope = rememberCoroutineScope()
@@ -141,6 +158,7 @@ fun AIChat(
 
     val messages by dao.observeAll().collectAsState(initial = emptyList())
     var inputText by remember { mutableStateOf("") }
+    var pendingPasteText by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(messages.size, isSending) {
         val lastIndex = messages.lastIndex + if (isSending) 1 else 0
@@ -233,8 +251,26 @@ fun AIChat(
                         val item = messages[idx]
                         val time = formatTime(item.createdAt)
                         when (item.role) {
-                            ROLE_AI -> UIMessageAI(text = item.text, time = time)
-                            else -> UIMessageUser(text = item.text, time = time)
+                            ROLE_AI -> UIMessageAI(
+                                text = item.text,
+                                time = time,
+                                onLongClick = {
+                                    clipboardManager?.setPrimaryClip(
+                                        ClipData.newPlainText("ai_message", item.text)
+                                    )
+                                    Toast.makeText(context, "Сообщение скопировано", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                            else -> UIMessageUser(
+                                text = item.text,
+                                time = time,
+                                onLongClick = {
+                                    clipboardManager?.setPrimaryClip(
+                                        ClipData.newPlainText("user_message", item.text)
+                                    )
+                                    Toast.makeText(context, "Сообщение скопировано", Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
                     }
                     if (isSending) {
@@ -259,6 +295,19 @@ fun AIChat(
                     InputBar(
                         value = inputText,
                         onValueChange = { inputText = it },
+                        onInputLongClick = {
+                            val clipboardText = clipboardManager
+                                ?.primaryClip
+                                ?.getItemAt(0)
+                                ?.coerceToText(context)
+                                ?.toString()
+                                .orEmpty()
+                            if (clipboardText.isBlank()) {
+                                Toast.makeText(context, "Буфер обмена пуст", Toast.LENGTH_SHORT).show()
+                            } else {
+                                pendingPasteText = clipboardText
+                            }
+                        },
                         onSendClick = {
                             val text = inputText.trim()
                             if (text.isEmpty() || isSending) return@InputBar
@@ -354,6 +403,28 @@ fun AIChat(
                     )
                 }
             }
+        }
+
+        pendingPasteText?.let { clipboardText ->
+            Tooltip(
+                text = "Вставить текст из буфера обмена?",
+                primaryButtonText = "Вставить",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            inputText = appendClipboardText(inputText, clipboardText)
+                            pendingPasteText = null
+                        }
+                        TooltipResult.Secondary,
+                        TooltipResult.Dismissed,
+                        TooltipResult.Tertiary,
+                        TooltipResult.Quaternary -> {
+                            pendingPasteText = null
+                        }
+                    }
+                }
+            )
         }
     }
 }

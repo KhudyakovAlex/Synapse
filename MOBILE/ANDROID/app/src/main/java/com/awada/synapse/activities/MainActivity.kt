@@ -106,26 +106,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         LLMDebugLog.clearOnProcessStart()
         val systemPromptMd = loadSystemPrompt(applicationContext)
-        Logdog.i(
-            message = "process_start",
-            fields = mapOf(
-                "versionName" to com.awada.synapse.BuildConfig.VERSION_NAME,
-                "versionCode" to com.awada.synapse.BuildConfig.VERSION_CODE,
-                "debug" to com.awada.synapse.BuildConfig.DEBUG,
-                "systemPromptChars" to systemPromptMd.length,
-            ),
-            attachments = listOf(
-                Logdog.Attachment(
-                    kind = "md",
-                    name = "llm-system-prompt.md",
-                    content = systemPromptMd
-                )
-            )
-        )
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(PixsoColors.Color_Bg_bg_elevated.toArgb())
         )
         lifecycleScope.launch {
+            val appInstanceId = Logdog.ensureSessionAppInstanceId()
+            LLMDebugLog.log("App instance id: $appInstanceId")
+            Logdog.i(
+                message = "process_start",
+                fields = mapOf(
+                    "versionName" to com.awada.synapse.BuildConfig.VERSION_NAME,
+                    "versionCode" to com.awada.synapse.BuildConfig.VERSION_CODE,
+                    "debug" to com.awada.synapse.BuildConfig.DEBUG,
+                    "systemPromptChars" to systemPromptMd.length,
+                ),
+                attachments = listOf(
+                    Logdog.Attachment(
+                        kind = "md",
+                        name = "llm-system-prompt.md",
+                        content = systemPromptMd
+                    )
+                )
+            )
             if (savedInstanceState == null) {
                 AppDatabase.getInstance(applicationContext).aiMessageDao().clear()
             }

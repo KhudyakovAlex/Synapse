@@ -35,6 +35,7 @@ object OllamaClient {
     private data class ChatRequest(
         @SerialName("model") val model: String,
         @SerialName("messages") val messages: List<LLMChatMessage>,
+        @SerialName("think") val think: Boolean? = null,
         @SerialName("stream") val stream: Boolean,
         @SerialName("format") val format: String? = null,
         @SerialName("options") val options: ChatOptions? = null
@@ -60,6 +61,7 @@ object OllamaClient {
             ChatRequest(
                 model = MODEL,
                 messages = messages,
+                think = false,
                 stream = false,
                 format = if (requireJson) "json" else null,
                 options = ChatOptions(temperature = TEMPERATURE)

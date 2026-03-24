@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -55,9 +56,11 @@ private val TIME_PADDING_TOP = 4.dp
 fun UIMessageAI(
     modifier: Modifier = Modifier,
     text: String,
-    time: String = ""
+    time: String = "",
+    onLongClick: (() -> Unit)? = null,
 ) {
     val bubbleShape = aiBubbleShape()
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = modifier
@@ -73,6 +76,7 @@ fun UIMessageAI(
         Column(
             modifier = Modifier
                 .widthIn(max = BUBBLE_MAX_WIDTH)
+                .clip(bubbleShape)
                 .background(
                     color = PixsoColors.Color_Bg_bg_surface,
                     shape = bubbleShape
@@ -81,6 +85,18 @@ fun UIMessageAI(
                     width = 1.dp,
                     color = PixsoColors.Color_Border_border_shade_8,
                     shape = bubbleShape
+                )
+                .then(
+                    if (onLongClick != null) {
+                        Modifier.combinedClickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = {},
+                            onLongClick = onLongClick,
+                        )
+                    } else {
+                        Modifier
+                    }
                 )
                 .padding(
                     horizontal = BUBBLE_PADDING_HORIZONTAL,
@@ -161,7 +177,8 @@ fun UIMessageAILoading(
 fun UIMessageUser(
     modifier: Modifier = Modifier,
     text: String,
-    time: String = ""
+    time: String = "",
+    onLongClick: (() -> Unit)? = null,
 ) {
     val bubbleShape = RoundedCornerShape(
         topStart = PixsoDimens.Radius_Radius_S,
@@ -169,6 +186,7 @@ fun UIMessageUser(
         bottomStart = PixsoDimens.Radius_Radius_S,
         bottomEnd = PixsoDimens.Radius_Radius_None
     )
+    val interactionSource = remember { MutableInteractionSource() }
     
     Box(
         modifier = modifier
@@ -184,9 +202,22 @@ fun UIMessageUser(
         Column(
             modifier = Modifier
                 .widthIn(max = BUBBLE_MAX_WIDTH)
+                .clip(bubbleShape)
                 .background(
                     color = PixsoColors.Color_Bg_bg_primary_light,
                     shape = bubbleShape
+                )
+                .then(
+                    if (onLongClick != null) {
+                        Modifier.combinedClickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = {},
+                            onLongClick = onLongClick,
+                        )
+                    } else {
+                        Modifier
+                    }
                 )
                 .padding(
                     horizontal = BUBBLE_PADDING_HORIZONTAL,

@@ -10,11 +10,17 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.security.SecureRandom
 
 object Logdog {
     private const val TAG = "Logdog"
+    private const val APP_INSTANCE_ID_LENGTH = 10
+    private const val APP_INSTANCE_ID_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     private val client = OkHttpClient()
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
+    private val secureRandom = SecureRandom()
+    @Volatile
+    private var appInstanceId: String? = null
 
     private fun boolField(name: String, default: Boolean): Boolean =
         runCatching { BuildConfig::class.java.getField(name).getBoolean(null) }.getOrDefault(default)
@@ -30,6 +36,20 @@ object Logdog {
         val name: String,
         val content: String
     )
+
+    fun ensureSessionAppInstanceId(): String {
+        appInstanceId?.let { return it }
+        synchronized(this) {
+            appInstanceId?.let { return it }
+            val created = buildString(APP_INSTANCE_ID_LENGTH) {
+                repeat(APP_INSTANCE_ID_LENGTH) {
+                    append(APP_INSTANCE_ID_ALPHABET[secureRandom.nextInt(APP_INSTANCE_ID_ALPHABET.length)])
+                }
+            }
+            appInstanceId = created
+            return created
+        }
+    }
 
     fun d(
         message: String,
@@ -73,7 +93,10 @@ object Logdog {
         if (host.isBlank()) return
 
         val port = intField("LOGDOG_PORT", default = 3000)
-        val app = stringField("LOGDOG_APP", default = "synapse-android")
+        val baseApp = stringField("LOGDOG_APP", default = "synapse-android")
+        val sessionAppInstanceId = ensureSessionAppInstanceId()
+        val app = "$baseApp-$sessionAppInstanceId"
+        val effectiveFields = fields + ("appInstanceId" to sessionAppInstanceId)
 
         val url = "http://$host:$port/logs"
         val bodyJson = JSONObject().apply {
@@ -81,7 +104,7 @@ object Logdog {
             put("app", app)
             put("message", message)
             traceId?.let { put("traceId", it) }
-            if (fields.isNotEmpty()) put("fields", JSONObject(fields))
+            if (effectiveFields.isNotEmpty()) put("fields", JSONObject(effectiveFields))
             if (attachments.isNotEmpty()) {
                 put(
                     "attachments",

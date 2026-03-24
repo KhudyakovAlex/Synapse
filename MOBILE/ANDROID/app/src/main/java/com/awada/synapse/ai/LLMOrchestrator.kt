@@ -11,6 +11,17 @@ import kotlinx.serialization.json.Json
 
 private const val ROLE_USER = "USER"
 private const val ROLE_AI = "AI"
+private val INTERNAL_ENTITY_NUMBER_PATTERNS = listOf(
+    Regex(
+        """(?iu)\b(?:график|локация|локации|контроллер|контроллера|помещение|помещения|комната|комнаты|группа|группы|светильник|светильника|сценарий|сценария|событие|события)\s*№\s*\d+\b"""
+    ),
+    Regex(
+        """(?iu)\b(?:id|controllerId|roomId|groupId|luminaireId|buttonPanelId|scenarioId|graphId|eventId)\s*[:=]?\s*\d+\b"""
+    ),
+    Regex(
+        """(?iu)\(\s*(?:график|локация|контроллер|помещение|комната|группа|светильник|сценарий|событие)\s*№\s*\d+\s*\)"""
+    )
+)
 private val SUPPORTED_ACTION_TYPES = setOf(
     "deleteLocation",
     "reinitializeController",
@@ -171,14 +182,61 @@ object LLMOrchestrator {
             .removePrefix("```")
             .removeSuffix("```")
             .trim()
-        return try {
-            json.decodeFromString<LLMStructuredReply>(normalized)
-        } catch (t: Throwable) {
-            LLMDebugLog.log(
-                "LLM orchestrator: parse failure type=${t::class.java.simpleName} msg=${t.message ?: "null"}"
-            )
-            LLMStructuredReply(assistantText = rawReply.trim())
+        val candidates = buildList {
+            if (normalized.isNotBlank()) add(normalized)
+            extractFirstJsonObject(normalized)
+                ?.takeIf { it != normalized }
+                ?.let(::add)
         }
+        candidates.forEach { candidate ->
+            runCatching { json.decodeFromString<LLMStructuredReply>(candidate) }
+                .onSuccess { return it }
+        }
+        val fallbackText = if (extractFirstJsonObject(normalized) != null) {
+            "Не удалось разобрать ответ LLM."
+        } else {
+            "Не удалось получить корректный ответ от LLM."
+        }
+        LLMDebugLog.log(
+            "LLM orchestrator: parse failure rawPreview=\"${
+                normalized.replace("\r", "").replace("\n", "\\n").take(200)
+            }\""
+        )
+        return LLMStructuredReply(assistantText = fallbackText)
+    }
+
+    private fun extractFirstJsonObject(text: String): String? {
+        var start = -1
+        var depth = 0
+        var inString = false
+        var isEscaped = false
+        text.forEachIndexed { index, ch ->
+            if (inString) {
+                if (isEscaped) {
+                    isEscaped = false
+                } else if (ch == '\\') {
+                    isEscaped = true
+                } else if (ch == '"') {
+                    inString = false
+                }
+                return@forEachIndexed
+            }
+            when (ch) {
+                '"' -> inString = true
+                '{' -> {
+                    if (depth == 0) start = index
+                    depth += 1
+                }
+                '}' -> {
+                    if (depth == 0) return@forEachIndexed
+                    depth -= 1
+                    if (depth == 0 && start >= 0) {
+                        return text.substring(start, index + 1)
+                    }
+                }
+            }
+        }
+        return null
     }
 
     private fun normalizeStructuredReply(reply: LLMStructuredReply): LLMStructuredReply {
@@ -187,7 +245,7 @@ object LLMOrchestrator {
         val hasNavigation = reply.navigation != null
         val hasAction = normalizedAction != null
         val hasEffect = hasDbPatch || hasNavigation || hasAction
-        val assistantText = reply.assistantText.trim()
+        val assistantText = sanitizeAssistantText(reply.assistantText)
         val normalizedAssistantText = when {
             assistantText.isBlank() && hasEffect -> "Готово."
             !hasEffect && reply.action != null -> unsupportedRequestText()
@@ -199,6 +257,19 @@ object LLMOrchestrator {
             assistantText = normalizedAssistantText,
             action = normalizedAction
         )
+    }
+
+    private fun sanitizeAssistantText(text: String): String {
+        var sanitized = text.trim()
+        INTERNAL_ENTITY_NUMBER_PATTERNS.forEach { pattern ->
+            sanitized = sanitized.replace(pattern, "")
+        }
+        return sanitized
+            .replace(Regex("""\(\s*\)"""), "")
+            .replace(Regex("""\s{2,}"""), " ")
+            .replace(Regex("""\s+([,.;:!?])"""), "$1")
+            .replace(Regex("""([,.;:!?]){2,}"""), "$1")
+            .trim()
     }
 
     private fun looksLikeEffectOrConfirmationText(text: String): Boolean {

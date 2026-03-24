@@ -3,6 +3,9 @@ package com.awada.synapse.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -23,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +45,7 @@ fun InputBar(
     modifier: Modifier = Modifier,
     value: String = "",
     onValueChange: (String) -> Unit = {},
+    onInputLongClick: (() -> Unit)? = null,
     onSendClick: () -> Unit = {}
 ) {
     val hasText = value.isNotEmpty()
@@ -67,7 +72,17 @@ fun InputBar(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp, end = 4.dp),
+                    .padding(start = 16.dp, end = 4.dp)
+                    .pointerInput(onInputLongClick) {
+                        if (onInputLongClick == null) return@pointerInput
+
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                            down.consume()
+                            onInputLongClick()
+                        }
+                    },
                 contentAlignment = Alignment.CenterStart
             ) {
                 // Placeholder

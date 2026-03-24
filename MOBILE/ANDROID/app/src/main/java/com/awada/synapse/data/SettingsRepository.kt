@@ -16,12 +16,11 @@ object SettingsKeys {
 }
 
 class SettingsRepository(private val context: Context) {
-    
     val isAIEnabled: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[SettingsKeys.AI_ENABLED] ?: true // default: enabled
         }
-    
+
     suspend fun setAIEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[SettingsKeys.AI_ENABLED] = enabled
