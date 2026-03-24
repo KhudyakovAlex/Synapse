@@ -37,13 +37,17 @@ private val FALLBACK_SYSTEM_PROMPT = """
         "iconCategory": "controller"
       },
       "action": {
-        "type": "saveLuminaireScene",
+        "type": "saveScheduleEvent",
         "controllerId": 1,
         "roomId": 2,
         "roomIds": [2, 3],
         "roomName": "Кухня",
         "roomNames": ["Кухня", "Спальня"],
         "roomCount": 2,
+        "eventId": 10,
+        "time": "1930",
+        "daysMask": "TTTTTFF",
+        "scenarioId": 8,
         "graphId": 9,
         "objectTypeId": 2,
         "objectId": 3,
@@ -147,6 +151,17 @@ private val FALLBACK_SYSTEM_PROMPT = """
     - sceneNum должен быть в диапазоне 0..4.
     - Для обычного светильника передавай bright, для TW - bright и temperature, для RGB - bright, saturation и hue.
     - Для saveLuminaireScene не проси подтверждение в assistantText: сцена сохраняется сразу.
+
+    ## Расписание
+    - Для создания и редактирования пункта расписания используй action вида { "type": "saveScheduleEvent", "controllerId": <id>, "eventId": 10, "time": "1930", "daysMask": "TTTTTFF", "scenarioId": 8 }.
+    - Для нового пункта не передавай eventId.
+    - Для редактирования существующего пункта передавай eventId.
+    - time передавай в формате HHMM.
+    - daysMask передавай строкой из 7 символов T/F, с понедельника по воскресенье.
+    - Если сценарий не выбран, передавай scenarioId = -1.
+    - Для saveScheduleEvent не проси подтверждение в assistantText: пункт расписания сохраняется сразу.
+    - Для удаления пункта расписания используй action вида { "type": "deleteScheduleEvent", "controllerId": <id>, "eventId": 10 }.
+    - Для deleteScheduleEvent в assistantText явно проси подтверждение удаления пункта расписания.
 
     ## Управление навигацией в интерфейсе
     - UI_CONTEXT_JSON содержит только текущий экран и параметры этого экрана.

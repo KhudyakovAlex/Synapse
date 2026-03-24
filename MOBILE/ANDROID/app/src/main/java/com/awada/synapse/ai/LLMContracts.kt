@@ -130,6 +130,14 @@ data class LLMActionCommand(
     val roomNames: List<String> = emptyList(),
     @SerialName("roomCount")
     val roomCount: Int? = null,
+    @SerialName("eventId")
+    val eventId: Long? = null,
+    @SerialName("time")
+    val time: String? = null,
+    @SerialName("daysMask")
+    val daysMask: String? = null,
+    @SerialName("scenarioId")
+    val scenarioId: Long? = null,
     @SerialName("graphId")
     val graphId: Long? = null,
     @SerialName("objectTypeId")

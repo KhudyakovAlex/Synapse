@@ -194,13 +194,17 @@ AI(
     "iconCategory": "controller"
   },
   "action": {
-    "type": "saveLuminaireScene",
+    "type": "saveScheduleEvent",
     "controllerId": 1,
     "roomId": 2,
     "roomIds": [2, 3],
     "roomName": "Кухня",
     "roomNames": ["Кухня", "Спальня"],
     "roomCount": 2,
+    "eventId": 10,
+    "time": "1930",
+    "daysMask": "TTTTTFF",
+    "scenarioId": 8,
     "graphId": 9,
     "objectTypeId": 2,
     "objectId": 3,
@@ -242,7 +246,7 @@ AI(
   - для `InitializeController` запускает экран инициализации контроллера по `controllerId`
 - `action`:
   - используется для отдельных UI-действий, которые нельзя выразить через `dbPatch`
-  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`, `saveGraph`, `saveLuminaireScene`
+  - сейчас поддерживаются `deleteLocation`, `reinitializeController`, `createRoom`, `createRooms`, `deleteRoom`, `deleteRooms`, `saveGraph`, `saveLuminaireScene`, `saveScheduleEvent`, `deleteScheduleEvent`
   - для `deleteLocation` приложение показывает подтверждение и после согласия удаляет локацию штатным путем
   - для `createRoom` приложение создаёт новое помещение в текущей подключённой локации; `roomName` опционален
   - для `createRooms` приложение создаёт несколько помещений за один ответ; используются `roomNames` или `roomCount`
@@ -251,6 +255,8 @@ AI(
   - для `deleteRooms` приложение показывает одно подтверждение и после согласия удаляет несколько помещений и переупорядочивает оставшиеся комнаты
   - для `saveGraph` приложение создаёт новый график или полностью перезаписывает существующий график вместе с точками
   - для `saveLuminaireScene` приложение создаёт или обновляет записи в `LUMINAIRE_SCENES` для выбранной сцены и набора светильников
+  - для `saveScheduleEvent` приложение создаёт новый пункт расписания или обновляет существующий пункт
+  - для `deleteScheduleEvent` приложение показывает подтверждение и после согласия удаляет пункт расписания
   - для `reinitializeController` приложение показывает подтверждение и после согласия запускает экран `InitializeController` со сбросом устройств/настроек
 
 ### Fallback

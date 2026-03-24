@@ -241,6 +241,7 @@ private fun MainContent() {
     var pendingDeleteRoomControllerId by remember { mutableStateOf<Int?>(null) }
     var pendingDeleteRoomIds by remember { mutableStateOf<List<Int>>(emptyList()) }
     var pendingDeleteRoomTitles by remember { mutableStateOf<List<String>>(emptyList()) }
+    var pendingDeleteScheduleEventId by remember { mutableStateOf<Long?>(null) }
     var pendingReinitializeControllerId by remember { mutableStateOf<Int?>(null) }
     var pendingReinitializeControllerTitle by remember { mutableStateOf<String?>(null) }
     // For vertical centering between AppBar (top) and LumControlLayer (bottom)
@@ -520,6 +521,56 @@ private fun MainContent() {
             db.luminaireSceneDao().upsert(entity)
         }
         return true
+    }
+    suspend fun saveScheduleEventFromLlm(
+        controllerId: Int,
+        eventId: Long?,
+        time: String?,
+        daysMask: String?,
+        scenarioId: Long?
+    ): Long? {
+        val resolvedTime = com.awada.synapse.pages.ScheduleEventFormatter.sanitizeTimeDigits(time)
+        val resolvedDays = com.awada.synapse.pages.ScheduleEventFormatter.buildDaysMask(
+            com.awada.synapse.pages.ScheduleEventFormatter.parseDaysMask(daysMask)
+        )
+        val resolvedScenarioId = scenarioId ?: com.awada.synapse.db.EventEntity.NO_SCENARIO_ID
+
+        if (resolvedScenarioId != com.awada.synapse.db.EventEntity.NO_SCENARIO_ID) {
+            val scenario = db.scenarioDao().getById(resolvedScenarioId) ?: return null
+            if (scenario.controllerId != controllerId) return null
+        }
+
+        return if (eventId == null) {
+            db.eventDao().insert(
+                com.awada.synapse.db.EventEntity(
+                    controllerId = controllerId,
+                    days = resolvedDays,
+                    time = resolvedTime,
+                    scenarioId = resolvedScenarioId
+                )
+            )
+        } else {
+            val current = db.eventDao().getById(eventId) ?: return null
+            if (current.controllerId != controllerId) return null
+            db.eventDao().update(
+                current.copy(
+                    days = resolvedDays,
+                    time = resolvedTime,
+                    scenarioId = resolvedScenarioId
+                )
+            )
+            eventId
+        }
+    }
+    suspend fun deleteScheduleEventById(eventId: Long) {
+        db.eventDao().deleteById(eventId)
+        pendingDeleteScheduleEventId = null
+        if (selectedEventId == eventId) {
+            selectedEventId = null
+            if (currentScreen == AppScreen.SchedulePoint) {
+                currentScreen = AppScreen.Schedule
+            }
+        }
     }
     suspend fun hasAnyControllerDevices(controllerId: Int): Boolean {
         return db.luminaireDao().observeCountForController(controllerId).first() +
@@ -1883,6 +1934,34 @@ private fun MainContent() {
                                 Toast.makeText(context, "Не удалось сохранить сцену", Toast.LENGTH_SHORT).show()
                             }
                         }
+                        "saveScheduleEvent" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val savedEventId = saveScheduleEventFromLlm(
+                                controllerId = controllerId,
+                                eventId = action.eventId,
+                                time = action.time,
+                                daysMask = action.daysMask,
+                                scenarioId = action.scenarioId
+                            )
+                            if (savedEventId == null) {
+                                Toast.makeText(context, "Не удалось сохранить пункт расписания", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        "deleteScheduleEvent" -> {
+                            val controllerId = action.controllerId ?: return@launch
+                            val eventId = action.eventId ?: return@launch
+                            if (!isControllerConnected(controllerId)) {
+                                Toast.makeText(context, "Сначала подключитесь к контроллеру этой локации", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+                            val event = db.eventDao().getById(eventId) ?: return@launch
+                            if (event.controllerId != controllerId) return@launch
+                            pendingDeleteScheduleEventId = eventId
+                        }
                         "reinitializeController" -> {
                             val controllerId = action.controllerId ?: return@launch
                             val controller = db.controllerDao().getById(controllerId) ?: return@launch
@@ -1987,6 +2066,26 @@ private fun MainContent() {
                             pendingDeleteRoomControllerId = null
                             pendingDeleteRoomIds = emptyList()
                             pendingDeleteRoomTitles = emptyList()
+                        }
+                    }
+                }
+            )
+        }
+        if (pendingDeleteScheduleEventId != null) {
+            Tooltip(
+                text = "Удалить пункт расписания?",
+                primaryButtonText = "Удалить",
+                secondaryButtonText = "Отмена",
+                onResult = { result ->
+                    when (result) {
+                        TooltipResult.Primary -> {
+                            val eventId = pendingDeleteScheduleEventId ?: return@Tooltip
+                            scope.launch {
+                                deleteScheduleEventById(eventId)
+                            }
+                        }
+                        TooltipResult.Secondary, TooltipResult.Dismissed, TooltipResult.Tertiary, TooltipResult.Quaternary -> {
+                            pendingDeleteScheduleEventId = null
                         }
                     }
                 }
